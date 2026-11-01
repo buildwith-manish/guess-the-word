@@ -183,7 +183,7 @@ const SceneB: React.FC<{ frame: number }> = ({ frame }) => {
 export const Hook: React.FC<{ frame: number }> = ({ frame }) => {
   const inP = prog(frame, 0, 4, linear);
   return (
-    <AbsoluteFill style={{ opacity: inP }}>
+    <AbsoluteFill style={{ opacity: inP, color: '#fff' }}>
       <AbsoluteFill
         style={{
           background:
