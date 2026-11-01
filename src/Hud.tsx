@@ -1,18 +1,22 @@
 import React from 'react';
 import { COLORS, FONTS, S, px } from './style';
-import { prog } from './anim';
+import { prog, htmlEase } from './anim';
 import { backOut } from './gsap-helpers';
 
-/** "Q 1 /50" pill (top-left) plus the bonus-erases counter under it. */
+/** "Q 1 /50" pill (top-left) plus the persistent BONUS ERASES badge under it. */
 export const Hud: React.FC<{
   label: string;
   number: number | string;
   total: number;
+  /** bonus rounds finished so far; the badge is hidden at 0 */
   erases: number;
+  /** frame at which the badge slides in with its newest count (omit = already on screen) */
+  eraseAt?: number;
   frame: number;
-}> = ({ label, number, total, erases, frame }) => {
+}> = ({ label, number, total, erases, eraseAt, frame }) => {
   const pop = prog(frame, 0, 20, backOut);
-  const eraseIn = prog(frame, 0, 22, backOut);
+  // HTML: the badge slides in over 500 ms (translateX -30 -> 0) every time the count goes up
+  const eraseIn = eraseAt === undefined || frame < eraseAt ? 1 : prog(frame, eraseAt, 15, htmlEase);
 
   return (
     <>

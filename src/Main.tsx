@@ -40,7 +40,7 @@ const Scenes: React.FC = () => {
     case 'question':
       return (
         <AbsoluteFill>
-          <Round frame={local} index={seg.index} />
+          <Round frame={local} index={seg.index} erases={seg.erases} />
         </AbsoluteFill>
       );
     case 'bonus':

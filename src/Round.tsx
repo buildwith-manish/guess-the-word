@@ -20,7 +20,11 @@ const CONFETTI = makeConfetti(7, 26, { x: 960, y: 620 });
  *   and 1/3 of the time left -> the rest flip at the end
  *   -> answer card stamps in with confetti -> optional fact card
  */
-export const Round: React.FC<{ frame: number; index: number }> = ({ frame, index }) => {
+export const Round: React.FC<{ frame: number; index: number; erases?: number }> = ({
+  frame,
+  index,
+  erases = 0,
+}) => {
   const q = QUESTIONS[index];
   const levelIndex = Math.max(0, settings.levels.findIndex((l) => l.name === q.level));
   const plan = buildQuestionPlan(q, levelIndex, index === 0);
@@ -50,7 +54,7 @@ export const Round: React.FC<{ frame: number; index: number }> = ({ frame, index
   return (
     <>
       <Background frame={frame} theme={theme} />
-      <Hud label="Q" number={index + 1} total={TOTAL} erases={0} frame={frame} />
+      <Hud label="Q" number={index + 1} total={TOTAL} erases={erases} frame={frame} />
       <Watermark frame={index === 0 ? frame : frame + 999} />
       {index === 0 ? <TitleLockup frame={frame} exitAt={plan.stamp} /> : null}
 

@@ -5,7 +5,7 @@
  */
 import settings from '../settings.json';
 import rounds from './rounds.json';
-import type { LevelCfg, Question, Segment, Timeline } from './types';
+import type { Hud, LevelCfg, Question, Segment, Timeline } from './types';
 import { buildBonusPuzzles, type BonusPuzzle } from './bonus-engine';
 
 export const FPS = settings.fps;
@@ -145,7 +145,7 @@ const buildTimeline = (puzzles: BonusPuzzle[] = PUZZLES): Timeline => {
   const pushIris = (
     fromTheme: [string, string],
     toTheme: [string, string],
-    hud: { label: string; number: number; total: number },
+    hud: Hud,
     watermark: boolean,
   ) =>
     push({
@@ -162,6 +162,8 @@ const buildTimeline = (puzzles: BonusPuzzle[] = PUZZLES): Timeline => {
 
   const seenLevels = new Set<number>();
   let withTitle = true;
+  /** bonus rounds finished so far = the number on the BONUS ERASES badge */
+  let erases = 0;
 
   QUESTIONS.forEach((q, i) => {
     const levelIndex = levelIndexOf(q);
@@ -177,12 +179,12 @@ const buildTimeline = (puzzles: BonusPuzzle[] = PUZZLES): Timeline => {
 
     const plan = buildQuestionPlan(q, levelIndex, withTitle);
     withTitle = false;
-    push({ kind: 'question', from: cursor, duration: plan.duration, index: i });
+    push({ kind: 'question', from: cursor, duration: plan.duration, index: i, erases });
 
     const bonusIndex = settings.bonus.after.indexOf(i + 1);
     const puzzle = puzzles[bonusIndex];
     const isLast = i === QUESTIONS.length - 1;
-    const qHud = { label: 'Q', number: i + 1, total: TOTAL };
+    const qHud: Hud = { label: 'Q', number: i + 1, total: TOTAL, erases };
     // "Still counting? ❌" pop-up after Q10 / Q25 / Q40 (settings.reminder.after)
     if (settings.reminder.after.includes(i + 1)) {
       push({
@@ -197,11 +199,12 @@ const buildTimeline = (puzzles: BonusPuzzle[] = PUZZLES): Timeline => {
       // question -> orange bonus backdrop -> (next question's theme, unless the video is over)
       pushIris(themeForQuestion(i), BONUS_THEME, qHud, true);
       push({ kind: 'bonus', from: cursor, duration: bonusDuration(puzzle), index: bonusIndex, puzzle });
+      erases += 1; // the badge counts this round from its reveal onwards
       if (!isLast) {
         pushIris(
           BONUS_THEME,
           themeForQuestion(i + 1),
-          { label: 'BONUS', number: bonusIndex + 1, total: settings.bonus.after.length },
+          { label: 'BONUS', number: bonusIndex + 1, total: settings.bonus.after.length, erases },
           false,
         );
       }

@@ -43,6 +43,8 @@ export const Bonus: React.FC<{ frame: number; puzzle: BonusPuzzle; index: number
   const confetti = makeConfetti(index + 31, 34, { x: 960, y: 560 });
   const answerIn = prog(frame, revealAt + B.answerChipDelayFrames, 16, backOut);
   const chipIn = prog(frame, revealAt + 26, 16, backOut);
+  // HTML: "BONUS ERASES: n" slides in with the erase chip (900 ms after the reveal)
+  const eraseAt = revealAt + 26;
 
   return (
     <>
@@ -51,7 +53,8 @@ export const Bonus: React.FC<{ frame: number; puzzle: BonusPuzzle; index: number
         label="BONUS"
         number={index + 1}
         total={B.after.length}
-        erases={index}
+        erases={frame >= eraseAt ? index + 1 : index}
+        eraseAt={eraseAt}
         frame={frame}
       />
 

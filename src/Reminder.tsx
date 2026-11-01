@@ -26,7 +26,13 @@ export const Reminder: React.FC<{ frame: number; seg: ReminderSegment }> = ({ fr
   return (
     <AbsoluteFill>
       <Background frame={frame} theme={seg.theme} />
-      <Hud label={seg.hud.label} number={seg.hud.number} total={seg.hud.total} erases={0} frame={999} />
+      <Hud
+        label={seg.hud.label}
+        number={seg.hud.number}
+        total={seg.hud.total}
+        erases={seg.hud.erases}
+        frame={999}
+      />
       <Watermark frame={999} />
       <div
         style={{

@@ -19,7 +19,13 @@ export const Iris: React.FC<{ frame: number; seg: IrisSegment }> = ({ frame, seg
   return (
     <AbsoluteFill>
       <Background frame={frame} theme={seg.fromTheme} iris={{ theme: seg.toTheme, p }} />
-      <Hud label={seg.hud.label} number={seg.hud.number} total={seg.hud.total} erases={0} frame={999} />
+      <Hud
+        label={seg.hud.label}
+        number={seg.hud.number}
+        total={seg.hud.total}
+        erases={seg.hud.erases}
+        frame={999}
+      />
       {seg.watermark ? <Watermark frame={999} /> : null}
     </AbsoluteFill>
   );
