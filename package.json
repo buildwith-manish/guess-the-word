@@ -13,6 +13,7 @@
     "render:lanes": "node scripts/render-batches.js --size 900",
     "still": "remotion still GuessTheWord out/still.png --frame=700",
     "data": "node scripts/csv-to-json.js",
+    "sounds": "node scripts/generate-audio.js",
     "images": "node scripts/fetch-images.js",
     "images:resize": "node scripts/resize-images.js",
     "images:refetch": "node scripts/refetch-broken.js",

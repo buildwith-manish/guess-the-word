@@ -120,8 +120,26 @@ A question shows a photo only if its id is listed in `src/image-manifest.json`.
 
 ## Sound
 
-`public/sounds/` is wired but empty; `settings.json → sound.enabled` is `false`.
-Drop your files there, flip the flag, and add `<Audio>` where you want it.
+The reference HTML makes all of its sound live with WebAudio. A rendered video
+can't do that, so `scripts/generate-audio.js` ports the same synth to WAV files:
+
+```bash
+npm run sounds      # -> public/sounds/*.wav + src/sound-manifest.json (deterministic)
+```
+
+* **SFX** — whooshes, pops, timer ticks, free-letter chimes, letter flips,
+  answer stamp + arpeggio, boom hits, heartbeat, siren, drumroll, jingles.
+* **Music** — a 112.5 BPM loop in three phase-locked layers (`music-base`,
+  `music-l1`, `music-l2`), each exactly 256 frames, so it loops without drift.
+  Layers fade in as the quiz gets busier (the HTML's `[0,1,1,2,2]` ramp, spread
+  over however many questions there are) and duck under every SFX.
+* **Wiring** — `src/sound.ts` turns the timeline into frame-accurate cues,
+  `src/Soundtrack.tsx` mounts them as `<Sequence><Audio/></Sequence>` pairs, so
+  chunked renders (`render-batches.js`) stay deterministic.
+* **Settings** — `settings.json → sound`: `enabled`, `sfxGain`, `musicGain`
+  (baked into the WAVs; re-run `npm run sounds` after changing them).
+  Want your own sounds instead? Overwrite the files in `public/sounds/` with the
+  same names.
 
 ---
 
@@ -136,7 +154,7 @@ guess-the-word/
 ├── rounds.csv                  # the 50 questions (source of truth)
 ├── public/
 │   ├── fonts/                  # Anton, Poppins 600/800, JetBrains Mono, Noto Color Emoji (OFL)
-│   ├── sounds/                 # optional SFX (disabled by default)
+│   ├── sounds/                 # generated SFX + music loops (npm run sounds)
 │   └── images/                 # qNN.jpg 1280x720 (generated, git-ignored)
 ├── scripts/
 │   ├── csv-to-json.js          # rounds.csv -> src/rounds.json (validates)
@@ -201,5 +219,5 @@ seeded).
   emoji face, so a render never depends on the machine's installed fonts.
 * All copy — hook headlines, chips, scoreboard, end screen — lives in
   `settings.json`, so you can re-skin the video without touching a component.
-* The reference HTML's WebAudio score is intentionally not ported: Remotion
-  mixes audio from files, not oscillators. `public/sounds/` is the hook.
+* The reference HTML's WebAudio score is rendered to WAV files by
+  `scripts/generate-audio.js` (Remotion mixes audio from files, not oscillators).

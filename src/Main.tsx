@@ -7,6 +7,7 @@ import { LevelCard } from './LevelCard';
 import { Bonus } from './BonusRound';
 import { Scoreboard } from './Scoreboard';
 import { EndScreen } from './EndScreen';
+import { Soundtrack } from './Soundtrack';
 
 /**
  * Composition root: it only decides WHICH scene is on screen.
@@ -15,7 +16,7 @@ import { EndScreen } from './EndScreen';
  * being mounted for a particular number of frames — Remotion can therefore
  * render any frame range in any order (see scripts/render-batches.js).
  */
-export const Main: React.FC = () => {
+const Scenes: React.FC = () => {
   const frame = useCurrentFrame();
   const { seg, local } = locate(TIMELINE.segments, frame);
 
@@ -62,3 +63,11 @@ export const Main: React.FC = () => {
       return <AbsoluteFill style={{ background: '#000' }} />;
   }
 };
+
+/** Scenes + the audio plan (src/sound.ts). Sound is mixed from files in public/sounds. */
+export const Main: React.FC = () => (
+  <>
+    <Scenes />
+    <Soundtrack />
+  </>
+);

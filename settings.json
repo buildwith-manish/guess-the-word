@@ -174,7 +174,9 @@
     ]
   },
   "sound": {
-    "enabled": false,
-    "dir": "public/sounds"
+    "enabled": true,
+    "dir": "public/sounds",
+    "sfxGain": 3,
+    "musicGain": 2.5
   }
 }
