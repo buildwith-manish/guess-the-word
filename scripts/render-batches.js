@@ -13,6 +13,11 @@
  *   node scripts/render-batches.js --concat        # only remux the finished chunks
  *   node scripts/render-batches.js --clean         # wipe out/batches + progress file
  *   node scripts/render-batches.js --force         # ignore existing chunks
+ *   node scripts/render-batches.js --lane          # ONE full render (no chunking)
+ *                                                  # Remotion already parallelises
+ *                                                  # internally; --lane is the
+ *                                                  # simple path, --size/--only are
+ *                                                  # the chunked one
  *
  * Extra flags are forwarded to `remotion render` (e.g. --concurrency=4).
  */
@@ -37,10 +42,10 @@ const valueOf = (flag, fallback) => {
 
 const SIZE = Math.max(30, Number(valueOf('--size', 900)));
 const ONLY = valueOf('--only', null);
+// our own flags never reach `remotion render`
+const OUR_FLAGS = ['--size', '--only', '--concat', '--clean', '--force', '--lane', '--help'];
 const FORWARD = argv.filter(
-  (a, i) =>
-    !['--size', '--only', '--concat', '--clean', '--force', '--help'].includes(a) &&
-    !(i > 0 && ['--size', '--only'].includes(argv[i - 1])),
+  (a, i) => !OUR_FLAGS.includes(a) && !(i > 0 && ['--size', '--only'].includes(argv[i - 1])),
 );
 
 const readJson = (file, fallback) => {
@@ -64,27 +69,21 @@ const remotion = () =>
   process.platform === 'win32' ? 'npx.cmd' : 'npx';
 
 /**
- * Composition length, in order of preference:
- *   $TOTAL_FRAMES -> out/timeline.json -> the real timeline module.
- * It is written to out/timeline.json the first time so a resumed run does not
- * have to rebuild the bundle just to count frames.
+ * Composition length: $TOTAL_FRAMES (handy for smoke tests) or the real
+ * timeline module, which is the same maths the video renders from — so the
+ * chunk boundaries can never drift away from the composition.
  */
 const getTotalFrames = () => {
   if (process.env.TOTAL_FRAMES) return Number(process.env.TOTAL_FRAMES);
-  const cached = readJson(path.join(OUT, 'timeline.json'), null);
-  if (cached?.totalFrames) return cached.totalFrames;
   try {
     const json = execFileSync(process.execPath, [path.join(__dirname, 'timeline.js'), '--json'], {
       cwd: ROOT,
       encoding: 'utf8',
     });
-    const timeline = JSON.parse(json);
-    fs.mkdirSync(OUT, { recursive: true });
-    fs.writeFileSync(path.join(OUT, 'timeline.json'), JSON.stringify(timeline));
-    return timeline.totalFrames;
+    return JSON.parse(json).totalFrames;
   } catch (err) {
     throw new Error(
-      `Could not determine the composition length (${err.message}). Run \`node scripts/timeline.js\` first.`,
+      `Could not determine the composition length (${err.message}). Run \`npm run timeline\` first.`,
     );
   }
 };
@@ -121,6 +120,21 @@ const main = () => {
     fs.rmSync(PROGRESS, { force: true });
     fs.rmSync(path.join(OUT, 'video.mp4'), { force: true });
     console.log('✔ cleaned out/batches, out/.render-progress.json and out/video.mp4');
+    return;
+  }
+
+  if (has('--lane')) {
+    const frames = process.env.TOTAL_FRAMES ? ` --frames=0-${Number(process.env.TOTAL_FRAMES) - 1}` : '';
+    console.log(`\n  ${COMPOSITION} · full render (no chunking)${frames ? ` · frames ${frames.slice(9)}` : ''}\n`);
+    run(remotion(), [
+      'remotion',
+      'render',
+      COMPOSITION,
+      path.join(OUT, 'video.mp4'),
+      ...(frames ? [frames.trim()] : []),
+      ...FORWARD,
+    ]);
+    console.log('\n✔ out/video.mp4');
     return;
   }
 

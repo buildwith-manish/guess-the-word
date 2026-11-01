@@ -16,5 +16,5 @@
     "resolveJsonModule": true,
     "isolatedModules": true
   },
-  "include": ["src", "remotion.config.ts", "scripts/*.d.ts"]
+  "include": ["src", "remotion.config.ts"]
 }

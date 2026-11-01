@@ -165,7 +165,3 @@ export const Scoreboard: React.FC<{ frame: number }> = ({ frame }) => {
     </AbsoluteFill>
   );
 };
-
-/** frames used by timing.ts — kept in sync by hand (scoreboard is one segment) */
-export const SCOREBOARD_LENGTH = 168;
-export const SCOREBOARD_LEGEND_AT = 46 + (RANKS.length - 1) * 22 + 21;

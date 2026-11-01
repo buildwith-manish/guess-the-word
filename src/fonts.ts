@@ -2,7 +2,7 @@ import { loadFont } from '@remotion/fonts';
 import { staticFile } from 'remotion';
 
 /**
- * All four families are bundled in public/fonts (SIL Open Font License), so a
+ * All five faces are bundled in public/fonts (SIL Open Font License), so a
  * render never depends on the machine's installed fonts:
  *   Anton            — display / headlines
  *   Poppins 600/800  — body, chips, labels
@@ -19,8 +19,6 @@ const FACES = [
   { family: 'JetBrains Mono', file: 'JetBrainsMono-Bold.woff2', weight: '700' },
   { family: 'Noto Color Emoji', file: 'NotoColorEmoji.woff2', weight: '400' },
 ];
-
-export const FONT_FAMILIES = FACES.map((f) => f.family);
 
 for (const face of FACES) {
   loadFont({

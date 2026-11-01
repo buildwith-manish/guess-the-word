@@ -13,9 +13,8 @@ const MAP = manifest as Manifest;
 
 export const imageFileName = (index: number) => `q${String(index + 1).padStart(2, '0')}.jpg`;
 
+/** true when scripts/fetch-images.js registered this question in the manifest */
 export const hasImage = (index: number) => Boolean(MAP[String(index + 1)]);
 
 /** 1280x720 normalized JPEG produced by scripts/resize-images.js */
 export const imageSrc = (index: number) => staticFile(`images/${imageFileName(index)}`);
-
-export const manifestCount = () => Object.keys(MAP).length;

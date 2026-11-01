@@ -8,13 +8,12 @@ import rounds from './rounds.json';
 import type { LevelCfg, Question, Segment, Timeline } from './types';
 import { buildBonusPuzzles, type BonusPuzzle } from './bonus-engine';
 
-export const CFG = settings;
 export const FPS = settings.fps;
 export const WIDTH = settings.width;
 export const HEIGHT = settings.height;
 
 export const LEVELS: LevelCfg[] = settings.levels as unknown as LevelCfg[];
-export const THEMES: string[][] = settings.levelThemes as string[][];
+const THEMES: string[][] = settings.levelThemes as string[][];
 
 export const QUESTIONS: Question[] = (rounds as unknown as Question[]).map((q) => ({
   ...q,
@@ -43,7 +42,7 @@ export type QuestionPlan = {
   fact?: string;
 };
 
-export const levelIndexOf = (q: Question) =>
+const levelIndexOf = (q: Question) =>
   Math.max(0, LEVELS.findIndex((l) => l.name === q.level));
 
 /**
@@ -97,15 +96,19 @@ export const buildQuestionPlan = (
 
 export const BONUS_CLOCK_START = () => settings.bonus.preRollFrames + settings.bonus.buildFrames + 10;
 
-export const bonusDuration = (p: BonusPuzzle) =>
+const bonusDuration = (p: BonusPuzzle) =>
   BONUS_CLOCK_START() + Math.round(p.seconds * FPS) + settings.bonus.revealHoldFrames;
 
-export const SCOREBOARD_FRAMES = 168;
+/**
+ * Scoreboard budget: kicker + title, then 5 rows at 22 frames each (bottom ->
+ * top), the LEGEND glow and the footer. Keep in sync with Scoreboard.tsx.
+ */
+const SCOREBOARD_FRAMES = 168;
 
 /** Bonus puzzles are seed-generated: same seed -> same board -> same render. */
-export const PUZZLES: BonusPuzzle[] = buildBonusPuzzles(settings.bonus.after.length);
+const PUZZLES: BonusPuzzle[] = buildBonusPuzzles(settings.bonus.after.length);
 
-export const buildTimeline = (puzzles: BonusPuzzle[] = PUZZLES): Timeline => {
+const buildTimeline = (puzzles: BonusPuzzle[] = PUZZLES): Timeline => {
   const segments: Segment[] = [];
   let cursor = 0;
   const push = <T extends Segment>(seg: T): T => {
@@ -165,5 +168,3 @@ export const locate = (segments: Segment[], frame: number) => {
 /** Iris colour pair behind a question (one theme per 10 questions, like the HTML). */
 export const themeForQuestion = (index: number): [string, string] =>
   (THEMES[Math.floor(index / 10) % THEMES.length] ?? THEMES[0]) as [string, string];
-
-export const framesToSeconds = (f: number) => Math.round((f / FPS) * 10) / 10;

@@ -14,7 +14,7 @@ const B = settings.bonus;
 
 /**
  * Bonus round = pre-roll banner -> tile board -> clock -> reveal -> answer.
- * The board is built by seed (see bonus.ts) so this component stays pure.
+ * The board is built by seed (see bonus-engine.ts) so this component stays pure.
  */
 export const Bonus: React.FC<{ frame: number; puzzle: BonusPuzzle; index: number }> = ({
   frame,
@@ -22,7 +22,6 @@ export const Bonus: React.FC<{ frame: number; puzzle: BonusPuzzle; index: number
   index,
 }) => {
   const pre = B.preRollFrames;
-  const buildEnd = pre + B.buildFrames;
   const clockStart = BONUS_CLOCK_START();
   const clockFrames = Math.round(puzzle.seconds * FPS);
   const clockEnd = clockStart + clockFrames;

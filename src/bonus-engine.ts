@@ -1,5 +1,5 @@
 /**
- * bonus.ts — deterministic bonus-round factory.
+ * bonus-engine.ts — deterministic bonus-round factory.
  * Same five round types as the reference quiz: odd-one-out, count-it,
  * word-scramble, emoji-math, spot-the-difference. Puzzles are seeded, so
  * index N always yields the same board (required for reproducible renders).

@@ -2,11 +2,9 @@
   "fps": 30,
   "width": 1920,
   "height": 1080,
-  "durationInFrames": 12660,
   "brand": {
     "quiz": "QUIZ",
-    "matrix": "MATRIX",
-    "wordmark": "MATRIX"
+    "matrix": "MATRIX"
   },
   "levelCardFrames": 72,
   "levels": [
@@ -56,8 +54,7 @@
       0.6667,
       0.3333
     ],
-    "lowSeconds": 3,
-    "trackWidth": 1000
+    "lowSeconds": 3
   },
   "timing": {
     "hookA": 110,
@@ -67,11 +64,6 @@
     "answerFlipsAfterTimer": 6,
     "answerHold": 58,
     "revealExit": 22,
-    "remindAfter": [
-      10,
-      25,
-      40
-    ],
     "factEvery": 3,
     "voiceWordsPerSecond": 2.6,
     "titleInFrames": 15
@@ -144,19 +136,14 @@
     "subscribeSub": "FOR MORE QUIZZES"
   },
   "text": {
-    "posterTitle": "GUESS THE",
-    "posterTitleB": "WORD",
-    "posterSub": "QUESTIONS · EMOJI QUIZ",
     "comment": "COMMENT YOUR ANSWER BEFORE THE TIMER ENDS",
     "correctChip": "✔ CORRECT ANSWER",
     "eraseChip": "GOT IT? ERASE 1 WRONG ❌",
-    "bonusEyebrow": "BONUS ROUND",
     "factEyebrow": "✔ CORRECT · DID YOU KNOW?",
     "scoreboardKicker": "FINAL SCOREBOARD",
     "scoreboardTitleA": "HOW MANY WERE",
     "scoreboardTitleB": "WRONG?",
     "scoreboardFooter": "WRONG ANSWERS − BONUS ERASES = YOUR RANK",
-    "remind": "Still counting? ❌",
     "hook": {
       "a1": "CAN YOU GUESS",
       "a2a": "ALL",
@@ -188,12 +175,6 @@
   },
   "sound": {
     "enabled": false,
-    "dir": "public/sounds",
-    "tracks": {
-      "tick": "tick.mp3",
-      "reveal": "reveal.mp3",
-      "stamp": "stamp.mp3",
-      "whoosh": "whoosh.mp3"
-    }
+    "dir": "public/sounds"
   }
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
 import { COLORS, FONTS, px } from './style';
-import { prog, slamIn, floatY } from './anim';
+import { prog, slamIn } from './anim';
 import { backOut, expoOut, linear } from './gsap-helpers';
 import { glyphs } from './util';
 import { QUESTIONS, TOTAL } from './timing';
@@ -53,8 +53,6 @@ const Headline: React.FC<{
           </span>
         );
       })}
-      {/* unused variable guard for floatY consumers */}
-      <span style={{ display: 'none' }}>{floatY(frame, 0)}</span>
     </div>
   );
 };
@@ -81,7 +79,7 @@ const SceneA: React.FC<{ frame: number }> = ({ frame }) => {
             fontSize: px(150),
             lineHeight: 1,
             color: '#fff',
-            opacity: clamp(prog(frame, 26, 16, backOut)),
+            opacity: Math.min(1, Math.max(0, prog(frame, 26, 16, backOut))),
             transform: `scale(${0.7 + 0.3 * prog(frame, 26, 16, backOut)})`,
             textShadow: `0 ${px(8)}px 0 rgba(0,0,0,0.53)`,
           }}
@@ -156,7 +154,7 @@ const SceneB: React.FC<{ frame: number }> = ({ frame }) => {
           fontSize: px(58),
           letterSpacing: px(4),
           textAlign: 'center',
-          opacity: clamp(r2),
+          opacity: Math.min(1, Math.max(0, r2)),
           transform: `translate3d(0, ${(1 - r2) * 30}px, 0)`,
         }}
       >
@@ -169,7 +167,7 @@ const SceneB: React.FC<{ frame: number }> = ({ frame }) => {
           fontSize: px(58),
           letterSpacing: px(4),
           textAlign: 'center',
-          opacity: clamp(r3),
+          opacity: Math.min(1, Math.max(0, r3)),
           transform: `translate3d(0, ${(1 - r3) * 30}px, 0)`,
         }}
       >
@@ -179,8 +177,6 @@ const SceneB: React.FC<{ frame: number }> = ({ frame }) => {
     </div>
   );
 };
-
-const clamp = (v: number) => Math.max(0, Math.min(1, v));
 
 export const Hook: React.FC<{ frame: number }> = ({ frame }) => {
   const inP = prog(frame, 0, 4, linear);

@@ -30,11 +30,6 @@ export const pickN = <T,>(arr: T[], n: number, rand: () => number): T[] =>
 
 export const range = (n: number): number[] => Array.from({ length: n }, (_, i) => i);
 
-export const pad2 = (n: number) => String(n).padStart(2, '0');
-
-/** Emoji-safe character split (astral emoji must never be cut in half). */
-export const splitChars = (s: string) => Array.from(s);
-
 export type Glyph = { ch: string; accent: boolean; space: boolean };
 
 /**
