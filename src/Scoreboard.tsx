@@ -1,6 +1,6 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { COLORS, FONTS, S, px } from './style';
+import { COLORS, FONTS, S, px, glass } from './style';
 import { prog, revealIn } from './anim';
 import { backOut } from './gsap-helpers';
 import { makeConfetti } from './util';
@@ -22,11 +22,11 @@ export const Scoreboard: React.FC<{ frame: number }> = ({ frame }) => {
   const lastRowAt = rowBase + (RANKS.length - 1) * step;
   const legendAt = lastRowAt + 21;
   const footer = revealIn(frame, legendAt + 8, 16, 26);
-  const confetti = makeConfetti(99, 130, { x: 960, y: 700 });
+  const confetti = makeConfetti(99, 110, { x: 960, y: 1040 });
 
   return (
     <AbsoluteFill>
-      <Background frame={frame} theme={['#1b0b2b', '#07040d']} hideBars />
+      <Background frame={frame} theme={['#6D5BFF', '#0B0A2E']} />
       <AbsoluteFill
         style={{
           display: 'flex',
@@ -80,18 +80,17 @@ export const Scoreboard: React.FC<{ frame: number }> = ({ frame }) => {
                   width: S.scoreboardRowW,
                   height: S.scoreboardRowH,
                   padding: `0 ${px(28)}px`,
-                  borderRadius: px(18),
+                  ...glass(px(18), isTop ? 0.16 : 0.08),
                   background: isTop
-                    ? 'linear-gradient(90deg, rgba(255,214,10,0.25), rgba(255,214,10,0.08))'
-                    : 'linear-gradient(90deg, rgba(255,255,255,0.11), rgba(255,255,255,0.04))',
-                  border: `${px(2)}px solid rgba(255,255,255,0.13)`,
+                    ? 'linear-gradient(90deg, rgba(255,201,60,0.28), rgba(255,201,60,0.08))'
+                    : undefined,
                   borderLeft: `${px(10)}px solid ${r[3]}`,
                   opacity: p,
                   transform: `translate3d(${(1 - p) * -160}px, 0, 0) scale(${0.92 + 0.08 * p})`,
                   boxShadow:
                     isTop && frame >= legendAt
-                      ? `0 0 ${px(20 + 44 * (0.5 + 0.5 * Math.sin((frame - legendAt) / 9)))}px rgba(255,214,10,0.6)`
-                      : undefined,
+                      ? `0 0 ${px(20 + 44 * (0.5 + 0.5 * Math.sin((frame - legendAt) / 9)))}px rgba(255,201,60,0.6)`
+                      : (glass(px(18)).boxShadow as string),
                 }}
               >
                 <span style={{ fontFamily: FONTS.emoji, fontSize: px(38), lineHeight: 1 }}>{r[1]}</span>

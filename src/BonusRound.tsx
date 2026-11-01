@@ -1,6 +1,6 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { COLORS, FONTS, S, px } from './style';
+import { COLORS, FONTS, S, px, glass } from './style';
 import { BONUS_CLOCK_START, BONUS_THEME, FPS } from './timing';
 import { prog, slamIn, revealIn } from './anim';
 import { backOut, elasticOut, expoOut, linear } from './gsap-helpers';
@@ -182,9 +182,7 @@ export const Bonus: React.FC<{ frame: number; puzzle: BonusPuzzle; index: number
             width: px(800),
             textAlign: 'center',
             padding: `${px(10)}px 0`,
-            borderRadius: px(40),
-            background: 'rgba(0,0,0,0.67)',
-            border: `${px(2)}px solid rgba(255,214,10,0.53)`,
+            ...glass(px(40), 0.1),
             fontFamily: FONTS.body,
             fontWeight: 800,
             fontSize: px(20),
@@ -218,8 +216,8 @@ export const Bonus: React.FC<{ frame: number; puzzle: BonusPuzzle; index: number
               top: px(26),
               height: S.timerTrackH,
               borderRadius: px(10),
-              background: 'rgba(0,0,0,0.6)',
-              border: `${px(2)}px solid rgba(255,255,255,0.2)`,
+              background: 'rgba(255,255,255,0.10)',
+              border: `${px(1.5)}px solid rgba(255,255,255,0.18)`,
               overflow: 'hidden',
             }}
           >
@@ -248,8 +246,8 @@ export const Bonus: React.FC<{ frame: number; puzzle: BonusPuzzle; index: number
                 height: px(62),
                 borderRadius: '50%',
                 background: secondsLeft <= 3 ? COLORS.red : '#fff',
-                color: secondsLeft <= 3 ? '#fff' : '#8a0010',
-                border: `${px(3)}px solid ${secondsLeft <= 3 ? '#fff' : COLORS.yellow}`,
+                color: secondsLeft <= 3 ? '#fff' : COLORS.inkDark,
+                border: `${px(3)}px solid ${secondsLeft <= 3 ? '#fff' : 'rgba(255,255,255,0.9)'}`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -271,14 +269,12 @@ export const Bonus: React.FC<{ frame: number; puzzle: BonusPuzzle; index: number
             style={{
               position: 'absolute',
               left: '50%',
-              top: px(524),
+              top: px(498),
               width: px(900),
               marginLeft: -px(450),
               transform: `translate3d(0, ${(1 - answerIn) * 20}px, 0) scale(${0.94 + 0.06 * answerIn})`,
               opacity: answerIn,
-              background: 'rgba(0,0,0,0.67)',
-              border: `${px(2)}px solid rgba(255,255,255,0.2)`,
-              borderRadius: px(20),
+              ...glass(px(22), 0.1),
               padding: `${px(12)}px ${px(22)}px`,
               textAlign: 'center',
               fontFamily: FONTS.body,
@@ -295,14 +291,14 @@ export const Bonus: React.FC<{ frame: number; puzzle: BonusPuzzle; index: number
           <div
             style={{
               position: 'absolute',
-              bottom: S.chipBottom,
+              bottom: px(40),
               left: '50%',
               marginLeft: -px(320),
               width: px(640),
               textAlign: 'center',
               padding: `${px(9)}px 0`,
               borderRadius: px(40),
-              background: COLORS.yellow,
+              background: `linear-gradient(180deg, ${COLORS.yellowSoft}, ${COLORS.yellow})`,
               color: COLORS.inkDark,
               fontFamily: FONTS.body,
               fontWeight: 800,
@@ -342,7 +338,7 @@ export const Bonus: React.FC<{ frame: number; puzzle: BonusPuzzle; index: number
   );
 };
 
-const BONUS_TITLE_TOP = px(62);
+const BONUS_TITLE_TOP = px(34);
 
 /** switch on puzzle kind — each board is a pure render of the seed data */
 const Board: React.FC<{
@@ -377,7 +373,7 @@ const Board: React.FC<{
                 lineHeight: 1,
                 opacity: (dim ? 0.25 : 1) * seat,
                 transform: `scale(${(win ? 1.12 : dim ? 0.9 : 1) * (0.6 + 0.4 * seat)})`,
-                boxShadow: win ? `0 0 ${px(60)}px rgba(48,209,88,0.67)` : undefined,
+                boxShadow: win ? `0 0 ${px(60)}px rgba(52,211,153,0.67)` : undefined,
               }}
             >
               {t}
@@ -395,7 +391,7 @@ const Board: React.FC<{
           display: 'grid',
           gridTemplateColumns: 'repeat(6, 1fr)',
           gap: px(10),
-          width: px(900),
+          width: px(960),
           justifyContent: 'center',
         }}
       >
@@ -407,18 +403,18 @@ const Board: React.FC<{
             <div
               key={i}
               style={{
-                height: px(60),
+                height: px(62),
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontFamily: FONTS.emoji,
-                fontSize: px(44),
+                fontSize: px(46),
                 lineHeight: 1,
                 borderRadius: px(12),
-                background: win ? 'rgba(48,209,88,0.35)' : undefined,
+                background: win ? 'rgba(52,211,153,0.35)' : undefined,
                 opacity: (dim ? 0.16 : 1) * seat,
                 transform: `scale(${(win ? 1.25 : 1) * (0.7 + 0.3 * seat)})`,
-                boxShadow: win ? `0 0 ${px(20)}px rgba(48,209,88,0.6)` : undefined,
+                boxShadow: win ? `0 0 ${px(20)}px rgba(52,211,153,0.6)` : undefined,
               }}
             >
               {c.ch}
@@ -517,8 +513,7 @@ const Board: React.FC<{
         gap: px(6),
         padding: px(14),
         borderRadius: px(26),
-        background: 'rgba(0,0,0,0.4)',
-        border: `${px(3)}px solid rgba(255,255,255,0.27)`,
+        ...glass(px(26), 0.08),
       }}
     >
       {cells.map((e, i) => {
@@ -540,7 +535,7 @@ const Board: React.FC<{
               background: win ? COLORS.green : undefined,
               opacity: seat,
               transform: `scale(${(win ? 1.12 : 1) * (0.6 + 0.4 * seat)})`,
-              boxShadow: win ? `0 0 ${px(30)}px rgba(48,209,88,0.67)` : undefined,
+              boxShadow: win ? `0 0 ${px(30)}px rgba(52,211,153,0.67)` : undefined,
             }}
           >
             {e}

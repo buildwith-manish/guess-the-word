@@ -4,7 +4,7 @@ import { Background } from './Background';
 import { Hud } from './Hud';
 import { Watermark } from './Watermark';
 import { TitleLockup } from './TitleLockup';
-import { FONTS, px } from './style';
+import { FONTS, px, glass, COLORS } from './style';
 import { prog, htmlEase, mix } from './anim';
 import { linear } from './gsap-helpers';
 import type { Segment } from './types';
@@ -40,21 +40,20 @@ export const Reminder: React.FC<{ frame: number; seg: ReminderSegment }> = ({ fr
         style={{
           position: 'absolute',
           left: '50%',
-          top: px(318),
+          top: px(300),
           width: px(480),
           marginLeft: -px(240),
           textAlign: 'center',
           padding: `${px(16)}px 0`,
-          borderRadius: px(50),
-          background: 'rgba(0,0,0,0.8)',
-          border: `${px(2)}px solid rgba(255,255,255,0.27)`,
+          ...glass(px(50), 0.12),
+          background: 'linear-gradient(160deg, rgba(20,22,52,0.92), rgba(8,9,28,0.92))',
           fontFamily: FONTS.body,
           fontWeight: 800,
           fontSize: px(34),
           letterSpacing: px(2),
-          color: '#fff',
+          color: COLORS.ink,
           whiteSpace: 'nowrap',
-          boxShadow: `0 ${px(14)}px ${px(40)}px rgba(0,0,0,0.53)`,
+          boxShadow: `0 ${px(14)}px ${px(40)}px rgba(0,0,0,0.55), 0 0 ${px(40)}px rgba(255,77,106,0.35)`,
           opacity,
           transform: `translate3d(0, ${mix(20, 0, inP)}px, 0) scale(${mix(0.9, 1, inP)})`,
         }}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { COLORS, FONTS, S, px } from './style';
+import { COLORS, FONTS, S, px, glass } from './style';
 import { prog, slamIn, revealIn } from './anim';
 import { elasticOut } from './gsap-helpers';
 import { makeConfetti } from './util';
@@ -27,7 +27,7 @@ export const EndScreen: React.FC<{ frame: number }> = ({ frame }) => {
 
   return (
     <AbsoluteFill>
-      <Background frame={frame} theme={['#2a0010', '#07040d']} hideBars />
+      <Background frame={frame} theme={['#FF4D8D', '#2A0720']} />
       <AbsoluteFill
         style={{
           flexDirection: 'row',
@@ -35,7 +35,7 @@ export const EndScreen: React.FC<{ frame: number }> = ({ frame }) => {
           alignItems: 'center',
           justifyContent: 'center',
           gap: px(60),
-          padding: `${px(40)}px 0 ${px(90)}px`,
+          padding: `${px(10)}px 0 ${px(50)}px`,
         }}
       >
         {/* left: the challenge */}
@@ -137,16 +137,15 @@ export const EndScreen: React.FC<{ frame: number }> = ({ frame }) => {
             style={{
               width: px(440),
               height: px(248),
-              borderRadius: px(22),
-              border: `${px(4)}px solid ${COLORS.yellow}`,
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.19), rgba(255,255,255,0.06))',
+              ...glass(px(24), 0.1),
+              border: `${px(3)}px solid ${COLORS.yellow}`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontFamily: FONTS.emoji,
               fontSize: px(84),
               color: 'rgba(255,255,255,0.6)',
-              boxShadow: `0 0 ${px(50 + 30 * ringPulse)}px rgba(255,214,10,0.47)`,
+              boxShadow: `0 0 ${px(50 + 30 * ringPulse)}px rgba(255,201,60,0.47)`,
               opacity: Math.min(1, vslot * 1.2),
               transform: `translateY(${(1 - vslot) * 60}px) scale(${0.7 + 0.3 * vslot})`,
             }}
@@ -167,8 +166,8 @@ export const EndScreen: React.FC<{ frame: number }> = ({ frame }) => {
                 width: px(112),
                 height: px(112),
                 borderRadius: '50%',
-                border: `${px(4)}px solid ${COLORS.yellow}`,
-                background: 'rgba(255,255,255,0.11)',
+                ...glass(px(56), 0.1),
+                border: `${px(3)}px solid ${COLORS.yellow}`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',

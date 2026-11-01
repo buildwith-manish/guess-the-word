@@ -99,9 +99,9 @@ export const Ring: React.FC<{ frame: number; start: number; size?: number; style
         marginLeft: -px(size) / 2,
         marginTop: -px(size) / 2,
         borderRadius: '50%',
-        border: `${px(5)}px solid rgba(255,255,255,0.867)`,
+        border: `${px(2.5)}px solid rgba(255,214,102,0.9)`,
         pointerEvents: 'none',
-        opacity: 0.9 * (1 - e),
+        opacity: 0.6 * (1 - e),
         transform: `scale(${0.4 + 1.9 * e})`,
         ...style,
       }}
@@ -114,7 +114,7 @@ export const Flash: React.FC<{ frame: number; start: number; ms?: number; peak?:
   frame,
   start,
   ms: dur = 520,
-  peak = 0.95,
+  peak = 0.38,
   at = 0.25,
 }) => {
   const t = (frame - start) / ms(dur);
@@ -126,7 +126,7 @@ export const Flash: React.FC<{ frame: number; start: number; ms?: number; peak?:
         inset: 0,
         zIndex: 3,
         pointerEvents: 'none',
-        background: 'radial-gradient(circle at 50% 38%, #fff, rgba(255,255,255,0) 62%)',
+        background: 'radial-gradient(circle at 50% 38%, #FFF4D0, rgba(255,255,255,0) 62%)',
         opacity: keyframes(t, [0, at, 1], [0, peak, 0]),
       }}
     />

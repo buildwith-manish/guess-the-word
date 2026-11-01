@@ -242,7 +242,8 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
           const ft = (frame - flipAt) / ms(560);
           if (rev && ft < 1) {
             const fe = htmlEase(clamp01(ft));
-            transform = `rotateX(${keyframes(fe, [0, 0.7, 1], [-95, 0, 0])}deg) scale(${keyframes(fe, [0, 0.7, 1], [0.8, 1.18, 1])})`;
+            transform = `rotateX(${keyframes(fe, [0, 0.7, 1], [-80, 0, 0])}deg) scale(${keyframes(fe, [0, 0.7, 1], [0.85, 1.14, 1])})`;
+            opacity = Math.max(opacity, clamp01(ft * 6));
           } else if (rev) {
             transform = 'none';
           }

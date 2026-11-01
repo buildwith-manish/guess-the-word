@@ -70,19 +70,19 @@ export const makeConfetti = (
   origin = { x: 960, y: 660 },
 ): ConfettiPiece[] => {
   const rand = makeRandom(seed);
-  const colors = ['#ffd60a', '#ffffff', '#ff453a', '#ff9f0a'];
+  const colors = ['#FFC93C', '#FFFFFF', '#38E1FF', '#FF4D8D', '#7C6CFF', '#34D399'];
   return range(count).map((i) => {
     const size = 8 + rand() * 10;
     return {
       id: `cf-${seed}-${i}`,
-      x: origin.x,
-      y: origin.y,
+      x: origin.x + (rand() - 0.5) * 900,
+      y: origin.y + (rand() - 0.5) * 80,
       dx: (rand() - 0.5) * 1300,
       dy: -(160 + rand() * 420),
       size,
       color: colors[i % colors.length],
       round: i % 3 === 0,
-      delay: Math.floor(rand() * 4),
+      delay: Math.floor(rand() * 14),
       duration: 56 + Math.floor(rand() * 22),
       spin: rand() * 720 - 360,
     };
