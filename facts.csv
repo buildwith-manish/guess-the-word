@@ -1,8 +1,8 @@
 # Guess the Word by Emoji - fact library (one row per WORD)
 # columns: word, fact
-# A question row in rounds.csv with an empty `fact` falls back to this file, matching by WORD.
+# A question in questions.js with an empty `fact` falls back to this file, matching by WORD.
 # A fact card shows on every `timing.factEvery`-th question; keep facts to 8 words or fewer so
-# the voiceover can read them (scripts/csv-to-json.js warns above 8).
+# the voiceover can read them (scripts/build-questions.js warns above 8).
 word,fact
 STARFISH,Starfish have no brain and no blood.
 SUNFLOWER,Young sunflowers follow the sun all day.

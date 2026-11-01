@@ -18,3 +18,6 @@ export const hasImage = (index: number) => Boolean(MAP[String(index + 1)]);
 
 /** 1280x720 normalized JPEG produced by scripts/resize-images.js */
 export const imageSrc = (index: number) => staticFile(`images/${imageFileName(index)}`);
+
+/** clue icon (transparent PNG) from public/emoji-icons/ */
+export const clueSrc = (file: string) => staticFile(`emoji-icons/${file}`);

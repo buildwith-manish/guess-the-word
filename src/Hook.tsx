@@ -6,6 +6,8 @@ import { backOut, expoOut, linear } from './gsap-helpers';
 import { glyphs } from './util';
 import { QUESTIONS, TOTAL } from './timing';
 import settings from '../settings.json';
+import { Img } from 'remotion';
+import { clueSrc } from './assets';
 
 const H = settings.text.hook;
 const A = settings.timing.hookA;
@@ -94,7 +96,7 @@ const SceneA: React.FC<{ frame: number }> = ({ frame }) => {
       </div>
       <div
         style={{
-          marginTop: px(26),
+          marginTop: px(10),
           height: px(230),
           display: 'flex',
           alignItems: 'center',
@@ -107,9 +109,9 @@ const SceneA: React.FC<{ frame: number }> = ({ frame }) => {
           filter: `drop-shadow(0 ${px(14)}px ${px(18)}px rgba(0,0,0,0.67))`,
         }}
       >
-        <span>{pair.emoji1}</span>
+        <Img src={clueSrc(pair.clueA)} style={{ width: px(190), height: px(190), objectFit: 'contain' }} />
         <span style={{ fontFamily: FONTS.display, fontSize: px(76), color: 'rgba(255,255,255,0.9)' }}>+</span>
-        <span>{pair.emoji2}</span>
+        <Img src={clueSrc(pair.clueB)} style={{ width: px(190), height: px(190), objectFit: 'contain' }} />
       </div>
     </div>
   );

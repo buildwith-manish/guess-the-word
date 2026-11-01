@@ -4,7 +4,7 @@
   "private": true,
   "description": "Guess the Word by Emoji - 50 question quiz, built with Remotion + GSAP easing math (Pattern 1: no GSAP timelines).",
   "scripts": {
-    "postinstall": "node scripts/csv-to-json.js",
+    "postinstall": "node scripts/build-questions.js",
     "dev": "remotion studio",
     "timeline": "node scripts/timeline.js",
     "typecheck": "tsc --noEmit",
@@ -12,7 +12,7 @@
     "render:batches": "node scripts/render-batches.js",
     "render:lanes": "node scripts/render-batches.js --size 900",
     "still": "remotion still GuessTheWord out/still.png --frame=700",
-    "data": "node scripts/csv-to-json.js",
+    "data": "node scripts/build-questions.js",
     "sounds": "node scripts/generate-audio.js",
     "images": "node scripts/fetch-images.js",
     "images:resize": "node scripts/resize-images.js",

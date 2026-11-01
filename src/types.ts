@@ -12,8 +12,9 @@ export type LevelCfg = {
 export type Question = {
   id: number;
   word: string;
-  emoji1: string;
-  emoji2: string;
+  /** PNG file names in public/emoji-icons/ (A = first half, B = second half) */
+  clueA: string;
+  clueB: string;
   level: string;
   /** 0-based position of the second free letter (the first letter is always free) */
   reveal: number;

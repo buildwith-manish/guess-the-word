@@ -10,7 +10,7 @@ out/
 *.mov
 *.gif
 
-# generated question data (rounds.csv is the source of truth; rebuilt by
+# generated question data (questions.js is the source of truth; rebuilt by
 # `npm install` via postinstall, and by `npm run data`)
 src/rounds.json
 

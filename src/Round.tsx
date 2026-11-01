@@ -10,7 +10,7 @@ import { Watermark } from './Watermark';
 import { TitleLockup } from './TitleLockup';
 import { Background } from './Background';
 import settings from '../settings.json';
-import { imageSrc, hasImage } from './assets';
+import { imageSrc, hasImage, clueSrc } from './assets';
 
 const CONFETTI = makeConfetti(7, 26, { x: 960, y: 620 });
 
@@ -32,9 +32,9 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
   const letters = Array.from(q.word);
 
   const emojiSeq: { ch: string; kind: 'emoji' | 'plus' }[] = [
-    { ch: q.emoji1, kind: 'emoji' },
+    { ch: q.clueA, kind: 'emoji' },
     { ch: '+', kind: 'plus' },
-    { ch: q.emoji2, kind: 'emoji' },
+    { ch: q.clueB, kind: 'emoji' },
   ];
 
   const timerStart = plan.timerStart;
@@ -97,18 +97,17 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
                     filter: `blur(${px(12)}px)`,
                   }}
                 />
-                <span
+                <Img
+                  src={clueSrc(item.ch)}
                   style={{
                     position: 'relative',
                     zIndex: 1,
-                    fontFamily: FONTS.emoji,
-                    fontSize: S.emojiGlyph,
-                    lineHeight: 1,
+                    width: px(300),
+                    height: px(300),
+                    objectFit: 'contain',
                     filter: `drop-shadow(0 ${px(22)}px ${px(26)}px rgba(0,0,0,0.67))`,
                   }}
-                >
-                  {item.ch}
-                </span>
+                />
               </>
             ) : (
               <div
