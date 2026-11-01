@@ -1,6 +1,6 @@
 import React from 'react';
 import { Img } from 'remotion';
-import { COLORS, FONTS, S, px } from './style';
+import { COLORS, FONTS, S, px, glass } from './style';
 import { buildQuestionPlan, QUESTIONS, TOTAL, themeForQuestion } from './timing';
 import {
   prog,
@@ -20,7 +20,7 @@ import { linear } from './gsap-helpers';
 import { Hud } from './Hud';
 import { Watermark } from './Watermark';
 import { TitleLockup } from './TitleLockup';
-import { Background, Bars } from './Background';
+import { Background } from './Background';
 import { Confetti, Ring, Flash } from './Fx';
 import settings from '../settings.json';
 import { imageSrc, hasImage, clueSrc } from './assets';
@@ -98,7 +98,7 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
       <div
         style={{
           position: 'absolute',
-          top: px(110),
+          top: px(96),
           width: '100%',
           height: px(356),
           display: 'flex',
@@ -133,19 +133,33 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
 
           if (!isEmoji) {
             return (
-              <div
-                key={i}
-                style={{
-                  fontFamily: FONTS.display,
-                  fontWeight: 400,
-                  fontSize: px(54),
-                  lineHeight: 'normal',
-                  color: '#fff',
-                  textShadow: `0 0 ${px(20)}px rgba(255,255,255,0.53)`,
-                  ...wrap,
-                }}
-              >
-                +
+              <div key={i} style={{ position: 'relative', width: px(PLUS_W), height: px(54), ...wrap }}>
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: '50%',
+                    top: '50%',
+                    width: px(64),
+                    height: px(64),
+                    marginLeft: -px(32),
+                    marginTop: -px(32),
+                    borderRadius: '50%',
+                    ...glass(px(32), 0.12),
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontFamily: FONTS.display,
+                    fontSize: px(42),
+                    lineHeight: 1,
+                    color: COLORS.yellow,
+                    textShadow: `0 0 ${px(18)}px rgba(255,201,60,0.7)`,
+                  }}
+                >
+                  <svg width={px(30)} height={px(30)} viewBox="0 0 30 30">
+                    <rect x="12" y="2" width="6" height="26" rx="3" fill={COLORS.yellow} />
+                    <rect x="2" y="12" width="26" height="6" rx="3" fill={COLORS.yellow} />
+                  </svg>
+                </div>
               </div>
             );
           }
@@ -172,29 +186,23 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
                 ...wrap,
               }}
             >
-              {/* .em:after soft floor shadow */}
               <div
                 style={{
                   position: 'absolute',
-                  bottom: px(6),
-                  left: '50%',
-                  marginLeft: -px(110),
-                  width: px(220),
-                  height: px(24),
-                  borderRadius: '50%',
-                  background: 'rgba(0,0,0,0.533)',
-                  filter: `blur(${px(12)}px)`,
+                  width: px(318),
+                  height: px(318),
+                  ...glass(px(44), 0.09),
+                  boxShadow: `0 ${px(26)}px ${px(60)}px rgba(0,0,0,0.5), 0 0 ${px(60)}px ${theme[0]}55, inset 0 1px 0 rgba(255,255,255,0.22)`,
                 }}
               />
-              {/* .ei: the per-question image, 280px slot, same drop-shadow, same float */}
               <div
                 style={{
                   position: 'relative',
                   zIndex: 1,
-                  width: px(280),
-                  height: px(280),
-                  transform: `translateY(${-px(12) * pos}px) rotate(${3 * pos}deg)`,
-                  filter: `drop-shadow(0 ${px(22)}px ${px(26)}px rgba(0,0,0,0.667))`,
+                  width: px(236),
+                  height: px(236),
+                  transform: `translateY(${-px(10) * pos}px) rotate(${2.5 * pos}deg)`,
+                  filter: `drop-shadow(0 ${px(18)}px ${px(22)}px rgba(0,0,0,0.55))`,
                 }}
               >
                 <Img
@@ -256,20 +264,22 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
               style={{
                 width: S.blankW,
                 height: S.blankH,
-                borderRadius: px(11),
-                background: 'linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8))',
-                border: `${px(3)}px solid ${rev ? COLORS.yellow : 'rgba(255,255,255,0.88)'}`,
+                borderRadius: px(14),
+                background: rev
+                  ? `linear-gradient(180deg, ${COLORS.yellowSoft}, ${COLORS.yellow} 55%, ${COLORS.yellowDeep})`
+                  : 'linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04))',
+                border: rev ? `${px(2)}px solid rgba(255,255,255,0.75)` : `${px(2)}px solid rgba(255,255,255,0.22)`,
                 boxShadow: rev
-                  ? `0 0 ${px(28)}px rgba(255,214,10,0.533), 0 ${px(12)}px ${px(24)}px rgba(0,0,0,0.4)`
-                  : `0 0 0 1px rgba(0,0,0,0.467), 0 0 ${px(16)}px rgba(255,255,255,0.27), 0 ${px(10)}px ${px(20)}px rgba(0,0,0,0.4), inset 0 ${px(2)}px 0 rgba(255,255,255,0.2)`,
+                  ? `0 0 ${px(30)}px rgba(255,201,60,0.55), 0 ${px(12)}px ${px(22)}px rgba(0,0,0,0.4), inset 0 ${px(2)}px 0 rgba(255,255,255,0.7)`
+                  : `0 ${px(10)}px ${px(22)}px rgba(0,0,0,0.38), inset 0 ${px(-4)}px 0 rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.22)`,
+                backdropFilter: `blur(${px(6)}px)`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontFamily: FONTS.display,
                 fontWeight: 400,
                 fontSize: S.blankFont,
-                color: COLORS.yellow,
-                textShadow: `0 0 ${px(22)}px rgba(255,214,10,0.8)`,
+                color: COLORS.inkDark,
                 opacity,
                 transform,
               }}
@@ -284,7 +294,7 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
       <Flash frame={frame} start={R0} />
 
       {/* ---------- result card (HTML #res): rays + image frame, spring entrance ---------- */}
-      {frame >= R0 ? <ResultCard frame={frame} start={R0} exit={plan.exit} word={q.word} index={index} /> : null}
+      {frame >= R0 ? <ResultCard frame={frame} start={R0} exit={plan.exit} word={q.word} index={index} clueA={q.clueA} clueB={q.clueB} /> : null}
 
       {/* ---------- clock bar, number badge, bulbs ---------- */}
       {timerVisible ? (
@@ -310,8 +320,8 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
               top: px(26),
               height: S.timerTrackH,
               borderRadius: px(10),
-              background: 'rgba(0,0,0,0.6)',
-              border: `${px(2)}px solid rgba(255,255,255,0.2)`,
+              background: 'rgba(255,255,255,0.10)',
+              border: `${px(1.5)}px solid rgba(255,255,255,0.18)`,
               overflow: 'hidden',
             }}
           >
@@ -321,7 +331,9 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
                 inset: 0,
                 transformOrigin: 'left',
                 transform: `scaleX(${1 - clamp01(clockT)})`,
-                background: `linear-gradient(90deg, ${COLORS.yellowDeep}, ${COLORS.yellow} 70%, ${COLORS.yellowSoft})`,
+                background: low
+                  ? `linear-gradient(90deg, ${COLORS.red}, ${COLORS.redSoft})`
+                  : `linear-gradient(90deg, ${COLORS.yellowDeep}, ${COLORS.yellow} 70%, ${COLORS.yellowSoft})`,
                 borderRadius: px(12),
               }}
             />
@@ -351,8 +363,8 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
                 height: px(62),
                 borderRadius: '50%',
                 background: low ? COLORS.red : '#fff',
-                color: low ? '#fff' : '#8a0010',
-                border: `${px(3)}px solid ${low ? '#fff' : COLORS.yellow}`,
+                color: low ? '#fff' : COLORS.inkDark,
+                border: `${px(3)}px solid ${low ? '#fff' : 'rgba(255,255,255,0.9)'}`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -483,8 +495,7 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
             lineHeight: 1.3,
             padding: `${px(6)}px ${px(22)}px`,
             borderRadius: px(20),
-            background: 'rgba(0,0,0,0.667)',
-            border: `${px(2)}px solid rgba(255,255,255,0.2)`,
+            ...glass(px(22), 0.08),
             color: '#fff',
             ...riseStyle(frame, afterMerge + ms(700), 500, px(30)),
             ...(frame >= plan.exit ? { opacity: 1 - clamp01((frame - plan.exit) / ms(280)) } : {}),
@@ -496,8 +507,6 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
           {plan.fact}
         </div>
       ) : null}
-
-      <Bars />
 
       {/* ---------- confetti: merge burst, plus a bigger one on every 5th question ---------- */}
       <Confetti frame={frame} start={R0} count={26} seed={index * 7 + 3} />
@@ -521,7 +530,7 @@ const ChipBox: React.FC<{ frame: number; start: number; exit: number }> = ({ fra
         textAlign: 'center',
         padding: `${px(9)}px 0`,
         borderRadius: px(40),
-        background: COLORS.yellow,
+        background: `linear-gradient(180deg, ${COLORS.yellowSoft}, ${COLORS.yellow})`,
         color: COLORS.inkDark,
         fontFamily: FONTS.body,
         fontWeight: 800,
@@ -544,7 +553,9 @@ const ResultCard: React.FC<{
   exit: number;
   word: string;
   index: number;
-}> = ({ frame, start, exit, word, index }) => {
+  clueA: string;
+  clueB: string;
+}> = ({ frame, start, exit, word, index, clueA, clueB }) => {
   const showImage = settings.images.enabled && hasImage(index);
   const sp = springStyle(frame, start, 950, px(30), -10);
   let style: React.CSSProperties = sp;
@@ -592,11 +603,11 @@ const ResultCard: React.FC<{
           position: 'relative',
           width: S.resultImageW,
           height: S.resultH,
-          borderRadius: px(24),
+          borderRadius: px(30),
           overflow: 'hidden',
-          background: 'linear-gradient(135deg, rgba(255,255,255,0.19), rgba(255,255,255,0.063))',
-          border: `${px(4)}px solid ${COLORS.yellow}`,
-          boxShadow: `0 0 0 ${px(8)}px rgba(0,0,0,0.4), 0 ${px(26)}px ${px(50)}px rgba(0,0,0,0.733), 0 0 ${px(70)}px rgba(255,214,10,0.667)`,
+          background: 'linear-gradient(160deg, rgba(20,22,52,0.92), rgba(8,9,28,0.92))',
+          border: `${px(3)}px solid ${COLORS.yellow}`,
+          boxShadow: `0 0 0 ${px(8)}px rgba(255,255,255,0.06), 0 ${px(30)}px ${px(60)}px rgba(0,0,0,0.7), 0 0 ${px(80)}px rgba(255,201,60,0.45)`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -611,20 +622,31 @@ const ResultCard: React.FC<{
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: px(6),
-              width: `calc(100% - ${px(28)}px)`,
-              height: `calc(100% - ${px(28)}px)`,
-              border: `${px(3)}px dashed rgba(255,255,255,0.533)`,
-              borderRadius: px(20),
+              gap: px(14),
+              width: '100%',
+              height: '100%',
             }}
           >
-            <span style={{ fontFamily: FONTS.emoji, fontSize: px(78), lineHeight: 1 }}>🖼️</span>
-            <b style={{ fontFamily: FONTS.body, fontWeight: 800, fontSize: px(20), letterSpacing: px(4) }}>
-              IMAGE HERE
-            </b>
-            <small style={{ fontFamily: FONTS.display, fontSize: px(30), letterSpacing: px(3), color: COLORS.yellow }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: px(22) }}>
+              <Img src={clueSrc(clueA)} style={{ width: px(120), height: px(120), objectFit: 'contain' }} />
+              <svg width={px(34)} height={px(34)} viewBox="0 0 30 30">
+                <rect x="3" y="7" width="24" height="5.5" rx="2.75" fill={COLORS.muted} />
+                <rect x="3" y="18" width="24" height="5.5" rx="2.75" fill={COLORS.muted} />
+              </svg>
+              <Img src={clueSrc(clueB)} style={{ width: px(120), height: px(120), objectFit: 'contain' }} />
+            </div>
+            <div
+              style={{
+                fontFamily: FONTS.display,
+                fontSize: word.length > 9 ? px(92) : px(118),
+                lineHeight: 1,
+                letterSpacing: px(8),
+                color: COLORS.yellow,
+                textShadow: `0 0 ${px(40)}px rgba(255,201,60,0.55), 0 ${px(6)}px 0 rgba(0,0,0,0.45)`,
+              }}
+            >
               {word}
-            </small>
+            </div>
           </div>
         )}
       </div>

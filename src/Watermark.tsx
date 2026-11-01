@@ -29,8 +29,8 @@ export const Watermark: React.FC<{ frame?: number }> = () => {
       style={{
         position: 'absolute',
         zIndex: 13,
-        top: px(60),
-        right: px(56),
+        top: px(26),
+        right: px(40),
         display: 'flex',
         alignItems: 'center',
         fontFamily: FONTS.mono,
@@ -52,9 +52,9 @@ export const Watermark: React.FC<{ frame?: number }> = () => {
           gap: px(11.5),
           padding: `${px(7.2)}px ${px(17.3)}px ${px(7.2)}px ${px(10)}px`,
           borderRadius: px(28.8),
-          background: 'rgba(14,8,60,0.42)',
-          border: `${px(1.44)}px solid rgba(255,255,255,0.4)`,
-          backdropFilter: `blur(${px(3)}px)`,
+          background: 'linear-gradient(160deg, rgba(255,255,255,0.14), rgba(255,255,255,0.04))',
+          border: `${px(1.44)}px solid rgba(255,255,255,0.22)`,
+          backdropFilter: `blur(${px(10)}px)`,
           opacity: entry,
           transform: `translateY(${(1 - entry) * -12}px) scale(${0.92 + 0.08 * entry})`,
         }}

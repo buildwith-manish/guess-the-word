@@ -35,7 +35,7 @@ export const TitleLockup: React.FC<{
     <div
       style={{
         position: 'absolute',
-        top: px(52),
+        top: px(24),
         width: '100%',
         display: 'flex',
         flexDirection: 'column',
@@ -62,10 +62,10 @@ export const TitleLockup: React.FC<{
                     display: 'inline-block',
                     fontFamily: FONTS.display,
                     fontWeight: 400,
-                    fontSize: px(46),
+                    fontSize: px(42),
                     lineHeight: 1.1,
-                    letterSpacing: px(7),
-                    color: w.accent ? COLORS.yellow : '#fff',
+                    letterSpacing: px(8),
+                    color: w.accent ? COLORS.yellow : COLORS.ink,
                     transform: `translateY(${(1 - p) * 120}%)`,
                     opacity: p,
                   }}

@@ -17,7 +17,7 @@ type Piece = {
   dur: number;
 };
 
-const COLS = ['#ffd60a', '#fff', '#ff453a', '#ff9f0a'];
+const COLS = ['#FFC93C', '#FFFFFF', '#38E1FF', '#FF4D8D', '#7C6CFF', '#34D399'];
 
 const makePieces = (seed: number, n: number): Piece[] => {
   const r = makeRandom(seed);

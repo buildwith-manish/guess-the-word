@@ -1,58 +1,72 @@
 /**
- * style.ts — design tokens lifted from the reference stage.
- * The reference HTML drew at 1280x720; the video is 1920x1080, so px() bakes
- * in the 1.5x scale (40px letterbox -> 60px, 280px emoji -> 420px, ...).
+ * style.ts — design tokens. One dark, cinematic base with jewel-tone accents,
+ * glass surfaces and a single gold highlight colour.
+ * Layout is authored on a 1280x720 grid and scaled 1.5x to 1920x1080 by px().
  */
 export const SCALE = 1.5;
 export const px = (v: number) => Math.round(v * SCALE * 100) / 100;
 
 export const COLORS = {
-  ink: '#ffffff',
-  yellow: '#ffd60a',
-  yellowSoft: '#fff3a0',
-  yellowDeep: '#ffb800',
-  red: '#ff1744',
-  redSoft: '#ff3b4f',
-  green: '#30d158',
-  inkDark: '#2a0000',
+  ink: '#F5F7FF',
+  base: '#060814',
+  yellow: '#FFC93C', // gold highlight
+  yellowSoft: '#FFE9A8',
+  yellowDeep: '#FF9F1C',
+  red: '#FF4D6A',
+  redSoft: '#FF7A90',
+  green: '#34D399',
+  cyan: '#38E1FF',
+  inkDark: '#1A1205',
+  glass: 'rgba(255,255,255,0.07)',
+  glassStrong: 'rgba(10,12,32,0.62)',
+  stroke: 'rgba(255,255,255,0.16)',
+  muted: 'rgba(245,247,255,0.62)',
 };
 
 export const FONTS = {
   display: '"Anton", Impact, "Arial Narrow", "Noto Color Emoji", sans-serif',
   body: '"Poppins", "Segoe UI", system-ui, "Noto Color Emoji", sans-serif',
   mono: '"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace',
-  /** colour emoji, bundled so renders never depend on the machine's fonts */
   emoji: '"Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", sans-serif',
 };
 
+/** Frosted-glass surface used by every pill / card. */
+export const glass = (radius: number, alpha = 0.07): Record<string, string | number> => ({
+  background: `linear-gradient(160deg, rgba(255,255,255,${alpha + 0.05}), rgba(255,255,255,${alpha * 0.4}))`,
+  border: `${px(1.5)}px solid rgba(255,255,255,0.16)`,
+  borderRadius: radius,
+  backdropFilter: `blur(${px(10)}px)`,
+  boxShadow: `0 ${px(14)}px ${px(40)}px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.18)`,
+});
+
 export const S = {
-  /** black letterbox bars (40px at 720p) */
-  bar: px(40),
-  hudTop: px(60),
-  hudLeft: px(48),
-  titleTop: px(52),
+  /** letterbox removed: the full 1080p frame is used */
+  bar: 0,
+  hudTop: px(26),
+  hudLeft: px(40),
+  titleTop: px(24),
   titleLetter: px(38),
   titleSpacing: px(7),
-  emojiTop: px(110),
+  emojiTop: px(96),
   emojiGlyph: px(230),
   emojiPlus: px(54),
-  resultTop: px(52),
+  resultTop: px(62),
   resultW: px(800),
-  resultH: px(410),
-  resultImageW: px(728),
-  blanksTop: px(476),
-  blankW: px(56),
-  blankH: px(72),
-  blankGap: px(9),
-  blankFont: px(48),
+  resultH: px(372),
+  resultImageW: px(740),
+  blanksTop: px(500),
+  blankW: px(60),
+  blankH: px(78),
+  blankGap: px(10),
+  blankFont: px(50),
   timerLeft: px(140),
-  timerBottom: px(90),
+  timerBottom: px(54),
   timerWidth: px(1000),
-  timerTrackH: px(18),
-  chipBottom: px(96),
+  timerTrackH: px(14),
+  chipBottom: px(70),
   chipW: px(560),
   commentTop: px(504),
-  factTop: px(554),
+  factTop: px(580),
   bonusBoardTop: px(168),
   bonusBoardH: px(340),
   bonusTile: px(170),
