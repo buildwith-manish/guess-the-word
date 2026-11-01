@@ -121,6 +121,14 @@ npm run images:all         # all three, in order
 
 A question shows a photo only if its id is listed in `src/image-manifest.json`.
 
+## Colour changes
+
+Like the HTML, **every question has its own backdrop** (`settings.json →
+levelThemes`, cycling per question) and bonus rounds sit on an orange one
+(`bonus.theme`). Between scenes an `iris` segment wipes the next colour in from
+the centre with a whoosh (`timing.irisFrames`, ≈0.85 s, same curve as the HTML),
+so the runtime grows by one wipe per transition.
+
 ## Sound
 
 The reference HTML makes all of its sound live with WebAudio. A rendered video
@@ -182,6 +190,7 @@ guess-the-word/
     ├── Round.tsx               # one question (emoji → blanks → clock → answer)
     ├── BonusRound.tsx          # 5 bonus round types (odd/count/scramble/math/spot)
     ├── LevelCard.tsx           # EASY / MEDIUM / HARD cards
+    ├── Iris.tsx                # colour wipe between questions / bonus rounds
     ├── Scoreboard.tsx          # LEGEND … KEEP PRACTISING
     ├── EndScreen.tsx           # end-screen slots for the YouTube player
     ├── Hud.tsx / Watermark.tsx / TitleLockup.tsx / Background.tsx
@@ -201,7 +210,8 @@ functions:
 | `backOut` | `back.out(1.7)` | emoji seats, cards, score rows, chips |
 | `expoOut` | `expo.out` | reveals, letter blanks, rules, hairlines |
 | `elasticOut` | `elastic.out(1, 0.35)` | answer stamps, badges, caption chips |
-| `power3Out` / `power2InOut` / `sineInOut` | … | slams, iris wipes, breathing glows |
+| `power3Out` / `sineInOut` | … | slams, breathing glows |
+| `cubicBezier(.65,0,.25,1)` | CSS curve from the HTML | the iris colour wipe (`anim.ts → irisEase`) |
 | `linear` | none | the clock fill only — an eased countdown lies |
 
 `src/anim.ts` is the only bridge between the two worlds:

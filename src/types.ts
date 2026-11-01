@@ -25,6 +25,17 @@ export type Segment =
   | { kind: 'levelCard'; from: number; duration: number; levelIndex: number }
   | { kind: 'question'; from: number; duration: number; index: number }
   | { kind: 'bonus'; from: number; duration: number; index: number; puzzle: BonusPuzzle }
+  | {
+      kind: 'iris';
+      from: number;
+      duration: number;
+      fromTheme: [string, string];
+      toTheme: [string, string];
+      /** what the HUD pill shows while the colour wipes (the scene we just left) */
+      hud: { label: string; number: number; total: number };
+      /** the watermark stays on while leaving a question */
+      watermark: boolean;
+    }
   | { kind: 'scoreboard'; from: number; duration: number }
   | { kind: 'endScreen'; from: number; duration: number };
 

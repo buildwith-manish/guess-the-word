@@ -5,6 +5,7 @@ import { Round } from './Round';
 import { Hook } from './Hook';
 import { LevelCard } from './LevelCard';
 import { Bonus } from './BonusRound';
+import { Iris } from './Iris';
 import { Scoreboard } from './Scoreboard';
 import { EndScreen } from './EndScreen';
 import { Soundtrack } from './Soundtrack';
@@ -45,6 +46,12 @@ const Scenes: React.FC = () => {
       return (
         <AbsoluteFill>
           <Bonus frame={local} puzzle={seg.puzzle} index={seg.index} />
+        </AbsoluteFill>
+      );
+    case 'iris':
+      return (
+        <AbsoluteFill>
+          <Iris frame={local} seg={seg} />
         </AbsoluteFill>
       );
     case 'scoreboard':

@@ -51,7 +51,7 @@ export const Round: React.FC<{ frame: number; index: number }> = ({ frame, index
     <>
       <Background frame={frame} theme={theme} />
       <Hud label="Q" number={index + 1} total={TOTAL} erases={0} frame={frame} />
-      <Watermark frame={frame} />
+      <Watermark frame={index === 0 ? frame : frame + 999} />
       {index === 0 ? <TitleLockup frame={frame} exitAt={plan.stamp} /> : null}
 
       {/* ---------- emoji pair ---------- */}

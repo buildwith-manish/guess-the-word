@@ -66,7 +66,8 @@
     "revealExit": 22,
     "factEvery": 3,
     "voiceWordsPerSecond": 2.6,
-    "titleInFrames": 15
+    "titleInFrames": 15,
+    "irisFrames": 26
   },
   "bonus": {
     "after": [
@@ -82,6 +83,10 @@
       "scramble",
       "math",
       "spot"
+    ],
+    "theme": [
+      "#ff7a18",
+      "#5a1d00"
     ],
     "preRollFrames": 44,
     "buildFrames": 32,

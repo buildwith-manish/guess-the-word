@@ -14,7 +14,9 @@ export const Background: React.FC<{
   pulse?: number;
   hideBars?: boolean;
   dim?: number;
-}> = ({ frame, theme, pulse = 0, hideBars = false, dim = 0 }) => {
+  /** colour wipe: a circle of `theme` growing from the centre over the base (HTML #iris), p = 0..1 */
+  iris?: { theme: [string, string]; p: number };
+}> = ({ frame, theme, pulse = 0, hideBars = false, dim = 0, iris }) => {
   const drift = ((frame / (12 * 30)) % 1) * 44;
   const gridOpacity = 0.5 + 0.14 * breathe(frame, 180);
 
@@ -25,6 +27,15 @@ export const Background: React.FC<{
           background: `radial-gradient(ellipse 90% 80% at 50% 8%, ${theme[0]}, ${theme[1]})`,
         }}
       />
+      {iris && iris.p > 0 ? (
+        <AbsoluteFill
+          style={{
+            background: `radial-gradient(ellipse 90% 80% at 50% 8%, ${iris.theme[0]}, ${iris.theme[1]})`,
+            // circle(80%) is the CSS reference radius the HTML used; it clears every corner
+            clipPath: `circle(${80 * iris.p}% at 50% 50%)`,
+          }}
+        />
+      ) : null}
       <AbsoluteFill
         style={{
           backgroundImage: 'radial-gradient(rgba(255,255,255,0.15) 2px, rgba(0,0,0,0) 2.5px)',

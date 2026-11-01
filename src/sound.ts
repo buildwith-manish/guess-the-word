@@ -119,6 +119,10 @@ const buildCues = (): Cue[] => {
         add(clockEnd + settings.bonus.answerChipDelayFrames, 'chime-erase');
         break;
       }
+      case 'iris': {
+        add(f0, 'whoosh');
+        break;
+      }
       case 'scoreboard': {
         for (let i = 0; i < RANK_COUNT; i++) {
           const fromBottom = RANK_COUNT - 1 - i;

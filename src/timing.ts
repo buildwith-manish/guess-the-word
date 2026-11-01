@@ -51,6 +51,13 @@ export type QuestionPlan = {
   fact?: string;
 };
 
+/** Colour pair behind question `index`: the HTML switches theme on EVERY question (LV[n % 5]). */
+export const themeForQuestion = (index: number): [string, string] =>
+  (THEMES[index % THEMES.length] ?? THEMES[0]) as [string, string];
+
+/** Orange backdrop of every bonus round (the HTML's TGB). */
+export const BONUS_THEME = settings.bonus.theme as [string, string];
+
 const levelIndexOf = (q: Question) =>
   Math.max(0, LEVELS.findIndex((l) => l.name === q.level));
 
@@ -134,6 +141,23 @@ const buildTimeline = (puzzles: BonusPuzzle[] = PUZZLES): Timeline => {
     return seg;
   };
 
+  /** colour wipe (HTML iris(): whoosh + circle of the next theme grows over the old one) */
+  const pushIris = (
+    fromTheme: [string, string],
+    toTheme: [string, string],
+    hud: { label: string; number: number; total: number },
+    watermark: boolean,
+  ) =>
+    push({
+      kind: 'iris',
+      from: cursor,
+      duration: settings.timing.irisFrames,
+      fromTheme,
+      toTheme,
+      hud,
+      watermark,
+    });
+
   push({ kind: 'hook', from: 0, duration: settings.timing.hookA + settings.timing.hookB });
 
   const seenLevels = new Set<number>();
@@ -157,8 +181,22 @@ const buildTimeline = (puzzles: BonusPuzzle[] = PUZZLES): Timeline => {
 
     const bonusIndex = settings.bonus.after.indexOf(i + 1);
     const puzzle = puzzles[bonusIndex];
+    const isLast = i === QUESTIONS.length - 1;
+    const qHud = { label: 'Q', number: i + 1, total: TOTAL };
     if (bonusIndex >= 0 && puzzle) {
+      // question -> orange bonus backdrop -> (next question's theme, unless the video is over)
+      pushIris(themeForQuestion(i), BONUS_THEME, qHud, true);
       push({ kind: 'bonus', from: cursor, duration: bonusDuration(puzzle), index: bonusIndex, puzzle });
+      if (!isLast) {
+        pushIris(
+          BONUS_THEME,
+          themeForQuestion(i + 1),
+          { label: 'BONUS', number: bonusIndex + 1, total: settings.bonus.after.length },
+          false,
+        );
+      }
+    } else if (!isLast) {
+      pushIris(themeForQuestion(i), themeForQuestion(i + 1), qHud, true);
     }
   });
 
@@ -181,7 +219,3 @@ export const locate = (segments: Segment[], frame: number) => {
   const seg = segments[Math.max(0, idx)] ?? segments[0];
   return { seg, local: Math.max(0, frame - (seg?.from ?? 0)), index: idx };
 };
-
-/** Iris colour pair behind a question (one theme per 10 questions, like the HTML). */
-export const themeForQuestion = (index: number): [string, string] =>
-  (THEMES[Math.floor(index / 10) % THEMES.length] ?? THEMES[0]) as [string, string];

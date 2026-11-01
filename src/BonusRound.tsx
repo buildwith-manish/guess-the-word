@@ -1,7 +1,7 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
 import { COLORS, FONTS, S, px } from './style';
-import { BONUS_CLOCK_START, FPS, themeForQuestion } from './timing';
+import { BONUS_CLOCK_START, BONUS_THEME, FPS } from './timing';
 import { prog, slamIn, revealIn } from './anim';
 import { backOut, elasticOut, expoOut, linear } from './gsap-helpers';
 import { makeConfetti } from './util';
@@ -46,7 +46,7 @@ export const Bonus: React.FC<{ frame: number; puzzle: BonusPuzzle; index: number
 
   return (
     <>
-      <Background frame={frame} theme={themeForQuestion(index)} pulse={pulse} />
+      <Background frame={frame} theme={BONUS_THEME} pulse={pulse} />
       <Hud
         label="BONUS"
         number={index + 1}
