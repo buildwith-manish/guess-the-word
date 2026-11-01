@@ -152,7 +152,7 @@ guess-the-word/
     ├── Root.tsx                # <Composition> (duration from the timeline)
     ├── Main.tsx                # picks the scene for the current frame
     ├── timing.ts               # settings + rounds -> frame plan
-    ├── bonus.ts                # deterministic bonus-round generator
+    ├── bonus-engine.ts         # deterministic bonus-round generator
     ├── gsap-helpers.js         # ← GSAP easings as pure functions
     ├── anim.ts                 # frame + ease -> CSS values (no timelines)
     ├── style.ts                # design tokens (1.5× the reference stage)
@@ -160,7 +160,7 @@ guess-the-word/
     ├── fonts.ts                # loadFont() for every face
     ├── Hook.tsx                # challenge + rules intro
     ├── Round.tsx               # one question (emoji → blanks → clock → answer)
-    ├── Bonus.tsx               # 5 bonus round types
+    ├── BonusRound.tsx          # 5 bonus round types (odd/count/scramble/math/spot)
     ├── LevelCard.tsx           # EASY / MEDIUM / HARD cards
     ├── Scoreboard.tsx          # LEGEND … KEEP PRACTISING
     ├── EndScreen.tsx           # end-screen slots for the YouTube player

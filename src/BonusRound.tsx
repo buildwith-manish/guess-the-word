@@ -5,7 +5,7 @@ import { BONUS_CLOCK_START, FPS, themeForQuestion } from './timing';
 import { prog, slamIn, revealIn } from './anim';
 import { backOut, elasticOut, expoOut, linear } from './gsap-helpers';
 import { makeConfetti } from './util';
-import type { BonusPuzzle } from './bonus';
+import type { BonusPuzzle } from './bonus-engine';
 import { Background } from './Background';
 import { Hud } from './Hud';
 import settings from '../settings.json';

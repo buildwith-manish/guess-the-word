@@ -6,7 +6,7 @@
 import settings from '../settings.json';
 import rounds from './rounds.json';
 import type { LevelCfg, Question, Segment, Timeline } from './types';
-import { buildBonusPuzzles, type BonusPuzzle } from './bonus';
+import { buildBonusPuzzles, type BonusPuzzle } from './bonus-engine';
 
 export const CFG = settings;
 export const FPS = settings.fps;

@@ -1,6 +1,6 @@
 /** types.ts — shared shapes, kept in one module so scenes never import
  *  each other just for a type (keeps the dependency graph acyclic). */
-import type { BonusPuzzle } from './bonus';
+import type { BonusPuzzle } from './bonus-engine';
 
 export type LevelCfg = {
   name: string;

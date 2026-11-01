@@ -4,7 +4,7 @@ import { locate, TIMELINE } from './timing';
 import { Round } from './Round';
 import { Hook } from './Hook';
 import { LevelCard } from './LevelCard';
-import { Bonus } from './Bonus';
+import { Bonus } from './BonusRound';
 import { Scoreboard } from './Scoreboard';
 import { EndScreen } from './EndScreen';
 
