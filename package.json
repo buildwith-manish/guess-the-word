@@ -1,0 +1,34 @@
+{
+  "name": "guess-the-word",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Guess the Word by Emoji - 50 question quiz, built with Remotion + GSAP easing math (Pattern 1: no GSAP timelines).",
+  "scripts": {
+    "postinstall": "node scripts/csv-to-json.js",
+    "dev": "remotion studio",
+    "timeline": "node scripts/timeline.js",
+    "render": "remotion render GuessTheWord out/video.mp4",
+    "render:lanes": "node scripts/render-batches.js --size 900",
+    "render:batches": "node scripts/render-batches.js",
+    "still": "remotion still GuessTheWord out/still.png --frame=700",
+    "typecheck": "tsc --noEmit",
+    "data": "node scripts/csv-to-json.js",
+    "images": "node scripts/fetch-images.js",
+    "images:resize": "node scripts/resize-images.js",
+    "images:refetch": "node scripts/refetch-broken.js",
+    "images:all": "node scripts/fetch-images.js && node scripts/resize-images.js && node scripts/refetch-broken.js"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.539",
+    "@remotion/fonts": "4.0.539",
+    "gsap": "^3.13.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "remotion": "4.0.539"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.6.0"
+  }
+}

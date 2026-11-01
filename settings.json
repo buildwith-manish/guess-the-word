@@ -1,0 +1,199 @@
+{
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "durationInFrames": 12660,
+  "brand": {
+    "quiz": "QUIZ",
+    "matrix": "MATRIX",
+    "wordmark": "MATRIX"
+  },
+  "levelCardFrames": 72,
+  "levels": [
+    {
+      "name": "EASY",
+      "time": 6,
+      "accent": "#30d158",
+      "bg": "#0a4d2e"
+    },
+    {
+      "name": "MEDIUM",
+      "time": 7,
+      "accent": "#ff9f0a",
+      "bg": "#5a3200"
+    },
+    {
+      "name": "HARD",
+      "time": 8,
+      "accent": "#ff3b4f",
+      "bg": "#5a0012"
+    }
+  ],
+  "levelThemes": [
+    [
+      "#ff2d4a",
+      "#5a0012"
+    ],
+    [
+      "#2f6bff",
+      "#07164f"
+    ],
+    [
+      "#9b4dff",
+      "#26074f"
+    ],
+    [
+      "#10c98a",
+      "#033d2c"
+    ],
+    [
+      "#ff2fa0",
+      "#4a002e"
+    ]
+  ],
+  "timer": {
+    "bulbFractions": [
+      0.6667,
+      0.3333
+    ],
+    "lowSeconds": 3,
+    "trackWidth": 1000
+  },
+  "timing": {
+    "hookA": 110,
+    "hookB": 135,
+    "questionAfterTitle": 22,
+    "blanksAfterEmojis": 14,
+    "answerFlipsAfterTimer": 6,
+    "answerHold": 58,
+    "revealExit": 22,
+    "remindAfter": [
+      10,
+      25,
+      40
+    ],
+    "factEvery": 3,
+    "voiceWordsPerSecond": 2.6,
+    "titleInFrames": 15
+  },
+  "bonus": {
+    "after": [
+      10,
+      20,
+      30,
+      40,
+      50
+    ],
+    "order": [
+      "odd",
+      "count",
+      "scramble",
+      "math",
+      "spot"
+    ],
+    "preRollFrames": 44,
+    "buildFrames": 32,
+    "revealHoldFrames": 112,
+    "answerChipDelayFrames": 26
+  },
+  "scoreboard": {
+    "ranks": [
+      [
+        "LEGEND",
+        "👑",
+        "0–3 WRONG",
+        "#ffd60a"
+      ],
+      [
+        "EXPERT",
+        "🔥",
+        "4–10 WRONG",
+        "#4d9bff"
+      ],
+      [
+        "GOOD",
+        "👍",
+        "11–20 WRONG",
+        "#30d158"
+      ],
+      [
+        "BEGINNER",
+        "🌱",
+        "21–30 WRONG",
+        "#ff9f0a"
+      ],
+      [
+        "KEEP PRACTISING",
+        "💪",
+        "31+ WRONG",
+        "#ff6b6b"
+      ]
+    ],
+    "frames": 168
+  },
+  "endScreen": {
+    "frames": 340,
+    "eyebrow": "THE CHALLENGE",
+    "headlineA": "BEAT YOUR",
+    "headlineB": "FRIEND’S",
+    "headlineC": "SCORE",
+    "cta": "TAG THEM IN THE COMMENTS 👇",
+    "tagline": "WHO GETS FEWER WRONG?",
+    "nextLabel": "WATCH NEXT",
+    "subscribe": "SUBSCRIBE",
+    "subscribeSub": "FOR MORE QUIZZES"
+  },
+  "text": {
+    "posterTitle": "GUESS THE",
+    "posterTitleB": "WORD",
+    "posterSub": "QUESTIONS · EMOJI QUIZ",
+    "comment": "COMMENT YOUR ANSWER BEFORE THE TIMER ENDS",
+    "correctChip": "✔ CORRECT ANSWER",
+    "eraseChip": "GOT IT? ERASE 1 WRONG ❌",
+    "bonusEyebrow": "BONUS ROUND",
+    "factEyebrow": "✔ CORRECT · DID YOU KNOW?",
+    "scoreboardKicker": "FINAL SCOREBOARD",
+    "scoreboardTitleA": "HOW MANY WERE",
+    "scoreboardTitleB": "WRONG?",
+    "scoreboardFooter": "WRONG ANSWERS − BONUS ERASES = YOUR RANK",
+    "remind": "Still counting? ❌",
+    "hook": {
+      "a1": "CAN YOU GUESS",
+      "a2a": "ALL",
+      "a2b": "WORDS",
+      "a3": "WITH #ZERO# MISTAKES?",
+      "rulesEyebrow": "THE RULES",
+      "r1a": "COUNT EVERY",
+      "r1b": "WRONG",
+      "r1c": "ANSWER",
+      "r2a": "BONUS ROUND RIGHT =",
+      "r2b": "−1 WRONG",
+      "r3a": "UNDER",
+      "r3b": "4",
+      "r3c": "WRONG =",
+      "r3d": "LEGEND"
+    }
+  },
+  "images": {
+    "enabled": true,
+    "width": 1280,
+    "height": 720,
+    "publicDir": "public/images",
+    "blockedHosts": [
+      "shutterstock.com",
+      "shutterstock.net",
+      "shutterstock.plus",
+      "sscdn.co"
+    ]
+  },
+  "sound": {
+    "enabled": false,
+    "dir": "public/sounds",
+    "tracks": {
+      "tick": "tick.mp3",
+      "reveal": "reveal.mp3",
+      "stamp": "stamp.mp3",
+      "whoosh": "whoosh.mp3"
+    }
+  }
+}
