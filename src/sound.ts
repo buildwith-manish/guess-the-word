@@ -88,10 +88,9 @@ const buildCues = (): Cue[] => {
         add(f0 + plan.emojiStart, 'pop');
         add(f0 + plan.emojiStart + 16, 'pop');
 
-        // clock: tick each second, chime on both free letters (2/3 and 1/3 of the clock)
+        // clock: tick each second, chime on each free letter (at the two 💡 bulbs)
         ticks(f0 + plan.timerStart, plan.timerSeconds, 'tick-low');
-        add(f0 + plan.timerStart + plan.timerFrames * (1 / 3), 'flip');
-        add(f0 + plan.timerStart + plan.timerFrames * (2 / 3), 'flip');
+        plan.free.forEach((fl) => add(f0 + fl.at, 'flip'));
 
         // clock ends: bulbs flare, then every letter flips with a rising tone
         add(f0 + plan.flips, 'flare');

@@ -16,7 +16,8 @@ const CONFETTI = makeConfetti(7, 26, { x: 960, y: 620 });
 
 /**
  * One question. Beats, all derived from buildQuestionPlan():
- *   emoji pair -> letter blanks -> 6/7/8s clock -> one letter flips at 1/3
+ *   emoji pair -> letter blanks -> 6/7/8s clock -> free letters flip at 2/3
+ *   and 1/3 of the time left -> the rest flip at the end
  *   -> answer card stamps in with confetti -> optional fact card
  */
 export const Round: React.FC<{ frame: number; index: number }> = ({ frame, index }) => {
@@ -127,8 +128,14 @@ export const Round: React.FC<{ frame: number; index: number }> = ({ frame, index
         ? letters.map((letter, i) => {
             const start = plan.blanksStart + i * 1.6;
             const p = prog(frame, start, 18, expoOut);
-            const flipped = frame >= plan.flips + i * 1.4;
-            const flipP = prog(frame, plan.flips + i * 1.4, 17, backOut);
+            // free letters flip while the clock runs; the rest flip when it ends
+            const endFlipAt = plan.flips + i * 1.4;
+            const free = plan.free.find((f) => f.index === i);
+            const flipAt = free ? free.at : endFlipAt;
+            const flipped = frame >= flipAt;
+            const flipP = prog(frame, flipAt, 17, backOut);
+            // an already-open letter gives a little pulse when the others flip (HTML: scale 1 -> 1.2 -> 1)
+            const pulse = free && frame >= endFlipAt ? Math.sin(Math.PI * prog(frame, endFlipAt, 13, linear)) : 0;
             const width = px(56);
             const gap = px(9);
             const totalW = letters.length * width + (letters.length - 1) * gap;
@@ -156,7 +163,7 @@ export const Round: React.FC<{ frame: number; index: number }> = ({ frame, index
                   color: COLORS.yellow,
                   textShadow: `0 0 ${px(22)}px rgba(255,214,10,0.8)`,
                   opacity: p * (1 - exitP),
-                  transform: `translate3d(0, ${(1 - p) * 60}px, 0) perspective(700px) rotateX(${(1 - p) * 70}deg) scale(${flipped ? 0.82 + 0.18 * flipP : 1})`,
+                  transform: `translate3d(0, ${(1 - p) * 60}px, 0) perspective(700px) rotateX(${(1 - p) * 70}deg) scale(${(flipped ? 0.82 + 0.18 * flipP : 1) * (1 + 0.2 * pulse)})`,
                 }}
               >
                 <span

@@ -19,7 +19,14 @@ export const QUESTIONS: Question[] = (rounds as unknown as Question[]).map((q) =
   ...q,
   id: Number(q.id),
   level: String(q.level || 'EASY').toUpperCase(),
-  reveal: Math.max(1, Math.min(String(q.word).length, Number(q.reveal) || 1)),
+  // 0-based position of the SECOND free letter (the HTML's SPLIT digit); clamped into the word
+  reveal: Math.max(
+    0,
+    Math.min(
+      String(q.word).length - 1,
+      Number.isFinite(Number(q.reveal)) ? Math.floor(Number(q.reveal)) : Math.floor(String(q.word).length / 2),
+    ),
+  ),
   fact: (q.fact || '').trim() || undefined,
 }));
 
@@ -33,6 +40,8 @@ export type QuestionPlan = {
   blanksStart: number;
   timerStart: number;
   timerFrames: number;
+  /** free letters flipped while the clock runs (index in the word + frame), mirrors the HTML */
+  free: { index: number; at: number }[];
   flips: number;
   stamp: number;
   hold: number;
@@ -48,7 +57,8 @@ const levelIndexOf = (q: Question) =>
 /**
  * Question rhythm in frames at 30fps (mirrors the reference HTML):
  *   title lockup (Q1 only) -> emoji + "+" + emoji -> letter blanks
- *   -> clock -> one letter flips at the 1/3 mark -> answer stamps -> hold.
+ *   -> clock -> free letters flip at 2/3 and 1/3 of the time left (with the 💡
+ *   bulbs) -> the rest flip when the clock ends -> answer stamps -> hold.
  * Every offset is derived, so editing settings.json re-flows the whole video.
  */
 export const buildQuestionPlan = (
@@ -66,6 +76,12 @@ export const buildQuestionPlan = (
 
   const blanksStart = emojiEnd + t.blanksAfterEmojis;
   const timerStart = blanksStart + q.word.length * 2 + 20;
+  // Free letters, exactly like the HTML: the first letter at the first bulb, then
+  // letter `reveal` at the second bulb (skipped when that is the first letter again).
+  const [b1, b2] = settings.timer.bulbFractions;
+  const free = [{ index: 0, at: timerStart + timerFrames * (1 - b1) }];
+  if (q.reveal > 0) free.push({ index: q.reveal, at: timerStart + timerFrames * (1 - b2) });
+
   const flips = timerStart + timerFrames + t.answerFlipsAfterTimer;
   const stamp = flips + q.word.length * 2 + 16;
 
@@ -84,6 +100,7 @@ export const buildQuestionPlan = (
     blanksStart,
     timerStart,
     timerFrames,
+    free,
     flips,
     stamp,
     hold,

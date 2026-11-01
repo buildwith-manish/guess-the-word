@@ -15,6 +15,7 @@ export type Question = {
   emoji1: string;
   emoji2: string;
   level: string;
+  /** 0-based position of the second free letter (the first letter is always free) */
   reveal: number;
   fact?: string;
 };

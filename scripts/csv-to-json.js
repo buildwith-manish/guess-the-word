@@ -6,7 +6,7 @@
  *
  * - Skips lines starting with "#" so the CSV can be self-documenting.
  * - Handles quoted fields (facts contain commas, quotes and en-dashes).
- * - Validates every row (known level, reveal inside the word, emoji present)
+ * - Validates every row (known level, reveal is a letter position inside the word, emoji present)
  *   so a typo fails here instead of halfway through a 15 minute render.
  *
  * Usage: node scripts/csv-to-json.js [--in rounds.csv] [--out src/rounds.json]
@@ -104,12 +104,14 @@ const main = () => {
     const line = r + 2;
     const word = get('word').toUpperCase().replace(/[^A-Z]/g, '');
     const level = get('level').toUpperCase();
-    const reveal = Number(get('reveal')) || 1;
+    // reveal = 0-based position of the 2nd free letter (the HTML's SPLIT digit); blank -> middle letter
+    const reveal = get('reveal') === '' ? Math.floor(word.length / 2) : Number(get('reveal'));
     const id = Number(get('id')) || r + 1;
 
     if (!word) problems.push(`line ${line}: empty word`);
     if (!LEVELS.includes(level)) problems.push(`line ${line}: level must be EASY/MEDIUM/HARD (got "${level}")`);
-    if (reveal < 1 || reveal > word.length) problems.push(`line ${line}: reveal ${reveal} outside 1..${word.length}`);
+    if (!Number.isInteger(reveal) || reveal < 0 || reveal > word.length - 1)
+      problems.push(`line ${line}: reveal ${get('reveal')} outside 0..${word.length - 1} (0-based letter position)`);
     if (!get('emoji1') || !get('emoji2')) problems.push(`line ${line}: needs emoji1 and emoji2`);
 
     out.push({

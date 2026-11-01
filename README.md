@@ -76,8 +76,11 @@ Flags after `--` are forwarded to `remotion render` (e.g. `--concurrency=4`).
 | `src/timing.ts` | turns both files into an exact frame plan used by every scene |
 | `src/bonus-engine.ts` | the five seed-generated bonus rounds |
 
-`reveal` is the 1-based letter that flips at the **1/3** mark of the clock (the
-free letter). `fact` is optional and shows on every `factEvery`-th question
+Two free letters flip **while the clock runs**, each together with a 💡 bulb: the
+first letter at 2/3 of the time left, then the letter at position `reveal` at
+1/3 left. `reveal` is a **0-based** position (3 on `STARFISH` = the R, the same
+digit the reference HTML calls `SPLIT`); `0` means no second free letter. All
+other letters flip when the clock ends. `fact` is optional and shows on every `factEvery`-th question
 (`settings.json → timing.factEvery`).
 
 After editing the CSV:
