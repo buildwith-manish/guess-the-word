@@ -70,11 +70,11 @@
   },
   "bonus": {
     "after": [
-      10,
-      20,
-      30,
-      40,
-      50
+      1,
+      2,
+      3,
+      4,
+      5
     ],
     "order": [
       "odd",
@@ -92,31 +92,31 @@
     "ranks": [
       [
         "LEGEND",
-        "👑",
-        "0–3 WRONG",
+        "\ud83d\udc51",
+        "0\u20133 WRONG",
         "#ffd60a"
       ],
       [
         "EXPERT",
-        "🔥",
-        "4–10 WRONG",
+        "\ud83d\udd25",
+        "4\u201310 WRONG",
         "#4d9bff"
       ],
       [
         "GOOD",
-        "👍",
-        "11–20 WRONG",
+        "\ud83d\udc4d",
+        "11\u201320 WRONG",
         "#30d158"
       ],
       [
         "BEGINNER",
-        "🌱",
-        "21–30 WRONG",
+        "\ud83c\udf31",
+        "21\u201330 WRONG",
         "#ff9f0a"
       ],
       [
         "KEEP PRACTISING",
-        "💪",
+        "\ud83d\udcaa",
         "31+ WRONG",
         "#ff6b6b"
       ]
@@ -127,9 +127,9 @@
     "frames": 340,
     "eyebrow": "THE CHALLENGE",
     "headlineA": "BEAT YOUR",
-    "headlineB": "FRIEND’S",
+    "headlineB": "FRIEND\u2019S",
     "headlineC": "SCORE",
-    "cta": "TAG THEM IN THE COMMENTS 👇",
+    "cta": "TAG THEM IN THE COMMENTS \ud83d\udc47",
     "tagline": "WHO GETS FEWER WRONG?",
     "nextLabel": "WATCH NEXT",
     "subscribe": "SUBSCRIBE",
@@ -137,13 +137,13 @@
   },
   "text": {
     "comment": "COMMENT YOUR ANSWER BEFORE THE TIMER ENDS",
-    "correctChip": "✔ CORRECT ANSWER",
-    "eraseChip": "GOT IT? ERASE 1 WRONG ❌",
-    "factEyebrow": "✔ CORRECT · DID YOU KNOW?",
+    "correctChip": "\u2714 CORRECT ANSWER",
+    "eraseChip": "GOT IT? ERASE 1 WRONG \u274c",
+    "factEyebrow": "\u2714 CORRECT \u00b7 DID YOU KNOW?",
     "scoreboardKicker": "FINAL SCOREBOARD",
     "scoreboardTitleA": "HOW MANY WERE",
     "scoreboardTitleB": "WRONG?",
-    "scoreboardFooter": "WRONG ANSWERS − BONUS ERASES = YOUR RANK",
+    "scoreboardFooter": "WRONG ANSWERS \u2212 BONUS ERASES = YOUR RANK",
     "hook": {
       "a1": "CAN YOU GUESS",
       "a2a": "ALL",
@@ -154,7 +154,7 @@
       "r1b": "WRONG",
       "r1c": "ANSWER",
       "r2a": "BONUS ROUND RIGHT =",
-      "r2b": "−1 WRONG",
+      "r2b": "\u22121 WRONG",
       "r3a": "UNDER",
       "r3b": "4",
       "r3c": "WRONG =",
