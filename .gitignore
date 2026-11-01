@@ -16,7 +16,6 @@ src/rounds.json
 
 # image tooling state
 scripts/.image-progress.json
-public/images/*
 !public/images/.gitkeep
 
 # remotion / bundler caches

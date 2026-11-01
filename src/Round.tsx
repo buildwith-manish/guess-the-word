@@ -628,25 +628,16 @@ const ResultCard: React.FC<{
               height: '100%',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: px(22) }}>
-              <Img src={clueSrc(clueA)} style={{ width: px(120), height: px(120), objectFit: 'contain' }} />
-              <svg width={px(34)} height={px(34)} viewBox="0 0 30 30">
-                <rect x="3" y="7" width="24" height="5.5" rx="2.75" fill={COLORS.muted} />
-                <rect x="3" y="18" width="24" height="5.5" rx="2.75" fill={COLORS.muted} />
-              </svg>
-              <Img src={clueSrc(clueB)} style={{ width: px(120), height: px(120), objectFit: 'contain' }} />
-            </div>
+            {/* no photo for this question: neutral placeholder only (no emoji pair, no big word) */}
             <div
               style={{
                 fontFamily: FONTS.display,
-                fontSize: word.length > 9 ? px(92) : px(118),
-                lineHeight: 1,
+                fontSize: px(64),
                 letterSpacing: px(8),
-                color: COLORS.yellow,
-                textShadow: `0 0 ${px(40)}px rgba(255,201,60,0.55), 0 ${px(6)}px 0 rgba(0,0,0,0.45)`,
+                color: COLORS.muted,
               }}
             >
-              {word}
+              IMAGE HERE
             </div>
           </div>
         )}
