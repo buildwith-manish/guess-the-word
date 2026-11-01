@@ -236,6 +236,8 @@ const TONES = {
   row: [T(0, 330, 0.3, 'triangle', 0.18)],
   // LEGEND row: 784 (.6) + 1046 (.8) at 150 ms
   legend: [T(0, 784, 0.6, 'triangle', 0.2), T(0.15, 1046, 0.8, 'triangle', 0.2)],
+  // "Still counting?" reminder: tone(660,.2,'sine',.12)
+  remind: [T(0, 660, 0.2, 'sine', 0.12)],
   // bonus: erase-chip chime tone(1318,.5,'triangle',.18)
   'chime-erase': [T(0, 1318, 0.5, 'triangle', 0.18)],
   // bonus reveal accent: tone(660,.15,'triangle',.1) rides on `stamp`, so nothing extra

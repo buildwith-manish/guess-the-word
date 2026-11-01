@@ -19,6 +19,7 @@
   "ding-hi": 0.35,
   "row": 0.35,
   "legend": 1,
+  "remind": 0.25,
   "chime-erase": 0.55,
   "siren": 1.07,
   "whoosh": 0.7,

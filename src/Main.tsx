@@ -6,6 +6,7 @@ import { Hook } from './Hook';
 import { LevelCard } from './LevelCard';
 import { Bonus } from './BonusRound';
 import { Iris } from './Iris';
+import { Reminder } from './Reminder';
 import { Scoreboard } from './Scoreboard';
 import { EndScreen } from './EndScreen';
 import { Soundtrack } from './Soundtrack';
@@ -46,6 +47,12 @@ const Scenes: React.FC = () => {
       return (
         <AbsoluteFill>
           <Bonus frame={local} puzzle={seg.puzzle} index={seg.index} />
+        </AbsoluteFill>
+      );
+    case 'reminder':
+      return (
+        <AbsoluteFill>
+          <Reminder frame={local} seg={seg} />
         </AbsoluteFill>
       );
     case 'iris':

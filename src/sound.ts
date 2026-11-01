@@ -119,6 +119,10 @@ const buildCues = (): Cue[] => {
         add(clockEnd + settings.bonus.answerChipDelayFrames, 'chime-erase');
         break;
       }
+      case 'reminder': {
+        add(f0, 'remind');
+        break;
+      }
       case 'iris': {
         add(f0, 'whoosh');
         break;

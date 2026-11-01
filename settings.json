@@ -7,6 +7,14 @@
     "matrix": "MATRIX"
   },
   "levelCardFrames": 72,
+  "reminder": {
+    "after": [
+      10,
+      25,
+      40
+    ],
+    "frames": 51
+  },
   "levels": [
     {
       "name": "EASY",
@@ -142,6 +150,7 @@
   },
   "text": {
     "comment": "COMMENT YOUR ANSWER BEFORE THE TIMER ENDS",
+    "reminder": "Still counting? \u274c",
     "correctChip": "\u2714 CORRECT ANSWER",
     "eraseChip": "GOT IT? ERASE 1 WRONG \u274c",
     "factEyebrow": "\u2714 CORRECT \u00b7 DID YOU KNOW?",

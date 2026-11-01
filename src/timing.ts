@@ -183,6 +183,16 @@ const buildTimeline = (puzzles: BonusPuzzle[] = PUZZLES): Timeline => {
     const puzzle = puzzles[bonusIndex];
     const isLast = i === QUESTIONS.length - 1;
     const qHud = { label: 'Q', number: i + 1, total: TOTAL };
+    // "Still counting? ❌" pop-up after Q10 / Q25 / Q40 (settings.reminder.after)
+    if (settings.reminder.after.includes(i + 1)) {
+      push({
+        kind: 'reminder',
+        from: cursor,
+        duration: settings.reminder.frames,
+        theme: themeForQuestion(i),
+        hud: qHud,
+      });
+    }
     if (bonusIndex >= 0 && puzzle) {
       // question -> orange bonus backdrop -> (next question's theme, unless the video is over)
       pushIris(themeForQuestion(i), BONUS_THEME, qHud, true);

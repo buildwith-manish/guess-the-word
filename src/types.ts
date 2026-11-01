@@ -36,6 +36,13 @@ export type Segment =
       /** the watermark stays on while leaving a question */
       watermark: boolean;
     }
+  | {
+      kind: 'reminder';
+      from: number;
+      duration: number;
+      theme: [string, string];
+      hud: { label: string; number: number; total: number };
+    }
   | { kind: 'scoreboard'; from: number; duration: number }
   | { kind: 'endScreen'; from: number; duration: number };
 

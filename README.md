@@ -129,6 +129,14 @@ levelThemes`, cycling per question) and bonus rounds sit on an orange one
 the centre with a whoosh (`timing.irisFrames`, ≈0.85 s, same curve as the HTML),
 so the runtime grows by one wipe per transition.
 
+## Reminder pop-up
+
+After the questions listed in `settings.json → reminder.after` (default `[10, 25, 40]`,
+as in the HTML) a short "Still counting? ❌" pill pops up (`src/Reminder.tsx`,
+`reminder.frames` ≈ 1.7 s, text in `text.reminder`). The default 5-question cut
+never reaches Q10, so it only shows once the bank is longer — set e.g. `[3]` to
+preview it.
+
 ## Sound
 
 The reference HTML makes all of its sound live with WebAudio. A rendered video
@@ -191,6 +199,7 @@ guess-the-word/
     ├── BonusRound.tsx          # 5 bonus round types (odd/count/scramble/math/spot)
     ├── LevelCard.tsx           # EASY / MEDIUM / HARD cards
     ├── Iris.tsx                # colour wipe between questions / bonus rounds
+    ├── Reminder.tsx            # "Still counting?" pop-up
     ├── Scoreboard.tsx          # LEGEND … KEEP PRACTISING
     ├── EndScreen.tsx           # end-screen slots for the YouTube player
     ├── Hud.tsx / Watermark.tsx / TitleLockup.tsx / Background.tsx

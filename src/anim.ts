@@ -97,6 +97,9 @@ export const cubicBezier = (x1: number, y1: number, x2: number, y2: number): Eas
   };
 };
 
+/** The HTML's general-purpose EASE: cubic-bezier(.2,.9,.2,1). */
+export const htmlEase = cubicBezier(0.2, 0.9, 0.2, 1);
+
 /** The HTML's iris wipe curve: cubic-bezier(.65,0,.25,1). */
 export const irisEase = cubicBezier(0.65, 0, 0.25, 1);
 
