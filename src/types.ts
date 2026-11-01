@@ -39,6 +39,8 @@ export type Segment =
       hud: Hud;
       /** the watermark stays on while leaving a question */
       watermark: boolean;
+      /** the GUESS THE WORD lockup stays on screen through question -> question wipes */
+      title?: boolean;
     }
   | {
       kind: 'reminder';
@@ -46,6 +48,8 @@ export type Segment =
       duration: number;
       theme: [string, string];
       hud: Hud;
+      /** the title lockup is still on screen (no bonus round follows) */
+      title?: boolean;
     }
   | { kind: 'scoreboard'; from: number; duration: number }
   | { kind: 'endScreen'; from: number; duration: number };

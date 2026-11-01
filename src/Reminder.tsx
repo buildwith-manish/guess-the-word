@@ -3,6 +3,7 @@ import { AbsoluteFill } from 'remotion';
 import { Background } from './Background';
 import { Hud } from './Hud';
 import { Watermark } from './Watermark';
+import { TitleLockup } from './TitleLockup';
 import { FONTS, px } from './style';
 import { prog, htmlEase, mix } from './anim';
 import { linear } from './gsap-helpers';
@@ -26,6 +27,7 @@ export const Reminder: React.FC<{ frame: number; seg: ReminderSegment }> = ({ fr
   return (
     <AbsoluteFill>
       <Background frame={frame} theme={seg.theme} />
+      {seg.title ? <TitleLockup frame={frame} animate={false} /> : null}
       <Hud
         label={seg.hud.label}
         number={seg.hud.number}
@@ -33,7 +35,7 @@ export const Reminder: React.FC<{ frame: number; seg: ReminderSegment }> = ({ fr
         erases={seg.hud.erases}
         frame={999}
       />
-      <Watermark frame={999} />
+      <Watermark />
       <div
         style={{
           position: 'absolute',

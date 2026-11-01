@@ -1,7 +1,6 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
 import { COLORS, S } from './style';
-import { breathe } from './anim';
 
 /**
  * The stacked full-bleed layers of the reference stage:
@@ -18,7 +17,6 @@ export const Background: React.FC<{
   iris?: { theme: [string, string]; p: number };
 }> = ({ frame, theme, pulse = 0, hideBars = false, dim = 0, iris }) => {
   const drift = ((frame / (12 * 30)) % 1) * 44;
-  const gridOpacity = 0.5 + 0.14 * breathe(frame, 180);
 
   return (
     <AbsoluteFill style={{ background: '#000' }}>
@@ -44,7 +42,6 @@ export const Background: React.FC<{
           maskImage: 'linear-gradient(rgba(0,0,0,0) 0%, #000 40%, #000 70%, rgba(0,0,0,0) 100%)',
           WebkitMaskImage:
             'linear-gradient(rgba(0,0,0,0) 0%, #000 40%, #000 70%, rgba(0,0,0,0) 100%)',
-          opacity: gridOpacity,
         }}
       />
       <AbsoluteFill
@@ -56,13 +53,7 @@ export const Background: React.FC<{
       <AbsoluteFill
         style={{
           background:
-            'radial-gradient(ellipse at center, rgba(0,0,0,0) 45%, rgba(0,0,0,0.7) 100%)',
-        }}
-      />
-      <AbsoluteFill
-        style={{
-          background:
-            'linear-gradient(to top, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.28) 14%, rgba(0,0,0,0) 32%)',
+            'radial-gradient(ellipse at center, rgba(0,0,0,0) 45%, rgba(0,0,0,0.733) 100%)',
         }}
       />
       {pulse > 0.001 ? (
@@ -74,14 +65,15 @@ export const Background: React.FC<{
         />
       ) : null}
       {dim > 0.001 ? <AbsoluteFill style={{ background: '#000', opacity: dim }} /> : null}
-      {hideBars ? null : (
-        <>
-          <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: S.bar, background: '#000' }} />
-          <div
-            style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: S.bar, background: '#000' }}
-          />
-        </>
-      )}
+      {hideBars ? null : <Bars />}
     </AbsoluteFill>
   );
 };
+
+/** HTML #bars: the 40px black letterbox bars, drawn above the scene content. */
+export const Bars: React.FC = () => (
+  <>
+    <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: S.bar, background: '#000' }} />
+    <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: S.bar, background: '#000' }} />
+  </>
+);

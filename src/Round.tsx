@@ -1,24 +1,43 @@
 import React from 'react';
 import { Img } from 'remotion';
 import { COLORS, FONTS, S, px } from './style';
-import { buildQuestionPlan, QUESTIONS, TOTAL, themeForQuestion, FPS } from './timing';
-import { prog, fadeIn, floatY, mix } from './anim';
-import { backOut, elasticOut, expoOut, linear } from './gsap-helpers';
-import { makeConfetti } from './util';
+import { buildQuestionPlan, QUESTIONS, TOTAL, themeForQuestion } from './timing';
+import {
+  prog,
+  htmlEase,
+  bounceEase,
+  mergeEase,
+  cssEaseIn,
+  cssEaseOut,
+  cssEaseInOut,
+  springStyle,
+  riseStyle,
+  keyframes,
+  ms,
+  clamp01,
+} from './anim';
+import { linear } from './gsap-helpers';
 import { Hud } from './Hud';
 import { Watermark } from './Watermark';
 import { TitleLockup } from './TitleLockup';
-import { Background } from './Background';
+import { Background, Bars } from './Background';
+import { Confetti, Ring, Flash } from './Fx';
 import settings from '../settings.json';
 import { imageSrc, hasImage, clueSrc } from './assets';
 
-const CONFETTI = makeConfetti(7, 26, { x: 960, y: 620 });
+/** Layout constants from the reference stage (1280x720, scaled by px()). */
+const PLUS_W = 19.2; // Anton "+" at 54px
+const ROW_HALF = (340 + 20 + PLUS_W + 20 + 340) / 2;
+const MERGE_DX = ROW_HALF - 170;
 
 /**
- * One question. Beats, all derived from buildQuestionPlan():
- *   emoji pair -> letter blanks -> 6/7/8s clock -> free letters flip at 2/3
- *   and 1/3 of the time left -> the rest flip at the end
- *   -> answer card stamps in with confetti -> optional fact card
+ * One question, following the reference HTML beat for beat (all times converted from its ms):
+ *   spring in emoji / "+" / emoji (230 ms apart, ring + float on the emoji)
+ *   -> 3D blanks drop in (50 ms stagger) -> clock with 💡 bulbs, free letters flip at 1/3 and 2/3
+ *   -> bulbs flare, remaining letters flip (50 ms apart), clock slides away
+ *   -> merge(): "+" shrinks, emoji slide together (820 ms), flash + spring result card + rings + confetti
+ *   -> chip / fact -> exit fades.
+ * The plan from buildQuestionPlan() still decides WHEN each beat starts, so the audio plan is unchanged.
  */
 export const Round: React.FC<{ frame: number; index: number; erases?: number }> = ({
   frame,
@@ -27,163 +46,247 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
 }) => {
   const q = QUESTIONS[index];
   const levelIndex = Math.max(0, settings.levels.findIndex((l) => l.name === q.level));
-  const plan = buildQuestionPlan(q, levelIndex, index === 0);
+  const plan = buildQuestionPlan(q, levelIndex, index === 0 || settings.bonus.after.includes(index));
   const theme = themeForQuestion(index);
   const letters = Array.from(q.word);
+  const n = letters.length;
+  const T = plan.timerSeconds;
 
-  const emojiSeq: { ch: string; kind: 'emoji' | 'plus' }[] = [
-    { ch: q.clueA, kind: 'emoji' },
-    { ch: '+', kind: 'plus' },
-    { ch: q.clueB, kind: 'emoji' },
-  ];
-
+  // ---- beat times (frames) ----
+  const R0 = plan.stamp; // flash + result card (merge starts 720 ms earlier)
+  const M = R0 - ms(720); // merge() starts
+  const afterMerge = M + ms(840); // merge() returns
+  const merged = frame >= M;
   const timerStart = plan.timerStart;
   const timerEnd = timerStart + plan.timerFrames;
-  const clockP = Math.min(1, Math.max(0, (frame - timerStart) / plan.timerFrames));
-  const secondsLeft = Math.max(1, Math.ceil((plan.timerFrames - (frame - timerStart)) / FPS));
-  const low = secondsLeft <= settings.timer.lowSeconds && frame >= timerStart;
-  const timerVisible = frame >= timerStart - 10 && frame < timerEnd + 8;
-
-  const merged = frame >= plan.stamp - 12;
-  const exitP = prog(frame, plan.exit, 22, linear);
-
+  const flipsEnd = plan.flips + n * ms(50);
   const showFact = plan.showFact && !!plan.fact;
-  const chipIn = prog(frame, plan.stamp + 6, 15, backOut);
-  const factIn = prog(frame, plan.stamp + 24, 15, expoOut);
+  const bonusNext = settings.bonus.after.includes(index + 1);
+  const titleAnimate = index === 0 || settings.bonus.after.includes(index);
+
+  // ---- emoji row ----
+  const seq: { kind: 'emoji' | 'plus'; src?: string }[] = [
+    { kind: 'emoji', src: q.clueA },
+    { kind: 'plus' },
+    { kind: 'emoji', src: q.clueB },
+  ];
+
+  // ---- clock ----
+  const clockT = (frame - timerStart) / ms(T * 1000);
+  const left = Math.max(0, T - Math.max(0, (frame - timerStart) / 30));
+  const nShown = Math.ceil(left - 1e-9);
+  const popAt = timerStart + (T - nShown) * 30;
+  const pop = prog(frame, popAt, ms(480), bounceEase);
+  const low = nShown <= 3;
+  const timerIn = htmlEase(clamp01((frame - timerStart) / ms(450)));
+  const timerOut = clamp01((frame - flipsEnd) / ms(350));
+  const timerVisible = frame >= timerStart && frame < flipsEnd + ms(350);
 
   return (
     <>
-      <Background frame={frame} theme={theme} />
+      <Background frame={frame} theme={theme} hideBars />
       <Hud label="Q" number={index + 1} total={TOTAL} erases={erases} frame={frame} />
-      <Watermark frame={index === 0 ? frame : frame + 999} />
-      {index === 0 ? <TitleLockup frame={frame} exitAt={plan.stamp} /> : null}
+      <Watermark />
+      <TitleLockup
+        frame={frame}
+        animate={titleAnimate}
+        hideAt={R0}
+        showAt={bonusNext ? undefined : plan.exit}
+      />
 
-      {/* ---------- emoji pair ---------- */}
-      {emojiSeq.map((item, i) => {
-        const start = plan.emojiStart + i * 8;
-        const p = prog(frame, start, 27, backOut);
-        const out = prog(frame, plan.stamp - 12, 22, expoOut);
-        const isEmoji = item.kind === 'emoji';
-        const gap = px(340) + px(20);
-        const left = i === 0 ? -gap : i === 1 ? 0 : gap;
+      {/* ---------- emoji pair: #emoji flex row, 340px slots, 20px gap ---------- */}
+      <div
+        style={{
+          position: 'absolute',
+          top: px(110),
+          width: '100%',
+          height: px(356),
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: px(20),
+        }}
+      >
+        {seq.map((item, i) => {
+          const s0 = plan.emojiStart + i * ms(230);
+          const isEmoji = item.kind === 'emoji';
+          const sp = springStyle(frame, s0, 900, px(isEmoji ? 160 : 70));
+          const dxSign = i === 0 ? 1 : -1;
 
-        return (
-          <div
-            key={i}
-            style={{
-              position: 'absolute',
-              top: S.emojiTop,
-              left: '50%',
-              marginLeft: left - px(170),
-              width: px(340),
-              height: px(340),
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              opacity: isEmoji ? Math.max(0, p - out) : Math.max(0, p - out),
-              transform: `translate3d(${mix(0, isEmoji ? (i === 0 ? -30 : 30) : 0, out)}px, ${(1 - p) * 160 + floatY(frame, isEmoji ? 7 : 3)}px, 0) scale(${(0.2 + 0.8 * p) * (1 - 0.55 * out)}) rotate(${(1 - p) * -35}deg)`,
-            }}
-          >
-            {isEmoji ? (
-              <>
-                <div
-                  style={{
-                    position: 'absolute',
-                    bottom: px(6),
-                    width: px(220),
-                    height: px(24),
-                    borderRadius: '50%',
-                    background: 'rgba(0,0,0,0.53)',
-                    filter: `blur(${px(12)}px)`,
-                  }}
-                />
-                <Img
-                  src={clueSrc(item.ch)}
-                  style={{
-                    position: 'relative',
-                    zIndex: 1,
-                    width: px(300),
-                    height: px(300),
-                    objectFit: 'contain',
-                    filter: `drop-shadow(0 ${px(22)}px ${px(26)}px rgba(0,0,0,0.67))`,
-                  }}
-                />
-              </>
-            ) : (
-              <div
-                style={{
-                  fontFamily: FONTS.display,
-                  fontWeight: 400,
-                  fontSize: S.emojiPlus,
-                  color: '#fff',
-                  textShadow: `0 0 ${px(20)}px rgba(255,255,255,0.53)`,
-                }}
-              >
-                {item.ch}
-              </div>
-            )}
-          </div>
-        );
-      })}
+          let wrap: React.CSSProperties = sp;
+          if (merged) {
+            if (isEmoji) {
+              const e = mergeEase(clamp01((frame - M) / ms(820)));
+              const dx = px(MERGE_DX) * dxSign;
+              wrap = {
+                opacity: keyframes(e, [0, 0.26, 0.88, 1], [1, 1, 1, 0]),
+                transform: `translateX(${keyframes(e, [0, 0.26, 0.88, 1], [0, -dxSign * px(36), dx, dx])}px) scale(${keyframes(e, [0, 0.26, 0.88, 1], [1, 0.92, 1.12, 0.4])})`,
+              };
+            } else {
+              const t = clamp01((frame - M) / ms(320));
+              wrap = {
+                opacity: 1 - t,
+                transform: `scale(${1 - 0.8 * t}) rotate(${120 * t}deg)`,
+              };
+            }
+          }
 
-      {/* ---------- letter blanks ---------- */}
-      {!merged
-        ? letters.map((letter, i) => {
-            const start = plan.blanksStart + i * 1.6;
-            const p = prog(frame, start, 18, expoOut);
-            // free letters flip while the clock runs; the rest flip when it ends
-            const endFlipAt = plan.flips + i * 1.4;
-            const free = plan.free.find((f) => f.index === i);
-            const flipAt = free ? free.at : endFlipAt;
-            const flipped = frame >= flipAt;
-            const flipP = prog(frame, flipAt, 17, backOut);
-            // an already-open letter gives a little pulse when the others flip (HTML: scale 1 -> 1.2 -> 1)
-            const pulse = free && frame >= endFlipAt ? Math.sin(Math.PI * prog(frame, endFlipAt, 13, linear)) : 0;
-            const width = px(56);
-            const gap = px(9);
-            const totalW = letters.length * width + (letters.length - 1) * gap;
+          if (!isEmoji) {
             return (
               <div
                 key={i}
                 style={{
-                  position: 'absolute',
-                  top: S.blanksTop,
-                  left: '50%',
-                  marginLeft: -totalW / 2 + i * (width + gap),
-                  width,
-                  height: S.blankH,
-                  borderRadius: px(11),
-                  background: 'linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8))',
-                  border: `${px(3)}px solid ${flipped ? COLORS.yellow : 'rgba(255,255,255,0.88)'}`,
-                  boxShadow: flipped
-                    ? `0 0 ${px(28)}px rgba(255,214,10,0.53), 0 ${px(12)}px ${px(24)}px rgba(0,0,0,0.4)`
-                    : `0 0 0 1px rgba(0,0,0,0.47), 0 0 ${px(16)}px rgba(255,255,255,0.27), 0 ${px(10)}px ${px(20)}px rgba(0,0,0,0.4)`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
                   fontFamily: FONTS.display,
-                  fontSize: S.blankFont,
-                  color: COLORS.yellow,
-                  textShadow: `0 0 ${px(22)}px rgba(255,214,10,0.8)`,
-                  opacity: p * (1 - exitP),
-                  transform: `translate3d(0, ${(1 - p) * 60}px, 0) perspective(700px) rotateX(${(1 - p) * 70}deg) scale(${(flipped ? 0.82 + 0.18 * flipP : 1) * (1 + 0.2 * pulse)})`,
+                  fontWeight: 400,
+                  fontSize: px(54),
+                  lineHeight: 'normal',
+                  color: '#fff',
+                  textShadow: `0 0 ${px(20)}px rgba(255,255,255,0.53)`,
+                  ...wrap,
                 }}
               >
-                <span
-                  style={{
-                    opacity: flipped ? flipP : 0,
-                    transform: `rotateX(${(1 - flipP) * -95}deg)`,
-                    display: 'inline-block',
-                  }}
-                >
-                  {letter}
-                </span>
+                +
               </div>
             );
-          })
-        : null}
+          }
 
-      {/* ---------- clock ---------- */}
+          // .ei float: 2.4 s alternate ease-in-out, starts 230 ms after the spring
+          const ft = (frame - (s0 + ms(230))) / ms(2400);
+          let pos = 0;
+          if (ft > 0) {
+            const cyc = Math.floor(ft);
+            const e = cssEaseInOut(ft - cyc);
+            pos = cyc % 2 === 0 ? e : 1 - e;
+          }
+
+          return (
+            <div
+              key={i}
+              style={{
+                position: 'relative',
+                width: px(340),
+                height: px(340),
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                ...wrap,
+              }}
+            >
+              {/* .em:after soft floor shadow */}
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: px(6),
+                  left: '50%',
+                  marginLeft: -px(110),
+                  width: px(220),
+                  height: px(24),
+                  borderRadius: '50%',
+                  background: 'rgba(0,0,0,0.533)',
+                  filter: `blur(${px(12)}px)`,
+                }}
+              />
+              {/* .ei: the per-question image, 280px slot, same drop-shadow, same float */}
+              <div
+                style={{
+                  position: 'relative',
+                  zIndex: 1,
+                  width: px(280),
+                  height: px(280),
+                  transform: `translateY(${-px(12) * pos}px) rotate(${3 * pos}deg)`,
+                  filter: `drop-shadow(0 ${px(22)}px ${px(26)}px rgba(0,0,0,0.667))`,
+                }}
+              >
+                <Img
+                  src={clueSrc(item.src as string)}
+                  style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
+                />
+              </div>
+              <Ring frame={frame} start={s0 + ms(300)} />
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ---------- letter blanks: perspective 700px container, 3D flip-up ---------- */}
+      <div
+        style={{
+          position: 'absolute',
+          top: S.blanksTop,
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'center',
+          gap: S.blankGap,
+          perspective: px(700),
+        }}
+      >
+        {letters.map((letter, k) => {
+          const inAt = plan.blanksStart + k * ms(50);
+          const e = htmlEase(clamp01((frame - inAt) / ms(550)));
+          const endFlip = plan.flips + k * ms(50);
+          const free = plan.free.find((f) => f.index === k);
+          const flipAt = free ? free.at : endFlip;
+          const rev = frame >= flipAt;
+
+          let opacity = frame < inAt ? 0 : e;
+          let transform = `translateY(${(1 - e) * px(60)}px) rotateX(${(1 - e) * 70}deg)`;
+
+          const ft = (frame - flipAt) / ms(560);
+          if (rev && ft < 1) {
+            const fe = htmlEase(clamp01(ft));
+            transform = `rotateX(${keyframes(fe, [0, 0.7, 1], [-95, 0, 0])}deg) scale(${keyframes(fe, [0, 0.7, 1], [0.8, 1.18, 1])})`;
+          } else if (rev) {
+            transform = 'none';
+          }
+          // an already-open letter pulses when the rest flip (HTML: scale 1 -> 1.2 -> 1, 420 ms)
+          if (free && frame >= endFlip && (frame - endFlip) / ms(420) < 1) {
+            transform = `scale(${keyframes((frame - endFlip) / ms(420), [0, 0.5, 1], [1, 1.2, 1])})`;
+          }
+
+          // exit: opacity 1 -> 0 and translateY(40px), 340 ms, 20 ms stagger
+          const xt = (frame - (plan.exit + k * ms(20))) / ms(340);
+          if (xt > 0) {
+            opacity = 1 - clamp01(xt);
+            transform = `translateY(${clamp01(xt) * px(40)}px)`;
+          }
+
+          return (
+            <div
+              key={k}
+              style={{
+                width: S.blankW,
+                height: S.blankH,
+                borderRadius: px(11),
+                background: 'linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8))',
+                border: `${px(3)}px solid ${rev ? COLORS.yellow : 'rgba(255,255,255,0.88)'}`,
+                boxShadow: rev
+                  ? `0 0 ${px(28)}px rgba(255,214,10,0.533), 0 ${px(12)}px ${px(24)}px rgba(0,0,0,0.4)`
+                  : `0 0 0 1px rgba(0,0,0,0.467), 0 0 ${px(16)}px rgba(255,255,255,0.27), 0 ${px(10)}px ${px(20)}px rgba(0,0,0,0.4), inset 0 ${px(2)}px 0 rgba(255,255,255,0.2)`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontFamily: FONTS.display,
+                fontWeight: 400,
+                fontSize: S.blankFont,
+                color: COLORS.yellow,
+                textShadow: `0 0 ${px(22)}px rgba(255,214,10,0.8)`,
+                opacity,
+                transform,
+              }}
+            >
+              {rev ? letter : ''}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ---------- flash ---------- */}
+      <Flash frame={frame} start={R0} />
+
+      {/* ---------- result card (HTML #res): rays + image frame, spring entrance ---------- */}
+      {frame >= R0 ? <ResultCard frame={frame} start={R0} exit={plan.exit} word={q.word} index={index} /> : null}
+
+      {/* ---------- clock bar, number badge, bulbs ---------- */}
       {timerVisible ? (
         <div
           style={{
@@ -192,7 +295,11 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
             width: S.timerWidth,
             bottom: S.timerBottom,
             height: px(70),
-            opacity: fadeIn(frame, timerStart - 10, 14) * (1 - prog(frame, plan.flips, 10, linear)),
+            opacity: frame >= flipsEnd ? 1 - timerOut : timerIn,
+            transform:
+              frame >= flipsEnd
+                ? `translateY(${timerOut * px(30)}px)`
+                : `translateY(${(1 - timerIn) * px(40)}px)`,
           }}
         >
           <div
@@ -213,8 +320,8 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
                 position: 'absolute',
                 inset: 0,
                 transformOrigin: 'left',
-                transform: `scaleX(${1 - clockP})`,
-                background: `linear-gradient(90deg, ${COLORS.yellowDeep} 0%, ${COLORS.yellow} 70%, ${COLORS.yellowSoft} 100%)`,
+                transform: `scaleX(${1 - clamp01(clockT)})`,
+                background: `linear-gradient(90deg, ${COLORS.yellowDeep}, ${COLORS.yellow} 70%, ${COLORS.yellowSoft})`,
                 borderRadius: px(12),
               }}
             />
@@ -222,18 +329,20 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
               style={{
                 position: 'absolute',
                 inset: 0,
-                backgroundImage: `repeating-linear-gradient(90deg, rgba(0,0,0,0) 0 calc(100%/${plan.timerSeconds} - 2px), rgba(0,0,0,0.4) calc(100%/${plan.timerSeconds} - 2px) calc(100%/${plan.timerSeconds}))`,
+                background: `repeating-linear-gradient(90deg, rgba(0,0,0,0) 0 calc(100%/${T} - ${px(1)}px), rgba(0,0,0,0.4) calc(100%/${T} - ${px(1)}px) calc(100%/${T}))`,
               }}
             />
           </div>
 
+          {/* number badge rides the end of the bar */}
           <div
             style={{
               position: 'absolute',
-              left: -px(31) + (1 - clockP) * S.timerWidth,
+              left: -px(31),
               top: px(4),
               width: px(62),
               height: px(62),
+              transform: `translateX(${(1 - clamp01(clockT)) * S.timerWidth}px)`,
             }}
           >
             <div
@@ -248,79 +357,118 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontFamily: FONTS.display,
+                fontWeight: 400,
                 fontSize: px(34),
                 boxShadow: low
                   ? `0 0 ${px(30)}px ${COLORS.red}`
                   : `0 0 ${px(26)}px rgba(255,214,10,0.8), 0 ${px(8)}px ${px(16)}px rgba(0,0,0,0.4)`,
+                transform: `scale(${1.4 - 0.4 * pop})`,
               }}
             >
-              {secondsLeft}
+              {nShown}
             </div>
           </div>
 
-          {/* 💡 hints light up at 2/3 and 1/3 of the clock */}
-          {settings.timer.bulbFractions.map((f, i) => {
-            const onAt = timerStart + plan.timerFrames * (1 - f);
-            const on = frame >= onAt;
-            const pop = prog(frame, timerStart, 12, backOut);
-            const lit = prog(frame, onAt, 16, elasticOut);
+          {/* 💡 bulbs at 2/3 and 1/3 of the bar */}
+          {settings.timer.bulbFractions.map((f, j) => {
+            const x = S.timerWidth * f;
+            const litAt = timerStart + plan.timerFrames * (1 - f);
+            const flareAt = timerEnd + j * ms(160);
+            const inE = htmlEase(clamp01((frame - timerStart) / ms(500)));
+            const lit = frame >= litAt;
+
+            let opacity = 0.5 * inE;
+            let scale = 0.4 + 0.6 * inE;
+            let ty = -(1 - inE) * px(10);
+            let filter = 'grayscale(1) brightness(0.85)';
+            if (lit) {
+              const le = htmlEase(clamp01((frame - litAt) / ms(600)));
+              opacity = keyframes(le, [0, 0.5, 1], [0.5, 1, 1]);
+              scale = keyframes(le, [0, 0.5, 1], [1, 1.5, 1]);
+              ty = 0;
+              const gt = (frame - litAt) / ms(700);
+              const cyc = Math.floor(gt);
+              const ge = cssEaseInOut(gt - cyc);
+              const gp = cyc % 2 === 0 ? ge : 1 - ge;
+              filter = `drop-shadow(0 0 ${px(5 + 9 * gp)}px #ffd60a) drop-shadow(0 0 ${px(26 * gp)}px #ffb800)`;
+            }
+            const ft = (frame - flareAt) / ms(900);
+            if (ft >= 0 && ft < 1) {
+              const fe = htmlEase(ft);
+              scale = keyframes(fe, [0, 0.4, 1], [1, 1.8, 1]);
+              const w = keyframes(fe, [0, 0.4, 1], [0, 1, 0]);
+              filter = `brightness(${keyframes(fe, [0, 0.4, 1], [1, 1.8, 1.1])}) drop-shadow(0 0 ${px(30 * w)}px rgba(255,243,160,${w}))`;
+            }
+            const pingAt = (s: number, a: number, b: number, dur: number) => {
+              const t = (frame - s) / ms(dur);
+              if (t < 0 || t >= 1) return null;
+              const e = cssEaseOut(t);
+              return (
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: x,
+                    top: px(66),
+                    width: px(46),
+                    height: px(46),
+                    borderRadius: '50%',
+                    border: `${px(3)}px solid ${COLORS.yellow}`,
+                    zIndex: 2,
+                    pointerEvents: 'none',
+                    opacity: 0.95 * (1 - e),
+                    transform: `translate(-50%, -50%) scale(${a + (b - a) * e})`,
+                  }}
+                />
+              );
+            };
+
             return (
-              <div
-                key={i}
-                style={{
-                  position: 'absolute',
-                  left: S.timerWidth * f - px(20),
-                  top: px(46),
-                  width: px(40),
-                  textAlign: 'center',
-                  fontFamily: FONTS.emoji,
-                  fontSize: px(30),
-                  lineHeight: `${px(40)}px`,
-                  opacity: pop * (on ? 1 : 0.45),
-                  filter: on
-                    ? `drop-shadow(0 0 ${px(14)}px ${COLORS.yellow})`
-                    : 'grayscale(1) brightness(0.85)',
-                  transform: `scale(${on ? 1 + 0.5 * (1 - lit) : 1})`,
-                }}
-              >
-                💡
-              </div>
+              <React.Fragment key={j}>
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: x,
+                    top: px(46),
+                    width: px(40),
+                    marginLeft: -px(20),
+                    textAlign: 'center',
+                    fontFamily: FONTS.emoji,
+                    fontSize: px(30),
+                    lineHeight: `${px(40)}px`,
+                    zIndex: 3,
+                    opacity,
+                    filter,
+                    transform: `translateY(${ty}px) scale(${scale})`,
+                  }}
+                >
+                  <span
+                    style={{
+                      position: 'absolute',
+                      left: '50%',
+                      top: -px(6),
+                      width: px(3),
+                      height: px(10),
+                      marginLeft: -px(1),
+                      background: COLORS.yellow,
+                      boxShadow: `0 0 ${px(10)}px ${COLORS.yellow}`,
+                      borderRadius: px(2),
+                    }}
+                  />
+                  💡
+                </div>
+                {lit ? pingAt(litAt, 0.3, 2.6, 800) : null}
+                {pingAt(flareAt, 0.3, 4, 900)}
+              </React.Fragment>
             );
           })}
         </div>
       ) : null}
 
-      {/* ---------- answer card ---------- */}
-      {merged ? <ResultCard frame={frame} plan={plan} word={q.word} index={index} /> : null}
-
-      {/* ---------- answer chip / fact ---------- */}
-      {!showFact && frame >= plan.stamp + 6 ? (
-        <div
-          style={{
-            position: 'absolute',
-            bottom: S.chipBottom,
-            left: '50%',
-            marginLeft: -px(280),
-            width: S.chipW,
-            textAlign: 'center',
-            padding: `${px(9)}px 0`,
-            borderRadius: px(40),
-            background: COLORS.yellow,
-            color: COLORS.inkDark,
-            fontFamily: FONTS.body,
-            fontWeight: 800,
-            fontSize: px(22),
-            letterSpacing: px(4),
-            boxShadow: `0 0 ${px(34)}px rgba(255,214,10,0.6)`,
-            opacity: chipIn * (1 - exitP),
-            transform: `translate3d(0, ${(1 - chipIn) * 30}px, 0) scale(${0.6 + 0.4 * chipIn})`,
-          }}
-        >
-          {settings.text.correctChip}
-        </div>
+      {/* ---------- ✔ CORRECT ANSWER chip / did-you-know card ---------- */}
+      {!showFact && frame >= afterMerge + ms(250) ? (
+        <ChipBox frame={frame} start={afterMerge + ms(250)} exit={plan.exit} />
       ) : null}
-
-      {showFact && frame >= plan.stamp + 24 ? (
+      {showFact && frame >= afterMerge + ms(700) ? (
         <div
           style={{
             position: 'absolute',
@@ -335,72 +483,93 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
             lineHeight: 1.3,
             padding: `${px(6)}px ${px(22)}px`,
             borderRadius: px(20),
-            background: 'rgba(0,0,0,0.67)',
+            background: 'rgba(0,0,0,0.667)',
             border: `${px(2)}px solid rgba(255,255,255,0.2)`,
             color: '#fff',
-            opacity: factIn * (1 - exitP),
-            transform: `translate3d(0, ${(1 - factIn) * 30}px, 0)`,
+            ...riseStyle(frame, afterMerge + ms(700), 500, px(30)),
+            ...(frame >= plan.exit ? { opacity: 1 - clamp01((frame - plan.exit) / ms(280)) } : {}),
           }}
         >
-          <b style={{ color: COLORS.yellow, fontSize: px(15), letterSpacing: px(3), display: 'block' }}>
+          <b style={{ display: 'block', color: COLORS.yellow, fontSize: px(15), letterSpacing: px(3) }}>
             {settings.text.factEyebrow}
           </b>
           {plan.fact}
         </div>
       ) : null}
 
-      {/* ---------- confetti on the answer ---------- */}
-      {CONFETTI.map((c) => {
-        const start = plan.stamp + c.delay;
-        if (frame < start) return null;
-        const p = Math.min(1, (frame - start) / c.duration);
-        return (
-          <div
-            key={c.id}
-            style={{
-              position: 'absolute',
-              left: c.x,
-              top: c.y,
-              width: c.size,
-              height: c.size * 1.6,
-              background: c.color,
-              borderRadius: c.round ? '50%' : 2,
-              opacity: 1 - Math.max(0, (p - 0.45) / 0.55),
-              transform: `translate3d(${c.dx * p}px, ${c.dy * Math.min(1, p / 0.45) + 320 * Math.max(0, p - 0.45)}px, 0) rotate(${c.spin * p}deg)`,
-            }}
-          />
-        );
-      })}
+      <Bars />
+
+      {/* ---------- confetti: merge burst, plus a bigger one on every 5th question ---------- */}
+      <Confetti frame={frame} start={R0} count={26} seed={index * 7 + 3} />
+      {index % 5 === 4 ? <Confetti frame={frame} start={afterMerge} count={40} seed={index * 7 + 5} /> : null}
     </>
   );
 };
 
-/** Merged answer card: rotating rays + the 1280x720 image frame. */
+const ChipBox: React.FC<{ frame: number; start: number; exit: number }> = ({ frame, start, exit }) => {
+  const e = bounceEase(clamp01((frame - start) / ms(500)));
+  const fade = frame >= exit ? 1 - clamp01((frame - exit) / ms(280)) : 1;
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        bottom: S.chipBottom,
+        left: '50%',
+        marginLeft: -px(280),
+        width: S.chipW,
+        whiteSpace: 'nowrap',
+        textAlign: 'center',
+        padding: `${px(9)}px 0`,
+        borderRadius: px(40),
+        background: COLORS.yellow,
+        color: COLORS.inkDark,
+        fontFamily: FONTS.body,
+        fontWeight: 800,
+        fontSize: px(22),
+        letterSpacing: px(4),
+        boxShadow: `0 0 ${px(34)}px rgba(255,214,10,0.6)`,
+        opacity: clamp01(e) * fade,
+        transform: `translateY(${(1 - e) * px(30)}px) scale(${0.6 + 0.4 * e})`,
+      }}
+    >
+      {settings.text.correctChip}
+    </div>
+  );
+};
+
+/** HTML #res: sun-rays + the image frame; spring(res, 0, 950, 30, -10), rings at 0 and +160 ms. */
 const ResultCard: React.FC<{
   frame: number;
-  plan: ReturnType<typeof buildQuestionPlan>;
+  start: number;
+  exit: number;
   word: string;
   index: number;
-}> = ({ frame, plan, word, index }) => {
-  const seat = prog(frame, plan.stamp - 12, 27, backOut);
-  const out = prog(frame, plan.exit, 12, linear);
+}> = ({ frame, start, exit, word, index }) => {
   const showImage = settings.images.enabled && hasImage(index);
-
+  const sp = springStyle(frame, start, 950, px(30), -10);
+  let style: React.CSSProperties = sp;
+  if (frame >= exit) {
+    const e = cssEaseIn(clamp01((frame - exit) / ms(380)));
+    style = {
+      opacity: 1 - e,
+      transform: `translateY(${-e * px(70)}px) scale(${1 - 0.6 * e})`,
+    };
+  }
   return (
     <div
       style={{
         position: 'absolute',
         left: '50%',
-        marginLeft: -px(400),
         top: S.resultTop,
         width: S.resultW,
         height: S.resultH,
+        marginLeft: -px(400),
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 4,
-        opacity: Math.max(0, seat - out),
-        transform: `scale(${0.62 + 0.38 * seat}) translateY(${-out * 70}px)`,
+        pointerEvents: 'none',
+        ...style,
       }}
     >
       <div
@@ -410,11 +579,9 @@ const ResultCard: React.FC<{
           top: '50%',
           width: px(640),
           height: px(640),
-          marginLeft: -px(320),
-          marginTop: -px(320),
+          margin: `${-px(320)}px 0 0 ${-px(320)}px`,
           borderRadius: '50%',
-          background:
-            'repeating-conic-gradient(rgba(255,214,10,0.33) 0 7deg, rgba(0,0,0,0) 7deg 18deg)',
+          background: 'repeating-conic-gradient(rgba(255,214,10,0.333) 0 7deg, rgba(0,0,0,0) 7deg 18deg)',
           maskImage: 'radial-gradient(circle, #000 15%, rgba(0,0,0,0) 68%)',
           WebkitMaskImage: 'radial-gradient(circle, #000 15%, rgba(0,0,0,0) 68%)',
           transform: `rotate(${(frame / 360) * 360}deg)`,
@@ -427,19 +594,16 @@ const ResultCard: React.FC<{
           height: S.resultH,
           borderRadius: px(24),
           overflow: 'hidden',
-          background: 'linear-gradient(135deg, rgba(255,255,255,0.19), rgba(255,255,255,0.06))',
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.19), rgba(255,255,255,0.063))',
           border: `${px(4)}px solid ${COLORS.yellow}`,
-          boxShadow: `0 0 0 ${px(8)}px rgba(0,0,0,0.4), 0 ${px(26)}px ${px(50)}px rgba(0,0,0,0.69), 0 0 ${px(70)}px rgba(255,214,10,0.67)`,
+          boxShadow: `0 0 0 ${px(8)}px rgba(0,0,0,0.4), 0 ${px(26)}px ${px(50)}px rgba(0,0,0,0.733), 0 0 ${px(70)}px rgba(255,214,10,0.667)`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
         }}
       >
         {showImage ? (
-          <Img
-            src={imageSrc(index)}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-          />
+          <Img src={imageSrc(index)} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
         ) : (
           <div
             style={{
@@ -450,7 +614,7 @@ const ResultCard: React.FC<{
               gap: px(6),
               width: `calc(100% - ${px(28)}px)`,
               height: `calc(100% - ${px(28)}px)`,
-              border: `${px(3)}px dashed rgba(255,255,255,0.53)`,
+              border: `${px(3)}px dashed rgba(255,255,255,0.533)`,
               borderRadius: px(20),
             }}
           >
@@ -458,20 +622,14 @@ const ResultCard: React.FC<{
             <b style={{ fontFamily: FONTS.body, fontWeight: 800, fontSize: px(20), letterSpacing: px(4) }}>
               IMAGE HERE
             </b>
-            <small
-              style={{
-                fontFamily: FONTS.display,
-                fontSize: px(30),
-                letterSpacing: px(3),
-                color: COLORS.yellow,
-              }}
-            >
+            <small style={{ fontFamily: FONTS.display, fontSize: px(30), letterSpacing: px(3), color: COLORS.yellow }}>
               {word}
             </small>
           </div>
         )}
       </div>
+      <Ring frame={frame} start={start} />
+      <Ring frame={frame} start={start + ms(160)} />
     </div>
   );
 };
-

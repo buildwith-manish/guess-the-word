@@ -3,6 +3,7 @@ import { AbsoluteFill } from 'remotion';
 import { Background } from './Background';
 import { Hud } from './Hud';
 import { Watermark } from './Watermark';
+import { TitleLockup } from './TitleLockup';
 import { prog, irisEase } from './anim';
 import type { Segment } from './types';
 
@@ -19,6 +20,7 @@ export const Iris: React.FC<{ frame: number; seg: IrisSegment }> = ({ frame, seg
   return (
     <AbsoluteFill>
       <Background frame={frame} theme={seg.fromTheme} iris={{ theme: seg.toTheme, p }} />
+      {seg.title ? <TitleLockup frame={frame} animate={false} /> : null}
       <Hud
         label={seg.hud.label}
         number={seg.hud.number}
@@ -26,7 +28,7 @@ export const Iris: React.FC<{ frame: number; seg: IrisSegment }> = ({ frame, seg
         erases={seg.hud.erases}
         frame={999}
       />
-      {seg.watermark ? <Watermark frame={999} /> : null}
+      {seg.watermark ? <Watermark /> : null}
     </AbsoluteFill>
   );
 };

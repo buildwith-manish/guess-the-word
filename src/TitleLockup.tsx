@@ -1,7 +1,7 @@
 import React from 'react';
-import { COLORS, FONTS, S, px } from './style';
-import { prog } from './anim';
-import { expoOut, linear } from './gsap-helpers';
+import { COLORS, FONTS, px } from './style';
+import { prog, htmlEase, ms } from './anim';
+import { linear } from './gsap-helpers';
 
 const WORDS = [
   { text: 'GUESS', accent: false },
@@ -9,23 +9,38 @@ const WORDS = [
   { text: 'WORD', accent: true },
 ];
 
-/** "GUESS THE WORD" letter cascade + the yellow hairline under it. */
-export const TitleLockup: React.FC<{ frame: number; exitAt?: number }> = ({ frame, exitAt }) => {
-  const exitP = exitAt === undefined ? 0 : prog(frame, exitAt, 12, linear);
-  const ruleP = prog(frame, 9, 27, expoOut);
+/**
+ * "GUESS THE WORD" letter cascade + the yellow hairline under it (HTML #title).
+ *   animate=true : titleIn() — letters rise one per 40 ms (600 ms, EASE), rule draws in (900 ms, +300 ms)
+ *   animate=false: already on screen (the page builds the lockup once and keeps it)
+ *   hideAt / showAt: the merge fades the whole lockup out (250 ms) and the reveal fades it back (380 ms)
+ */
+export const TitleLockup: React.FC<{
+  frame: number;
+  animate?: boolean;
+  hideAt?: number;
+  showAt?: number;
+  /** legacy alias: hide for good from this frame (titleOut before a bonus round) */
+  exitAt?: number;
+}> = ({ frame, animate = true, hideAt, showAt, exitAt }) => {
+  const hide = hideAt ?? exitAt;
+  const out = hide === undefined ? 0 : prog(frame, hide, ms(250), linear);
+  const back = showAt === undefined ? 0 : prog(frame, showAt, ms(380), linear);
+  const opacity = hide === undefined ? 1 : showAt !== undefined && frame >= showAt ? back : 1 - out;
 
+  const ruleP = animate ? prog(frame, ms(300), ms(900), htmlEase) : 1;
   let running = -1;
 
   return (
     <div
       style={{
         position: 'absolute',
-        top: S.titleTop,
+        top: px(52),
         width: '100%',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        opacity: 1 - exitP,
+        opacity,
       }}
     >
       <div
@@ -39,8 +54,7 @@ export const TitleLockup: React.FC<{ frame: number; exitAt?: number }> = ({ fram
           <div key={wi} style={{ display: 'flex', overflow: 'hidden', padding: `${px(2)}px 0` }}>
             {Array.from(w.text).map((ch, ci) => {
               running += 1;
-              const delay = running * 1.2 + (wi === 2 ? 3 : 0);
-              const p = prog(frame, delay, 18, expoOut);
+              const p = animate ? prog(frame, ms(running * 40), ms(600), htmlEase) : 1;
               return (
                 <span
                   key={ci}
@@ -48,12 +62,12 @@ export const TitleLockup: React.FC<{ frame: number; exitAt?: number }> = ({ fram
                     display: 'inline-block',
                     fontFamily: FONTS.display,
                     fontWeight: 400,
-                    fontSize: S.titleLetter,
+                    fontSize: px(46),
                     lineHeight: 1.1,
-                    letterSpacing: S.titleSpacing,
+                    letterSpacing: px(7),
                     color: w.accent ? COLORS.yellow : '#fff',
-                    transform: `translateY(${(1 - p) * 120 - exitP * 120}%)`,
-                    opacity: p * (1 - exitP),
+                    transform: `translateY(${(1 - p) * 120}%)`,
+                    opacity: p,
                   }}
                 >
                   {ch}
@@ -69,8 +83,8 @@ export const TitleLockup: React.FC<{ frame: number; exitAt?: number }> = ({ fram
           width: px(440),
           marginTop: px(2),
           borderRadius: px(3),
-          background: `linear-gradient(90deg, rgba(0,0,0,0) 0%, ${COLORS.yellow} 50%, rgba(0,0,0,0) 100%)`,
-          transform: `scaleX(${ruleP * (1 - exitP)})`,
+          background: `linear-gradient(90deg, rgba(0,0,0,0), ${COLORS.yellow}, rgba(0,0,0,0))`,
+          transform: `scaleX(${ruleP})`,
         }}
       />
     </div>

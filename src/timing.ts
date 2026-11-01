@@ -147,6 +147,7 @@ const buildTimeline = (puzzles: BonusPuzzle[] = PUZZLES): Timeline => {
     toTheme: [string, string],
     hud: Hud,
     watermark: boolean,
+    title = false,
   ) =>
     push({
       kind: 'iris',
@@ -156,6 +157,7 @@ const buildTimeline = (puzzles: BonusPuzzle[] = PUZZLES): Timeline => {
       toTheme,
       hud,
       watermark,
+      title,
     });
 
   push({ kind: 'hook', from: 0, duration: settings.timing.hookA + settings.timing.hookB });
@@ -178,6 +180,7 @@ const buildTimeline = (puzzles: BonusPuzzle[] = PUZZLES): Timeline => {
     }
 
     const plan = buildQuestionPlan(q, levelIndex, withTitle);
+    // the page builds the title lockup once and animates it in again only after a bonus round
     withTitle = false;
     push({ kind: 'question', from: cursor, duration: plan.duration, index: i, erases });
 
@@ -193,12 +196,14 @@ const buildTimeline = (puzzles: BonusPuzzle[] = PUZZLES): Timeline => {
         duration: settings.reminder.frames,
         theme: themeForQuestion(i),
         hud: qHud,
+        title: bonusIndex < 0,
       });
     }
     if (bonusIndex >= 0 && puzzle) {
       // question -> orange bonus backdrop -> (next question's theme, unless the video is over)
       pushIris(themeForQuestion(i), BONUS_THEME, qHud, true);
       push({ kind: 'bonus', from: cursor, duration: bonusDuration(puzzle), index: bonusIndex, puzzle });
+      withTitle = true; // titleOut() before the bonus -> titleIn() on the next question
       erases += 1; // the badge counts this round from its reveal onwards
       if (!isLast) {
         pushIris(
@@ -209,7 +214,7 @@ const buildTimeline = (puzzles: BonusPuzzle[] = PUZZLES): Timeline => {
         );
       }
     } else if (!isLast) {
-      pushIris(themeForQuestion(i), themeForQuestion(i + 1), qHud, true);
+      pushIris(themeForQuestion(i), themeForQuestion(i + 1), qHud, true, true);
     }
   });
 

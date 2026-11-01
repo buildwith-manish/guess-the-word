@@ -1,7 +1,6 @@
 import React from 'react';
 import { COLORS, FONTS, S, px } from './style';
-import { prog, htmlEase } from './anim';
-import { backOut } from './gsap-helpers';
+import { prog, htmlEase, bounceEase } from './anim';
 
 /** "Q 1 /50" pill (top-left) plus the persistent BONUS ERASES badge under it. */
 export const Hud: React.FC<{
@@ -14,7 +13,8 @@ export const Hud: React.FC<{
   eraseAt?: number;
   frame: number;
 }> = ({ label, number, total, erases, eraseAt, frame }) => {
-  const pop = prog(frame, 0, 20, backOut);
+  // HTML: the number springs in on every question, 600 ms BOUNCE (translateY 70% + scale .5)
+  const pop = prog(frame, 0, 18, bounceEase);
   // HTML: the badge slides in over 500 ms (translateX -30 -> 0) every time the count goes up
   const eraseIn = eraseAt === undefined || frame < eraseAt ? 1 : prog(frame, eraseAt, 15, htmlEase);
 
@@ -26,7 +26,7 @@ export const Hud: React.FC<{
             display: 'flex',
             alignItems: 'baseline',
             gap: px(6),
-            background: 'rgba(0,0,0,0.69)',
+            background: 'rgba(0,0,0,0.733)',
             border: `${px(2)}px solid rgba(255,255,255,0.2)`,
             padding: `${px(4)}px ${px(22)}px ${px(6)}px`,
             borderRadius: px(44),
@@ -51,12 +51,14 @@ export const Hud: React.FC<{
               color: COLORS.yellow,
               textShadow: `0 0 ${px(22)}px rgba(255,214,10,0.53)`,
               transform: `translateY(${(1 - pop) * 70}%) scale(${0.5 + 0.5 * pop})`,
-              opacity: pop,
+              opacity: Math.min(1, Math.max(0, pop)),
             }}
           >
             {number}
           </b>
-          <small style={{ opacity: 0.6 }}>/{total}</small>
+          <small style={{ fontWeight: 800, fontSize: px(18), letterSpacing: px(1), color: 'rgba(255,255,255,0.6)' }}>
+            /{total}
+          </small>
         </div>
       </div>
 
@@ -68,7 +70,7 @@ export const Hud: React.FC<{
             top: px(128),
             padding: `${px(5)}px ${px(16)}px ${px(6)}px`,
             borderRadius: px(30),
-            background: 'rgba(0,0,0,0.69)',
+            background: 'rgba(0,0,0,0.733)',
             border: `${px(2)}px solid rgba(255,255,255,0.2)`,
             fontFamily: FONTS.body,
             fontWeight: 800,
