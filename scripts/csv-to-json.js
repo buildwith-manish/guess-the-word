@@ -6,6 +6,9 @@
  *
  * - Skips lines starting with "#" so the CSV can be self-documenting.
  * - Handles quoted fields (facts contain commas, quotes and en-dashes).
+ * - A row with an empty `fact` falls back to facts.csv (word,fact), so a new word
+ *   automatically gets its fact card. Facts over 8 words get a warning: the
+ *   voiceover has to be able to read them in the card's hold time.
  * - Validates every row (known level, reveal is a letter position inside the word, emoji present)
  *   so a typo fails here instead of halfway through a 15 minute render.
  *
@@ -23,6 +26,8 @@ const arg = (name, fallback) => {
 
 const inFile = path.resolve(ROOT, arg('in', 'rounds.csv'));
 const outFile = path.resolve(ROOT, arg('out', 'src/rounds.json'));
+const factsFile = path.resolve(ROOT, arg('facts', 'facts.csv'));
+const MAX_FACT_WORDS = 8;
 
 /** RFC-4180-ish parser, one row at a time. */
 const parseCsv = (text) => {
@@ -68,6 +73,31 @@ const parseCsv = (text) => {
 
 const LEVELS = ['EASY', 'MEDIUM', 'HARD'];
 
+/** facts.csv -> { WORD: fact } (optional file; '#' lines skipped, header row required). */
+const loadFactLibrary = () => {
+  const lib = {};
+  if (!fs.existsSync(factsFile)) return lib;
+  const lines = fs
+    .readFileSync(factsFile, 'utf8')
+    .split(/\r?\n/)
+    .filter((l) => l.trim().length && !l.trimStart().startsWith('#'))
+    .join('\n');
+  const rows = parseCsv(lines).filter((r) => r.some((c) => String(c).trim().length));
+  const header = (rows[0] || []).map((h) => h.trim().toLowerCase());
+  const wi = header.indexOf('word');
+  const fi = header.indexOf('fact');
+  if (wi === -1 || fi === -1) {
+    console.error(`✖ ${path.relative(ROOT, factsFile)} needs a header row: word,fact`);
+    process.exit(1);
+  }
+  rows.slice(1).forEach((cells) => {
+    const word = String(cells[wi] ?? '').toUpperCase().replace(/[^A-Z]/g, '');
+    const fact = String(cells[fi] ?? '').trim();
+    if (word && fact) lib[word] = fact;
+  });
+  return lib;
+};
+
 const main = () => {
   if (!fs.existsSync(inFile)) {
     console.error(`✖ ${path.relative(ROOT, inFile)} not found`);
@@ -93,8 +123,10 @@ const main = () => {
     process.exit(1);
   }
 
+  const library = loadFactLibrary();
   const out = [];
   const problems = [];
+  const warnings = [];
 
   rows.slice(1).forEach((cells, r) => {
     const get = (name) => {
@@ -114,6 +146,12 @@ const main = () => {
       problems.push(`line ${line}: reveal ${get('reveal')} outside 0..${word.length - 1} (0-based letter position)`);
     if (!get('emoji1') || !get('emoji2')) problems.push(`line ${line}: needs emoji1 and emoji2`);
 
+    const fact = get('fact') || library[word] || '';
+    const factWords = fact ? fact.split(/\s+/).length : 0;
+    if (factWords > MAX_FACT_WORDS) {
+      warnings.push(`line ${line}: ${word} fact is ${factWords} words (voiceover-friendly is <= ${MAX_FACT_WORDS})`);
+    }
+
     out.push({
       id,
       word,
@@ -121,7 +159,7 @@ const main = () => {
       emoji2: get('emoji2'),
       level,
       reveal,
-      fact: get('fact'),
+      fact,
     });
   });
 
@@ -137,8 +175,13 @@ const main = () => {
   fs.mkdirSync(path.dirname(outFile), { recursive: true });
   fs.writeFileSync(outFile, JSON.stringify(out, null, 2) + '\n', 'utf8');
 
+  const withFact = out.filter((q) => q.fact).length;
+  const noFact = out.filter((q) => !q.fact).map((q) => q.word);
+  warnings.forEach((w) => console.warn(`⚠ ${w}`));
+
   const byLevel = LEVELS.map((l) => `${l}:${out.filter((q) => q.level === l).length}`).join('  ');
   console.log(`✔ ${path.relative(ROOT, outFile)}  (${out.length} questions  ${byLevel})`);
+  console.log(`  facts: ${withFact}/${out.length} questions have one${noFact.length ? ` — missing: ${noFact.join(', ')}` : ''}`);
 };
 
 main();

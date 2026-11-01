@@ -1,0 +1,60 @@
+# Guess the Word by Emoji - fact library (one row per WORD)
+# columns: word, fact
+# A question row in rounds.csv with an empty `fact` falls back to this file, matching by WORD.
+# A fact card shows on every `timing.factEvery`-th question; keep facts to 8 words or fewer so
+# the voiceover can read them (scripts/csv-to-json.js warns above 8).
+word,fact
+STARFISH,Starfish have no brain and no blood.
+SUNFLOWER,Young sunflowers follow the sun all day.
+DOGHOUSE,A dog's nose print is unique.
+SNOWMAN,The tallest snowman ever built stood over 122 feet tall.
+CATFISH,Catfish have taste buds all over their bodies.
+RAINCOAT,Charles Macintosh patented waterproof fabric in 1823.
+TREEHOUSE,Treehouses use special bolts that protect the tree.
+MAILBOX,Street mailboxes first appeared in America in 1858.
+COWBELL,Cowbells help farmers find roaming cattle.
+SNOWBALL,Snowballs pack best when snow is near freezing.
+FIREWOOD,Seasoned firewood burns hotter than fresh-cut wood.
+NOTEBOOK,Egyptians wrote on papyrus over 4000 years ago.
+EGGSHELL,Eggshells are mostly made of calcium carbonate.
+HANDBAG,Handbags began as pouches tied at the waist.
+HORSESHOE,Horseshoes protect hooves from wearing down.
+KEYHOLE,Egyptians made wooden locks over 4000 years ago.
+PANCAKE,Pancakes date back to ancient Greece.
+TEASPOON,A standard teaspoon holds about five millilitres.
+LIGHTHOUSE,The Pharos of Alexandria was a lighthouse wonder.
+BULLFROG,Bullfrogs will eat almost anything that fits.
+MOUSETRAP,A mouse can squeeze through a pencil-sized gap.
+ARMCHAIR,Armchairs were once status symbols for the powerful.
+ANTHILL,Some ant colonies hold millions of ants.
+WATERFALL,Angel Falls in Venezuela is the tallest waterfall.
+CARSICK,Motion sickness happens when eyes and ears disagree.
+SANDPAPER,Sandpaper first used crushed seashells glued to parchment.
+BIRDBATH,Birds bathe to keep feathers clean and flexible.
+LOVEBIRD,Lovebirds are small parrots native to Africa.
+WATCHDOG,Dogs have guarded people for thousands of years.
+WINDSHIELD,Mary Anderson patented the windshield wiper in 1903.
+THUMBTACK,Thumbtacks are also called drawing pins in Britain.
+SEAWEED,Seaweed is algae and not a true plant.
+MEATLOAF,Meatloaf-like dishes appear in an ancient Roman cookbook.
+BUTTERFLY,Butterflies taste with their feet.
+CROSSWALK,Britain's first zebra crossings appeared in 1951.
+ROADRUNNER,Roadrunners can run about twenty miles per hour.
+WOLFPACK,A wolf pack is usually a family.
+GOALPOST,Football crossbars replaced tape across goals in 1875.
+BLUETOOTH,Bluetooth is named after a Viking king.
+HONEYMOON,Wedding trips became fashionable in 1800s Britain.
+DAYDREAM,Daydreaming can boost creativity and problem solving.
+CARTWHEEL,The cartwheel is a classic gymnastics skill.
+SWEETHEART,The word sweetheart dates back to the 1200s.
+WISHBONE,Wishbones are a bird's fused collarbones.
+SHORTCUT,Ants find shortest paths with scent trails.
+BEANSTALK,Climbing bean vines can grow over two metres.
+NIGHTMARE,Nightmares are most common during REM sleep.
+SEESAW,Seesaws are also called teeter-totters.
+WHIRLPOOL,Norway's Saltstraumen is famous for powerful whirlpools.
+WALLFLOWER,Wallflowers really do grow on old walls.
+HAMSTRING,Three muscles make up the hamstrings.
+BAREFOOT,Each human foot has twenty-six bones.
+QUARTERBACK,NFL quarterbacks traditionally wear numbers one to nineteen.
+HOGWASH,Hogwash first meant kitchen scraps fed to pigs.
