@@ -181,7 +181,7 @@ guess-the-word/
 ├── public/
 │   ├── fonts/                  # Anton, Poppins 600/800, JetBrains Mono, Noto Color Emoji (OFL)
 │   ├── sounds/                 # generated SFX + music loops (npm run sounds)
-│   └── images/                 # qNN.jpg 1280x720 (generated, git-ignored)
+│   └── images/                 # qNN.jpg 1280x720 (50 answer photos, committed)
 ├── scripts/
 │   ├── build-questions.js          # questions.js -> src/rounds.json (validates)
 │   ├── timeline.js             # prints the real frame plan
