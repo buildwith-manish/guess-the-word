@@ -114,12 +114,18 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
           const sp = springStyle(frame, s0, 900, px(isEmoji ? 160 : 70));
           const dxSign = i === 0 ? 1 : -1;
 
-          let wrap: React.CSSProperties = sp;
+          // pro touch: entrances arrive soft-focus and sharpen as they land
+          const inBlur = Math.pow(1 - clamp01((frame - s0) / ms(450)), 2) * px(isEmoji ? 16 : 8);
+          let wrap: React.CSSProperties = { ...sp, filter: inBlur > 0.05 ? `blur(${inBlur}px)` : 'none' };
           if (merged) {
             if (isEmoji) {
               const e = mergeEase(clamp01((frame - M) / ms(820)));
+              // velocity-based motion blur while the pair slides together
+              const speed = Math.abs(mergeEase(clamp01((frame - M + 1) / ms(820))) - e);
+              const mBlur = px(3.5) * Math.min(1, speed / 0.06);
               const dx = px(MERGE_DX) * dxSign;
               wrap = {
+                filter: mBlur > 0.05 ? `blur(${mBlur}px)` : 'none',
                 opacity: keyframes(e, [0, 0.26, 0.88, 1], [1, 1, 1, 0]),
                 transform: `translateX(${keyframes(e, [0, 0.26, 0.88, 1], [0, -dxSign * px(36), dx, dx])}px) scale(${keyframes(e, [0, 0.26, 0.88, 1], [1, 0.92, 1.12, 0.4])})`,
               };
@@ -214,6 +220,39 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
                   style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
                 />
               </div>
+              {/* specular glint: a soft light band sweeps the glass every 3.6 s, staggered per card */}
+              {(() => {
+                const gt = frame - (s0 + ms(900));
+                if (gt < 0 || merged) return null;
+                const ph = (gt % ms(3600)) / ms(3600);
+                if (ph > 0.24) return null;
+                const x = -80 + 220 * cssEaseInOut(ph / 0.24);
+                return (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      width: px(318),
+                      height: px(318),
+                      borderRadius: px(44),
+                      overflow: 'hidden',
+                      pointerEvents: 'none',
+                      zIndex: 2,
+                    }}
+                  >
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '-10%',
+                        height: '120%',
+                        width: '34%',
+                        left: `${x}%`,
+                        transform: 'skewX(-18deg)',
+                        background: 'linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.22), rgba(255,255,255,0))',
+                      }}
+                    />
+                  </div>
+                );
+              })()}
               <Ring frame={frame} start={s0 + ms(300)} />
             </div>
           );
@@ -287,9 +326,25 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
                 color: COLORS.inkDark,
                 opacity,
                 transform,
+                position: 'relative',
+                overflow: 'hidden',
               }}
             >
               {rev ? letter : ''}
+              {/* shine wave: each tile's highlight starts 50 ms after its neighbour, so light runs across the word */}
+              {rev && (frame - (flipAt + ms(220))) / ms(520) > 0 && (frame - (flipAt + ms(220))) / ms(520) < 1 ? (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '-10%',
+                    height: '120%',
+                    width: '55%',
+                    left: `${-70 + 190 * cssEaseInOut((frame - (flipAt + ms(220))) / ms(520))}%`,
+                    transform: 'skewX(-18deg)',
+                    background: 'linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.75), rgba(255,255,255,0))',
+                  }}
+                />
+              ) : null}
             </div>
           );
         })}
@@ -565,6 +620,8 @@ const ResultCard: React.FC<{
   clueB: string;
 }> = ({ frame, start, exit, word, index, clueA, clueB }) => {
   const showImage = settings.images.enabled && hasImage(index);
+  const kb = cssEaseOut(clamp01((frame - start) / Math.max(1, exit - start))); // Ken Burns progress
+  const sheen = (frame - (start + ms(320))) / ms(750);
   const sp = springStyle(frame, start, 950, px(30), -10);
   let style: React.CSSProperties = sp;
   if (frame >= exit) {
@@ -622,7 +679,42 @@ const ResultCard: React.FC<{
         }}
       >
         {showImage ? (
-          <Img src={imageSrc(index)} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          <>
+            <Img
+              src={imageSrc(index)}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                display: 'block',
+                // slow "camera" push-in with a slight drift for the whole time the card is on screen
+                transform: `scale(${1.02 + 0.11 * kb}) translate(${-1.4 * kb}%, ${0.9 * kb}%)`,
+              }}
+            />
+            {/* cinematic grade: soft top gloss + bottom falloff */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background:
+                  'linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 26%), linear-gradient(0deg, rgba(0,0,0,0.32) 0%, rgba(0,0,0,0) 38%)',
+              }}
+            />
+            {/* one-time light sweep as the card lands */}
+            {sheen > 0 && sheen < 1 ? (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '-10%',
+                  height: '120%',
+                  width: '38%',
+                  left: `${-50 + 170 * cssEaseInOut(sheen)}%`,
+                  transform: 'skewX(-18deg)',
+                  background: 'linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.4), rgba(255,255,255,0))',
+                }}
+              />
+            ) : null}
+          </>
         ) : (
           <div
             style={{
