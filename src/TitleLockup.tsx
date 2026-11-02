@@ -18,7 +18,7 @@ const RADIUS = px(11);
  * "GUESS THE WORD" built from the same tiles as the answer row, so the title previews the game:
  *
  *   1. every letter flips up in 3D, one tile per 40 ms (the answer-tile flip: rotateX -80 -> 0, scale overshoot)
- *   2. GUESS / THE land as frosted-glass tiles (the empty, still-to-solve look)
+ *   2. GUESS / THE land as solid white keycap tiles (the "given" look)
  *   3. WORD then "solves" itself: its tiles ignite to glossy gold one after another,
  *      each with a pop and a travelling shine (the answer-reveal look)
  *   4. the gold hairline draws in underneath
@@ -58,7 +58,7 @@ export const TitleLockup: React.FC<{
         opacity,
       }}
     >
-      <div style={{ display: 'flex', gap: px(26), perspective: px(700) }}>
+      <div style={{ display: 'flex', gap: px(26), perspective: px(700), paddingBottom: px(6) }}>
         {WORDS.map((w, wi) => (
           <div key={wi} style={{ display: 'flex', gap: px(6) }}>
             {Array.from(w.text).map((ch, ci) => {
@@ -87,24 +87,22 @@ export const TitleLockup: React.FC<{
                     transform: `${flip} scale(${pop})`,
                   }}
                 >
-                  {/* glass tile: the "still to guess" look */}
+                  {/* solid keycap tile: the "given" look — opaque white, dark letter, firm bottom edge */}
                   <div
                     style={{
                       position: 'absolute',
                       inset: 0,
                       borderRadius: RADIUS,
-                      background: 'linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.07))',
-                      border: `${px(1.5)}px solid rgba(255,255,255,0.34)`,
-                      boxShadow: `0 ${px(8)}px ${px(18)}px rgba(0,0,0,0.4), inset 0 ${px(-3)}px 0 rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.35)`,
-                      backdropFilter: `blur(${px(6)}px)`,
+                      background: 'linear-gradient(180deg, #FFFFFF 0%, #EEF0FB 58%, #D3D8F0 100%)',
+                      border: `${px(1.5)}px solid #FFFFFF`,
+                      boxShadow: `0 ${px(5)}px 0 #7F89BD, 0 ${px(12)}px ${px(18)}px rgba(0,0,0,0.45), inset 0 ${px(2)}px 0 rgba(255,255,255,0.9)`,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontFamily: FONTS.display,
                       fontSize: TILE_FONT,
                       lineHeight: 1,
-                      color: COLORS.ink,
-                      opacity: 1 - g * 0.0, // base stays; the gold layer covers it
+                      color: '#1A1538',
                     }}
                   >
                     {ch}
@@ -120,7 +118,7 @@ export const TitleLockup: React.FC<{
                         overflow: 'hidden',
                         background: `linear-gradient(180deg, ${COLORS.yellowSoft}, ${COLORS.yellow} 55%, ${COLORS.yellowDeep})`,
                         border: `${px(1.5)}px solid rgba(255,255,255,0.75)`,
-                        boxShadow: `0 0 ${px(26)}px rgba(255,201,60,${0.55 * g}), 0 ${px(8)}px ${px(16)}px rgba(0,0,0,0.4), inset 0 ${px(2)}px 0 rgba(255,255,255,0.7)`,
+                        boxShadow: `0 0 ${px(26)}px rgba(255,201,60,${0.55 * g}), 0 ${px(5)}px 0 #C27A00, 0 ${px(12)}px ${px(18)}px rgba(0,0,0,0.45), inset 0 ${px(2)}px 0 rgba(255,255,255,0.7)`,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
