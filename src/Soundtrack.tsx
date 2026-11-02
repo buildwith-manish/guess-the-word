@@ -9,6 +9,7 @@ import {
   clipFrames,
   layerAudible,
 } from './sound';
+import { TIME_SCALE } from './timing';
 
 const MUSIC_FILES = ['music-base.wav', 'music-l1.wav', 'music-l2.wav'];
 
@@ -33,11 +34,23 @@ export const Soundtrack: React.FC = () => {
           const from = k * MUSIC_LOOP_FRAMES;
           if (!layerAudible(layer, from, from + MUSIC_LOOP_FRAMES)) return null;
           const env = MUSIC_ENVELOPES[layer];
+          // `f` is an OUTPUT (60 fps) frame inside the sequence; the envelope is per design frame
+          // (30 fps), so convert and interpolate for a smooth 60 fps volume curve.
+          const at = (i: number) => env[Math.max(0, Math.min(env.length - 1, i))] ?? 0;
           return (
-            <Sequence key={`m${layer}-${k}`} from={from} durationInFrames={MUSIC_LOOP_FRAMES} layout="none">
+            <Sequence
+              key={`m${layer}-${k}`}
+              from={from * TIME_SCALE}
+              durationInFrames={MUSIC_LOOP_FRAMES * TIME_SCALE}
+              layout="none"
+            >
               <Audio
                 src={staticFile(`sounds/${file}`)}
-                volume={(f) => env[Math.min(env.length - 1, from + f)] ?? 0}
+                volume={(f) => {
+                  const d = from + f / TIME_SCALE;
+                  const i = Math.floor(d);
+                  return at(i) + (at(i + 1) - at(i)) * (d - i);
+                }}
               />
             </Sequence>
           );
@@ -47,8 +60,8 @@ export const Soundtrack: React.FC = () => {
       {CUES.map((c, i) => (
         <Sequence
           key={`s${i}`}
-          from={c.frame}
-          durationInFrames={clipFrames(c.sfx, c.rate ?? 1)}
+          from={c.frame * TIME_SCALE}
+          durationInFrames={clipFrames(c.sfx, c.rate ?? 1) * TIME_SCALE}
           layout="none"
         >
           <Audio

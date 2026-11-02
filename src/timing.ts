@@ -8,9 +8,21 @@ import rounds from './rounds.json';
 import type { Hud, LevelCfg, Question, Segment, Timeline } from './types';
 import { buildBonusPuzzles, type BonusPuzzle } from './bonus-engine';
 
+/**
+ * DESIGN grid: every duration, easing and sound cue in this project is authored in
+ * 30 fps frames on a 1920x1080 canvas (FPS / WIDTH / HEIGHT). The OUTPUT is rendered at
+ * settings.output (2560x1440 @ 60 fps): the composition runs on 60 fps frames and src/clock.ts
+ * converts them back to (fractional) design frames, so nothing in the scenes had to change.
+ * 1440p comes from Remotion's output scale (see remotion.config.ts), so the layout is identical.
+ */
 export const FPS = settings.fps;
 export const WIDTH = settings.width;
 export const HEIGHT = settings.height;
+export const RENDER_FPS = settings.output.fps;
+/** render frames per design frame (60 / 30 = 2) */
+export const TIME_SCALE = RENDER_FPS / FPS;
+/** output pixels per design pixel (2560 / 1920 = 4/3) */
+export const OUTPUT_SCALE = settings.output.width / settings.width;
 
 export const LEVELS: LevelCfg[] = settings.levels as unknown as LevelCfg[];
 const THEMES: string[][] = settings.levelThemes as string[][];
@@ -225,6 +237,9 @@ const buildTimeline = (puzzles: BonusPuzzle[] = PUZZLES): Timeline => {
 };
 
 export const TIMELINE = buildTimeline();
+
+/** composition length in OUTPUT (60 fps) frames */
+export const RENDER_TOTAL_FRAMES = Math.round(TIMELINE.totalFrames * TIME_SCALE);
 
 export const locate = (segments: Segment[], frame: number) => {
   let idx = 0;

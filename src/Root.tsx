@@ -2,7 +2,7 @@ import React from 'react';
 import { Composition } from 'remotion';
 import './fonts';
 import { Main } from './Main';
-import { FPS, HEIGHT, TIMELINE, WIDTH } from './timing';
+import { HEIGHT, RENDER_FPS, RENDER_TOTAL_FRAMES, WIDTH } from './timing';
 
 /**
  * One composition. Its duration comes from the timeline (settings.json +
@@ -14,8 +14,8 @@ export const RemotionRoot: React.FC = () => {
     <Composition
       id="GuessTheWord"
       component={Main}
-      durationInFrames={TIMELINE.totalFrames}
-      fps={FPS}
+      durationInFrames={RENDER_TOTAL_FRAMES}
+      fps={RENDER_FPS}
       width={WIDTH}
       height={HEIGHT}
     />

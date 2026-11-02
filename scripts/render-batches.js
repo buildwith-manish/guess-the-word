@@ -7,8 +7,8 @@
  * ones that finished. Re-running the same command picks up where it stopped,
  * then concatenates the valid chunks into out/video.mp4.
  *
- *   node scripts/render-batches.js                 # 900-frame chunks
- *   node scripts/render-batches.js --size 300      # smaller chunks = smaller redo window
+ *   node scripts/render-batches.js                 # 1800-frame chunks (30 s @ 60 fps)
+ *   node scripts/render-batches.js --size 600      # smaller chunks = smaller redo window
  *   node scripts/render-batches.js --only 5        # render a single batch (lane worker)
  *   node scripts/render-batches.js --concat        # only remux the finished chunks
  *   node scripts/render-batches.js --clean         # wipe out/batches + progress file
@@ -40,7 +40,8 @@ const valueOf = (flag, fallback) => {
   return v && !v.startsWith('--') ? v : fallback;
 };
 
-const SIZE = Math.max(30, Number(valueOf('--size', 900)));
+// chunk size is in OUTPUT frames (60 fps): 1800 frames = the same 30 s window as 900 frames at 30 fps
+const SIZE = Math.max(60, Number(valueOf('--size', 1800)));
 const ONLY = valueOf('--only', null);
 // our own flags never reach `remotion render`
 const OUR_FLAGS = ['--size', '--only', '--concat', '--clean', '--force', '--lane', '--help'];
@@ -80,7 +81,8 @@ const getTotalFrames = () => {
       cwd: ROOT,
       encoding: 'utf8',
     });
-    return JSON.parse(json).totalFrames;
+    // OUTPUT frames (the composition runs at 60 fps), not the 30 fps design frames
+    return JSON.parse(json).renderFrames;
   } catch (err) {
     throw new Error(
       `Could not determine the composition length (${err.message}). Run \`npm run timeline\` first.`,

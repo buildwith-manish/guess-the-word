@@ -1,5 +1,6 @@
 import React from 'react';
-import { AbsoluteFill, useCurrentFrame } from 'remotion';
+import { AbsoluteFill } from 'remotion';
+import { useDesignFrame } from './clock';
 import { locate, TIMELINE } from './timing';
 import { Round } from './Round';
 import { Hook } from './Hook';
@@ -19,7 +20,7 @@ import { Soundtrack } from './Soundtrack';
  * render any frame range in any order (see scripts/render-batches.js).
  */
 const Scenes: React.FC = () => {
-  const frame = useCurrentFrame();
+  const frame = useDesignFrame();
   const { seg, local } = locate(TIMELINE.segments, frame);
 
   if (!seg) return null;

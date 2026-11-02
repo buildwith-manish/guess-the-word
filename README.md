@@ -4,15 +4,31 @@ A 50-question "guess the word from two emoji" quiz, rendered frame-perfectly
 with **Remotion**. GSAP is used only for its **easing math** (Pattern 1: pure
 functions in → numbers out, **no GSAP timelines**). Look, timings and copy
 follow the reference `quiz_short_hook.html` (1280×720 stage, scaled 1.5× to
-1920×1080).
+the 1920×1080 design canvas). **Output is 2560×1440 (1440p) at 60 fps.**
 
 ```
 hook intro → EASY ×20 → bonus → MEDIUM ×15 → bonus → HARD ×15 → scoreboard → end screen
             6s each                                   7s each          8s each
 ```
 
-Runtime: **14:44 at 30 fps** (26 508 frames). The composition length is derived
-from `settings.json` + `questions.js` — never typed by hand.
+Runtime: **15:43** (28 283 design frames at 30 fps = 56 566 output frames at 60 fps).
+The composition length is derived from `settings.json` + `questions.js` — never typed by hand.
+
+### 1440p / 60 fps
+
+- Everything is still **authored in 30 fps design frames on a 1920×1080 canvas**, so no timing,
+  easing or sound cue changed. The composition runs at 60 fps and `src/clock.ts`
+  (`useDesignFrame`) converts each output frame back into a fractional design frame, so every
+  animation is sampled twice as often at identical speed.
+- **1440p** is Remotion's output scale (`settings.output.width / settings.width` = 4/3, set in
+  `remotion.config.ts`): same layout, rendered at a higher pixel density, so text and vector
+  art are crisp. Output is H.264, `yuv420p`, CRF 16.
+- Audio is placed by `<Sequence>`; `Soundtrack.tsx` multiplies every offset by `TIME_SCALE`
+  and interpolates the music-duck envelope for 60 fps.
+- Output size/fps live in `settings.json → output`. Photos are still the 1280×720 files from
+  `images:resize`, so they are upscaled slightly at 1440p.
+- Rendering is roughly 2× the frames at ~1.8× the pixels per frame — expect a long render.
+  `GTW_CONCURRENCY=4 npm run render` overrides the default concurrency of 2.
 
 ---
 
@@ -39,9 +55,9 @@ every frame can be rendered in any order.
 
 ```bash
 npm run render                  # out/video.mp4 (single pass, Remotion parallelises)
-npm run render:lanes            # same video, 900-frame chunks
-npm run render:batches -- --size 300
-npm run still                   # out/still.png  (frame 700)
+npm run render:lanes            # same video, 1800-frame chunks (30 s @ 60 fps)
+npm run render:batches -- --size 600
+npm run still                   # out/still.png  (output frame 1400 = 23.3 s)
 npm run timeline                # print the real frame plan
 ```
 
@@ -54,7 +70,7 @@ npm run timeline                # print the real frame plan
 
 ```bash
 node scripts/render-batches.js --lane         # one full render (default)
-node scripts/render-batches.js --size 300     # 300-frame chunks (≈10s each)
+node scripts/render-batches.js --size 600     # 600-frame chunks (≈10s each at 60 fps)
 node scripts/render-batches.js --only 12      # one worker: only chunk 12
 node scripts/render-batches.js --concat       # just remux what exists
 node scripts/render-batches.js --clean        # wipe chunks + progress
@@ -173,7 +189,7 @@ npm run sounds      # -> public/sounds/*.wav + src/sound-manifest.json (determin
 ```
 guess-the-word/
 ├── package.json
-├── remotion.config.ts          # 1920x1080, jpeg frames, swangle GL
+├── remotion.config.ts          # 2560x1440 @ 60 fps output (1920x1080 design grid), jpeg frames, swangle GL
 ├── tsconfig.json
 ├── settings.json               # fps, timing, copy, colours, bonus config
 ├── questions.js                # the 50 questions (source of truth)

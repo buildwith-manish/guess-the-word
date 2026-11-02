@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCurrentFrame } from 'remotion';
+import { useDesignFrame } from './clock';
 import { COLORS, FONTS, px } from './style';
 import { prog, breathe, htmlEase, cssEase, ms } from './anim';
 import settings from '../settings.json';
@@ -14,7 +14,7 @@ const BOLT = 'M57 20L33 55H48L41 82L68 45H53Z';
  * for old call sites but ignored.
  */
 export const Watermark: React.FC<{ frame?: number }> = () => {
-  const frame = useCurrentFrame();
+  const frame = useDesignFrame();
   const entry = prog(frame, ms(200), ms(700), htmlEase);
 
   // wmglint: 6 s loop, first start after 1.6 s; -130% -> 130% over the first 20% (ease), then parked
