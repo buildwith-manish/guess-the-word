@@ -1,5 +1,5 @@
 import React from 'react';
-import { Img } from 'remotion';
+import { AbsoluteFill, Img } from 'remotion';
 import { COLORS, FONTS, S, px, glass } from './style';
 import { buildQuestionPlan, QUESTIONS, TOTAL, themeForQuestion } from './timing';
 import {
@@ -83,11 +83,25 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
   const timerOut = clamp01((frame - flipsEnd) / ms(350));
   const timerVisible = frame >= timerStart && frame < flipsEnd + ms(350);
 
+  // ---- camera: a slow push-in for the whole question, with parallax between layers ----
+  // The backdrop travels less than the content (depth), the HUD stays locked (UI layer), and the
+  // answer reveal adds a quick "impact kick" so the stamp feels like it hits the lens.
+  const camT = cssEaseInOut(clamp01(frame / Math.max(1, plan.exit)));
+  const kickIn = cssEaseOut(clamp01((frame - R0) / ms(90)));
+  const kickOut = cssEaseOut(clamp01((frame - R0 - ms(90)) / ms(520)));
+  const kick = frame < R0 ? 0 : kickIn * (1 - kickOut);
+  const bgScale = 1 + 0.018 * camT + 0.006 * kick;
+  const camScale = 1 + 0.045 * camT + 0.022 * kick;
+  const camY = -px(6) * camT;
+
   return (
     <>
-      <Background frame={frame} theme={theme} hideBars />
+      <AbsoluteFill style={{ transform: `scale(${bgScale})`, transformOrigin: '50% 46%' }}>
+        <Background frame={frame} theme={theme} hideBars />
+      </AbsoluteFill>
       <Hud label="Q" number={index + 1} total={TOTAL} erases={erases} frame={frame} />
       <Watermark />
+      <AbsoluteFill style={{ transform: `translateY(${camY}px) scale(${camScale})`, transformOrigin: '50% 46%' }}>
       <TitleLockup
         frame={frame}
         animate={titleAnimate}
@@ -574,6 +588,7 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
       {/* ---------- confetti: merge burst, plus a bigger one on every 5th question ---------- */}
       <Confetti frame={frame} start={R0} count={26} seed={index * 7 + 3} />
       {index % 5 === 4 ? <Confetti frame={frame} start={afterMerge} count={40} seed={index * 7 + 5} /> : null}
+      </AbsoluteFill>
     </>
   );
 };
