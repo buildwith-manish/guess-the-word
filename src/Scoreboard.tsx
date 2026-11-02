@@ -26,7 +26,7 @@ export const Scoreboard: React.FC<{ frame: number }> = ({ frame }) => {
 
   return (
     <AbsoluteFill>
-      <Background frame={frame} theme={['#6D5BFF', '#0B0A2E']} />
+      <Background frame={frame} theme={['#1b0b2b', '#07040d']} />
       <AbsoluteFill
         style={{
           display: 'flex',
