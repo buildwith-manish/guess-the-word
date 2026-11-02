@@ -217,6 +217,16 @@ const TONES = {
     T(0.11, 988, 0.45, 'triangle', 0.18),
     T(0.22, 1318, 0.6, 'triangle', 0.18),
   ],
+  // SIGNATURE: the lightbulb stamp on every answer reveal — an electric "zap" up-sweep,
+  // then a G-major bell glint (G6 + octave) and three rising sparkles (B6, D7, G7).
+  'bulb-ping': [
+    T(0, 700, 0.09, 'sine', 0.1, 3200),
+    T(0.05, 1568, 0.9, 'sine', 0.17),
+    T(0.05, 3136, 0.5, 'sine', 0.05),
+    T(0.1, 1976, 0.5, 'triangle', 0.09),
+    T(0.16, 2349, 0.6, 'triangle', 0.09),
+    T(0.22, 3136, 0.8, 'triangle', 0.08),
+  ],
   // heartbeat (thump()): two low sine hits 170 ms apart
   thump: [T(0, 64, 0.22, 'sine', 0.55, 36), T(0.17, 58, 0.22, 'sine', 0.45, 34)],
   // boom(): sawtooth + sine drop

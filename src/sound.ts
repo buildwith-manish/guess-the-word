@@ -103,6 +103,8 @@ const buildCues = (): Cue[] => {
         add(f0 + plan.stamp - 16, 'whoosh');
         add(f0 + plan.stamp + 6, 'stamp');
         add(f0 + plan.stamp + 10, 'chime-arp');
+        // signature: the lightbulb stamp lands 7 frames after the card springs in (see Sting.tsx)
+        add(f0 + plan.stamp + 7, 'bulb-ping');
         break;
       }
       case 'bonus': {
