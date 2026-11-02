@@ -192,15 +192,18 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
                   width: px(318),
                   height: px(318),
                   ...glass(px(44), 0.09),
-                  boxShadow: `0 ${px(26)}px ${px(60)}px rgba(0,0,0,0.5), 0 0 ${px(60)}px ${theme[0]}55, inset 0 1px 0 rgba(255,255,255,0.22)`,
+                  // themed card: tinted fill + coloured rim + glow that follows the question's colour
+                  background: `radial-gradient(circle at 50% 40%, ${theme[0]}59 0%, ${theme[0]}14 62%, rgba(255,255,255,0.02) 100%), linear-gradient(160deg, rgba(255,255,255,0.14), rgba(255,255,255,0.03))`,
+                  border: `${px(2)}px solid ${theme[0]}b3`,
+                  boxShadow: `0 ${px(26)}px ${px(60)}px rgba(0,0,0,0.5), 0 0 ${px(90)}px ${theme[0]}88, inset 0 1px 0 rgba(255,255,255,0.28), inset 0 0 ${px(40)}px ${theme[0]}33`,
                 }}
               />
               <div
                 style={{
                   position: 'relative',
                   zIndex: 1,
-                  width: px(236),
-                  height: px(236),
+                  width: px(272),
+                  height: px(272),
                   transform: `translateY(${-px(10) * pos}px) rotate(${2.5 * pos}deg)`,
                   filter: `drop-shadow(0 ${px(18)}px ${px(22)}px rgba(0,0,0,0.55))`,
                 }}
