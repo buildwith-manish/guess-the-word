@@ -27,7 +27,7 @@ export const EndScreen: React.FC<{ frame: number }> = ({ frame }) => {
 
   return (
     <AbsoluteFill>
-      <Background frame={frame} theme={['#2a0010', '#07040d']} />
+      <Background frame={frame} theme={['#FF4D8D', '#2A0720']} />
       <AbsoluteFill
         style={{
           flexDirection: 'row',

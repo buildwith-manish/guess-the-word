@@ -19,42 +19,42 @@
     {
       "name": "EASY",
       "time": 6,
-      "accent": "#30d158",
-      "bg": "#0a4d2e"
+      "accent": "#34D399",
+      "bg": "#05241B"
     },
     {
       "name": "MEDIUM",
       "time": 7,
-      "accent": "#ff9f0a",
-      "bg": "#5a3200"
+      "accent": "#FBBF24",
+      "bg": "#2B1B04"
     },
     {
       "name": "HARD",
       "time": 8,
-      "accent": "#ff3b4f",
-      "bg": "#5a0012"
+      "accent": "#FB7185",
+      "bg": "#2A0712"
     }
   ],
   "levelThemes": [
     [
-      "#ff2d4a",
-      "#5a0012"
+      "#6D5BFF",
+      "#0B0A2E"
     ],
     [
-      "#2f6bff",
-      "#07164f"
+      "#00B8D9",
+      "#04202B"
     ],
     [
-      "#9b4dff",
-      "#26074f"
+      "#FF4D8D",
+      "#2A0720"
     ],
     [
-      "#10c98a",
-      "#033d2c"
+      "#34D399",
+      "#05241B"
     ],
     [
-      "#ff2fa0",
-      "#4a002e"
+      "#FFB020",
+      "#2B1604"
     ]
   ],
   "timer": {
@@ -93,8 +93,8 @@
       "spot"
     ],
     "theme": [
-      "#ff7a18",
-      "#5a1d00"
+      "#FF8A3D",
+      "#2B1204"
     ],
     "preRollFrames": 44,
     "buildFrames": 32,

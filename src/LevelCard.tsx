@@ -1,6 +1,7 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
 import { FONTS, px } from './style';
+import { Background } from './Background';
 import { prog, slamIn, revealIn } from './anim';
 import { backOut, linear } from './gsap-helpers';
 import { LEVELS, QUESTIONS } from './timing';
@@ -18,9 +19,10 @@ export const LevelCard: React.FC<{ frame: number; levelIndex: number }> = ({ fra
   const pop = prog(frame, 10, 18, backOut);
 
   return (
-    <AbsoluteFill
+    <AbsoluteFill>
+      <Background frame={frame} theme={[level.accent, level.bg]} />
+      <AbsoluteFill
       style={{
-        background: `radial-gradient(ellipse 80% 70% at 50% 45%, ${level.bg}, #050505 88%)`,
         opacity: 1 - exitP,
         transform: `scale(${1 - 0.06 * exitP})`,
         display: 'flex',
@@ -80,6 +82,7 @@ export const LevelCard: React.FC<{ frame: number; levelIndex: number }> = ({ fra
           background: `linear-gradient(90deg, transparent, ${level.accent}, transparent)`,
         }}
       />
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };
