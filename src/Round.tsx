@@ -101,13 +101,14 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
       </AbsoluteFill>
       <Hud label="Q" number={index + 1} total={TOTAL} erases={erases} frame={frame} />
       <Watermark />
-      <AbsoluteFill style={{ transform: `translateY(${camY}px) scale(${camScale})`, transformOrigin: '50% 46%' }}>
+      {/* the title is part of the locked UI layer, so the camera push never clips it */}
       <TitleLockup
         frame={frame}
         animate={titleAnimate}
         hideAt={R0}
         showAt={bonusNext ? undefined : plan.exit}
       />
+      <AbsoluteFill style={{ transform: `translateY(${camY}px) scale(${camScale})`, transformOrigin: '50% 46%' }}>
 
       {/* ---------- emoji pair: #emoji flex row, 340px slots, 20px gap ---------- */}
       <div
