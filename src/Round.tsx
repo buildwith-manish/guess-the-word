@@ -22,6 +22,7 @@ import { Watermark } from './Watermark';
 import { TitleLockup } from './TitleLockup';
 import { Background } from './Background';
 import { Confetti, Ring, Flash } from './Fx';
+import { BulbSting } from './Sting';
 import settings from '../settings.json';
 import { imageSrc, hasImage, clueSrc } from './assets';
 
@@ -299,6 +300,9 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
 
       {/* ---------- result card (HTML #res): rays + image frame, spring entrance ---------- */}
       {frame >= R0 ? <ResultCard frame={frame} start={R0} exit={plan.exit} word={q.word} index={index} clueA={q.clueA} clueB={q.clueB} /> : null}
+
+      {/* ---------- signature reveal: the lightbulb monogram stamps onto the card corner ---------- */}
+      {frame >= R0 ? <BulbSting frame={frame} start={R0} exit={plan.exit} /> : null}
 
       {/* ---------- clock bar, number badge, bulbs ---------- */}
       {timerVisible ? (
