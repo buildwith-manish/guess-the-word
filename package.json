@@ -17,6 +17,7 @@
     "images": "node scripts/fetch-images.js",
     "images:resize": "node scripts/resize-images.js",
     "images:refetch": "node scripts/refetch-broken.js",
+    "images:hd": "node scripts/fetch-images.js --force && node scripts/resize-images.js && node scripts/refetch-broken.js",
     "images:all": "node scripts/fetch-images.js && node scripts/resize-images.js && node scripts/refetch-broken.js"
   },
   "dependencies": {

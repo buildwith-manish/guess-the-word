@@ -2,16 +2,16 @@
 /**
  * scripts/resize-images.js
  * ---------------------------------------------------------------------------
- * Normalizes every downloaded photo to exactly 1280x720 with ffmpeg, so the
+ * Normalizes every downloaded photo to exactly 1920x1080 with ffmpeg, so the
  * video never has to scale, letterbox or letter-crop at render time:
  *
- *   scale=1280:720:force_original_aspect_ratio=increase  (fill the frame)
- *   crop=1280:720                                        (centre crop)
+ *   scale=1920:1080:force_original_aspect_ratio=increase  (fill the frame)
+ *   crop=1920:1080                                       (centre crop)
  *   -q:v 2 -pix_fmt yuvj420p                             (small, sharp JPEG)
  *
  *   npm run images:resize              # normalize everything in public/images
  *   npm run images:resize -- --only 4  # a single question
- *   npm run images:resize -- --force   # re-encode even if already 1280x720
+ *   npm run images:resize -- --force   # re-encode even if already 1920x1080
  *   npm run images:resize -- --dir public/images
  *
  * Requires ffmpeg on PATH (override with FFMPEG_BIN or --ffmpeg).
@@ -52,8 +52,8 @@ const resolveFfmpeg = () => {
 
 const FFMPEG = resolveFfmpeg();
 const DIR = path.resolve(ROOT, valueOf('--dir', settings.images.publicDir));
-const W = Number(settings.images.width) || 1280;
-const H = Number(settings.images.height) || 720;
+const W = Number(settings.images.width) || 1920;
+const H = Number(settings.images.height) || 1080;
 const ONLY = valueOf('--only', '')
   .split(',')
   .map((s) => Number(s.trim()))

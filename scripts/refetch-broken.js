@@ -22,8 +22,8 @@ const settings = require(path.join(ROOT, 'settings.json'));
 const rounds = require(path.join(ROOT, 'src/rounds.json'));
 
 const IMAGES_DIR = path.join(ROOT, settings.images.publicDir);
-const EXPECT_W = Number(settings.images.width) || 1280;
-const EXPECT_H = Number(settings.images.height) || 720;
+const EXPECT_W = Number(settings.images.width) || 1920;
+const EXPECT_H = Number(settings.images.height) || 1080;
 
 const argv = process.argv.slice(2);
 const has = (f) => argv.includes(f);
@@ -93,7 +93,7 @@ const main = () => {
   console.log(`\n  checked ${rounds.length} image(s) in ${path.relative(ROOT, IMAGES_DIR)}`);
 
   if (!broken.length) {
-    console.log('  ✔ all images present, valid and 1280x720 — nothing to do\n');
+    console.log('  ✔ all images present, valid and ${EXPECT_W}x${EXPECT_H} — nothing to do\n');
     return;
   }
 
@@ -126,7 +126,7 @@ const main = () => {
     return;
   }
 
-  console.log('\n  ✔ every image is valid and 1280x720\n');
+  console.log('\n  ✔ every image is valid and ${EXPECT_W}x${EXPECT_H}\n');
 };
 
 main();

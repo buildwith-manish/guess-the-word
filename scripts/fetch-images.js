@@ -2,7 +2,7 @@
 /**
  * scripts/fetch-images.js
  * ---------------------------------------------------------------------------
- * Pulls one 1280x720 photo per question with the `z-ai image-search` CLI and
+ * Pulls one 1920x1080 photo per question with the `z-ai image-search` CLI and
  * writes them to public/images/qNN.jpg (+ a manifest that the video reads).
  *
  *   npm run images                 # fetch everything that is missing
@@ -11,6 +11,14 @@
  *   npm run images -- --query "cat fish underwater"
  *
  * Behaviour:
+ *   • never accepts a photo that would have to be upscaled: every download is measured
+ *     and must be at least settings.images.width x height (1920x1080); smaller ones are
+ *     skipped in favour of the next candidate. If NO candidate is big enough, the largest
+ *     one is used only when it beats what is already on disk — otherwise the existing file
+ *     is kept — and the question is listed as "soft" at the end. Override with
+ *     --min-width / --min-height.
+ *   • files are written only after a candidate passes, so a failed --force run can never
+ *     replace a good photo with a worse one
  *   • skips any result whose URL comes from a blocked host (shutterstock.com,
  *     its CDN domains, and a few other stock sites) — configurable in
  *     settings.json -> images.blockedHosts
@@ -48,7 +56,9 @@ const ONLY = valueOf('--only', '')
   .map((s) => Number(s.trim()))
   .filter(Boolean);
 const FORCE = has('--force');
-const COUNT = Number(valueOf('--count', 5));
+const COUNT = Number(valueOf('--count', 10));
+const MIN_W = Number(valueOf('--min-width', settings.images.width || 1920));
+const MIN_H = Number(valueOf('--min-height', settings.images.height || 1080));
 const QUERY_OVERRIDE = valueOf('--query', null);
 
 const BLOCKED = [
@@ -147,7 +157,54 @@ const looksLikeImage = (buf) =>
   (buf.slice(0, 4).toString() === 'RIFF' && buf.slice(8, 12).toString() === 'WEBP') ||
   buf.slice(0, 3).toString() === 'GIF';
 
-const download = async (url, target) => {
+/** Pixel size straight from the file header (JPEG / PNG / WebP / GIF) — no ffprobe needed. */
+const imageSize = (buf) => {
+  try {
+    if (buf[0] === 0x89 && buf[1] === 0x50) return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
+    if (buf.slice(0, 3).toString() === 'GIF') return { width: buf.readUInt16LE(6), height: buf.readUInt16LE(8) };
+    if (buf.slice(0, 4).toString() === 'RIFF' && buf.slice(8, 12).toString() === 'WEBP') {
+      const fmt = buf.slice(12, 16).toString();
+      if (fmt === 'VP8 ') return { width: buf.readUInt16LE(26) & 0x3fff, height: buf.readUInt16LE(28) & 0x3fff };
+      if (fmt === 'VP8L') {
+        const b = buf.readUInt32LE(21);
+        return { width: (b & 0x3fff) + 1, height: ((b >> 14) & 0x3fff) + 1 };
+      }
+      if (fmt === 'VP8X') return { width: 1 + buf.readUIntLE(24, 3), height: 1 + buf.readUIntLE(27, 3) };
+    }
+    if (buf[0] === 0xff && buf[1] === 0xd8) {
+      let i = 2;
+      while (i + 9 < buf.length) {
+        if (buf[i] !== 0xff) {
+          i += 1;
+          continue;
+        }
+        const marker = buf[i + 1];
+        if (marker === 0xff) {
+          i += 1;
+          continue;
+        }
+        if (marker >= 0xc0 && marker <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(marker)) {
+          return { height: buf.readUInt16BE(i + 5), width: buf.readUInt16BE(i + 7) };
+        }
+        if (marker === 0xd8 || marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) {
+          i += 2;
+          continue;
+        }
+        i += 2 + buf.readUInt16BE(i + 2);
+      }
+    }
+  } catch {
+    /* fall through */
+  }
+  return null;
+};
+
+const bigEnough = (size) => !size || (size.width >= MIN_W && size.height >= MIN_H);
+const declaredBigEnough = (c) => Boolean(c.width && c.height && c.width >= MIN_W && c.height >= MIN_H);
+const area = (size) => (size ? size.width * size.height : 0);
+
+/** Download into memory and validate; the caller decides whether it is worth writing. */
+const download = async (url) => {
   const res = await fetch(url, {
     redirect: 'follow',
     headers: { 'user-agent': 'Mozilla/5.0 (compatible; guess-the-word/1.0)' },
@@ -159,28 +216,33 @@ const download = async (url, target) => {
   if (!looksLikeImage(buf) && !type.startsWith('image/')) {
     throw new Error(`not an image (${type || 'unknown type'}) from ${url}`);
   }
-  fs.mkdirSync(path.dirname(target), { recursive: true });
-  fs.writeFileSync(target, buf);
-  return buf.length;
+  return { buf, size: imageSize(buf) };
 };
 
 const main = async () => {
   fs.mkdirSync(IMAGES_DIR, { recursive: true });
-  const progress = readJson(PROGRESS, { version: 1, done: {}, failed: {} });
+  const progress = readJson(PROGRESS, { version: 1, done: {}, failed: {}, soft: {} });
+  progress.soft = progress.soft || {};
   const manifest = readJson(MANIFEST, {});
 
   const wanted = rounds.filter((row) => (ONLY.length ? ONLY.includes(Number(row.id)) : true));
-  console.log(`\n  fetching ${wanted.length} image(s) with \`${BIN} image-search\`\n`);
+  console.log(
+    `\n  fetching ${wanted.length} image(s) with \`${BIN} image-search\` · source must be >= ${MIN_W}x${MIN_H}\n`,
+  );
 
   let ok = 0;
   let skipped = 0;
   const failures = [];
+  const soft = [];
 
   for (const row of wanted) {
     const id = Number(row.id);
     const target = path.join(IMAGES_DIR, fileName(id));
+    const exists = fs.existsSync(target) && fs.statSync(target).size > 8 * 1024;
+    const existingSize = exists ? imageSize(fs.readFileSync(target)) : null;
 
-    if (!FORCE && fs.existsSync(target) && fs.statSync(target).size > 8 * 1024) {
+    // already present: skip it, unless --force or it is below the target resolution
+    if (!FORCE && exists && bigEnough(existingSize)) {
       manifest[String(id)] = fileName(id);
       skipped += 1;
       continue;
@@ -201,7 +263,10 @@ const main = async () => {
       continue;
     }
 
-    const usable = candidates.filter((c) => !isBlocked(c.url) && !isBlocked(c.source || ''));
+    // try candidates the search says are big enough first
+    const usable = candidates
+      .filter((c) => !isBlocked(c.url) && !isBlocked(c.source || ''))
+      .sort((a, b) => Number(declaredBigEnough(b)) - Number(declaredBigEnough(a)));
     if (!usable.length) {
       const note = candidates.length
         ? `all ${candidates.length} result(s) blocked (shutterstock.com and friends)`
@@ -213,38 +278,82 @@ const main = async () => {
       continue;
     }
 
-    let saved = 0;
+    let chosen = null; // first candidate that is big enough
+    let best = null; // largest candidate seen, used only if nothing is big enough
     for (const candidate of usable) {
       try {
-        const bytes = await download(candidate.url, target);
-        saved = bytes;
-        progress.done[id] = { url: candidate.url, file: fileName(id), bytes, at: new Date().toISOString() };
-        delete progress.failed[id];
-        manifest[String(id)] = fileName(id);
-        writeJson(PROGRESS, progress);
-        console.log(`     ✔ ${fileName(id)}  ${(bytes / 1024).toFixed(0)} KB  ${new URL(candidate.url).hostname}`);
+        const got = await download(candidate.url);
+        if (!bigEnough(got.size)) {
+          console.error(`     · ${got.size.width}x${got.size.height} is below ${MIN_W}x${MIN_H}, trying the next result`);
+          if (!best || area(got.size) > area(best.size)) best = { ...got, url: candidate.url };
+          continue;
+        }
+        chosen = { ...got, url: candidate.url };
         break;
       } catch (err) {
         console.error(`     · ${err.message}`);
       }
     }
 
-    if (!saved) {
-      console.error('     ✖ no candidate could be downloaded');
+    let isSoft = false;
+    if (!chosen && best) {
+      isSoft = true;
+      if (existingSize && area(existingSize) >= area(best.size)) {
+        console.error(
+          `     ! no ${MIN_W}x${MIN_H} source found; keeping the existing ${existingSize.width}x${existingSize.height} file`,
+        );
+        soft.push(id);
+        progress.soft[id] = `${existingSize.width}x${existingSize.height}`;
+        manifest[String(id)] = fileName(id);
+        writeJson(PROGRESS, progress);
+        continue;
+      }
+      chosen = best;
+    }
+
+    if (!chosen) {
+      console.error('     ✖ no candidate could be downloaded (existing file, if any, left untouched)');
       failures.push(id);
       progress.failed[id] = 'download failed';
       writeJson(PROGRESS, progress);
       continue;
     }
 
-    ok += 1;
+    const tmp = `${target}.part`;
+    fs.writeFileSync(tmp, chosen.buf);
+    fs.renameSync(tmp, target);
+    progress.done[id] = {
+      url: chosen.url,
+      file: fileName(id),
+      bytes: chosen.buf.length,
+      size: chosen.size ? `${chosen.size.width}x${chosen.size.height}` : 'unknown',
+      at: new Date().toISOString(),
+    };
+    delete progress.failed[id];
+    if (isSoft) {
+      soft.push(id);
+      progress.soft[id] = progress.done[id].size;
+    } else {
+      delete progress.soft[id];
+    }
+    manifest[String(id)] = fileName(id);
+    writeJson(PROGRESS, progress);
     writeJson(MANIFEST, manifest);
+    const dim = chosen.size ? ` ${chosen.size.width}x${chosen.size.height}` : '';
+    console.log(
+      `     ✔ ${fileName(id)}${dim}  ${(chosen.buf.length / 1024).toFixed(0)} KB  ${new URL(chosen.url).hostname}${isSoft ? '  (soft: below target)' : ''}`,
+    );
+    ok += 1;
   }
 
   writeJson(MANIFEST, manifest);
   writeJson(PROGRESS, progress);
 
-  console.log(`\n  ✔ ${ok} fetched · ${skipped} already present · ${failures.length} failed`);
+  console.log(`\n  ✔ ${ok} fetched · ${skipped} already ${MIN_W}x${MIN_H}+ · ${failures.length} failed · ${soft.length} soft`);
+  if (soft.length) {
+    console.log(`  soft ids (no ${MIN_W}x${MIN_H} source found, will be upscaled a little): ${soft.join(', ')}`);
+    console.log(`  try other wording, one id at a time:  npm run images -- --only ${soft[0]} --force --query "<better query>"`);
+  }
   if (failures.length) {
     console.log(`  failed ids: ${failures.join(', ')}`);
     console.log('  fix them with:  npm run images -- --only ' + failures.join(',') + ' --force');

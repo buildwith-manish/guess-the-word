@@ -22,11 +22,12 @@ The composition length is derived from `settings.json` + `questions.js` — neve
   animation is sampled twice as often at identical speed.
 - **1440p** is Remotion's output scale (`settings.output.width / settings.width` = 4/3, set in
   `remotion.config.ts`): same layout, rendered at a higher pixel density, so text and vector
-  art are crisp. Output is H.264, `yuv420p`, CRF 16.
+  art are crisp. Output is H.264, `yuv420p`, CRF 18.
 - Audio is placed by `<Sequence>`; `Soundtrack.tsx` multiplies every offset by `TIME_SCALE`
   and interpolates the music-duck envelope for 60 fps.
-- Output size/fps live in `settings.json → output`. Photos are still the 1280×720 files from
-  `images:resize`, so they are upscaled slightly at 1440p.
+- Output size/fps live in `settings.json → output`. Photos are 1920×1080 (`settings.images`),
+  so they are never upscaled at 1440p; `npm run images:hd` re-fetches every photo and only
+  accepts sources of at least 1920×1080 (anything smaller is reported as "soft").
 - Rendering is roughly 2× the frames at ~1.8× the pixels per frame — expect a long render.
   `GTW_CONCURRENCY=4 npm run render` overrides the default concurrency of 2.
 
@@ -122,7 +123,7 @@ render the `IMAGE HERE` placeholder, like the reference HTML did.
 
 ```bash
 npm run images             # scripts/fetch-images.js — z-ai image-search CLI
-npm run images:resize      # scripts/resize-images.js — ffmpeg → 1280x720
+npm run images:resize      # scripts/resize-images.js — ffmpeg → 1920x1080
 npm run images:refetch     # scripts/refetch-broken.js — repair missing/broken
 npm run images:all         # all three, in order
 ```
@@ -134,8 +135,8 @@ npm run images:all         # all three, in order
   `Z_AI_BIN`, the query with `--query`, the CLI flags with `--cli-args`. Progress
   is checkpointed to `scripts/.image-progress.json` (git-ignored) and re-runs
   are safe.
-* `resize-images.js` normalizes to exactly **1280×720** with
-  `scale=...:force_original_aspect_ratio=increase,crop=1280:720` (lanczos). It
+* `resize-images.js` normalizes to exactly **1920×1080** with
+  `scale=...:force_original_aspect_ratio=increase,crop=1920:1080` (lanczos). It
   uses `ffmpeg` from PATH, `$FFMPEG_BIN`, or the static binary inside
   `node_modules/@remotion/compositor-*`.
 * `refetch-broken.js` validates every file (exists, >12 KB, real image header,
@@ -197,12 +198,12 @@ guess-the-word/
 ├── public/
 │   ├── fonts/                  # Anton, Poppins 600/800, JetBrains Mono, Noto Color Emoji (OFL)
 │   ├── sounds/                 # generated SFX + music loops (npm run sounds)
-│   └── images/                 # qNN.jpg 1280x720 (50 answer photos, committed)
+│   └── images/                 # qNN.jpg 1920x1080 (50 answer photos, committed)
 ├── scripts/
 │   ├── build-questions.js          # questions.js -> src/rounds.json (validates)
 │   ├── timeline.js             # prints the real frame plan
 │   ├── fetch-images.js         # z-ai image-search, excludes shutterstock.com
-│   ├── resize-images.js        # ffmpeg normalize to 1280x720
+│   ├── resize-images.js        # ffmpeg normalize to 1920x1080
 │   ├── refetch-broken.js       # validate + repair images
 │   └── render-batches.js       # render --lane, or resume-safe chunks (--size N)
 └── src/

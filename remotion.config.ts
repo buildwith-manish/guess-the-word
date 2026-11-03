@@ -14,7 +14,7 @@ Config.setJpegQuality(95);
 Config.setScale(settings.output.width / settings.width);
 Config.setCodec('h264');
 Config.setPixelFormat('yuv420p');
-Config.setCrf(16); // high quality for 1440p60 (lower = better/larger)
+Config.setCrf(18); // visually lossless after YouTube re-encodes; much smaller than 16
 Config.setOverwriteOutput(true);
 Config.setConcurrency(
   Number(process.env.GTW_CONCURRENCY) || Math.max(1, Math.min(2, os.cpus().length)),
