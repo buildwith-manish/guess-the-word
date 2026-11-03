@@ -31,6 +31,20 @@ The composition length is derived from `settings.json` + `questions.js` — neve
 - Rendering is roughly 2× the frames at ~1.8× the pixels per frame — expect a long render.
   `GTW_CONCURRENCY=4 npm run render` overrides the default concurrency of 2.
 
+### Camera & depth
+
+Switches live in `settings.json → camera` (set any to `false` to turn it off):
+
+- `depth` — three parallax dust/bokeh planes inside the background (`Background.tsx`), so the
+  camera push moves them less than the content. Fades in/out with each question.
+- `handheld` — a tiny never-repeating sway on the question content (`src/camera.ts`), so the
+  countdown and the answer hold are never frozen.
+- `tension` — in the last 3 seconds the camera creeps in and a red edge pulse beats on every
+  number; both release on the reveal.
+- `cards` — `CameraRig.tsx` gives the hook, level cards, bonus, reminder, scoreboard and end
+  screen a slow breathing push. It is multiplied by a 0→1→0 bell, so it is at rest on the
+  first and last frame and never pops at a cut.
+
 ---
 
 ## Install

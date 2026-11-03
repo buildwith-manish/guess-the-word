@@ -11,6 +11,8 @@ import { Reminder } from './Reminder';
 import { Scoreboard } from './Scoreboard';
 import { EndScreen } from './EndScreen';
 import { Soundtrack } from './Soundtrack';
+import { CameraRig } from './CameraRig';
+import settings from '../settings.json';
 
 /**
  * Composition root: it only decides WHICH scene is on screen.
@@ -25,17 +27,27 @@ const Scenes: React.FC = () => {
 
   if (!seg) return null;
 
+  // card scenes get a slow breathing camera (see CameraRig); questions have their own camera in Round
+  const rig = (children: React.ReactNode) =>
+    settings.camera.cards ? (
+      <CameraRig frame={local} duration={seg.duration}>
+        {children}
+      </CameraRig>
+    ) : (
+      <>{children}</>
+    );
+
   switch (seg.kind) {
     case 'hook':
       return (
         <AbsoluteFill>
-          <Hook frame={local} />
+          {rig(<Hook frame={local} />)}
         </AbsoluteFill>
       );
     case 'levelCard':
       return (
         <AbsoluteFill>
-          <LevelCard frame={local} levelIndex={seg.levelIndex} />
+          {rig(<LevelCard frame={local} levelIndex={seg.levelIndex} />)}
         </AbsoluteFill>
       );
     case 'question':
@@ -47,13 +59,13 @@ const Scenes: React.FC = () => {
     case 'bonus':
       return (
         <AbsoluteFill>
-          <Bonus frame={local} puzzle={seg.puzzle} index={seg.index} />
+          {rig(<Bonus frame={local} puzzle={seg.puzzle} index={seg.index} />)}
         </AbsoluteFill>
       );
     case 'reminder':
       return (
         <AbsoluteFill>
-          <Reminder frame={local} seg={seg} />
+          {rig(<Reminder frame={local} seg={seg} />)}
         </AbsoluteFill>
       );
     case 'iris':
@@ -65,13 +77,13 @@ const Scenes: React.FC = () => {
     case 'scoreboard':
       return (
         <AbsoluteFill>
-          <Scoreboard frame={local} />
+          {rig(<Scoreboard frame={local} />)}
         </AbsoluteFill>
       );
     case 'endScreen':
       return (
         <AbsoluteFill>
-          <EndScreen frame={local} />
+          {rig(<EndScreen frame={local} />)}
         </AbsoluteFill>
       );
     default:

@@ -17,6 +17,7 @@ import {
   clamp01,
 } from './anim';
 import { linear } from './gsap-helpers';
+import { handheld } from './camera';
 import { Hud } from './Hud';
 import { Watermark } from './Watermark';
 import { TitleLockup } from './TitleLockup';
@@ -90,14 +91,33 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
   const kickIn = cssEaseOut(clamp01((frame - R0) / ms(90)));
   const kickOut = cssEaseOut(clamp01((frame - R0 - ms(90)) / ms(520)));
   const kick = frame < R0 ? 0 : kickIn * (1 - kickOut);
+
+  // ---- extra camera life (switches in settings.camera) ----
+  const camCfg = settings.camera;
+  // handheld: a tiny never-repeating sway so the countdown and the fact hold are never frozen
+  const env = Math.sin(Math.PI * clamp01(frame / Math.max(1, plan.exit + ms(300))));
+  const hh = camCfg.handheld ? handheld(frame) : { x: 0, y: 0, r: 0 };
+  const driftX = hh.x * px(5) * env;
+  const driftY = hh.y * px(4) * env;
+  const driftR = hh.r * 0.22 * env;
+  // tension: the camera creeps in over the last 3 s, a red edge beats on every number, and both
+  // release the moment the answer lands
+  const inLow = camCfg.tension && low && frame >= timerStart && frame < timerEnd;
+  const toward = clamp01((frame - (timerEnd - 3 * 30)) / (3 * 30));
+  const tension = camCfg.tension ? (frame < R0 ? toward : 1 - cssEaseOut(clamp01((frame - R0) / ms(300)))) : 0;
+  const beat = inLow ? 1 - cssEaseOut(clamp01(((frame - timerStart) % 30) / ms(450))) : 0;
+  const edgePulse = 0.34 * beat * Math.min(1, (4 - nShown) / 3);
+  // parallax dust fades in with the question and out as the answer card exits
+  const depthOpacity = camCfg.depth ? clamp01(frame / 14) * (1 - clamp01((frame - plan.exit) / ms(300))) : 0;
+
   const bgScale = 1 + 0.018 * camT + 0.006 * kick;
-  const camScale = 1 + 0.045 * camT + 0.022 * kick;
+  const camScale = 1 + 0.045 * camT + 0.022 * kick + 0.014 * tension;
   const camY = -px(6) * camT;
 
   return (
     <>
       <AbsoluteFill style={{ transform: `scale(${bgScale})`, transformOrigin: '50% 46%' }}>
-        <Background frame={frame} theme={theme} hideBars />
+        <Background frame={frame} theme={theme} hideBars pulse={edgePulse} depth={depthOpacity} />
       </AbsoluteFill>
       <Hud label="Q" number={index + 1} total={TOTAL} erases={erases} frame={frame} />
       <Watermark />
@@ -108,7 +128,12 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
         hideAt={R0}
         showAt={bonusNext ? undefined : plan.exit}
       />
-      <AbsoluteFill style={{ transform: `translateY(${camY}px) scale(${camScale})`, transformOrigin: '50% 46%' }}>
+      <AbsoluteFill
+        style={{
+          transform: `translate(${driftX}px, ${camY + driftY}px) rotate(${driftR}deg) scale(${camScale})`,
+          transformOrigin: '50% 46%',
+        }}
+      >
 
       {/* ---------- emoji pair: #emoji flex row, 340px slots, 20px gap ---------- */}
       <div

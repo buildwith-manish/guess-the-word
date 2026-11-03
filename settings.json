@@ -7,6 +7,12 @@
     "height": 1440,
     "fps": 60
   },
+  "camera": {
+    "depth": true,
+    "handheld": true,
+    "tension": true,
+    "cards": true
+  },
   "brand": {
     "quiz": "QUIZ",
     "matrix": "MATRIX"
