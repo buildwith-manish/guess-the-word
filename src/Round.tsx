@@ -133,6 +133,43 @@ export const Round: React.FC<{
       </AbsoluteFill>
       <Hud label="Q" number={index + 1} total={TOTAL} erases={erases} frame={frame} />
       <Watermark />
+          {/* ---------- streak milestone: a flame chip under the HUD after the answer lands ---------- */}
+          {(settings.streak.milestones as number[]).includes(index + 1)
+            ? (() => {
+                const inP = prog(frame, plan.stamp + 12, 18, backOut);
+                const outP = 1 - clamp01((frame - plan.exit) / ms(250));
+                const beatP = 0.5 + 0.5 * Math.sin((frame / 30) * Math.PI * 2 * 1.1);
+                return (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: px(40),
+                      top: px(150),
+                      width: px(124),
+                      padding: `${px(8)}px ${px(10)}px ${px(9)}px`,
+                      borderRadius: px(18),
+                      textAlign: 'center',
+                      color: COLORS.inkDark,
+                      background: `linear-gradient(180deg, ${COLORS.yellowSoft}, ${COLORS.yellow} 55%, ${COLORS.yellowDeep})`,
+                      border: `${px(2)}px solid rgba(255,255,255,0.9)`,
+                      boxShadow: `0 0 ${px(22 + 10 * beatP)}px rgba(255,159,28,0.7)`,
+                      transformOrigin: '0 0',
+                      transform: `scale(${(0.35 + 0.65 * inP) * (1 + 0.03 * beatP)}) rotate(${(1 - inP) * -8}deg)`,
+                      opacity: clamp01(inP * 1.4) * outP,
+                    }}
+                  >
+                    <div style={{ fontFamily: FONTS.emoji, fontSize: px(26), lineHeight: 1 }}>🔥</div>
+                    <div style={{ fontFamily: FONTS.display, fontSize: px(46), lineHeight: 1, marginTop: px(2) }}>{index + 1}</div>
+                    <div style={{ fontFamily: FONTS.display, fontSize: px(15), letterSpacing: px(2), lineHeight: 1.1 }}>
+                      {settings.streak.label}
+                    </div>
+                    <div style={{ fontFamily: FONTS.body, fontWeight: 800, fontSize: px(8.5), letterSpacing: px(1.2), marginTop: px(4), opacity: 0.8 }}>
+                      {settings.streak.cta} 👇
+                    </div>
+                  </div>
+                );
+              })()
+            : null}
           {/* ---------- fastest guess badge: short clock, hot colours ---------- */}
           {plan.fast ? (
             (() => {

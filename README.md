@@ -11,7 +11,7 @@ hook intro → EASY ×20 → bonus → MEDIUM ×15 → bonus → HARD ×15 → s
             6s each                                   7s each          8s each
 ```
 
-Runtime: **15:43** (28 283 design frames at 30 fps = 56 566 output frames at 60 fps).
+Runtime: **14:14** (25 633 design frames at 30 fps = 51 266 output frames at 60 fps).
 The composition length is derived from `settings.json` + `questions.js` — never typed by hand.
 
 ### 1440p / 60 fps
@@ -76,6 +76,20 @@ npm run voiceover          # measures your clips + prints coverage (npm run rend
 - The music ducks under the voice (`duckFloor`, attack 4 frames / release 12). `volume` sets the clip level.
 - Missing clips change nothing, so you can add them gradually. The wording lives in
   `settings.json → voiceover.template` (`{word}` = Title case, `{WORD}` = as written).
+
+### Pacing (retention)
+
+All of this is data in `settings.json`, so it re-flows the whole video (audio included):
+
+- **Timer by level** — `levels[].time` (EASY 6 s, MEDIUM 7 s, HARD 8 s).
+- **A different wipe per level** — `transitions.byLevel` = `circle` (easy), `sweep` (medium), `curtain` (hard).
+- **Fastest guess** — `fastest.questions` get a `fastest.seconds` (3 s) clock and a FASTEST GUESS badge.
+  The ticks, bulbs, red edge pulse and camera creep all follow the shorter clock.
+- **Streak milestones** — `streak.milestones` show a flame chip ("5 IN A ROW · COMMENT YOUR SCORE")
+  right after the answer lands.
+- **Bonus rounds** (`bonus.after`) and **"Still counting?" reminders** (`reminder.after`) were already there.
+  With the defaults something different happens at Q5, 7, 10, 15, 16, 20, 25, 27, 30, 34, 35, 40, 44, 45
+  and 50, so no stretch of questions is longer than 5 in a row without a change.
 
 ---
 

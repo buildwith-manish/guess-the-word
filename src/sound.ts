@@ -112,6 +112,9 @@ const buildCues = (): Cue[] => {
           add(base + plan.flips + k * 1.4, 'letter', { rate: (520 + k * 60) / 520 }),
         );
 
+        // streak milestone chip pops in just after the answer lands
+        if ((settings.streak.milestones as number[]).includes(seg.index + 1)) add(base + plan.stamp + 12, 'ding-hi');
+
         // emojis merge into the answer card
         add(base + plan.stamp - 16, 'whoosh');
         add(base + plan.stamp + 6, 'stamp');

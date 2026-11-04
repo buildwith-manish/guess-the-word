@@ -36,10 +36,21 @@
       16,
       27,
       34,
-      45
+      44
     ],
     "seconds": 3,
     "label": "FASTEST GUESS"
+  },
+  "streak": {
+    "milestones": [
+      5,
+      15,
+      25,
+      35,
+      45
+    ],
+    "label": "IN A ROW",
+    "cta": "COMMENT YOUR SCORE"
   },
   "brand": {
     "quiz": "QUIZ",
