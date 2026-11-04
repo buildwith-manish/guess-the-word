@@ -95,6 +95,12 @@ const buildCues = (): Cue[] => {
         add(base + plan.emojiStart, 'pop');
         add(base + plan.emojiStart + 16, 'pop');
 
+        // fastest guess: the badge slams in as the letters appear
+        if (plan.fast) {
+          add(base + plan.blanksStart, 'ping-hi');
+          add(base + plan.blanksStart, 'thump');
+        }
+
         // clock: tick each second, chime on each free letter (at the two 💡 bulbs)
         ticks(base + plan.timerStart, plan.timerSeconds, 'tick-low');
         plan.free.forEach((fl) => add(base + fl.at, 'flip'));

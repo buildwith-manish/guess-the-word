@@ -16,7 +16,7 @@ import {
   ms,
   clamp01,
 } from './anim';
-import { linear } from './gsap-helpers';
+import { backOut, linear } from './gsap-helpers';
 import { handheld } from './camera';
 import { Hud } from './Hud';
 import { Watermark } from './Watermark';
@@ -133,6 +133,40 @@ export const Round: React.FC<{
       </AbsoluteFill>
       <Hud label="Q" number={index + 1} total={TOTAL} erases={erases} frame={frame} />
       <Watermark />
+          {/* ---------- fastest guess badge: short clock, hot colours ---------- */}
+          {plan.fast ? (
+            (() => {
+              const inP = prog(frame, plan.blanksStart - 4, 14, backOut);
+              const outP = 1 - clamp01((frame - plan.exit) / ms(250));
+              const beatP = 0.5 + 0.5 * Math.sin((frame / 30) * Math.PI * 2 * 1.4);
+              return (
+                <div
+                  style={{
+                    position: 'absolute',
+                    right: px(40),
+                    top: px(92),
+                    transformOrigin: '100% 0',
+                    transform: `scale(${(0.4 + 0.6 * inP) * (1 + 0.035 * beatP)}) rotate(${(1 - inP) * 6}deg)`,
+                    opacity: clamp01(inP * 1.4) * outP,
+                    padding: `${px(7)}px ${px(16)}px ${px(8)}px`,
+                    borderRadius: px(16),
+                    background: `linear-gradient(135deg, ${COLORS.red}, ${COLORS.yellowDeep})`,
+                    border: `${px(2)}px solid rgba(255,255,255,0.85)`,
+                    boxShadow: `0 0 ${px(22 + 10 * beatP)}px rgba(255,77,106,0.65)`,
+                    textAlign: 'center',
+                    color: '#fff',
+                  }}
+                >
+                  <div style={{ fontFamily: FONTS.display, fontSize: px(22), letterSpacing: px(2), lineHeight: 1.05 }}>
+                    ⚡ {settings.fastest.label}
+                  </div>
+                  <div style={{ fontFamily: FONTS.body, fontWeight: 700, fontSize: px(10.5), letterSpacing: px(2.2), opacity: 0.92 }}>
+                    ONLY {plan.timerSeconds} SECONDS
+                  </div>
+                </div>
+              );
+            })()
+          ) : null}
       {/* the title is part of the locked UI layer, so the camera push never clips it */}
       <TitleLockup
         frame={frame}

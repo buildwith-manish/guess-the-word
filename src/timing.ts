@@ -62,6 +62,8 @@ export const TOTAL = QUESTIONS.length;
 export type QuestionPlan = {
   levelIndex: number;
   timerSeconds: number;
+  /** a "fastest guess" question: much shorter clock + its own badge */
+  fast: boolean;
   titleFrames: number;
   emojiStart: number;
   blanksStart: number;
@@ -103,7 +105,9 @@ export const buildQuestionPlan = (
   withTitle: boolean,
 ): QuestionPlan => {
   const t = settings.timing;
-  const timerFrames = Math.round((LEVELS[levelIndex]?.time ?? 6) * FPS);
+  const fast = (settings.fastest.questions as number[]).includes(q.id);
+  const timerSeconds = fast ? settings.fastest.seconds : (LEVELS[levelIndex]?.time ?? 6);
+  const timerFrames = Math.round(timerSeconds * FPS);
 
   const titleFrames = withTitle ? t.titleInFrames : 0;
   const emojiStart = titleFrames + t.questionAfterTitle;
@@ -135,7 +139,8 @@ export const buildQuestionPlan = (
   const exit = stamp + holdFinal;
   return {
     levelIndex,
-    timerSeconds: LEVELS[levelIndex]?.time ?? 6,
+    timerSeconds,
+    fast,
     titleFrames,
     emojiStart,
     blanksStart,
