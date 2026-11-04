@@ -27,7 +27,15 @@ export type Hud = { label: string; number: number; total: number; erases: number
 export type Segment =
   | { kind: 'hook'; from: number; duration: number }
   | { kind: 'levelCard'; from: number; duration: number; levelIndex: number }
-  | { kind: 'question'; from: number; duration: number; index: number; erases: number }
+  | {
+      kind: 'question';
+      from: number;
+      duration: number;
+      index: number;
+      erases: number;
+      /** frames of this question that already play inside the previous colour wipe (overlap) */
+      lead?: number;
+    }
   | { kind: 'bonus'; from: number; duration: number; index: number; puzzle: BonusPuzzle }
   | {
       kind: 'iris';

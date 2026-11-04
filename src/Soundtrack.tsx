@@ -2,6 +2,8 @@ import React from 'react';
 import { Audio, Sequence, staticFile } from 'remotion';
 import {
   CUES,
+  VOICE,
+  VOICE_DIR,
   MUSIC_ENVELOPES,
   MUSIC_LOOP_FRAMES,
   MUSIC_END,
@@ -10,6 +12,7 @@ import {
   layerAudible,
 } from './sound';
 import { TIME_SCALE } from './timing';
+import settings from '../settings.json';
 
 const MUSIC_FILES = ['music-base.wav', 'music-l1.wav', 'music-l2.wav'];
 
@@ -69,6 +72,17 @@ export const Soundtrack: React.FC = () => {
             playbackRate={c.rate ?? 1}
             volume={c.volume ?? 1}
           />
+        </Sequence>
+      ))}
+
+      {VOICE.map((v, i) => (
+        <Sequence
+          key={`v${i}`}
+          from={v.frame * TIME_SCALE}
+          durationInFrames={(v.frames + 2) * TIME_SCALE}
+          layout="none"
+        >
+          <Audio src={staticFile(`${VOICE_DIR}/${v.file}`)} volume={settings.voiceover.volume} />
         </Sequence>
       ))}
     </>

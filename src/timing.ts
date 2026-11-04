@@ -7,6 +7,7 @@ import settings from '../settings.json';
 import rounds from './rounds.json';
 import type { Hud, LevelCfg, Question, Segment, Timeline } from './types';
 import { buildBonusPuzzles, type BonusPuzzle } from './bonus-engine';
+import voManifest from './voiceover-manifest.json';
 
 /**
  * DESIGN grid: every duration, easing and sound cue in this project is authored in
@@ -23,6 +24,20 @@ export const RENDER_FPS = settings.output.fps;
 export const TIME_SCALE = RENDER_FPS / FPS;
 /** output pixels per design pixel (2560 / 1920 = 4/3) */
 export const OUTPUT_SCALE = settings.output.width / settings.width;
+
+/**
+ * Voiceover. scripts/voiceover-scan.js measures every public/voiceover/qNN.* (and bonusNN.*) clip
+ * into src/voiceover-manifest.json. A clip plays right after the reveal lands (offsetFrames), and
+ * the reveal hold is stretched when needed so the clip always finishes (plus tailFrames) before
+ * the card leaves. No clip = nothing changes.
+ */
+const VO = settings.voiceover;
+export type VoClip = { file: string; frames: number };
+export const voiceClip = (kind: 'q' | 'bonus', n: number): VoClip | undefined => {
+  if (!VO.enabled) return undefined;
+  const e = (voManifest as Record<string, Record<string, { file: string; seconds: number }>>)[kind]?.[String(n)];
+  return e ? { file: e.file, frames: Math.ceil(e.seconds * 30) } : undefined;
+};
 
 export const LEVELS: LevelCfg[] = settings.levels as unknown as LevelCfg[];
 const THEMES: string[][] = settings.levelThemes as string[][];
@@ -61,6 +76,8 @@ export type QuestionPlan = {
   duration: number;
   showFact: boolean;
   fact?: string;
+  /** voiceover for the reveal, if a clip exists (start = frame inside the question) */
+  vo?: { file: string; start: number; frames: number };
 };
 
 /** Colour pair behind question `index`: the HTML switches theme on EVERY question (LV[n % 5]). */
@@ -110,7 +127,12 @@ export const buildQuestionPlan = (
     ? 22 + Math.round((factWords / t.voiceWordsPerSecond) * 30) + 10
     : t.answerHold;
 
-  const exit = stamp + hold;
+  // voiceover: starts just after the reveal hits; stretch the hold so it always fits
+  const clip = voiceClip('q', q.id);
+  const voHold = clip ? VO.offsetFrames + clip.frames + VO.tailFrames : 0;
+  const holdFinal = Math.max(hold, voHold);
+
+  const exit = stamp + holdFinal;
   return {
     levelIndex,
     timerSeconds: LEVELS[levelIndex]?.time ?? 6,
@@ -122,18 +144,36 @@ export const buildQuestionPlan = (
     free,
     flips,
     stamp,
-    hold,
+    hold: holdFinal,
     exit,
     duration: exit + t.revealExit,
     showFact,
     fact: q.fact,
+    vo: clip ? { file: clip.file, start: stamp + VO.offsetFrames, frames: clip.frames } : undefined,
   };
 };
 
 export const BONUS_CLOCK_START = () => settings.bonus.preRollFrames + settings.bonus.buildFrames + 10;
 
-const bonusDuration = (p: BonusPuzzle) =>
-  BONUS_CLOCK_START() + Math.round(p.seconds * FPS) + settings.bonus.revealHoldFrames;
+/** frames the bonus answer stays up after the clock ends (stretched to fit a voiceover clip) */
+export const bonusRevealHold = (bonusIndex: number) => {
+  const clip = voiceClip('bonus', bonusIndex + 1);
+  return Math.max(
+    settings.bonus.revealHoldFrames,
+    clip ? VO.offsetFrames + clip.frames + VO.tailFrames : 0,
+  );
+};
+
+/** voiceover for a bonus reveal: frame inside the bonus segment where it starts */
+export const bonusVoice = (bonusIndex: number, seconds: number) => {
+  const clip = voiceClip('bonus', bonusIndex + 1);
+  return clip
+    ? { file: clip.file, frames: clip.frames, start: BONUS_CLOCK_START() + Math.round(seconds * FPS) + VO.offsetFrames }
+    : undefined;
+};
+
+const bonusDuration = (p: BonusPuzzle, bonusIndex: number) =>
+  BONUS_CLOCK_START() + Math.round(p.seconds * FPS) + bonusRevealHold(bonusIndex);
 
 /**
  * Scoreboard budget: kicker + title, then 5 rows at 22 frames each (bottom ->
@@ -176,6 +216,8 @@ const buildTimeline = (puzzles: BonusPuzzle[] = PUZZLES): Timeline => {
 
   const seenLevels = new Set<number>();
   let withTitle = true;
+  /** overlap frames for the NEXT question (only question -> question wipes) */
+  let nextLead = 0;
   /** bonus rounds finished so far = the number on the BONUS ERASES badge */
   let erases = 0;
 
@@ -194,7 +236,9 @@ const buildTimeline = (puzzles: BonusPuzzle[] = PUZZLES): Timeline => {
     const plan = buildQuestionPlan(q, levelIndex, withTitle);
     // the page builds the title lockup once and animates it in again only after a bonus round
     withTitle = false;
-    push({ kind: 'question', from: cursor, duration: plan.duration, index: i, erases });
+    const lead = nextLead;
+    nextLead = 0;
+    push({ kind: 'question', from: cursor, duration: plan.duration - lead, index: i, erases, lead });
 
     const bonusIndex = settings.bonus.after.indexOf(i + 1);
     const puzzle = puzzles[bonusIndex];
@@ -214,7 +258,7 @@ const buildTimeline = (puzzles: BonusPuzzle[] = PUZZLES): Timeline => {
     if (bonusIndex >= 0 && puzzle) {
       // question -> orange bonus backdrop -> (next question's theme, unless the video is over)
       pushIris(themeForQuestion(i), BONUS_THEME, qHud, true);
-      push({ kind: 'bonus', from: cursor, duration: bonusDuration(puzzle), index: bonusIndex, puzzle });
+      push({ kind: 'bonus', from: cursor, duration: bonusDuration(puzzle, bonusIndex), index: bonusIndex, puzzle });
       withTitle = true; // titleOut() before the bonus -> titleIn() on the next question
       erases += 1; // the badge counts this round from its reveal onwards
       if (!isLast) {
@@ -227,6 +271,7 @@ const buildTimeline = (puzzles: BonusPuzzle[] = PUZZLES): Timeline => {
       }
     } else if (!isLast) {
       pushIris(themeForQuestion(i), themeForQuestion(i + 1), qHud, true, true);
+      nextLead = Math.min(settings.timing.irisLead, settings.timing.irisFrames);
     }
   });
 

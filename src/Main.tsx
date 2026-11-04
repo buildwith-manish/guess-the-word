@@ -23,7 +23,7 @@ import settings from '../settings.json';
  */
 const Scenes: React.FC = () => {
   const frame = useDesignFrame();
-  const { seg, local } = locate(TIMELINE.segments, frame);
+  const { seg, local, index } = locate(TIMELINE.segments, frame);
 
   if (!seg) return null;
 
@@ -53,7 +53,7 @@ const Scenes: React.FC = () => {
     case 'question':
       return (
         <AbsoluteFill>
-          <Round frame={local} index={seg.index} erases={seg.erases} />
+          <Round frame={local + (seg.lead ?? 0)} index={seg.index} erases={seg.erases} lead={seg.lead ?? 0} />
         </AbsoluteFill>
       );
     case 'bonus':
@@ -68,12 +68,20 @@ const Scenes: React.FC = () => {
           {rig(<Reminder frame={local} seg={seg} />)}
         </AbsoluteFill>
       );
-    case 'iris':
+    case 'iris': {
+      // overlap: the next question's stage content springs in during the last `lead` frames of the wipe
+      const next = TIMELINE.segments[index + 1];
+      const lead = next && next.kind === 'question' ? (next.lead ?? 0) : 0;
+      const rf = local - (seg.duration - lead);
       return (
         <AbsoluteFill>
           <Iris frame={local} seg={seg} />
+          {next && next.kind === 'question' && lead > 0 && rf >= 0 ? (
+            <Round frame={rf} index={next.index} erases={next.erases} lead={lead} overlay />
+          ) : null}
         </AbsoluteFill>
       );
+    }
     case 'scoreboard':
       return (
         <AbsoluteFill>

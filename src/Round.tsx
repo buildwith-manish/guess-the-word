@@ -41,10 +41,20 @@ const MERGE_DX = ROW_HALF - 170;
  *   -> chip / fact -> exit fades.
  * The plan from buildQuestionPlan() still decides WHEN each beat starts, so the audio plan is unchanged.
  */
-export const Round: React.FC<{ frame: number; index: number; erases?: number }> = ({
+export const Round: React.FC<{
+  frame: number;
+  index: number;
+  erases?: number;
+  /** frames already played inside the previous colour wipe (see settings.timing.irisLead) */
+  lead?: number;
+  /** drawn on top of the colour wipe: only the stage content, no background / HUD / title */
+  overlay?: boolean;
+}> = ({
   frame,
   index,
   erases = 0,
+  lead = 0,
+  overlay = false,
 }) => {
   const q = QUESTIONS[index];
   const levelIndex = Math.max(0, settings.levels.findIndex((l) => l.name === q.level));
@@ -108,7 +118,7 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
   const beat = inLow ? 1 - cssEaseOut(clamp01(((frame - timerStart) % 30) / ms(450))) : 0;
   const edgePulse = 0.34 * beat * Math.min(1, (4 - nShown) / 3);
   // parallax dust fades in with the question and out as the answer card exits
-  const depthOpacity = camCfg.depth ? clamp01(frame / 14) * (1 - clamp01((frame - plan.exit) / ms(300))) : 0;
+  const depthOpacity = camCfg.depth ? clamp01((frame - lead) / 14) * (1 - clamp01((frame - plan.exit) / ms(300))) : 0;
 
   const bgScale = 1 + 0.018 * camT + 0.006 * kick;
   const camScale = 1 + 0.045 * camT + 0.022 * kick + 0.014 * tension;
@@ -116,6 +126,8 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
 
   return (
     <>
+      {!overlay ? (
+        <>
       <AbsoluteFill style={{ transform: `scale(${bgScale})`, transformOrigin: '50% 46%' }}>
         <Background frame={frame} theme={theme} hideBars pulse={edgePulse} depth={depthOpacity} />
       </AbsoluteFill>
@@ -128,6 +140,8 @@ export const Round: React.FC<{ frame: number; index: number; erases?: number }> 
         hideAt={R0}
         showAt={bonusNext ? undefined : plan.exit}
       />
+        </>
+      ) : null}
       <AbsoluteFill
         style={{
           transform: `translate(${driftX}px, ${camY + driftY}px) rotate(${driftR}deg) scale(${camScale})`,

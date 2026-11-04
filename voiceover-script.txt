@@ -1,0 +1,61 @@
+VOICEOVER SCRIPT  (save each clip in public/voiceover/ with the file name shown)
+Aim for a calm, upbeat read. Short is fine: the video holds the answer on screen until your clip ends.
+Template: "The answer is {word}."  (change it in settings.json -> voiceover.template, then re-run this script)
+
+q01.mp3   [EASY]  The answer is Raincoat.
+q02.mp3   [EASY]  The answer is Catfish.
+q03.mp3   [EASY]  The answer is Treehouse. Some treehouses are lived in all year round.
+q04.mp3   [EASY]  The answer is Mailbox.
+q05.mp3   [EASY]  The answer is Cowbell.
+q06.mp3   [EASY]  The answer is Snowball. Snow looks white but is clear ice.
+q07.mp3   [EASY]  The answer is Firewood.
+q08.mp3   [EASY]  The answer is Notebook.
+q09.mp3   [EASY]  The answer is Eggshell. An eggshell has thousands of tiny pores.
+q10.mp3   [EASY]  The answer is Handbag.
+q11.mp3   [EASY]  The answer is Horseshoe.
+q12.mp3   [EASY]  The answer is Keyhole. The oldest known lock is about 4,000 years old.
+q13.mp3   [EASY]  The answer is Pancake.
+q14.mp3   [EASY]  The answer is Teaspoon.
+q15.mp3   [EASY]  The answer is Lighthouse. Alexandria’s lighthouse was a Seven Wonder.
+q16.mp3   [EASY]  The answer is Bullfrog.
+q17.mp3   [EASY]  The answer is Mousetrap.
+q18.mp3   [EASY]  The answer is Armchair. Armchairs were once status symbols for the powerful.
+q19.mp3   [EASY]  The answer is Anthill.
+q20.mp3   [EASY]  The answer is Waterfall.
+q21.mp3   [MEDIUM]  The answer is Carsick. Motion sickness is your eyes and ears disagreeing.
+q22.mp3   [MEDIUM]  The answer is Sandpaper.
+q23.mp3   [MEDIUM]  The answer is Birdbath.
+q24.mp3   [MEDIUM]  The answer is Lovebird. Lovebirds are small parrots from Africa.
+q25.mp3   [MEDIUM]  The answer is Watchdog.
+q26.mp3   [MEDIUM]  The answer is Windshield.
+q27.mp3   [MEDIUM]  The answer is Thumbtack. The thumbtack was patented in 1900.
+q28.mp3   [MEDIUM]  The answer is Seaweed.
+q29.mp3   [MEDIUM]  The answer is Meatloaf.
+q30.mp3   [MEDIUM]  The answer is Butterfly. Butterflies taste with their feet.
+q31.mp3   [MEDIUM]  The answer is Crosswalk.
+q32.mp3   [MEDIUM]  The answer is Roadrunner.
+q33.mp3   [MEDIUM]  The answer is Wolfpack. A wolf pack is usually one family.
+q34.mp3   [MEDIUM]  The answer is Goalpost.
+q35.mp3   [MEDIUM]  The answer is Bluetooth.
+q36.mp3   [HARD]  The answer is Honeymoon. One bee makes only 1/12 teaspoon of honey.
+q37.mp3   [HARD]  The answer is Daydream.
+q38.mp3   [HARD]  The answer is Cartwheel.
+q39.mp3   [HARD]  The answer is Sweetheart. The word sweetheart dates back to the 1200s.
+q40.mp3   [HARD]  The answer is Wishbone.
+q41.mp3   [HARD]  The answer is Shortcut.
+q42.mp3   [HARD]  The answer is Beanstalk. Bean plants climb by twisting around supports.
+q43.mp3   [HARD]  The answer is Nightmare.
+q44.mp3   [HARD]  The answer is Seesaw.
+q45.mp3   [HARD]  The answer is Whirlpool. Whirlpools form where opposing currents meet.
+q46.mp3   [HARD]  The answer is Wallflower.
+q47.mp3   [HARD]  The answer is Hamstring.
+q48.mp3   [HARD]  The answer is Barefoot. Your feet hold a quarter of your bones.
+q49.mp3   [HARD]  The answer is Quarterback.
+q50.mp3   [HARD]  The answer is Hogwash.
+
+BONUS ROUNDS
+bonus01.mp3   The carrot is a vegetable. The rest are fruits.
+bonus02.mp3   There are 7 🐸!
+bonus03.mp3   The word is PENGUIN!
+bonus04.mp3   🍎=4, ⭐=6, 🚗=5. Total 15.
+bonus05.mp3   🕐 changed into 🕑!

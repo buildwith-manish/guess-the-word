@@ -13,6 +13,16 @@
     "tension": true,
     "cards": true
   },
+  "voiceover": {
+    "enabled": true,
+    "dir": "voiceover",
+    "offsetFrames": 14,
+    "tailFrames": 10,
+    "volume": 1,
+    "duckFloor": 0.3,
+    "template": "The answer is {word}.",
+    "bonusTemplate": "{answer}"
+  },
   "brand": {
     "quiz": "QUIZ",
     "matrix": "MATRIX"
@@ -78,15 +88,16 @@
   "timing": {
     "hookA": 110,
     "hookB": 135,
-    "questionAfterTitle": 22,
+    "questionAfterTitle": 6,
     "blanksAfterEmojis": 14,
     "answerFlipsAfterTimer": 6,
     "answerHold": 58,
-    "revealExit": 22,
+    "revealExit": 14,
     "factEvery": 3,
     "voiceWordsPerSecond": 2.6,
     "titleInFrames": 15,
-    "irisFrames": 26
+    "irisFrames": 26,
+    "irisLead": 20
   },
   "bonus": {
     "after": [

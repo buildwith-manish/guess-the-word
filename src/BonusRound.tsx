@@ -1,7 +1,7 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
 import { COLORS, FONTS, S, px, glass } from './style';
-import { BONUS_CLOCK_START, BONUS_THEME, FPS } from './timing';
+import { BONUS_CLOCK_START, BONUS_THEME, FPS, bonusRevealHold } from './timing';
 import { prog, slamIn, revealIn } from './anim';
 import { backOut, elasticOut, expoOut, linear } from './gsap-helpers';
 import { makeConfetti } from './util';
@@ -26,7 +26,7 @@ export const Bonus: React.FC<{ frame: number; puzzle: BonusPuzzle; index: number
   const clockFrames = Math.round(puzzle.seconds * FPS);
   const clockEnd = clockStart + clockFrames;
   const revealAt = clockEnd;
-  const dur = clockEnd + B.revealHoldFrames;
+  const dur = clockEnd + bonusRevealHold(index);
 
   const bannerOut = prog(frame, pre - 8, 10, linear);
   const boardIn = prog(frame, pre + 2, 16, expoOut);

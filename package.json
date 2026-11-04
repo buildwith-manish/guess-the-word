@@ -8,9 +8,9 @@
     "dev": "remotion studio",
     "timeline": "node scripts/timeline.js",
     "typecheck": "tsc --noEmit",
-    "render": "node scripts/render-batches.js --lane",
-    "render:batches": "node scripts/render-batches.js",
-    "render:lanes": "node scripts/render-batches.js --size 1800",
+    "render": "node scripts/voiceover-scan.js && node scripts/render-batches.js --lane",
+    "render:batches": "node scripts/voiceover-scan.js && node scripts/render-batches.js",
+    "render:lanes": "node scripts/voiceover-scan.js && node scripts/render-batches.js --size 1800",
     "still": "remotion still GuessTheWord out/still.png --frame=1400",
     "data": "node scripts/build-questions.js",
     "sounds": "node scripts/generate-audio.js",
@@ -18,7 +18,9 @@
     "images:resize": "node scripts/resize-images.js",
     "images:refetch": "node scripts/refetch-broken.js",
     "images:hd": "node scripts/fetch-images.js --force && node scripts/resize-images.js && node scripts/refetch-broken.js",
-    "images:all": "node scripts/fetch-images.js && node scripts/resize-images.js && node scripts/refetch-broken.js"
+    "images:all": "node scripts/fetch-images.js && node scripts/resize-images.js && node scripts/refetch-broken.js",
+    "voiceover": "node scripts/voiceover-scan.js",
+    "voiceover:script": "node scripts/voiceover-script.js"
   },
   "dependencies": {
     "@remotion/cli": "4.0.539",

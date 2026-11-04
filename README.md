@@ -45,6 +45,38 @@ Switches live in `settings.json → camera` (set any to `false` to turn it off):
   screen a slow breathing push. It is multiplied by a 0→1→0 bell, so it is at rest on the
   first and last frame and never pops at a cut.
 
+### Overlapping transitions
+
+Between two questions the next one no longer waits for the wipe to finish: the colour wipe still
+plays (`irisFrames`), but the next question's emoji pair springs in while it is still opening
+(`timing.irisLead` frames of the question play inside the wipe; `Main.tsx` draws the question's
+stage content on top of the wipe, `Round overlay`). The card exit is also tighter
+(`revealExit`) and the first emoji comes sooner (`questionAfterTitle`). Timers are unchanged.
+Everything — audio cues included — is derived from `timing.ts`, so nothing can drift out of sync.
+
+### Voiceover
+
+One clip per reveal, saved in `public/voiceover/`:
+
+```
+q01.mp3 ... q50.mp3         the answer for question 1..50
+bonus01.mp3 ... bonus05.mp3 the answer for bonus round 1..5   (.mp3 .wav .m4a .ogg .flac)
+```
+
+```bash
+npm run voiceover:script   # writes voiceover-script.txt: the line to record for every file
+npm run voiceover          # measures your clips + prints coverage (npm run render does it for you)
+```
+
+- A clip starts `voiceover.offsetFrames` (14 ≈ 0.5 s) after the answer lands, so the reveal sound
+  hits first and the voice follows.
+- The reveal hold **stretches automatically** so a clip always finishes (plus `tailFrames`) before the
+  card leaves; shorter clips never shorten the default hold. The whole video re-flows, so sound
+  effects and music stay in sync.
+- The music ducks under the voice (`duckFloor`, attack 4 frames / release 12). `volume` sets the clip level.
+- Missing clips change nothing, so you can add them gradually. The wording lives in
+  `settings.json → voiceover.template` (`{word}` = Title case, `{WORD}` = as written).
+
 ---
 
 ## Install

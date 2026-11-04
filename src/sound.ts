@@ -12,7 +12,7 @@
  */
 import settings from '../settings.json';
 import manifest from './sound-manifest.json';
-import { BONUS_CLOCK_START, FPS, QUESTIONS, TIMELINE, TOTAL, buildQuestionPlan } from './timing';
+import { BONUS_CLOCK_START, FPS, QUESTIONS, TIMELINE, TOTAL, bonusVoice, buildQuestionPlan } from './timing';
 
 export type Sfx = Exclude<keyof typeof manifest, `music-${string}`>;
 
@@ -44,6 +44,11 @@ const SB_STEP = 22;
 
 /** Music intensity for question n: the HTML's [0,1,1,2,2] ramp, spread over however many questions there are. */
 const intensityForQuestion = (n: number) => [0, 1, 1, 2, 2][Math.min(4, Math.floor((n * 5) / Math.max(1, TOTAL)))];
+
+/** A voiceover clip placed on the timeline (absolute design frame, length in design frames). */
+export type Voice = { frame: number; file: string; frames: number };
+const VOICE_LIST: Voice[] = [];
+export const VOICE_DIR = settings.voiceover.dir;
 
 const buildCues = (): Cue[] => {
   const cues: Cue[] = [];
@@ -81,30 +86,33 @@ const buildCues = (): Cue[] => {
       }
       case 'question': {
         const q = QUESTIONS[seg.index];
+        // the first `lead` frames of a question play inside the previous colour wipe
+        const base = f0 - (seg.lead ?? 0);
         const plan = buildQuestionPlan(q, levelIndexOf(q.level), seg.index === 0);
-        if (seg.index === 0) add(f0, 'title');
+        if (seg.index === 0) add(base, 'title');
 
         // emoji pair pops in (the "+" is silent, like the HTML)
-        add(f0 + plan.emojiStart, 'pop');
-        add(f0 + plan.emojiStart + 16, 'pop');
+        add(base + plan.emojiStart, 'pop');
+        add(base + plan.emojiStart + 16, 'pop');
 
         // clock: tick each second, chime on each free letter (at the two 💡 bulbs)
-        ticks(f0 + plan.timerStart, plan.timerSeconds, 'tick-low');
-        plan.free.forEach((fl) => add(f0 + fl.at, 'flip'));
+        ticks(base + plan.timerStart, plan.timerSeconds, 'tick-low');
+        plan.free.forEach((fl) => add(base + fl.at, 'flip'));
 
         // clock ends: bulbs flare, then every letter flips with a rising tone
-        add(f0 + plan.flips, 'flare');
-        add(f0 + plan.flips + 5, 'flare');
+        add(base + plan.flips, 'flare');
+        add(base + plan.flips + 5, 'flare');
         Array.from(q.word).forEach((_, k) =>
-          add(f0 + plan.flips + k * 1.4, 'letter', { rate: (520 + k * 60) / 520 }),
+          add(base + plan.flips + k * 1.4, 'letter', { rate: (520 + k * 60) / 520 }),
         );
 
         // emojis merge into the answer card
-        add(f0 + plan.stamp - 16, 'whoosh');
-        add(f0 + plan.stamp + 6, 'stamp');
-        add(f0 + plan.stamp + 10, 'chime-arp');
+        add(base + plan.stamp - 16, 'whoosh');
+        add(base + plan.stamp + 6, 'stamp');
+        add(base + plan.stamp + 10, 'chime-arp');
         // signature: the lightbulb stamp lands 7 frames after the card springs in (see Sting.tsx)
-        add(f0 + plan.stamp + 7, 'bulb-ping');
+        add(base + plan.stamp + 7, 'bulb-ping');
+        if (plan.vo) VOICE_LIST.push({ frame: Math.round(base + plan.vo.start), file: plan.vo.file, frames: plan.vo.frames });
         break;
       }
       case 'bonus': {
@@ -119,6 +127,10 @@ const buildCues = (): Cue[] => {
         if (seg.puzzle.seconds > 3) add(clockEnd - 2 * FPS, 'drumroll');
         add(clockEnd, 'stamp');
         add(clockEnd + settings.bonus.answerChipDelayFrames, 'chime-erase');
+        {
+          const bv = bonusVoice(seg.index, seg.puzzle.seconds);
+          if (bv) VOICE_LIST.push({ frame: Math.round(f0 + bv.start), file: bv.file, frames: bv.frames });
+        }
         break;
       }
       case 'reminder': {
@@ -153,6 +165,9 @@ const buildCues = (): Cue[] => {
 };
 
 export const CUES: Cue[] = buildCues();
+
+/** Every voiceover clip in the video, in order (filled while the cues are built). */
+export const VOICE: Voice[] = VOICE_LIST.slice().sort((a, b) => a.frame - b.frame);
 
 /* ------------------------------------------------------------------ music */
 
@@ -194,6 +209,20 @@ const buildMusicEnvelopes = (): Float32Array[] => {
       const dt = f - c.frame;
       const v = dt < duckFrames ? DUCK_FLOOR : 1 - (1 - DUCK_FLOOR) * Math.exp(-(dt - duckFrames) / recover);
       if (v < duck[f]) duck[f] = v;
+    }
+  }
+
+  // the music dips under every voiceover clip: quick attack, slower release
+  const vDuck = settings.voiceover.duckFloor;
+  for (const v of VOICE) {
+    const a = Math.max(0, v.frame - 4);
+    const b = Math.min(n, v.frame + v.frames + 12);
+    for (let f = a; f < b; f++) {
+      const down = Math.min(1, (f - a) / 4);
+      const up = Math.min(1, (v.frame + v.frames + 12 - f) / 12);
+      const k = Math.min(down, up);
+      const val = 1 - (1 - vDuck) * k;
+      if (val < duck[f]) duck[f] = val;
     }
   }
 
