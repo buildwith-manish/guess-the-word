@@ -24,6 +24,8 @@ export type Question = {
 /** What the top-left HUD pill (and the BONUS ERASES badge under it) shows. */
 export type Hud = { label: string; number: number; total: number; erases: number };
 
+export type IrisVariant = 'circle' | 'sweep' | 'curtain';
+
 export type Segment =
   | { kind: 'hook'; from: number; duration: number }
   | { kind: 'levelCard'; from: number; duration: number; levelIndex: number }
@@ -49,6 +51,8 @@ export type Segment =
       watermark: boolean;
       /** the GUESS THE WORD lockup stays on screen through question -> question wipes */
       title?: boolean;
+      /** wipe style: circle (easy), sweep (medium), curtain (hard) */
+      variant?: IrisVariant;
     }
   | {
       kind: 'reminder';

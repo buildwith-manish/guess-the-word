@@ -94,6 +94,52 @@ const Depth: React.FC<{ frame: number; theme: [string, string]; opacity: number 
 };
 
 /**
+ * The incoming theme, revealed in the shape of the wipe:
+ *   circle  - grows from the centre (easy)
+ *   sweep   - a slanted edge travels left to right with a bright leading line (medium)
+ *   curtain - opens from the centre line outwards with two bright edges (hard)
+ */
+const IrisLayer: React.FC<{
+  frame: number;
+  iris: { theme: [string, string]; p: number; variant?: 'circle' | 'sweep' | 'curtain' };
+}> = ({ frame, iris }) => {
+  const { p, variant = 'circle' } = iris;
+  const glow = Math.sin(Math.PI * Math.min(1, p)); // edge lines fade in and out with the wipe
+  if (variant === 'sweep') {
+    const S = 12; // skew in % of the width
+    const E = -S + p * (100 + 2 * S);
+    const edge = (w: number) => `polygon(${E + S - w}% 0, ${E + S}% 0, ${E - S}% 100%, ${E - S - w}% 100%)`;
+    return (
+      <>
+        <AbsoluteFill style={{ clipPath: `polygon(0 0, ${E + S}% 0, ${E - S}% 100%, 0 100%)` }}>
+          <Scene frame={frame} theme={iris.theme} />
+        </AbsoluteFill>
+        <AbsoluteFill style={{ clipPath: edge(1.6), background: 'rgba(255,255,255,0.85)', opacity: 0.8 * glow }} />
+        <AbsoluteFill style={{ clipPath: edge(7), background: 'linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.28))', opacity: glow }} />
+      </>
+    );
+  }
+  if (variant === 'curtain') {
+    const half = 50 * p; // % of the width on each side of the centre line
+    const line = (x: number) => `inset(0 ${100 - x - 0.5}% 0 ${x - 0.5}%)`;
+    return (
+      <>
+        <AbsoluteFill style={{ clipPath: `inset(0 ${50 - half}% 0 ${50 - half}%)` }}>
+          <Scene frame={frame} theme={iris.theme} />
+        </AbsoluteFill>
+        <AbsoluteFill style={{ clipPath: line(50 - half), background: 'rgba(255,255,255,0.9)', opacity: 0.85 * glow }} />
+        <AbsoluteFill style={{ clipPath: line(50 + half), background: 'rgba(255,255,255,0.9)', opacity: 0.85 * glow }} />
+      </>
+    );
+  }
+  return (
+    <AbsoluteFill style={{ clipPath: `circle(${80 * p}% at 50% 50%)` }}>
+      <Scene frame={frame} theme={iris.theme} />
+    </AbsoluteFill>
+  );
+};
+
+/**
  * Full-bleed backdrop: deep gradient base -> drifting aurora -> fine grid
  * -> centre spotlight -> vignette. No letterbox bars.
  */
@@ -104,7 +150,7 @@ export const Background: React.FC<{
   hideBars?: boolean;
   dim?: number;
   /** colour wipe: a circle of `theme` growing from the centre over the base, p = 0..1 */
-  iris?: { theme: [string, string]; p: number };
+  iris?: { theme: [string, string]; p: number; variant?: 'circle' | 'sweep' | 'curtain' };
   /** 0..1 opacity of the parallax dust layers (0 = off) */
   depth?: number;
 }> = ({ frame, theme, pulse = 0, dim = 0, iris, depth = 0 }) => {
@@ -112,11 +158,7 @@ export const Background: React.FC<{
   return (
     <AbsoluteFill style={{ background: COLORS.base }}>
       <Scene frame={frame} theme={theme} />
-      {iris && iris.p > 0 ? (
-        <AbsoluteFill style={{ clipPath: `circle(${80 * iris.p}% at 50% 50%)` }}>
-          <Scene frame={frame} theme={iris.theme} />
-        </AbsoluteFill>
-      ) : null}
+      {iris && iris.p > 0 ? <IrisLayer frame={frame} iris={iris} /> : null}
       <AbsoluteFill
         style={{
           backgroundImage:

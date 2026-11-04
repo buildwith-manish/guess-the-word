@@ -5,7 +5,7 @@
  */
 import settings from '../settings.json';
 import rounds from './rounds.json';
-import type { Hud, LevelCfg, Question, Segment, Timeline } from './types';
+import type { Hud, IrisVariant, LevelCfg, Question, Segment, Timeline } from './types';
 import { buildBonusPuzzles, type BonusPuzzle } from './bonus-engine';
 import voManifest from './voiceover-manifest.json';
 
@@ -200,6 +200,7 @@ const buildTimeline = (puzzles: BonusPuzzle[] = PUZZLES): Timeline => {
     hud: Hud,
     watermark: boolean,
     title = false,
+    variant: IrisVariant = 'circle',
   ) =>
     push({
       kind: 'iris',
@@ -210,6 +211,7 @@ const buildTimeline = (puzzles: BonusPuzzle[] = PUZZLES): Timeline => {
       hud,
       watermark,
       title,
+      variant,
     });
 
   push({ kind: 'hook', from: 0, duration: settings.timing.hookA + settings.timing.hookB });
@@ -225,6 +227,7 @@ const buildTimeline = (puzzles: BonusPuzzle[] = PUZZLES): Timeline => {
     const levelIndex = levelIndexOf(q);
     if (!seenLevels.has(levelIndex)) {
       seenLevels.add(levelIndex);
+      nextLead = 0; // a level card sits between the wipe and this question: nothing to overlap with
       push({
         kind: 'levelCard',
         from: cursor,
@@ -270,7 +273,10 @@ const buildTimeline = (puzzles: BonusPuzzle[] = PUZZLES): Timeline => {
         );
       }
     } else if (!isLast) {
-      pushIris(themeForQuestion(i), themeForQuestion(i + 1), qHud, true, true);
+      // each level has its own wipe, chosen by the level the next question belongs to
+      const wipes = settings.transitions.byLevel as IrisVariant[];
+      const nextLevel = levelIndexOf(QUESTIONS[i + 1]);
+      pushIris(themeForQuestion(i), themeForQuestion(i + 1), qHud, true, true, wipes[nextLevel] ?? 'circle');
       nextLead = Math.min(settings.timing.irisLead, settings.timing.irisFrames);
     }
   });

@@ -23,6 +23,13 @@
     "template": "The answer is {word}.",
     "bonusTemplate": "{answer}"
   },
+  "transitions": {
+    "byLevel": [
+      "circle",
+      "sweep",
+      "curtain"
+    ]
+  },
   "brand": {
     "quiz": "QUIZ",
     "matrix": "MATRIX"

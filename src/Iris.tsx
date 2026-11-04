@@ -19,7 +19,7 @@ export const Iris: React.FC<{ frame: number; seg: IrisSegment }> = ({ frame, seg
   const p = prog(frame, 0, seg.duration, irisEase);
   return (
     <AbsoluteFill>
-      <Background frame={frame} theme={seg.fromTheme} iris={{ theme: seg.toTheme, p }} />
+      <Background frame={frame} theme={seg.fromTheme} iris={{ theme: seg.toTheme, p, variant: seg.variant }} />
       {seg.title ? <TitleLockup frame={frame} animate={false} /> : null}
       <Hud
         label={seg.hud.label}
