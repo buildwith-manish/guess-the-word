@@ -26,8 +26,7 @@
     "volume": 1,
     "duckFloor": 0.3,
     "template": "The answer is {word}.",
-    "bonusTemplate": "{answer}",
-    "qqOffsetFrames": 4
+    "bonusTemplate": "{answer}"
   },
   "transitions": {
     "byLevel": [
@@ -74,7 +73,7 @@
   "levels": [
     {
       "name": "EASY",
-      "time": 6,
+      "time": 5,
       "accent": "#34D399",
       "bg": "#05241B"
     },

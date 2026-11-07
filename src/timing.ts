@@ -117,7 +117,15 @@ export const buildQuestionPlan = (
   const emojiEnd = emojiStart + 2 * emojiStagger + 28;
 
   const blanksStart = emojiEnd + t.blanksAfterEmojis;
-  const timerStart = blanksStart + q.word.length * 2 + 20;
+  const blanksEnd = blanksStart + q.word.length * 2 + 20;
+
+  // question-phase voiceover: plays immediately after the blanks settle,
+  // then the timer starts the moment the clip ends (VO-first-then-timer).
+  // When no qq clip exists the timer starts right away, same as before.
+  const qqClip = voiceClip('qq', q.id);
+  const qqStart = blanksEnd;
+  const timerStart = blanksEnd + (qqClip && !fast ? qqClip.frames : 0);
+
   // Free letters, exactly like the HTML: the first letter at the first bulb, then
   // letter `reveal` at the second bulb (skipped when that is the first letter again).
   const [b1, b2] = settings.timer.bulbFractions;
@@ -133,16 +141,10 @@ export const buildQuestionPlan = (
     ? 22 + Math.round((factWords / t.voiceWordsPerSecond) * FPS) + 10
     : t.answerHold;
 
-  // voiceover: starts just after the reveal hits; stretch the hold so it always fits
+  // reveal voiceover: starts just after the answer stamps in; stretch hold to fit
   const clip = voiceClip('q', q.id);
   const voHold = clip ? VO.offsetFrames + clip.frames + VO.tailFrames : 0;
   const holdFinal = Math.max(hold, voHold);
-
-  // question-phase voiceover: plays when the timer starts (the engagement hook)
-  const qqOffsetFrames: number = (VO as Record<string, unknown>).qqOffsetFrames != null
-    ? Number((VO as Record<string, unknown>).qqOffsetFrames)
-    : 4;
-  const qqClip = voiceClip('qq', q.id);
 
   const exit = stamp + holdFinal;
   return {
@@ -163,8 +165,9 @@ export const buildQuestionPlan = (
     showFact,
     fact: q.fact,
     vo: clip ? { file: clip.file, start: stamp + VO.offsetFrames, frames: clip.frames } : undefined,
-    vqQuestion: qqClip
-      ? { file: qqClip.file, start: timerStart + qqOffsetFrames, frames: qqClip.frames }
+    // qq clip fires right after blanks settle; timer is already delayed to start after it ends
+    vqQuestion: qqClip && !fast
+      ? { file: qqClip.file, start: qqStart, frames: qqClip.frames }
       : undefined,
   };
 };
