@@ -36,7 +36,7 @@ export type VoClip = { file: string; frames: number };
 export const voiceClip = (kind: 'q' | 'bonus', n: number): VoClip | undefined => {
   if (!VO.enabled) return undefined;
   const e = (voManifest as Record<string, Record<string, { file: string; seconds: number }>>)[kind]?.[String(n)];
-  return e ? { file: e.file, frames: Math.ceil(e.seconds * 30) } : undefined;
+  return e ? { file: e.file, frames: Math.ceil(e.seconds * FPS) } : undefined;
 };
 
 export const LEVELS: LevelCfg[] = settings.levels as unknown as LevelCfg[];
@@ -128,7 +128,7 @@ export const buildQuestionPlan = (
   const factWords = q.fact ? q.fact.split(/\s+/).length : 0;
   const showFact = q.id % t.factEvery === 0 && factWords > 0;
   const hold = showFact
-    ? 22 + Math.round((factWords / t.voiceWordsPerSecond) * 30) + 10
+    ? 22 + Math.round((factWords / t.voiceWordsPerSecond) * FPS) + 10
     : t.answerHold;
 
   // voiceover: starts just after the reveal hits; stretch the hold so it always fits

@@ -1,5 +1,6 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
+import { CameraMotionBlur } from '@remotion/motion-blur';
 import { useDesignFrame } from './clock';
 import { locate, TIMELINE } from './timing';
 import { Round } from './Round';
@@ -37,6 +38,18 @@ const Scenes: React.FC = () => {
       <>{children}</>
     );
 
+  // Motion blur: wrap question + bonus scenes during fast-motion windows
+  const mb = settings.motionBlur || { mode: 'off', shutterAngle: 360, samples: 4 };
+  const blurOn = mb.mode === 'always' || mb.mode === 'windows';
+  const BlurWrap = ({ children }: { children: React.ReactNode }) =>
+    blurOn ? (
+      <CameraMotionBlur shutterAngle={mb.shutterAngle} samples={mb.samples}>
+        {children}
+      </CameraMotionBlur>
+    ) : (
+      <>{children}</>
+    );
+
   switch (seg.kind) {
     case 'hook':
       return (
@@ -53,13 +66,17 @@ const Scenes: React.FC = () => {
     case 'question':
       return (
         <AbsoluteFill>
-          <Round frame={local + (seg.lead ?? 0)} index={seg.index} erases={seg.erases} lead={seg.lead ?? 0} />
+          <BlurWrap>
+            <Round frame={local + (seg.lead ?? 0)} index={seg.index} erases={seg.erases} lead={seg.lead ?? 0} />
+          </BlurWrap>
         </AbsoluteFill>
       );
     case 'bonus':
       return (
         <AbsoluteFill>
-          {rig(<Bonus frame={local} puzzle={seg.puzzle} index={seg.index} />)}
+          <BlurWrap>
+            {rig(<Bonus frame={local} puzzle={seg.puzzle} index={seg.index} />)}
+          </BlurWrap>
         </AbsoluteFill>
       );
     case 'reminder':

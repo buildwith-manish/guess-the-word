@@ -1,0 +1,238 @@
+name: Render & Upload
+
+on:
+  workflow_dispatch:
+    inputs:
+      motion_blur:
+        description: 'Motion blur (true/false)'
+        required: false
+        default: 'true'
+      quality:
+        description: 'Quality (1440p or 1080p)'
+        required: false
+        default: '1440p'
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install ffmpeg + Python deps
+        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg
+          pip install py7zr
+
+      - name: Generate rounds.json
+        run: node scripts/build-questions.js
+
+      - name: Generate audio
+        run: node scripts/generate-audio.js
+
+      - name: Scan voiceover clips
+        run: |
+          if [ -d "public/voiceover" ]; then
+            python3 scripts/scan-voiceover.py
+          else
+            echo "No voiceover directory — skipping"
+          fi
+
+      - name: Determine clips for this job
+        id: clips
+        run: |
+          python3 - <<'PY'
+          import json, os
+          # This repo renders in batches using render-batches.js
+          # For parallel GitHub Actions, we split the total frames into 20 groups
+          # and render each group as a single remotion render command
+
+          # Read timing to get total frames
+          import subprocess
+          r = subprocess.run(['node', '-e', '''
+          const { RENDER_TOTAL_FRAMES } = require('./src/timing.ts');
+          console.log(RENDER_TOTAL_FRAMES);
+          '''], capture_output=True, text=True)
+
+          # Fallback: estimate from questions
+          # 50 questions × ~450 frames + 5 bonus × ~400 + hook + level cards + scoreboard + end
+          # At 60fps that's roughly 30000-35000 frames
+          total = 32000  # fallback
+          try:
+              total = int(r.stdout.strip())
+          except:
+              pass
+
+          group = int("${{ matrix.group }}") - 1  # 0-indexed
+          num_groups = 20
+          per_group = (total + num_groups - 1) // num_groups
+          start = group * per_group
+          end = min(start + per_group, total)
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f"start={start}\n")
+              f.write(f"end={end}\n")
+              f.write(f"total={total}\n")
+
+          print(f"Group ${{ matrix.group }}: frames {start}-{end} of {total}")
+          PY
+
+      - name: Render clips
+        run: |
+          START=${{ steps.clips.outputs.start }}
+          END=${{ steps.clips.outputs.end }}
+          MOTION_BLUR="${{ inputs.motion_blur }}"
+          QUALITY="${{ inputs.quality }}"
+
+          # Set motion blur mode in settings.json
+          if [ "$MOTION_BLUR" = "true" ]; then
+            python3 -c "
+          import json
+          s = json.load(open('settings.json'))
+          s['motionBlur']['mode'] = 'always'
+          s['motionBlur']['samples'] = 4
+          json.dump(s, open('settings.json','w'), indent=2)
+          "
+          else
+            python3 -c "
+          import json
+          s = json.load(open('settings.json'))
+          s['motionBlur']['mode'] = 'off'
+          json.dump(s, open('settings.json','w'), indent=2)
+          "
+          fi
+
+          SCALE_FLAG=""
+          if [ "$QUALITY" = "1080p" ]; then
+            SCALE_FLAG="--scale=0.75"
+          fi
+
+          mkdir -p out/clips
+
+          echo "Rendering frames $START-$END..."
+          npx remotion render src/index.ts GuessTheWord "out/clips/group-${{ matrix.group }}.mp4" \
+            --frames=$START-$END \
+            --codec=h264 --crf=18 \
+            --x264-preset=ultrafast \
+            --concurrency=4 \
+            --log=error \
+            $SCALE_FLAG
+
+          echo "Done: $(ls -la out/clips/group-${{ matrix.group }}.mp4)"
+
+      - name: Upload clips
+        uses: actions/upload-artifact@v4
+        with:
+          name: clips-group-${{ matrix.group }}
+          path: out/clips/*.mp4
+          retention-days: 3
+
+  concat-and-upload:
+    needs: render
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Download all clip artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all-clips
+          pattern: clips-group-*
+          merge-multiple: true
+
+      - name: Concatenate all clips
+        run: |
+          mkdir -p out/clips
+          find all-clips -type f -name "*.mp4" -exec cp {} out/clips/ \;
+          echo "Clips found:"
+          ls -la out/clips/
+
+          > concat.txt
+          for i in $(seq 1 20); do
+            if [ -f "out/clips/group-$i.mp4" ]; then
+              echo "file 'out/clips/group-$i.mp4'" >> concat.txt
+            fi
+          done
+
+          echo "Concatenating..."
+          ffmpeg -y -v error -f concat -safe 0 -i concat.txt -c copy final_video.mp4
+          ls -la final_video.mp4
+          ffprobe -v error -show_entries format=duration -of csv=p=0 final_video.mp4
+
+      - name: Upload final video artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-video
+          path: final_video.mp4
+          retention-days: 7
+
+      - name: Upload to YouTube
+        env:
+          CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          TITLE: ${{ secrets.YOUTUBE_TITLE || 'Guess the Word | 50 Word Puzzles' }}
+          DESC: ${{ secrets.YOUTUBE_DESC || 'Can you guess all 50 words? Comment your score!' }}
+          TAGS: ${{ secrets.YOUTUBE_TAGS || 'quiz,word puzzle,guess the word,emoji quiz,trivia,brain teaser' }}
+        run: |
+          python3 - <<'PY'
+          import json, subprocess, os
+          if not os.environ.get('CLIENT_SECRET') or not os.environ.get('REFRESH_TOKEN'):
+              print("No YouTube credentials — skipping upload")
+              exit(0)
+          cs = json.loads(os.environ['CLIENT_SECRET'])
+          info = cs.get("installed", cs.get("web", {}))
+          cid = info.get("client_id", "")
+          csec = info.get("client_secret", "")
+          r = subprocess.run(["curl", "-s", "-X", "POST", "https://oauth2.googleapis.com/token",
+              "-d", f"client_id={cid}", "-d", f"client_secret={csec}",
+              "-d", f"refresh_token={os.environ['REFRESH_TOKEN']}",
+              "-d", "grant_type=refresh_token"], capture_output=True, text=True)
+          at = json.loads(r.stdout).get("access_token", "")
+          if not at:
+              print("No access token"); exit(0)
+          print("Got token")
+          meta = {"snippet":{"title":os.environ['TITLE'],"description":os.environ['DESC'],
+                            "tags":os.environ['TAGS'].split(","),"categoryId":"24"},
+                  "status":{"privacyStatus":"unlisted","selfDeclaredMadeForKids":False}}
+          r1 = subprocess.run(["curl", "-s", "-i", "-X", "POST",
+              "https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status",
+              "-H", f"Authorization: Bearer {at}", "-H", "Content-Type: application/json",
+              "-d", json.dumps(meta)], capture_output=True, text=True)
+          uu = None
+          for line in r1.stdout.split("\n"):
+              if line.lower().startswith("location:"): uu = line.split(":",1)[1].strip(); break
+          if uu:
+              print(f"Uploading {os.path.getsize('final_video.mp4')/1e6:.1f}MB...")
+              r2 = subprocess.run(["curl", "-s", "-X", "PUT", "-H", "Content-Type: video/mp4",
+                  "--data-binary", "@final_video.mp4", uu], capture_output=True, text=True, timeout=3600)
+              try:
+                  vid = json.loads(r2.stdout).get("id", "")
+                  if vid: print(f"UPLOADED: https://www.youtube.com/watch?v={vid}")
+                  else: print(f"Response: {r2.stdout[:200]}")
+              except: print(f"Response: {r2.stdout[:200]}")
+          else:
+              print(f"No upload URL: {r1.stdout[:200]}")
+          PY

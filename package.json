@@ -25,6 +25,7 @@
   "dependencies": {
     "@remotion/cli": "4.0.539",
     "@remotion/fonts": "4.0.539",
+    "@remotion/motion-blur": "^4.0.539",
     "gsap": "^3.13.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
