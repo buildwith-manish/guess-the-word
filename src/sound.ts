@@ -121,6 +121,7 @@ const buildCues = (): Cue[] => {
         add(base + plan.stamp + 10, 'chime-arp');
         // signature: the lightbulb stamp lands 7 frames after the card springs in (see Sting.tsx)
         add(base + plan.stamp + 7, 'bulb-ping');
+        if (plan.vqQuestion) VOICE_LIST.push({ frame: Math.round(base + plan.vqQuestion.start), file: plan.vqQuestion.file, frames: plan.vqQuestion.frames });
         if (plan.vo) VOICE_LIST.push({ frame: Math.round(base + plan.vo.start), file: plan.vo.file, frames: plan.vo.frames });
         break;
       }

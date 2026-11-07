@@ -67,14 +67,15 @@ const seconds = (file) => {
 };
 
 const main = () => {
-  const manifest = { q: {}, bonus: {} };
+  const manifest = { q: {}, qq: {}, bonus: {} };
   const problems = [];
   if (fs.existsSync(DIR)) {
     for (const name of fs.readdirSync(DIR).sort()) {
       if (!EXT.test(name)) continue;
-      const m = /^(q|bonus)0*(\d+)\.[a-z0-9]+$/i.exec(name);
+      // qq## = question-phase (timer) clip; q## = reveal clip; bonus## = bonus reveal clip
+      const m = /^(qq|q|bonus)0*(\d+)\.[a-z0-9]+$/i.exec(name);
       if (!m) {
-        problems.push(`ignored "${name}" (name it q01.mp3 ... or bonus01.mp3 ...)`);
+        problems.push(`ignored "${name}" (name it q01.mp3, qq01.mp3, or bonus01.mp3 ...)`);
         continue;
       }
       const kind = m[1].toLowerCase();
@@ -97,11 +98,13 @@ const main = () => {
   const total = require(path.join(ROOT, 'src', 'rounds.json')).length;
   const bonusTotal = settings.bonus.after.length;
   const qn = Object.keys(manifest.q).length;
+  const qqn = Object.keys(manifest.qq).length;
   const bn = Object.keys(manifest.bonus).length;
   const defaultHoldSec = (settings.timing.answerHold - VO.offsetFrames - VO.tailFrames) / 30;
 
-  console.log(`\n  voiceover: ${qn}/${total} questions · ${bn}/${bonusTotal} bonus rounds  (${path.relative(ROOT, DIR)})`);
-  if (qn + bn === 0) console.log('  no clips yet: the video renders exactly as before. Run `npm run voiceover:script` for the lines to record.');
+  console.log(`\n  voiceover: ${qn}/${total} reveal clips · ${qqn}/${total} question clips · ${bn}/${bonusTotal} bonus rounds  (${path.relative(ROOT, DIR)})`);
+  if (qqn > 0) console.log(`  ${qqn} question-phase clip(s) found (qq##): play during the timer.`);
+  if (qn + qqn + bn === 0) console.log('  no clips yet: the video renders exactly as before. Run `npm run voiceover:script` for the lines to record.');
 
   const long = Object.entries(manifest.q).filter(([, v]) => v.seconds > defaultHoldSec);
   if (long.length) {

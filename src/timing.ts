@@ -33,7 +33,7 @@ export const OUTPUT_SCALE = settings.output.width / settings.width;
  */
 const VO = settings.voiceover;
 export type VoClip = { file: string; frames: number };
-export const voiceClip = (kind: 'q' | 'bonus', n: number): VoClip | undefined => {
+export const voiceClip = (kind: 'q' | 'qq' | 'bonus', n: number): VoClip | undefined => {
   if (!VO.enabled) return undefined;
   const e = (voManifest as Record<string, Record<string, { file: string; seconds: number }>>)[kind]?.[String(n)];
   return e ? { file: e.file, frames: Math.ceil(e.seconds * FPS) } : undefined;
@@ -80,6 +80,8 @@ export type QuestionPlan = {
   fact?: string;
   /** voiceover for the reveal, if a clip exists (start = frame inside the question) */
   vo?: { file: string; start: number; frames: number };
+  /** voiceover for the question phase (plays while the timer runs), if a clip exists */
+  vqQuestion?: { file: string; start: number; frames: number };
 };
 
 /** Colour pair behind question `index`: the HTML switches theme on EVERY question (LV[n % 5]). */
@@ -136,6 +138,12 @@ export const buildQuestionPlan = (
   const voHold = clip ? VO.offsetFrames + clip.frames + VO.tailFrames : 0;
   const holdFinal = Math.max(hold, voHold);
 
+  // question-phase voiceover: plays when the timer starts (the engagement hook)
+  const qqOffsetFrames: number = (VO as Record<string, unknown>).qqOffsetFrames != null
+    ? Number((VO as Record<string, unknown>).qqOffsetFrames)
+    : 4;
+  const qqClip = voiceClip('qq', q.id);
+
   const exit = stamp + holdFinal;
   return {
     levelIndex,
@@ -155,6 +163,9 @@ export const buildQuestionPlan = (
     showFact,
     fact: q.fact,
     vo: clip ? { file: clip.file, start: stamp + VO.offsetFrames, frames: clip.frames } : undefined,
+    vqQuestion: qqClip
+      ? { file: qqClip.file, start: timerStart + qqOffsetFrames, frames: qqClip.frames }
+      : undefined,
   };
 };
 
