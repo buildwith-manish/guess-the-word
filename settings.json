@@ -55,7 +55,7 @@
       45
     ],
     "label": "IN A ROW",
-    "cta": "COMMENT YOUR SCORE"
+    "cta": "DROP YOUR COUNT ⬇"
   },
   "brand": {
     "quiz": "QUIZ",
@@ -184,7 +184,7 @@
         "#FBBF24"
       ],
       [
-        "KEEP PRACTISING",
+        "KEEP GOING",
         "💪",
         "31+ WRONG",
         "#FB7185"
@@ -194,26 +194,26 @@
   },
   "endScreen": {
     "frames": 340,
-    "eyebrow": "THE CHALLENGE",
+    "eyebrow": "CHALLENGE A FRIEND",
     "headlineA": "BEAT YOUR",
     "headlineB": "FRIEND’S",
     "headlineC": "SCORE",
     "cta": "TAG THEM IN THE COMMENTS 👇",
-    "tagline": "WHO GETS FEWER WRONG?",
+    "tagline": "WHO SCORES BETTER?",
     "nextLabel": "WATCH NEXT",
     "subscribe": "SUBSCRIBE",
     "subscribeSub": "FOR MORE QUIZZES"
   },
   "text": {
-    "comment": "COMMENT YOUR ANSWER BEFORE THE TIMER ENDS",
-    "reminder": "Still counting? ❌",
+    "comment": "DROP YOUR ANSWER BELOW ⬇",
+    "reminder": "YOUR SCORE SO FAR?",
     "correctChip": "✔ CORRECT ANSWER",
-    "eraseChip": "GOT IT? ERASE 1 WRONG ❌",
-    "factEyebrow": "✔ CORRECT · DID YOU KNOW?",
-    "scoreboardKicker": "FINAL SCOREBOARD",
-    "scoreboardTitleA": "HOW MANY WERE",
-    "scoreboardTitleB": "WRONG?",
-    "scoreboardFooter": "WRONG ANSWERS − BONUS ERASES = YOUR RANK",
+    "eraseChip": "NAIL IT → ERASE 1 WRONG ✓",
+    "factEyebrow": "✔ CORRECT — DID YOU KNOW?",
+    "scoreboardKicker": "YOUR FINAL SCORE",
+    "scoreboardTitleA": "HOW DID",
+    "scoreboardTitleB": "YOU DO?",
+    "scoreboardFooter": "WRONG − ERASES = RANK",
     "hook": {
       "a1": "CAN YOU GUESS",
       "a2a": "ALL",
@@ -229,6 +229,18 @@
       "r3b": "4",
       "r3c": "WRONG =",
       "r3d": "LEGEND 👑"
+    },
+    "endScreen": {
+      "frames": 340,
+      "eyebrow": "CHALLENGE A FRIEND",
+      "headlineA": "BEAT YOUR",
+      "headlineB": "FRIEND’S",
+      "headlineC": "SCORE",
+      "cta": "TAG THEM IN THE COMMENTS 👇",
+      "tagline": "WHO SCORES BETTER?",
+      "nextLabel": "WATCH NEXT",
+      "subscribe": "SUBSCRIBE",
+      "subscribeSub": "FOR MORE QUIZZES"
     }
   },
   "images": {
