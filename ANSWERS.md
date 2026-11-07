@@ -6,14 +6,14 @@ viewer has to guess from the two-emoji clue.
 
 ---
 
-## Video 2 — New (Upcoming)
+## Video 2 — Completed (Published)
 
-50 words across three difficulty levels. Emoji clue pairs to be generated for
-each word before render.
+50 words across three difficulty levels, used in the second published video of
+the series. Emoji clue pairs shown below were used in the render.
 
 ### Level 1 — Easy (15 words)
 
-| # | Answer | Emoji Clue (to build) |
+| # | Answer | Emoji Clue |
 | --- | --- | --- |
 | 1 | Sunflower | sun + flower |
 | 2 | Moonlight | moon + light |
@@ -33,7 +33,7 @@ each word before render.
 
 ### Level 2 — Medium (17 words)
 
-| # | Answer | Emoji Clue (to build) |
+| # | Answer | Emoji Clue |
 | --- | --- | --- |
 | 1 | Peanut butter | peanut + butter |
 | 2 | Cupcake | cup + cake |
@@ -55,7 +55,7 @@ each word before render.
 
 ### Level 3 — Hard (18 words)
 
-| # | Answer | Emoji Clue (to build) |
+| # | Answer | Emoji Clue |
 | --- | --- | --- |
 | 1 | Watermelon | water + melon |
 | 2 | Pineapple | pine + apple |
@@ -78,7 +78,7 @@ each word before render.
 
 ---
 
-## Video 1 — Current (Already Published)
+## Video 1 — Completed (Published)
 
 50 words from `questions.js`. Each answer is shown with the exact emoji-clue
 hint that was used in the published video.
@@ -154,8 +154,8 @@ hint that was used in the published video.
 
 | Video | Easy | Medium | Hard | Total |
 | --- | --- | --- | --- | --- |
-| Video 1 (current / published) | 20 | 15 | 15 | 50 |
-| Video 2 (new / upcoming) | 15 | 17 | 18 | 50 |
+| Video 1 (published) | 20 | 15 | 15 | 50 |
+| Video 2 (published) | 15 | 17 | 18 | 50 |
 | **Grand total** | **35** | **32** | **33** | **100** |
 
 ---
@@ -164,9 +164,8 @@ hint that was used in the published video.
 
 - Video 1 answers are pulled directly from `questions.js` (the single source of
   truth for that video's render pipeline).
-- Video 2 answers are the new bank for the next episode. Once the emoji-clue PNGs
-  are generated into `public/emoji-icons/`, this list can be ported into a new
-  `questions.js` (or a v2 variant) to drive the next render.
+- Video 2 answers are the published word bank for the second episode. Both videos
+  in the series are now complete and published.
 - All multi-word answers (Dog house, Peanut butter, Piggy bank, etc.) are kept as
   the user wrote them; the render pipeline upper-cases and strips spaces for the
   on-screen blanks.
