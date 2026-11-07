@@ -1,61 +1,693 @@
-VOICEOVER SCRIPT  (save each clip in public/voiceover/ with the file name shown)
-Aim for a calm, upbeat read. Short is fine: the video holds the answer on screen until your clip ends.
-Template: "The answer is {word}."  (change it in settings.json -> voiceover.template, then re-run this script)
+# Guess the Word by Emoji — Full Voiceover Script v4
+**Channel:** Quiz Matrix | **Audience:** US | **50 Questions + 5 Bonus Rounds**
 
-q01.mp3   [EASY]  The answer is Raincoat.
-q02.mp3   [EASY]  The answer is Catfish.
-q03.mp3   [EASY]  The answer is Treehouse. Some treehouses are lived in all year round.
-q04.mp3   [EASY]  The answer is Mailbox.
-q05.mp3   [EASY]  The answer is Cowbell.
-q06.mp3   [EASY]  The answer is Snowball. Snow looks white but is clear ice.
-q07.mp3   [EASY]  The answer is Firewood.
-q08.mp3   [EASY]  The answer is Notebook.
-q09.mp3   [EASY]  The answer is Eggshell. An eggshell has thousands of tiny pores.
-q10.mp3   [EASY]  The answer is Handbag.
-q11.mp3   [EASY]  The answer is Horseshoe.
-q12.mp3   [EASY]  The answer is Keyhole. The oldest known lock is about 4,000 years old.
-q13.mp3   [EASY]  The answer is Pancake.
-q14.mp3   [EASY]  The answer is Teaspoon.
-q15.mp3   [EASY]  The answer is Lighthouse. Alexandria’s lighthouse was a Seven Wonder.
-q16.mp3   [EASY]  The answer is Bullfrog.
-q17.mp3   [EASY]  The answer is Mousetrap.
-q18.mp3   [EASY]  The answer is Armchair. Armchairs were once status symbols for the powerful.
-q19.mp3   [EASY]  The answer is Anthill.
-q20.mp3   [EASY]  The answer is Waterfall.
-q21.mp3   [MEDIUM]  The answer is Carsick. Motion sickness is your eyes and ears disagreeing.
-q22.mp3   [MEDIUM]  The answer is Sandpaper.
-q23.mp3   [MEDIUM]  The answer is Birdbath.
-q24.mp3   [MEDIUM]  The answer is Lovebird. Lovebirds are small parrots from Africa.
-q25.mp3   [MEDIUM]  The answer is Watchdog.
-q26.mp3   [MEDIUM]  The answer is Windshield.
-q27.mp3   [MEDIUM]  The answer is Thumbtack. The thumbtack was patented in 1900.
-q28.mp3   [MEDIUM]  The answer is Seaweed.
-q29.mp3   [MEDIUM]  The answer is Meatloaf.
-q30.mp3   [MEDIUM]  The answer is Butterfly. Butterflies taste with their feet.
-q31.mp3   [MEDIUM]  The answer is Crosswalk.
-q32.mp3   [MEDIUM]  The answer is Roadrunner.
-q33.mp3   [MEDIUM]  The answer is Wolfpack. A wolf pack is usually one family.
-q34.mp3   [MEDIUM]  The answer is Goalpost.
-q35.mp3   [MEDIUM]  The answer is Bluetooth.
-q36.mp3   [HARD]  The answer is Honeymoon. One bee makes only 1/12 teaspoon of honey.
-q37.mp3   [HARD]  The answer is Daydream.
-q38.mp3   [HARD]  The answer is Cartwheel.
-q39.mp3   [HARD]  The answer is Sweetheart. The word sweetheart dates back to the 1200s.
-q40.mp3   [HARD]  The answer is Wishbone.
-q41.mp3   [HARD]  The answer is Shortcut.
-q42.mp3   [HARD]  The answer is Beanstalk. Bean plants climb by twisting around supports.
-q43.mp3   [HARD]  The answer is Nightmare.
-q44.mp3   [HARD]  The answer is Seesaw.
-q45.mp3   [HARD]  The answer is Whirlpool. Whirlpools form where opposing currents meet.
-q46.mp3   [HARD]  The answer is Wallflower.
-q47.mp3   [HARD]  The answer is Hamstring.
-q48.mp3   [HARD]  The answer is Barefoot. Your feet hold a quarter of your bones.
-q49.mp3   [HARD]  The answer is Quarterback.
-q50.mp3   [HARD]  The answer is Hogwash.
+---
 
-BONUS ROUNDS
-bonus01.mp3   The carrot is a vegetable. The rest are fruits.
-bonus02.mp3   There are 7 🐸!
-bonus03.mp3   The word is PENGUIN!
-bonus04.mp3   🍎=4, ⭐=6, 🚗=5. Total 15.
-bonus05.mp3   🕐 changed into 🕑!
+## How to Read This Script
+
+Each question has **three parts**:
+
+- **[QQ CLIP]** — Record as `qq##.mp3`. Plays after blanks appear, before timer starts. Give a sideways clue — a use case, feeling, or angle. Never describe the emojis. Under 5 seconds.
+- **[SCREEN TEXT]** — On-screen text during the timer. NOT recorded. Max 8 words.
+- **[REVEAL VO]** — Record as `r##.mp3`. Plays after the answer stamps in.
+  - Non-fact questions → 2–3 words max. Punch and move.
+  - Fact questions (⭐) → answer word + one sentence fact.
+
+**Delivery style:** Upbeat, fast-paced, game-show energy. Punch the answer word hard on every reveal.
+
+---
+
+## Hook
+
+**File: `hook.mp3`**
+> "Fifty words. Clock's ticking. Under four wrong makes you a legend. Go."
+
+---
+
+## EASY (Questions 1–20)
+
+---
+
+**Q1 — RAINCOAT**
+`[QQ CLIP]` **qq01.mp3**
+> "You'd grab this before stepping outside in a storm."
+
+`[SCREEN TEXT]` *"You grab this before a storm."*
+
+`[REVEAL VO]` **r01.mp3**
+> "Raincoat! Let's go."
+
+---
+
+**Q2 — CATFISH**
+`[QQ CLIP]` **qq02.mp3**
+> "It lives in rivers — and it's also what happens when someone fakes their identity online."
+
+`[SCREEN TEXT]` *"River creature. Online deceiver."*
+
+`[REVEAL VO]` **r02.mp3**
+> "Catfish! Only in English."
+
+---
+
+**Q3 — TREEHOUSE** ⭐ *fact question*
+`[QQ CLIP]` **qq03.mp3**
+> "Every kid had a dream of building one of these."
+
+`[SCREEN TEXT]` *"Every kid dreamed of this."*
+
+`[REVEAL VO]` **r03.mp3**
+> "Treehouse! Some people actually live in them year-round. Not just for kids."
+
+---
+
+**Q4 — MAILBOX**
+`[QQ CLIP]` **qq04.mp3**
+> "You check this every single day without thinking about it."
+
+`[SCREEN TEXT]` *"You check this every day."*
+
+`[REVEAL VO]` **r04.mp3**
+> "Mailbox! Original notifications."
+
+---
+
+**Q5 — COWBELL**
+`[QQ CLIP]` **qq05.mp3**
+> "Rock bands and farmers both swear by this — for very different reasons."
+
+`[SCREEN TEXT]` *"Farmers use it. Rock bands love it."*
+
+`[REVEAL VO]` **r05.mp3**
+> "Cowbell! Always the right answer."
+
+---
+
+**Q6 — SNOWBALL** ⭐ *fact question*
+`[QQ CLIP]` **qq06.mp3**
+> "Pack it tight, launch it at your friend — classic winter move."
+
+`[SCREEN TEXT]` *"Pack it tight. Launch it."*
+
+`[REVEAL VO]` **r06.mp3**
+> "Snowball! Looks white — it's actually clear ice crystals. Mind blown."
+
+---
+
+**Q7 — FIREWOOD**
+`[QQ CLIP]` **qq07.mp3**
+> "No campfire without this — you need to prep it before dark."
+
+`[SCREEN TEXT]` *"No campfire without this."*
+
+`[REVEAL VO]` **r07.mp3**
+> "Firewood! Patience pays."
+
+---
+
+**Q8 — NOTEBOOK**
+`[QQ CLIP]` **qq08.mp3**
+> "Every student carries one — your ideas live in here."
+
+`[SCREEN TEXT]` *"Every student carries one."*
+
+`[REVEAL VO]` **r08.mp3**
+> "Notebook! No wifi required."
+
+---
+
+**Q9 — EGGSHELL** ⭐ *fact question*
+`[QQ CLIP]` **qq09.mp3**
+> "You crack it without thinking every morning — but it's more complex than it looks."
+
+`[SCREEN TEXT]` *"You crack this every morning."*
+
+`[REVEAL VO]` **r09.mp3**
+> "Eggshell! Thousands of tiny pores — nature's built-in airflow system."
+
+---
+
+**Q10 — HANDBAG**
+`[QQ CLIP]` **qq10.mp3**
+> "It goes everywhere with you — and you always know when it's missing."
+
+`[SCREEN TEXT]` *"Goes everywhere with you."*
+
+`[REVEAL VO]` **r10.mp3**
+> "Handbag! Quite the glow-up."
+
+---
+
+*[REMINDER CARD — plays after Q10]*
+**File: `reminder_10.mp3`**
+> "Ten down! Drop your wrong-answer count in the comments. Bonus round coming — your chance to erase one."
+
+---
+
+**Q11 — HORSESHOE**
+`[QQ CLIP]` **qq11.mp3**
+> "Hang it above your door for good luck — or nail it to something with four legs."
+
+`[SCREEN TEXT]` *"Good luck charm. Four legs."*
+
+`[REVEAL VO]` **r11.mp3**
+> "Horseshoe! Function and luck."
+
+---
+
+**Q12 — KEYHOLE** ⭐ *fact question*
+`[QQ CLIP]` **qq12.mp3**
+> "Spies love it. Locksmiths need it. What's the word?"
+
+`[SCREEN TEXT]` *"Spies love it. Locksmiths need it."*
+
+`[REVEAL VO]` **r12.mp3**
+> "Keyhole! The oldest known lock is four thousand years old. Privacy is ancient."
+
+---
+
+**Q13 — PANCAKE**
+`[QQ CLIP]` **qq13.mp3**
+> "Sunday morning, golden, stacked — you know exactly what this is."
+
+`[SCREEN TEXT]` *"Sunday morning classic."*
+
+`[REVEAL VO]` **r13.mp3**
+> "Pancake! Timeless breakfast."
+
+---
+
+**Q14 — TEASPOON**
+`[QQ CLIP]` **qq14.mp3**
+> "Every recipe calls for it — get this wrong and the whole dish is off."
+
+`[SCREEN TEXT]` *"Every recipe needs it."*
+
+`[REVEAL VO]` **r14.mp3**
+> "Teaspoon! Zero excuses now."
+
+---
+
+**Q15 — LIGHTHOUSE** ⭐ *fact question*
+`[QQ CLIP]` **qq15.mp3**
+> "Ships have trusted this in the dark for thousands of years."
+
+`[SCREEN TEXT]` *"Ships trust this in the dark."*
+
+`[REVEAL VO]` **r15.mp3**
+> "Lighthouse! The Pharos of Alexandria made the Seven Wonders of the World. An actual lighthouse."
+
+---
+
+**Q16 — BULLFROG**
+`[QQ CLIP]` **qq16.mp3**
+> "Loudest thing at the pond at night — and incredibly ambitious about what it'll eat."
+
+`[SCREEN TEXT]` *"Loudest thing at the pond."*
+
+`[REVEAL VO]` **r16.mp3**
+> "Bullfrog! Incredibly ambitious."
+
+---
+
+**Q17 — MOUSETRAP**
+`[QQ CLIP]` **qq17.mp3**
+> "Set it carefully — you will definitely know when it works."
+
+`[SCREEN TEXT]` *"Set it carefully. You'll know."*
+
+`[REVEAL VO]` **r17.mp3**
+> "Mousetrap! Good luck with that."
+
+---
+
+**Q18 — ARMCHAIR**
+`[QQ CLIP]` **qq18.mp3**
+> "The most powerful seat in the room — historically, only leaders had one."
+
+`[SCREEN TEXT]` *"Most powerful seat in the room."*
+
+`[REVEAL VO]` **r18.mp3**
+> "Armchair! Everyone's got one now."
+
+---
+
+**Q19 — ANTHILL**
+`[QQ CLIP]` **qq19.mp3**
+> "Millions of workers built this — no manager, no meetings, no problem."
+
+`[SCREEN TEXT]` *"Millions of workers. No manager."*
+
+`[REVEAL VO]` **r19.mp3**
+> "Anthill! Honestly? Respect."
+
+---
+
+**Q20 — WATERFALL**
+`[QQ CLIP]` **qq20.mp3**
+> "Nature's most dramatic drop — you can hear it before you see it."
+
+`[SCREEN TEXT]` *"Nature's most dramatic drop."*
+
+`[REVEAL VO]` **r20.mp3**
+> "Waterfall! Absolutely breathtaking."
+
+---
+
+## Bonus Round 1 — Odd One Out (after Q10)
+
+**File: `bonus01.mp3`**
+> "The carrot is a vegetable — the rest are all fruits. Carrot is the odd one out! Nail it and erase one wrong answer."
+
+---
+
+## MEDIUM (Questions 21–35)
+
+---
+
+**Q21 — CARSICK** ⭐ *fact question*
+`[QQ CLIP]` **qq21.mp3**
+> "Winding roads do this to you — your body just can't agree with itself."
+
+`[SCREEN TEXT]` *"Winding roads do this to you."*
+
+`[REVEAL VO]` **r21.mp3**
+> "Carsick! Your eyes and ears send your brain two different signals. It just can't pick a side."
+
+---
+
+**Q22 — SANDPAPER**
+`[QQ CLIP]` **qq22.mp3**
+> "Rough to touch — but it makes everything else smoother."
+
+`[SCREEN TEXT]` *"Rough to touch. Smooths everything."*
+
+`[REVEAL VO]` **r22.mp3**
+> "Sandpaper! Scratchy by design."
+
+---
+
+**Q23 — BIRDBATH**
+`[QQ CLIP]` **qq23.mp3**
+> "You'll spot this in almost every backyard — birds can't resist it."
+
+`[SCREEN TEXT]` *"Birds can't resist this."*
+
+`[REVEAL VO]` **r23.mp3**
+> "Birdbath! Maintenance, not leisure."
+
+---
+
+**Q24 — LOVEBIRD** ⭐ *fact question*
+`[QQ CLIP]` **qq24.mp3**
+> "The most affectionate creature you can keep as a pet — tiny but devoted."
+
+`[SCREEN TEXT]` *"Most affectionate pet. Tiny but devoted."*
+
+`[REVEAL VO]` **r24.mp3**
+> "Lovebird! Actually a small parrot native to Africa. The name earns itself."
+
+---
+
+**Q25 — WATCHDOG**
+`[QQ CLIP]` **qq25.mp3**
+> "Alert, loyal, always on duty — this one never clocks out."
+
+`[SCREEN TEXT]` *"Never clocks out."*
+
+`[REVEAL VO]` **r25.mp3**
+> "Watchdog! In their DNA."
+
+---
+
+*[REMINDER CARD — plays after Q25]*
+**File: `reminder_25.mp3`**
+> "Halfway — twenty-five down. Bonus round right means minus one wrong. What's your count?"
+
+---
+
+**Q26 — WINDSHIELD**
+`[QQ CLIP]` **qq26.mp3**
+> "Without this, every drive in the rain would be a disaster."
+
+`[SCREEN TEXT]` *"Every rainy drive needs this."*
+
+`[REVEAL VO]` **r26.mp3**
+> "Windshield! Drivers just got rained on before 1903. Respect."
+
+---
+
+**Q27 — THUMBTACK** ⭐ *fact question*
+`[QQ CLIP]` **qq27.mp3**
+> "Every office wall, every corkboard — this tiny thing holds it all together."
+
+`[SCREEN TEXT]` *"Holds everything to the wall."*
+
+`[REVEAL VO]` **r27.mp3**
+> "Thumbtack! Patented in 1900 — in Britain they call it a drawing pin. Same thing."
+
+---
+
+**Q28 — SEAWEED**
+`[QQ CLIP]` **qq28.mp3**
+> "It wraps your sushi and carpets the ocean floor — same thing."
+
+`[SCREEN TEXT]` *"In your sushi. On the ocean floor."*
+
+`[REVEAL VO]` **r28.mp3**
+> "Seaweed! Technically algae. Everything's a lie."
+
+---
+
+**Q29 — MEATLOAF**
+`[QQ CLIP]` **qq29.mp3**
+> "Mom's classic — been on dinner tables for longer than you'd think."
+
+`[SCREEN TEXT]` *"Mom's classic dinner."*
+
+`[REVEAL VO]` **r29.mp3**
+> "Meatloaf! Two-thousand-year head start."
+
+---
+
+**Q30 — BUTTERFLY** ⭐ *fact question*
+`[QQ CLIP]` **qq30.mp3**
+> "One of nature's most beautiful transformations — the name makes no logical sense."
+
+`[SCREEN TEXT]` *"Beautiful. Makes no logical sense."*
+
+`[REVEAL VO]` **r30.mp3**
+> "Butterfly! They taste with their feet. Every step is a meal."
+
+---
+
+**Q31 — CROSSWALK**
+`[QQ CLIP]` **qq31.mp3**
+> "Stop at the light, wait for the signal — then use this."
+
+`[SCREEN TEXT]` *"Wait for the signal. Then use this."*
+
+`[REVEAL VO]` **r31.mp3**
+> "Crosswalk! Same stripes, different names."
+
+---
+
+**Q32 — ROADRUNNER**
+`[QQ CLIP]` **qq32.mp3**
+> "Beep beep — this real bird actually runs faster than you'd expect."
+
+`[SCREEN TEXT]` *"Beep beep. Faster than you think."*
+
+`[REVEAL VO]` **r32.mp3**
+> "Roadrunner! Not an exaggeration."
+
+---
+
+**Q33 — WOLFPACK** ⭐ *fact question*
+`[QQ CLIP]` **qq33.mp3**
+> "They move as one — coordinated, loyal, unstoppable together."
+
+`[SCREEN TEXT]` *"Move as one. Unstoppable."*
+
+`[REVEAL VO]` **r33.mp3**
+> "Wolfpack! Usually just one family — parents and pups. Very intense reunion."
+
+---
+
+**Q34 — GOALPOST**
+`[QQ CLIP]` **qq34.mp3**
+> "Every kicker stares this down before the most important moment of the game."
+
+`[SCREEN TEXT]` *"Every kicker's target."*
+
+`[REVEAL VO]` **r34.mp3**
+> "Goalpost! They used tape in 1875."
+
+---
+
+**Q35 — BLUETOOTH**
+`[QQ CLIP]` **qq35.mp3**
+> "It's invisible, it's wireless, and it's named after a Viking king — go figure."
+
+`[SCREEN TEXT]` *"Invisible. Wireless. Named after a Viking."*
+
+`[REVEAL VO]` **r35.mp3**
+> "Bluetooth! Your headphones have Viking energy."
+
+---
+
+## Bonus Round 2 — Count It (after Q20)
+
+**File: `bonus02.mp3`**
+> "Seven frogs hiding in there! Did you get them all? Erase one wrong and keep going."
+
+---
+
+## Bonus Round 3 — Word Scramble (after Q30)
+
+**File: `bonus03.mp3`**
+> "PENGUIN! Nice if you got that. Erase a wrong — let's keep moving."
+
+---
+
+## HARD (Questions 36–50)
+
+---
+
+**Q36 — HONEYMOON** ⭐ *fact question*
+`[QQ CLIP]` **qq36.mp3**
+> "The most anticipated trip of someone's life — happens right after the big day."
+
+`[SCREEN TEXT]` *"Most anticipated trip. Right after the big day."*
+
+`[REVEAL VO]` **r36.mp3**
+> "Honeymoon! One bee makes just a twelfth of a teaspoon in its whole life. Sweet by name, rare by nature."
+
+---
+
+**Q37 — DAYDREAM**
+`[QQ CLIP]` **qq37.mp3**
+> "Your mind slips away mid-conversation — you're physically there but mentally gone."
+
+`[SCREEN TEXT]` *"There physically. Gone mentally."*
+
+`[REVEAL VO]` **r37.mp3**
+> "Daydream! Technically productive."
+
+---
+
+**Q38 — CARTWHEEL**
+`[QQ CLIP]` **qq38.mp3**
+> "Gym class classic — looks easy until you actually try it."
+
+`[SCREEN TEXT]` *"Looks easy. Try it."*
+
+`[REVEAL VO]` **r38.mp3**
+> "Cartwheel! Still one of the coolest."
+
+---
+
+**Q39 — SWEETHEART**
+`[QQ CLIP]` **qq39.mp3**
+> "You call someone this when words alone aren't enough."
+
+`[SCREEN TEXT]` *"What you call someone you love."*
+
+`[REVEAL VO]` **r39.mp3**
+> "Sweetheart! Eight hundred years strong."
+
+---
+
+**Q40 — WISHBONE**
+`[QQ CLIP]` **qq40.mp3**
+> "Thanksgiving tradition — whoever gets the bigger piece wins something intangible."
+
+`[SCREEN TEXT]` *"Thanksgiving tradition. Pull it."*
+
+`[REVEAL VO]` **r40.mp3**
+> "Wishbone! Thanksgiving just got competitive."
+
+---
+
+*[REMINDER CARD — plays after Q40]*
+**File: `reminder_40.mp3`**
+> "Ten left. Legends are made right here. No mistakes."
+
+---
+
+**Q41 — SHORTCUT**
+`[QQ CLIP]` **qq41.mp3**
+> "Why take the long way when there's a faster route?"
+
+`[SCREEN TEXT]` *"Why go the long way?"*
+
+`[REVEAL VO]` **r41.mp3**
+> "Shortcut! Nature's GPS."
+
+---
+
+**Q42 — BEANSTALK** ⭐ *fact question*
+`[QQ CLIP]` **qq42.mp3**
+> "Jack climbed one all the way to the giant — what's it called?"
+
+`[SCREEN TEXT]` *"Jack climbed one to the giant."*
+
+`[REVEAL VO]` **r42.mp3**
+> "Beanstalk! These vines grow over six feet in a single season. Jack wasn't exaggerating."
+
+---
+
+**Q43 — NIGHTMARE**
+`[QQ CLIP]` **qq43.mp3**
+> "Cold sweat, heart racing, can't wake up fast enough — that feeling."
+
+`[SCREEN TEXT]` *"Cold sweat. Can't wake up."*
+
+`[REVEAL VO]` **r43.mp3**
+> "Nightmare! Your brain really commits."
+
+---
+
+**Q44 — SEESAW**
+`[QQ CLIP]` **qq44.mp3**
+> "Up when your friend is down — it only works with two people."
+
+`[SCREEN TEXT]` *"Up when they're down."*
+
+`[REVEAL VO]` **r44.mp3**
+> "Seesaw! Twice the fun name."
+
+---
+
+**Q45 — WHIRLPOOL** ⭐ *fact question*
+`[QQ CLIP]` **qq45.mp3**
+> "Water spinning so fast and powerful — you would not want to be near it."
+
+`[SCREEN TEXT]` *"You do not want to be near this."*
+
+`[REVEAL VO]` **r45.mp3**
+> "Whirlpool! Norway's Saltstraumen is one of the most powerful on Earth. Do not swim there."
+
+---
+
+**Q46 — WALLFLOWER**
+`[QQ CLIP]` **qq46.mp3**
+> "The quiet one at every party — standing back, watching everything unfold."
+
+`[SCREEN TEXT]` *"Quiet one at every party."*
+
+`[REVEAL VO]` **r46.mp3**
+> "Wallflower! Had to become a metaphor."
+
+---
+
+**Q47 — HAMSTRING**
+`[QQ CLIP]` **qq47.mp3**
+> "Athletes dread pulling this — one wrong move and you're done for weeks."
+
+`[SCREEN TEXT]` *"Athletes dread pulling this."*
+
+`[REVEAL VO]` **r47.mp3**
+> "Hamstring! You will know."
+
+---
+
+**Q48 — BAREFOOT** ⭐ *fact question*
+`[QQ CLIP]` **qq48.mp3**
+> "No shoes, no socks — summer's best feeling underfoot."
+
+`[SCREEN TEXT]` *"Summer's best feeling."*
+
+`[REVEAL VO]` **r48.mp3**
+> "Barefoot! Each foot has twenty-six bones — a quarter of all bones in your body. Everything balanced on that."
+
+---
+
+**Q49 — QUARTERBACK**
+`[QQ CLIP]` **qq49.mp3**
+> "The whole team depends on this one player — most pressure on the field."
+
+`[SCREEN TEXT]` *"Whole team depends on this one."*
+
+`[REVEAL VO]` **r49.mp3**
+> "Quarterback! Legends in single digits."
+
+---
+
+**Q50 — HOGWASH**
+`[QQ CLIP]` **qq50.mp3**
+> "Last one — it means complete and total nonsense. What's the word?"
+
+`[SCREEN TEXT]` *"Means complete nonsense."*
+
+`[REVEAL VO]` **r50.mp3**
+> "Hogwash! What a journey for a word."
+
+---
+
+## Bonus Round 4 — Emoji Math (after Q40)
+
+**File: `bonus04.mp3`**
+> "Apple four, star six, car five — add them up and you get FIFTEEN! Erase one more wrong."
+
+---
+
+## Bonus Round 5 — Spot the Difference (after Q50)
+
+**File: `bonus05.mp3`**
+> "One clock changed — one o'clock to TWO o'clock! Last bonus. Final wrong answer erased if you got it."
+
+---
+
+## Scoreboard & End Screen
+
+**File: `scoreboard.mp3`**
+> "All fifty done. Count your wrong answers, subtract your bonus erases. Here's where you land."
+
+**File: `rank_legend.mp3`** *(0–3 wrong)*
+> "Zero to three wrong — LEGEND. Crown and bragging rights. Incredible."
+
+**File: `rank_expert.mp3`** *(4–10 wrong)*
+> "Four to ten wrong — EXPERT. Seriously solid."
+
+**File: `rank_good.mp3`** *(11–20 wrong)*
+> "Eleven to twenty wrong — GOOD. You held your own."
+
+**File: `rank_beginner.mp3`** *(21–30 wrong)*
+> "Twenty-one to thirty — BEGINNER. Come back and run it again."
+
+**File: `rank_practice.mp3`** *(31+ wrong)*
+> "Thirty-one or more — KEEP PRACTICING. The emojis will click. Trust the process."
+
+**File: `endscreen.mp3`**
+> "Think your friend can beat your score? Tag them in the comments. Subscribe — new quizzes every week."
+
+---
+
+## Delivery Notes
+
+| Section | Tone | Pacing |
+|---|---|---|
+| Hook | High energy, challenge | Fast |
+| QQ clips | Curious, sideways — intrigue without spoiling | Natural, conversational |
+| Easy reveals | Warm, punchy | Fast |
+| Medium reveals | Confident, snappy | Fast |
+| Hard reveals | Dramatic, satisfying | Slightly slower |
+| Fact lines | One sentence — genuine surprise | Natural |
+| Bonus reveals | Punchy, celebratory | Fast |
+| Scoreboard | Hype for Legend, warm for lower ranks | Natural |
+
+---
+
+## Recording Checklist
+
+- [ ] `hook.mp3`
+- [ ] `qq01.mp3` – `qq50.mp3` (50 question clips)
+- [ ] `r01.mp3` – `r50.mp3` (50 reveal clips)
+- [ ] `bonus01.mp3` – `bonus05.mp3`
+- [ ] `reminder_10.mp3`, `reminder_25.mp3`, `reminder_40.mp3`
+- [ ] `scoreboard.mp3`
+- [ ] `rank_legend.mp3`, `rank_expert.mp3`, `rank_good.mp3`, `rank_beginner.mp3`, `rank_practice.mp3`
+- [ ] `endscreen.mp3`
+
+**Total clips to record: 117**
