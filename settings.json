@@ -120,8 +120,8 @@
     "lowSeconds": 3
   },
   "timing": {
-    "hookA": 110,
-    "hookB": 135,
+    "hookA": 120,
+    "hookB": 120,
     "questionAfterTitle": 6,
     "blanksAfterEmojis": 14,
     "answerFlipsAfterTimer": 6,
@@ -161,31 +161,31 @@
     "ranks": [
       [
         "LEGEND",
-        "\ud83d\udc51",
-        "0\u20133 WRONG",
+        "👑",
+        "0–3 WRONG",
         "#FFC93C"
       ],
       [
         "EXPERT",
-        "\ud83d\udd25",
-        "4\u201310 WRONG",
+        "🔥",
+        "4–10 WRONG",
         "#38E1FF"
       ],
       [
         "GOOD",
-        "\ud83d\udc4d",
-        "11\u201320 WRONG",
+        "👍",
+        "11–20 WRONG",
         "#34D399"
       ],
       [
         "BEGINNER",
-        "\ud83c\udf31",
-        "21\u201330 WRONG",
+        "🌱",
+        "21–30 WRONG",
         "#FBBF24"
       ],
       [
         "KEEP PRACTISING",
-        "\ud83d\udcaa",
+        "💪",
         "31+ WRONG",
         "#FB7185"
       ]
@@ -196,9 +196,9 @@
     "frames": 340,
     "eyebrow": "THE CHALLENGE",
     "headlineA": "BEAT YOUR",
-    "headlineB": "FRIEND\u2019S",
+    "headlineB": "FRIEND’S",
     "headlineC": "SCORE",
-    "cta": "TAG THEM IN THE COMMENTS \ud83d\udc47",
+    "cta": "TAG THEM IN THE COMMENTS 👇",
     "tagline": "WHO GETS FEWER WRONG?",
     "nextLabel": "WATCH NEXT",
     "subscribe": "SUBSCRIBE",
@@ -206,14 +206,14 @@
   },
   "text": {
     "comment": "COMMENT YOUR ANSWER BEFORE THE TIMER ENDS",
-    "reminder": "Still counting? \u274c",
-    "correctChip": "\u2714 CORRECT ANSWER",
-    "eraseChip": "GOT IT? ERASE 1 WRONG \u274c",
-    "factEyebrow": "\u2714 CORRECT \u00b7 DID YOU KNOW?",
+    "reminder": "Still counting? ❌",
+    "correctChip": "✔ CORRECT ANSWER",
+    "eraseChip": "GOT IT? ERASE 1 WRONG ❌",
+    "factEyebrow": "✔ CORRECT · DID YOU KNOW?",
     "scoreboardKicker": "FINAL SCOREBOARD",
     "scoreboardTitleA": "HOW MANY WERE",
     "scoreboardTitleB": "WRONG?",
-    "scoreboardFooter": "WRONG ANSWERS \u2212 BONUS ERASES = YOUR RANK",
+    "scoreboardFooter": "WRONG ANSWERS − BONUS ERASES = YOUR RANK",
     "hook": {
       "a1": "CAN YOU GUESS",
       "a2a": "ALL",
@@ -223,12 +223,12 @@
       "r1a": "COUNT EVERY",
       "r1b": "WRONG",
       "r1c": "ANSWER",
-      "r2a": "BONUS ROUND RIGHT =",
-      "r2b": "\u22121 WRONG",
+      "r2a": "BONUS RIGHT =",
+      "r2b": "−1 WRONG",
       "r3a": "UNDER",
       "r3b": "4",
       "r3c": "WRONG =",
-      "r3d": "LEGEND"
+      "r3d": "LEGEND 👑"
     }
   },
   "images": {
