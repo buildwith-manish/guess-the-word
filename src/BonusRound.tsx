@@ -8,6 +8,7 @@ import { makeConfetti } from './util';
 import type { BonusPuzzle } from './bonus-engine';
 import { Background } from './Background';
 import { Hud } from './Hud';
+import { BonusIcon } from './bonus-icons';
 import settings from '../settings.json';
 
 const B = settings.bonus;
@@ -376,7 +377,7 @@ const Board: React.FC<{
                 boxShadow: win ? `0 0 ${px(60)}px rgba(52,211,153,0.67)` : undefined,
               }}
             >
-              {t}
+              <BonusIcon name={t} size={d.small ? px(110) : px(135)} />
             </div>
           );
         })}
@@ -417,7 +418,7 @@ const Board: React.FC<{
                 boxShadow: win ? `0 0 ${px(20)}px rgba(52,211,153,0.6)` : undefined,
               }}
             >
-              {c.ch}
+              <BonusIcon name={c.ch} size={px(50)} />
             </div>
           );
         })}
@@ -430,8 +431,17 @@ const Board: React.FC<{
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: px(14) }}>
         {d.hint ? (
-          <div style={{ fontFamily: FONTS.display, fontSize: px(54), color: '#fff' }}>
-            HINT: <span style={{ fontFamily: FONTS.emoji }}>{d.hint}</span>
+          <div style={{
+            fontFamily: FONTS.display,
+            fontSize: px(40),
+            color: '#fff',
+            letterSpacing: px(2),
+            display: 'flex',
+            alignItems: 'center',
+            gap: px(14),
+          }}>
+            <span>HINT:</span>
+            <BonusIcon name={d.hint} size={px(70)} />
           </div>
         ) : null}
         <div style={{ display: 'flex', gap: px(10) }}>
@@ -492,7 +502,9 @@ const Board: React.FC<{
               }}
             >
               {row.icons.map((icon, k) => (
-                <span key={k} style={{ fontFamily: FONTS.emoji, fontSize: px(d.fontSize * 0.92) }}>{icon}</span>
+                <span key={k} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: px(d.fontSize * 0.92), height: px(d.fontSize * 0.92) }}>
+                  <BonusIcon name={icon} size={px(d.fontSize * 0.92)} />
+                </span>
               ))}
               <span style={{ margin: `0 ${px(6)}px` }}>=</span>
               <b style={{ color: COLORS.yellow, fontWeight: 400 }}>{solved ? d.answer : row.value}</b>
@@ -538,7 +550,7 @@ const Board: React.FC<{
               boxShadow: win ? `0 0 ${px(30)}px rgba(52,211,153,0.67)` : undefined,
             }}
           >
-            {e}
+            <BonusIcon name={e} size={px(70)} />
           </div>
         );
       })}
