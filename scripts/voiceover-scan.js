@@ -5,10 +5,23 @@
  * Finds your voiceover clips and measures them, so the video can fit around them.
  *
  *   public/voiceover/q01.mp3 ... q50.mp3      the answer reveal of question 1..50
+ *   public/voiceover/qq01.mp3 ... qq50.mp3    the question-phase (timer) clip
  *   public/voiceover/bonus01.mp3 ... bonus05  the answer reveal of bonus round 1..5
+ *   public/voiceover/bonusq01.mp3 ... bonusq05  the question prompt of bonus round 1..5
+ *   public/voiceover/intro.mp3                the hook intro line
+ *   public/voiceover/scoreboard_intro.mp3     scoreboard intro line
+ *   public/voiceover/scoreboard_legend.mp3    scoreboard LEGEND rank line
+ *   public/voiceover/scoreboard_expert.mp3    scoreboard EXPERT rank line
+ *   public/voiceover/scoreboard_good.mp3      scoreboard GOOD rank line
+ *   public/voiceover/scoreboard_beginner.mp3  scoreboard BEGINNER rank line
+ *   public/voiceover/scoreboard_keepgoing.mp3 scoreboard KEEP GOING rank line
+ *   public/voiceover/outro.mp3                the end-screen outro line
  *   (.mp3 .wav .m4a .aac .ogg .flac all work)
  *
- * It writes src/voiceover-manifest.json ({ q: { "1": { file, seconds } }, bonus: {...} }).
+ * It writes src/voiceover-manifest.json:
+ *   { q: { "1": { file, seconds } }, qq: {...}, bonus: {...}, bonusq: {...},
+ *     intro: { file, seconds }, scoreboard: { legend: { file, seconds }, ... }, outro: { file, seconds } }
+ *
  * timing.ts reads that file: each clip starts just after the reveal lands, and the reveal hold is
  * stretched when the clip is longer than the default hold, so nothing is ever cut off. A missing
  * clip changes nothing for that question.
@@ -67,29 +80,49 @@ const seconds = (file) => {
 };
 
 const main = () => {
-  const manifest = { q: {}, qq: {}, bonus: {} };
+  const manifest = { q: {}, qq: {}, bonus: {}, bonusq: {}, intro: null, scoreboard: {}, outro: null };
   const problems = [];
   if (fs.existsSync(DIR)) {
     for (const name of fs.readdirSync(DIR).sort()) {
       if (!EXT.test(name)) continue;
-      // qq## = question-phase (timer) clip; q## = reveal clip; bonus## = bonus reveal clip
-      const m = /^(qq|q|bonus)0*(\d+)\.[a-z0-9]+$/i.exec(name);
-      if (!m) {
-        problems.push(`ignored "${name}" (name it q01.mp3, qq01.mp3, or bonus01.mp3 ...)`);
-        continue;
-      }
-      const kind = m[1].toLowerCase();
-      const n = String(Number(m[2]));
-      if (manifest[kind][n]) {
-        problems.push(`two clips for ${kind} ${n}: keeping ${manifest[kind][n].file}, ignoring ${name}`);
-        continue;
-      }
+
       const s = seconds(path.join(DIR, name));
       if (!s) {
         problems.push(`could not measure "${name}" (install ffmpeg/ffprobe, or use a .wav)`);
         continue;
       }
-      manifest[kind][n] = { file: name, seconds: Math.round(s * 1000) / 1000 };
+      const entry = { file: name, seconds: Math.round(s * 1000) / 1000 };
+
+      // Numbered clips: qq##, q##, bonus##, bonusq##
+      const m = /^(bonusq|qq|q|bonus)0*(\d+)\.[a-z0-9]+$/i.exec(name);
+      if (m) {
+        const kind = m[1].toLowerCase();
+        const n = String(Number(m[2]));
+        if (manifest[kind][n]) {
+          problems.push(`two clips for ${kind} ${n}: keeping ${manifest[kind][n].file}, ignoring ${name}`);
+          continue;
+        }
+        manifest[kind][n] = entry;
+        continue;
+      }
+
+      // Named clips: intro, outro, scoreboard_*
+      const baseName = name.replace(/\.[a-z0-9]+$/i, '').toLowerCase();
+      if (baseName === 'intro') {
+        manifest.intro = entry;
+        continue;
+      }
+      if (baseName === 'outro') {
+        manifest.outro = entry;
+        continue;
+      }
+      if (baseName.startsWith('scoreboard_')) {
+        const rankName = baseName.replace('scoreboard_', '');
+        manifest.scoreboard[rankName] = entry;
+        continue;
+      }
+
+      problems.push(`ignored "${name}" (unrecognized name)`);
     }
   }
 
@@ -100,11 +133,12 @@ const main = () => {
   const qn = Object.keys(manifest.q).length;
   const qqn = Object.keys(manifest.qq).length;
   const bn = Object.keys(manifest.bonus).length;
+  const bqn = Object.keys(manifest.bonusq).length;
+  const sbn = Object.keys(manifest.scoreboard).length;
   const defaultHoldSec = (settings.timing.answerHold - VO.offsetFrames - VO.tailFrames) / 30;
 
-  console.log(`\n  voiceover: ${qn}/${total} reveal clips · ${qqn}/${total} question clips · ${bn}/${bonusTotal} bonus rounds  (${path.relative(ROOT, DIR)})`);
-  if (qqn > 0) console.log(`  ${qqn} question-phase clip(s) found (qq##): play during the timer.`);
-  if (qn + qqn + bn === 0) console.log('  no clips yet: the video renders exactly as before. Run `npm run voiceover:script` for the lines to record.');
+  console.log(`\n  voiceover: ${qn}/${total} reveal · ${qqn}/${total} question-phase · ${bn}/${bonusTotal} bonus reveal · ${bqn}/${bonusTotal} bonus question · ${sbn}/6 scoreboard · intro ${manifest.intro ? '✓' : '✗'} · outro ${manifest.outro ? '✓' : '✗'}  (${path.relative(ROOT, DIR)})`);
+  if (qn + qqn + bn === 0 && !manifest.intro && !manifest.outro) console.log('  no clips yet: the video renders exactly as before. Run `npm run voiceover:script` for the lines to record.');
 
   const long = Object.entries(manifest.q).filter(([, v]) => v.seconds > defaultHoldSec);
   if (long.length) {

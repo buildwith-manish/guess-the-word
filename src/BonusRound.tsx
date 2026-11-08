@@ -23,7 +23,7 @@ export const Bonus: React.FC<{ frame: number; puzzle: BonusPuzzle; index: number
   index,
 }) => {
   const pre = B.preRollFrames;
-  const clockStart = BONUS_CLOCK_START();
+  const clockStart = BONUS_CLOCK_START(index);
   const clockFrames = Math.round(puzzle.seconds * FPS);
   const clockEnd = clockStart + clockFrames;
   const revealAt = clockEnd;

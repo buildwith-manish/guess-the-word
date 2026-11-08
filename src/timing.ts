@@ -33,10 +33,24 @@ export const OUTPUT_SCALE = settings.output.width / settings.width;
  */
 const VO = settings.voiceover;
 export type VoClip = { file: string; frames: number };
-export const voiceClip = (kind: 'q' | 'qq' | 'bonus' | 'bq', n: number): VoClip | undefined => {
+export const voiceClip = (kind: 'q' | 'qq' | 'bonus' | 'bonusq', n: number): VoClip | undefined => {
   if (!VO.enabled) return undefined;
   const e = (voManifest as Record<string, Record<string, { file: string; seconds: number }>>)[kind]?.[String(n)];
   return e ? { file: e.file, frames: Math.ceil(e.seconds * FPS) } : undefined;
+};
+
+/** Single-clip voiceover (intro, outro): manifest stores it as a top-level object, not keyed by number. */
+export const voiceClipNamed = (kind: 'intro' | 'outro'): VoClip | undefined => {
+  if (!VO.enabled) return undefined;
+  const e = (voManifest as Record<string, { file: string; seconds: string | number }>)[kind];
+  return e ? { file: e.file, frames: Math.ceil(Number(e.seconds) * FPS) } : undefined;
+};
+
+/** Scoreboard clip by rank name (legend, expert, good, beginner, keepgoing) or 'intro'. */
+export const voiceClipScoreboard = (rank: string): VoClip | undefined => {
+  if (!VO.enabled) return undefined;
+  const e = (voManifest as Record<string, Record<string, { file: string; seconds: string | number }>>).scoreboard?.[rank];
+  return e ? { file: e.file, frames: Math.ceil(Number(e.seconds) * FPS) } : undefined;
 };
 
 export const LEVELS: LevelCfg[] = settings.levels as unknown as LevelCfg[];
@@ -172,7 +186,13 @@ export const buildQuestionPlan = (
   };
 };
 
-export const BONUS_CLOCK_START = () => settings.bonus.preRollFrames + settings.bonus.buildFrames + 10;
+export const BONUS_CLOCK_START = (bonusIndex = 0) => {
+  const base = settings.bonus.preRollFrames + settings.bonus.buildFrames + 10;
+  // Stretch the pre-roll if the bonus question clip is longer than the base
+  const clip = voiceClip('bonusq', bonusIndex + 1);
+  if (!clip) return base;
+  return Math.max(base, VO.offsetFrames + clip.frames + 10);
+};
 
 /** frames the bonus answer stays up after the clock ends (stretched to fit a voiceover clip) */
 export const bonusRevealHold = (bonusIndex: number) => {
@@ -186,9 +206,9 @@ export const bonusRevealHold = (bonusIndex: number) => {
 
 /** voiceover for a bonus question-phase: plays right after the pre-roll banner exits */
 export const bonusQuestionVoice = (bonusIndex: number) => {
-  const clip = voiceClip('bq', bonusIndex + 1);
+  const clip = voiceClip('bonusq', bonusIndex + 1);
   return clip
-    ? { file: clip.file, frames: clip.frames, start: BONUS_CLOCK_START() + VO.offsetFrames }
+    ? { file: clip.file, frames: clip.frames, start: VO.offsetFrames }
     : undefined;
 };
 
@@ -196,18 +216,34 @@ export const bonusQuestionVoice = (bonusIndex: number) => {
 export const bonusVoice = (bonusIndex: number, seconds: number) => {
   const clip = voiceClip('bonus', bonusIndex + 1);
   return clip
-    ? { file: clip.file, frames: clip.frames, start: BONUS_CLOCK_START() + Math.round(seconds * FPS) + VO.offsetFrames }
+    ? { file: clip.file, frames: clip.frames, start: BONUS_CLOCK_START(bonusIndex) + Math.round(seconds * FPS) + VO.offsetFrames }
     : undefined;
 };
 
 const bonusDuration = (p: BonusPuzzle, bonusIndex: number) =>
-  BONUS_CLOCK_START() + Math.round(p.seconds * FPS) + bonusRevealHold(bonusIndex);
+  BONUS_CLOCK_START(bonusIndex) + Math.round(p.seconds * FPS) + bonusRevealHold(bonusIndex);
 
 /**
  * Scoreboard budget: kicker + title, then 5 rows at 22 frames each (bottom ->
- * top), the LEGEND glow and the footer. Keep in sync with Scoreboard.tsx.
+ * top), the LEGEND glow and the footer, PLUS voiceover clips (intro + 5 ranks).
+ * The base is 168 frames; if scoreboard voiceover clips exist, the segment
+ * stretches to fit them all sequentially.
  */
-const SCOREBOARD_FRAMES = 168;
+const SCOREBOARD_BASE_FRAMES = 168;
+const SCOREBOARD_ROW_BASE = 46;
+const SCOREBOARD_ROW_STEP = 22;
+
+const scoreboardFrames = (): number => {
+  const rankKeys = ['intro', 'legend', 'expert', 'good', 'beginner', 'keepgoing'];
+  const clips = rankKeys.map((k) => voiceClipScoreboard(k)).filter(Boolean) as VoClip[];
+  if (clips.length === 0) return SCOREBOARD_BASE_FRAMES;
+  // Clips play sequentially after the row animations
+  const rowsEnd = SCOREBOARD_ROW_BASE + 5 * SCOREBOARD_ROW_STEP; // ~156 frames
+  const clipsFrames = clips.reduce((sum, c) => sum + c.frames + 4, 0); // +4f gap between clips
+  return Math.max(SCOREBOARD_BASE_FRAMES, rowsEnd + clipsFrames + 10);
+};
+
+const SCOREBOARD_FRAMES = scoreboardFrames();
 
 /** Bonus puzzles are seed-generated: same seed -> same board -> same render. */
 const PUZZLES: BonusPuzzle[] = buildBonusPuzzles(settings.bonus.after.length);
@@ -310,7 +346,13 @@ const buildTimeline = (puzzles: BonusPuzzle[] = PUZZLES): Timeline => {
   });
 
   push({ kind: 'scoreboard', from: cursor, duration: SCOREBOARD_FRAMES });
-  push({ kind: 'endScreen', from: cursor, duration: settings.endScreen.frames });
+
+  // End screen: stretch if the outro clip is longer than the default
+  const outroClip = voiceClipNamed('outro');
+  const endScreenFrames = outroClip
+    ? Math.max(settings.endScreen.frames, VO.offsetFrames + outroClip.frames + VO.tailFrames)
+    : settings.endScreen.frames;
+  push({ kind: 'endScreen', from: cursor, duration: endScreenFrames });
 
   return { segments, totalFrames: cursor };
 };

@@ -12,7 +12,7 @@
  */
 import settings from '../settings.json';
 import manifest from './sound-manifest.json';
-import { BONUS_CLOCK_START, FPS, QUESTIONS, TIMELINE, TOTAL, bonusVoice, buildQuestionPlan } from './timing';
+import { BONUS_CLOCK_START, FPS, QUESTIONS, TIMELINE, TOTAL, bonusVoice, bonusQuestionVoice, buildQuestionPlan, voiceClipNamed, voiceClipScoreboard } from './timing';
 
 export type Sfx = Exclude<keyof typeof manifest, `music-${string}`>;
 
@@ -77,6 +77,11 @@ const buildCues = (): Cue[] => {
         add(f0 + HOOK_A + 4, 'rule-sweep');
         add(f0 + HOOK_A + 38, 'ping-hi');
         add(f0 + HOOK_A + 84, 'jingle-rules');
+        // Intro voiceover: plays at the start of the hook
+        {
+          const introClip = voiceClipNamed('intro');
+          if (introClip) VOICE_LIST.push({ frame: Math.round(f0 + 36), file: introClip.file, frames: introClip.frames });
+        }
         break;
       }
       case 'levelCard': {
@@ -126,7 +131,7 @@ const buildCues = (): Cue[] => {
         break;
       }
       case 'bonus': {
-        const clockStart = f0 + BONUS_CLOCK_START();
+        const clockStart = f0 + BONUS_CLOCK_START(seg.index);
         const clockFrames = Math.round(seg.puzzle.seconds * FPS);
         const clockEnd = clockStart + clockFrames;
         add(f0, 'siren');
@@ -137,6 +142,12 @@ const buildCues = (): Cue[] => {
         if (seg.puzzle.seconds > 3) add(clockEnd - 2 * FPS, 'drumroll');
         add(clockEnd, 'stamp');
         add(clockEnd + settings.bonus.answerChipDelayFrames, 'chime-erase');
+        // Bonus question voiceover: plays right after the pre-roll banner
+        {
+          const bq = bonusQuestionVoice(seg.index);
+          if (bq) VOICE_LIST.push({ frame: Math.round(f0 + bq.start), file: bq.file, frames: bq.frames });
+        }
+        // Bonus reveal voiceover
         {
           const bv = bonusVoice(seg.index, seg.puzzle.seconds);
           if (bv) VOICE_LIST.push({ frame: Math.round(f0 + bv.start), file: bv.file, frames: bv.frames });
@@ -159,6 +170,18 @@ const buildCues = (): Cue[] => {
           });
         }
         add(f0 + SB_ROW_BASE + (RANK_COUNT - 1) * SB_STEP + 21, 'legend');
+        // Scoreboard voiceover clips: play sequentially after the row animations
+        {
+          const rankKeys = ['intro', 'legend', 'expert', 'good', 'beginner', 'keepgoing'];
+          let voiceFrame = SB_ROW_BASE + RANK_COUNT * SB_STEP + 10;
+          for (const key of rankKeys) {
+            const clip = voiceClipScoreboard(key);
+            if (clip) {
+              VOICE_LIST.push({ frame: Math.round(f0 + voiceFrame), file: clip.file, frames: clip.frames });
+              voiceFrame += clip.frames + 4; // 4-frame gap between clips
+            }
+          }
+        }
         break;
       }
       case 'endScreen': {
@@ -166,6 +189,11 @@ const buildCues = (): Cue[] => {
         add(f0 + 52, 'jingle-cta');
         add(f0 + 140, 'ding');
         add(f0 + 196, 'ding-hi');
+        // Outro voiceover: plays after the initial SFX
+        {
+          const outroClip = voiceClipNamed('outro');
+          if (outroClip) VOICE_LIST.push({ frame: Math.round(f0 + 60), file: outroClip.file, frames: outroClip.frames });
+        }
         break;
       }
     }
