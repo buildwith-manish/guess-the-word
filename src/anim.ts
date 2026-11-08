@@ -122,7 +122,7 @@ export const mergeEase = cubicBezier(0.55, 0, 0.35, 1);
 export const confettiEase = cubicBezier(0.2, 0.7, 0.4, 1);
 
 /** ms of the HTML's Web Animations -> frames at 30 fps. */
-export const ms = (v: number) => (v * 30) / 1000;
+export const ms = (v: number) => (v * 60) / 1000;
 
 /** Piecewise-linear value through keyframes at `offsets` (what WAAPI does between keyframes). */
 export const keyframes = (t: number, offsets: number[], values: number[]) => {
