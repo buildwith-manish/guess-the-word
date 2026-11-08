@@ -424,5 +424,53 @@
       "file": "bonus05.mp3",
       "seconds": 0
     }
+  },
+  "hook": {
+    "file": "hook.mp3",
+    "seconds": 0
+  },
+  "reminder": {
+    "10": {
+      "file": "reminder_10.mp3",
+      "seconds": 0
+    },
+    "25": {
+      "file": "reminder_25.mp3",
+      "seconds": 0
+    },
+    "40": {
+      "file": "reminder_40.mp3",
+      "seconds": 0
+    }
+  },
+  "scoreboard": {
+    "intro": {
+      "file": "scoreboard_intro.mp3",
+      "seconds": 0
+    },
+    "legend": {
+      "file": "scoreboard_legend.mp3",
+      "seconds": 0
+    },
+    "expert": {
+      "file": "scoreboard_expert.mp3",
+      "seconds": 0
+    },
+    "good": {
+      "file": "scoreboard_good.mp3",
+      "seconds": 0
+    },
+    "beginner": {
+      "file": "scoreboard_beginner.mp3",
+      "seconds": 0
+    },
+    "keepgoing": {
+      "file": "scoreboard_keepgoing.mp3",
+      "seconds": 0
+    },
+    "outro": {
+      "file": "outro.mp3",
+      "seconds": 0
+    }
   }
 }
