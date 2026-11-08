@@ -66,7 +66,7 @@
 
 ---
 
-[excited] Did you get it? That's the odd one out! Wrong answer erased — nice work.
+[excited] There it is — bonus round done. Count your erase and keep going.
 
 ---
 
@@ -102,14 +102,14 @@
 
 ---
 
-[celebratory] Did you count them all? That's the number! Erase one wrong — keep going.
+[celebratory] Bonus round done. Check your count — erase one if you got it.
 
 ---
 
 
 ---
 
-[energetic] Did you unscramble it? There's the word! Erase a wrong — let's keep moving.
+[energetic] Bonus round done. Erase one if you nailed it — let's keep moving.
 
 ---
 
@@ -147,7 +147,7 @@
 
 ---
 
-[punchy] Did you solve it? That's the answer! Erase one more wrong.
+[punchy] Bonus round done. Erase one if the math checked out.
 
 ---
 
@@ -183,7 +183,7 @@
 
 ---
 
-[triumphant] Did you spot it? That's the one that changed! Last bonus — final wrong answer erased.
+[triumphant] Last bonus done. Erase one if you caught it — that's your final count.
 
 ---
 
