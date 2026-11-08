@@ -1,5 +1,5 @@
 import React from 'react';
-import { COLORS, FONTS, S, px, glass } from './style';
+import { COLORS, FONTS, S, px, glass, K } from './style';
 import { prog, htmlEase, bounceEase } from './anim';
 
 /** Question counter pill (top-left) with a thin progress rail, plus the BONUS ERASES badge. */
@@ -87,7 +87,7 @@ export const Hud: React.FC<{
             letterSpacing: px(2),
             color: COLORS.green,
             opacity: eraseIn,
-            transform: `translateX(${(1 - eraseIn) * -30}px)`,
+            transform: `translateX(${(1 - eraseIn) * -30 * K}px)`,
           }}
         >
           BONUS ERASES · {erases}

@@ -1,3 +1,5 @@
+import { K } from './style';
+
 /**
  * util.ts — deterministic helpers. There is no Math.random() in this project:
  * confetti, shuffles and puzzle boards all come from seeds, so parallel render
@@ -75,11 +77,11 @@ export const makeConfetti = (
     const size = 8 + rand() * 10;
     return {
       id: `cf-${seed}-${i}`,
-      x: origin.x + (rand() - 0.5) * 900,
-      y: origin.y + (rand() - 0.5) * 80,
-      dx: (rand() - 0.5) * 1300,
-      dy: -(160 + rand() * 420),
-      size,
+      x: (origin.x + (rand() - 0.5) * 900) * K,
+      y: (origin.y + (rand() - 0.5) * 80) * K,
+      dx: (rand() - 0.5) * 1300 * K,
+      dy: -(160 + rand() * 420) * K,
+      size: size * K,
       color: colors[i % colors.length],
       round: i % 3 === 0,
       delay: Math.floor(rand() * 14),

@@ -1,6 +1,6 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { COLORS, FONTS, S, px, glass } from './style';
+import { COLORS, FONTS, S, px, glass, K } from './style';
 import { prog, revealIn } from './anim';
 import { backOut } from './gsap-helpers';
 import { makeConfetti } from './util';
@@ -86,7 +86,7 @@ export const Scoreboard: React.FC<{ frame: number }> = ({ frame }) => {
                     : undefined,
                   borderLeft: `${px(10)}px solid ${r[3]}`,
                   opacity: p,
-                  transform: `translate3d(${(1 - p) * -160}px, 0, 0) scale(${0.92 + 0.08 * p})`,
+                  transform: `translate3d(${(1 - p) * -160 * K}px, 0, 0) scale(${0.92 + 0.08 * p})`,
                   boxShadow:
                     isTop && frame >= legendAt
                       ? `0 0 ${px(20 + 44 * (0.5 + 0.5 * Math.sin((frame - legendAt) / 9)))}px rgba(255,201,60,0.6)`
@@ -155,7 +155,7 @@ export const Scoreboard: React.FC<{ frame: number }> = ({ frame }) => {
                   background: c.color,
                   borderRadius: c.round ? '50%' : 2,
                   opacity: 1 - Math.max(0, (p - 0.45) / 0.55),
-                  transform: `translate3d(${c.dx * p}px, ${c.dy * Math.min(1, p / 0.45) + 320 * Math.max(0, p - 0.45)}px, 0) rotate(${c.spin * p}deg)`,
+                  transform: `translate3d(${c.dx * p}px, ${c.dy * Math.min(1, p / 0.45) + 320 * K * Math.max(0, p - 0.45)}px, 0) rotate(${c.spin * p}deg)`,
                 }}
               />
             );

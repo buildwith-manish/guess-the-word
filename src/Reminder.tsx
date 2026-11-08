@@ -4,11 +4,12 @@ import { Background } from './Background';
 import { Hud } from './Hud';
 import { Watermark } from './Watermark';
 import { TitleLockup } from './TitleLockup';
-import { FONTS, px, glass, COLORS } from './style';
+import { FONTS, px, glass, COLORS, K } from './style';
 import { prog, htmlEase, mix } from './anim';
 import { linear } from './gsap-helpers';
 import type { Segment } from './types';
 import settings from '../settings.json';
+import { FPS } from './timing';
 
 type ReminderSegment = Extract<Segment, { kind: 'reminder' }>;
 
@@ -19,7 +20,6 @@ type ReminderSegment = Extract<Segment, { kind: 'reminder' }>;
  * scaled to 1080p by px().
  */
 export const Reminder: React.FC<{ frame: number; seg: ReminderSegment }> = ({ frame, seg }) => {
-  const FPS = settings.fps;
   const inP = prog(frame, 0, Math.round(0.35 * FPS), htmlEase);
   const outP = prog(frame, Math.round(1.1 * FPS), Math.round(0.3 * FPS), linear);
   const opacity = inP * (1 - outP);
@@ -55,7 +55,7 @@ export const Reminder: React.FC<{ frame: number; seg: ReminderSegment }> = ({ fr
           whiteSpace: 'nowrap',
           boxShadow: `0 ${px(14)}px ${px(40)}px rgba(0,0,0,0.55), 0 0 ${px(40)}px rgba(255,77,106,0.35)`,
           opacity,
-          transform: `translate3d(0, ${mix(20, 0, inP)}px, 0) scale(${mix(0.9, 1, inP)})`,
+          transform: `translate3d(0, ${mix(20 * K, 0, inP)}px, 0) scale(${mix(0.9, 1, inP)})`,
         }}
       >
         {settings.text.reminder}

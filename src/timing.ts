@@ -10,20 +10,20 @@ import { buildBonusPuzzles, type BonusPuzzle } from './bonus-engine';
 import voManifest from './voiceover-manifest.json';
 
 /**
- * DESIGN grid: every duration, easing and sound cue in this project is authored in
- * 30 fps frames on a 1920x1080 canvas (FPS / WIDTH / HEIGHT). The OUTPUT is rendered at
- * settings.output (2560x1440 @ 60 fps): the composition runs on 60 fps frames and src/clock.ts
- * converts them back to (fractional) design frames, so nothing in the scenes had to change.
- * 1440p comes from Remotion's output scale (see remotion.config.ts), so the layout is identical.
+ * Native canvas: settings.json is the single source of truth - 2560x1440 at 60 fps, rendered 1:1
+ * (no render scale). Layout units come from px() in style.ts (1280x720 reference x 2).
+ * Motion timing: scene animations are written as durations in 1/30 s "ticks" (the unit of every
+ * easing/duration constant in the scenes), which src/clock.ts samples at the full 60 fps - so each
+ * animation is evaluated every 1/60 s with identical timing.
  */
-export const FPS = settings.fps;
 export const WIDTH = settings.width;
 export const HEIGHT = settings.height;
-export const RENDER_FPS = settings.output.fps;
-/** render frames per design frame (60 / 30 = 2) */
+/** composition / output frame rate (settings.json) */
+export const RENDER_FPS = settings.fps;
+/** motion ticks per second used by the scene timing constants */
+export const FPS = 30;
+/** render frames per tick */
 export const TIME_SCALE = RENDER_FPS / FPS;
-/** output pixels per design pixel (2560 / 1920 = 4/3) */
-export const OUTPUT_SCALE = settings.output.width / settings.width;
 
 /**
  * Voiceover. scripts/voiceover-scan.js measures every public/voiceover/qNN.* (and bonusNN.*) clip

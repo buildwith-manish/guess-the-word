@@ -16,16 +16,13 @@ The composition length is derived from `settings.json` + `questions.js` — neve
 
 ### 1440p / 60 fps
 
-- Everything is still **authored in 30 fps design frames on a 1920×1080 canvas**, so no timing,
-  easing or sound cue changed. The composition runs at 60 fps and `src/clock.ts`
-  (`useDesignFrame`) converts each output frame back into a fractional design frame, so every
-  animation is sampled twice as often at identical speed.
-- **1440p** is Remotion's output scale (`settings.output.width / settings.width` = 4/3, set in
-  `remotion.config.ts`): same layout, rendered at a higher pixel density, so text and vector
-  art are crisp. Output is H.264, `yuv420p`, CRF 18.
+- **Native 2560x1440 @ 60 fps**: `settings.json` (`fps`, `width`, `height`) is the only format setting and the
+  composition renders 1:1 (no output scale). Layout units come from `px()` in `src/style.ts`
+  (1280x720 reference x 2). Scene motion constants are written in 1/30 s ticks and `src/clock.ts`
+  samples them every 1/60 s, so every animation runs at the full 60 fps. Output is H.264, `yuv420p`, CRF 18.
 - Audio is placed by `<Sequence>`; `Soundtrack.tsx` multiplies every offset by `TIME_SCALE`
   and interpolates the music-duck envelope for 60 fps.
-- Output size/fps live in `settings.json → output`. Photos are 1920×1080 (`settings.images`),
+- Photos are 1920×1080 (`settings.images`),
   so they are never upscaled at 1440p; `npm run images:hd` re-fetches every photo and only
   accepts sources of at least 1920×1080 (anything smaller is reported as "soft").
 - Rendering is roughly 2× the frames at ~1.8× the pixels per frame — expect a long render.

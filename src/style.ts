@@ -1,9 +1,11 @@
 /**
  * style.ts — design tokens. One dark, cinematic base with jewel-tone accents,
  * glass surfaces and a single gold highlight colour.
- * Layout is authored on a 1280x720 grid and scaled 1.5x to 1920x1080 by px().
+ * Layout is authored on a 1280x720 reference grid and scaled 2x to the native 2560x1440 canvas by px().
  */
-export const SCALE = 1.5;
+export const SCALE = 2;
+/** factor for values that were hand-tuned in raw 1920x1080 pixels (motion offsets, confetti, patterns) */
+export const K = SCALE / 1.5;
 export const px = (v: number) => Math.round(v * SCALE * 100) / 100;
 
 export const COLORS = {
@@ -40,7 +42,7 @@ export const glass = (radius: number, alpha = 0.07): Record<string, string | num
 });
 
 export const S = {
-  /** letterbox removed: the full 1080p frame is used */
+  /** letterbox removed: the full 1440p frame is used */
   bar: 0,
   hudTop: px(26),
   hudLeft: px(40),

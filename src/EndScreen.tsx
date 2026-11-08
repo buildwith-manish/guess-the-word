@@ -1,6 +1,6 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { COLORS, FONTS, S, px, glass } from './style';
+import { COLORS, FONTS, S, px, glass, K } from './style';
 import { prog, slamIn, revealIn } from './anim';
 import { elasticOut } from './gsap-helpers';
 import { makeConfetti } from './util';
@@ -147,7 +147,7 @@ export const EndScreen: React.FC<{ frame: number }> = ({ frame }) => {
               color: 'rgba(255,255,255,0.6)',
               boxShadow: `0 0 ${px(50 + 30 * ringPulse)}px rgba(255,201,60,0.47)`,
               opacity: Math.min(1, vslot * 1.2),
-              transform: `translateY(${(1 - vslot) * 60}px) scale(${0.7 + 0.3 * vslot})`,
+              transform: `translateY(${(1 - vslot) * 60 * K}px) scale(${0.7 + 0.3 * vslot})`,
             }}
           >
             ▶
@@ -224,7 +224,7 @@ export const EndScreen: React.FC<{ frame: number }> = ({ frame }) => {
                   background: c.color,
                   borderRadius: c.round ? '50%' : 2,
                   opacity: 1 - Math.max(0, (p - 0.45) / 0.55),
-                  transform: `translate3d(${c.dx * p}px, ${c.dy * Math.min(1, p / 0.45) + 320 * Math.max(0, p - 0.45)}px, 0) rotate(${c.spin * p}deg)`,
+                  transform: `translate3d(${c.dx * p}px, ${c.dy * Math.min(1, p / 0.45) + 320 * K * Math.max(0, p - 0.45)}px, 0) rotate(${c.spin * p}deg)`,
                 }}
               />
             );

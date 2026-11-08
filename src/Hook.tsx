@@ -1,6 +1,6 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { COLORS, FONTS, px } from './style';
+import { COLORS, FONTS, px, K } from './style';
 import { prog, slamIn } from './anim';
 import { backOut, expoOut, linear } from './gsap-helpers';
 import { glyphs } from './util';
@@ -157,7 +157,7 @@ const SceneB: React.FC<{ frame: number }> = ({ frame }) => {
           letterSpacing: px(4),
           textAlign: 'center',
           opacity: Math.min(1, Math.max(0, r2)),
-          transform: `translate3d(0, ${(1 - r2) * 30}px, 0)`,
+          transform: `translate3d(0, ${(1 - r2) * 30 * K}px, 0)`,
         }}
       >
         {H.r2a} <b style={{ color: COLORS.yellow, fontWeight: 400 }}>{H.r2b}</b>
@@ -170,7 +170,7 @@ const SceneB: React.FC<{ frame: number }> = ({ frame }) => {
           letterSpacing: px(4),
           textAlign: 'center',
           opacity: Math.min(1, Math.max(0, r3)),
-          transform: `translate3d(0, ${(1 - r3) * 30}px, 0)`,
+          transform: `translate3d(0, ${(1 - r3) * 30 * K}px, 0)`,
         }}
       >
         {H.r3a} <b style={{ color: COLORS.yellow, fontWeight: 400 }}>{H.r3b}</b> {H.r3c}{' '}
@@ -194,8 +194,8 @@ export const Hook: React.FC<{ frame: number }> = ({ frame }) => {
       />
       <AbsoluteFill
         style={{
-          backgroundImage: 'radial-gradient(rgba(255,255,255,0.09) 2px, rgba(0,0,0,0) 2.5px)',
-          backgroundSize: '44px 44px',
+          backgroundImage: `radial-gradient(rgba(255,255,255,0.09) ${2 * K}px, rgba(0,0,0,0) ${2.5 * K}px)`,
+          backgroundSize: `${44 * K}px ${44 * K}px`,
           backgroundPosition: `${((frame / (10 * 30)) % 1) * 44}px ${((frame / (10 * 30)) % 1) * 44}px`,
         }}
       />

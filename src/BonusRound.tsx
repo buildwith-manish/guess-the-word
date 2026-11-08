@@ -1,6 +1,6 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { COLORS, FONTS, S, px, glass } from './style';
+import { COLORS, FONTS, S, px, glass, K } from './style';
 import { BONUS_CLOCK_START, BONUS_THEME, FPS, bonusRevealHold } from './timing';
 import { prog, slamIn, revealIn } from './anim';
 import { backOut, elasticOut, expoOut, linear } from './gsap-helpers';
@@ -129,7 +129,7 @@ export const Bonus: React.FC<{ frame: number; puzzle: BonusPuzzle; index: number
             lineHeight: 1.05,
             letterSpacing: px(4),
             opacity: boardIn * (1 - exitP),
-            transform: `translate3d(0, ${(1 - boardIn) * 30}px, 0)`,
+            transform: `translate3d(0, ${(1 - boardIn) * 30 * K}px, 0)`,
             color: '#fff',
           }}
         >
@@ -273,7 +273,7 @@ export const Bonus: React.FC<{ frame: number; puzzle: BonusPuzzle; index: number
               top: px(498),
               width: px(900),
               marginLeft: -px(450),
-              transform: `translate3d(0, ${(1 - answerIn) * 20}px, 0) scale(${0.94 + 0.06 * answerIn})`,
+              transform: `translate3d(0, ${(1 - answerIn) * 20 * K}px, 0) scale(${0.94 + 0.06 * answerIn})`,
               opacity: answerIn,
               ...glass(px(22), 0.1),
               padding: `${px(12)}px ${px(22)}px`,
@@ -307,7 +307,7 @@ export const Bonus: React.FC<{ frame: number; puzzle: BonusPuzzle; index: number
               letterSpacing: px(3),
               boxShadow: `0 0 ${px(34)}px rgba(255,214,10,0.6)`,
               opacity: chipIn,
-              transform: `translate3d(0, ${(1 - chipIn) * 30}px, 0) scale(${0.6 + 0.4 * chipIn})`,
+              transform: `translate3d(0, ${(1 - chipIn) * 30 * K}px, 0) scale(${0.6 + 0.4 * chipIn})`,
             }}
           >
             {settings.text.eraseChip}
@@ -328,7 +328,7 @@ export const Bonus: React.FC<{ frame: number; puzzle: BonusPuzzle; index: number
                   background: c.color,
                   borderRadius: c.round ? '50%' : 2,
                   opacity: 1 - Math.max(0, (p - 0.45) / 0.55),
-                  transform: `translate3d(${c.dx * p}px, ${c.dy * Math.min(1, p / 0.45) + 300 * Math.max(0, p - 0.45)}px, 0) rotate(${c.spin * p}deg)`,
+                  transform: `translate3d(${c.dx * p}px, ${c.dy * Math.min(1, p / 0.45) + 300 * K * Math.max(0, p - 0.45)}px, 0) rotate(${c.spin * p}deg)`,
                 }}
               />
             );
@@ -467,7 +467,7 @@ const Board: React.FC<{
                   fontSize: px(72),
                   color: win ? '#fff' : COLORS.yellow,
                   opacity: seat,
-                  transform: `translateY(${(1 - seat) * 40}px) perspective(600px) rotateX(${win ? (1 - flipP) * -90 : 0}deg)`,
+                  transform: `translateY(${(1 - seat) * 40 * K}px) perspective(${600 * K}px) rotateX(${win ? (1 - flipP) * -90 : 0}deg)`,
                 }}
               >
                 {win ? word[i] : ch}
@@ -498,7 +498,7 @@ const Board: React.FC<{
                 lineHeight: 1.15,
                 color: '#fff',
                 opacity: seat,
-                transform: `translateY(${(1 - seat) * 24}px) scale(${solved ? 1 + 0.12 * (1 - prog(frame, revealAt, 16, elasticOut)) : 1})`,
+                transform: `translateY(${(1 - seat) * 24 * K}px) scale(${solved ? 1 + 0.12 * (1 - prog(frame, revealAt, 16, elasticOut)) : 1})`,
               }}
             >
               {row.icons.map((icon, k) => (

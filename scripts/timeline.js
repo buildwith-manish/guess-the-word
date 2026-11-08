@@ -73,7 +73,7 @@ const main = async () => {
     return acc;
   }, {});
 
-  console.log(`\n  Guess the Word — ${QUESTIONS.length} questions · authored at ${FPS} fps / 1920x1080 · output ${RENDER_FPS} fps / 2560x1440`);
+  console.log(`\n  Guess the Word — ${QUESTIONS.length} questions · native 2560x1440 @ ${RENDER_FPS} fps`);
   console.log(`  total ${TIMELINE.totalFrames} design frames (${fmt(TIMELINE.totalFrames, FPS)}) = ${RENDER_TOTAL_FRAMES} output frames @ ${RENDER_FPS} fps`);
   console.log(`  segments: ${Object.entries(counts).map(([k, v]) => `${k}×${v}`).join('  ')}\n`);
 

@@ -4,6 +4,7 @@
  * the frame, this module mixes them into style values. Deterministic, pure,
  * and safe to call for any frame in any order (parallel render lanes).
  */
+import { K } from './style';
 import {
   backOut,
   expoOut,
@@ -29,7 +30,7 @@ export const revealIn = (frame: number, start: number, duration = 14, fromY = 30
   const p = prog(frame, start, duration, expoOut);
   return {
     opacity: clamp01((frame - start) / Math.max(1, duration * 0.5)),
-    transform: `translate3d(0, ${mix(fromY, 0, p)}px, 0)`,
+    transform: `translate3d(0, ${mix(fromY * K, 0, p)}px, 0)`,
     p,
   };
 };
@@ -44,7 +45,7 @@ export const slamIn = (frame: number, start: number, duration = 16) => {
     // fade like slam(): visible within the first frames, never "black on black"
     opacity: clamp01((frame - start) / 3),
     transform: `scale(${scale})`,
-    filter: `blur(${mix(14, 0, clamp01(raw / 0.68))}px)`,
+    filter: `blur(${mix(14 * K, 0, clamp01(raw / 0.68))}px)`,
     raw,
   };
 };
@@ -151,7 +152,7 @@ export const springStyle = (
   frame: number,
   start: number,
   durMs = 950,
-  fromY = 150,
+  fromY = 150 * K,
   rot = -35,
 ) => {
   const t = clamp01((frame - start) / ms(durMs));
@@ -163,7 +164,7 @@ export const springStyle = (
 };
 
 /** The HTML's rise(): translateY(30px) -> 0 and opacity 0 -> 1 on EASE, `d` ms. */
-export const riseStyle = (frame: number, start: number, dMs = 600, fromY = 30) => {
+export const riseStyle = (frame: number, start: number, dMs = 600, fromY = 30 * K) => {
   const p = htmlEase(clamp01((frame - start) / ms(dMs)));
   return { opacity: p, transform: `translateY(${(1 - p) * fromY}px)` };
 };

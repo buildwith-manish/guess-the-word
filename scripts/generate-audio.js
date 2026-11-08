@@ -28,7 +28,7 @@ const settings = JSON.parse(fs.readFileSync(path.join(ROOT, 'settings.json'), 'u
 const OUT = path.resolve(ROOT, settings.sound && settings.sound.dir ? settings.sound.dir : 'public/sounds');
 
 const SR = 44100;
-const FPS = settings.fps || 30;
+const FPS = 30; // motion ticks per second (matches src/timing.ts FPS)
 /** The HTML's context master gain (0.5). Baked into the files together with the
  *  loudness trims from settings.json -> sound, so Remotion plays everything at volume <= 1.
  *  (The browser quiz is played through speakers at the viewer's volume; a rendered

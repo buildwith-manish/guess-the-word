@@ -1,6 +1,6 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { COLORS, px } from './style';
+import { COLORS, px, K } from './style';
 import { makeRandom } from './util';
 
 const Scene: React.FC<{ frame: number; theme: [string, string] }> = ({ frame, theme }) => {
@@ -58,8 +58,8 @@ const DEPTH_PARTICLES = LAYERS.map((L) => {
  */
 const Depth: React.FC<{ frame: number; theme: [string, string]; opacity: number }> = ({ frame, theme, opacity }) => {
   const t = frame / 30;
-  const H = 1080;
-  const W = 1920;
+  const H = 1440;
+  const W = 2560;
   return (
     <AbsoluteFill style={{ opacity, pointerEvents: 'none' }}>
       {LAYERS.map((L, li) =>
@@ -154,7 +154,7 @@ export const Background: React.FC<{
   /** 0..1 opacity of the parallax dust layers (0 = off) */
   depth?: number;
 }> = ({ frame, theme, pulse = 0, dim = 0, iris, depth = 0 }) => {
-  const drift = ((frame / (16 * 30)) % 1) * 60;
+  const drift = ((frame / (16 * 30)) % 1) * 60 * K;
   return (
     <AbsoluteFill style={{ background: COLORS.base }}>
       <Scene frame={frame} theme={theme} />
@@ -162,8 +162,8 @@ export const Background: React.FC<{
       <AbsoluteFill
         style={{
           backgroundImage:
-            'linear-gradient(rgba(255,255,255,0.045) 1px, rgba(0,0,0,0) 1px), linear-gradient(90deg, rgba(255,255,255,0.045) 1px, rgba(0,0,0,0) 1px)',
-          backgroundSize: '60px 60px',
+            `linear-gradient(rgba(255,255,255,0.045) ${K}px, rgba(0,0,0,0) ${K}px), linear-gradient(90deg, rgba(255,255,255,0.045) ${K}px, rgba(0,0,0,0) ${K}px)`,
+          backgroundSize: `${60 * K}px ${60 * K}px`,
           backgroundPosition: `${drift}px ${drift}px`,
           WebkitMaskImage: 'radial-gradient(ellipse 70% 65% at 50% 45%, #000 20%, rgba(0,0,0,0) 85%)',
           maskImage: 'radial-gradient(ellipse 70% 65% at 50% 45%, #000 20%, rgba(0,0,0,0) 85%)',

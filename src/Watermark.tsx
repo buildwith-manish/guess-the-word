@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDesignFrame } from './clock';
-import { COLORS, FONTS, px } from './style';
+import { COLORS, FONTS, px, K } from './style';
 import { prog, breathe, htmlEase, cssEase, ms } from './anim';
 import settings from '../settings.json';
 
@@ -56,7 +56,7 @@ export const Watermark: React.FC<{ frame?: number }> = () => {
           border: `${px(1.44)}px solid rgba(255,255,255,0.22)`,
           backdropFilter: `blur(${px(10)}px)`,
           opacity: entry,
-          transform: `translateY(${(1 - entry) * -12}px) scale(${0.92 + 0.08 * entry})`,
+          transform: `translateY(${(1 - entry) * -12 * K}px) scale(${0.92 + 0.08 * entry})`,
         }}
       >
         <svg
