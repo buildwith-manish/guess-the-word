@@ -67,7 +67,7 @@
 ---
 
 [curious] Which one doesn't belong? Drop it in the comments.
-[punchy] Odd one out! Erase one.
+[punchy] The carrot! Erase one.
 
 ---
 
@@ -104,7 +104,7 @@
 ---
 
 [focused] Count carefully — how many are there?
-[punchy] That's the count! Erase one.
+[punchy] Seven frogs! Erase one.
 
 ---
 
@@ -112,7 +112,7 @@
 ---
 
 [playful] Unscramble those letters — what's the word?
-[punchy] There it is! Erase one.
+[punchy] Penguin! Erase one.
 
 ---
 
@@ -151,7 +151,7 @@
 ---
 
 [teasing] Solve the last one — the math doesn't lie.
-[punchy] Nailed it! Erase one.
+[punchy] The answer's ten! Erase one.
 
 ---
 
@@ -188,7 +188,7 @@
 ---
 
 [intense] Two grids. One thing changed. Find it.
-[punchy] That's the difference! Last erase — final count.
+[punchy] The clock changed! Last erase — final count.
 
 ---
 
