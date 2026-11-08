@@ -66,7 +66,7 @@
 
 ---
 
-[excited] The carrot is a vegetable — the rest are all fruits. Carrot is the odd one out! Nail it and erase one wrong answer.
+[excited] Did you get it? That's the odd one out! Wrong answer erased — nice work.
 
 ---
 
@@ -102,7 +102,7 @@
 
 ---
 
-[celebratory] Seven frogs hiding in there! Did you get them all? Erase one wrong and keep going.
+[celebratory] Did you count them all? That's the number! Erase one wrong — keep going.
 
 ---
 
@@ -140,7 +140,7 @@
 
 ---
 
-[punchy] Apple four, star six, car five — add them up and you get FIFTEEN! Erase one more wrong.
+[punchy] Did you solve it? That's the answer! Erase one more wrong.
 
 ---
 
