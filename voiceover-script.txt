@@ -3,7 +3,7 @@
 ---
 
 [curious] You'd grab this before stepping outside in a storm.
-[punchy — snap it, no pause between words] Raincoat! Let's go.
+[punchy] Raincoat! Let's go.
 
 [playful] It lives in rivers — and it's also what happens when someone fakes their identity online.
 [punchy] Catfish! Only in English.
@@ -31,6 +31,11 @@
 
 [warm] It goes everywhere with you — and you always know when it's missing.
 [punchy] Handbag! Quite the glow-up.
+
+---
+
+[curious] Which one doesn't belong? Drop it in the comments.
+[punchy] The carrot! Erase one.
 
 ---
 
@@ -66,8 +71,8 @@
 
 ---
 
-[curious] Which one doesn't belong? Drop it in the comments.
-[punchy] The carrot! Erase one.
+[focused] Count carefully — how many are there?
+[punchy] Seven frogs! Erase one.
 
 ---
 
@@ -103,14 +108,6 @@
 
 ---
 
-[focused] Count carefully — how many are there?
-[punchy] Seven frogs! Erase one.
-
----
-
-
----
-
 [playful] Unscramble those letters — what's the word?
 [punchy] Penguin! Erase one.
 
@@ -130,8 +127,6 @@
 
 [amused] It's invisible, it's wireless, and it's named after a Viking king — go figure.
 [punchy] Bluetooth! Your headphones have Viking energy.
-
----
 
 [romantic] The most anticipated trip of someone's life — happens right after the big day.
 [genuinely-amazed] Honeymoon! One bee makes just a twelfth of a teaspoon in its whole life. Sweet by name, rare by nature.
