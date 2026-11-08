@@ -472,5 +472,27 @@
       "file": "outro.mp3",
       "seconds": 0
     }
+  },
+  "bq": {
+    "1": {
+      "file": "bq01.mp3",
+      "seconds": 0
+    },
+    "2": {
+      "file": "bq02.mp3",
+      "seconds": 0
+    },
+    "3": {
+      "file": "bq03.mp3",
+      "seconds": 0
+    },
+    "4": {
+      "file": "bq04.mp3",
+      "seconds": 0
+    },
+    "5": {
+      "file": "bq05.mp3",
+      "seconds": 0
+    }
   }
 }
