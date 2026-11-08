@@ -1,63 +1,118 @@
 #!/usr/bin/env python3
 """Scan voiceover clips and update voiceover-manifest.json.
 
-This repo plays voiceover natively via Remotion <Audio> + <Sequence> — no
-pre-mixing needed. But the voiceover-manifest.json must be regenerated
-whenever voiceover clips are added/changed.
+Clip naming convention:
+  qq01.mp3 ... qq50.mp3          question-phase clips (play during timer)
+  r01.mp3  ... r50.mp3           reveal clips (play after answer stamps in)
+  bonus01.mp3 ... bonus05.mp3    bonus round reveal clips
+  hook.mp3                       intro hook
+  reminder_10.mp3                reminder after Q10
+  reminder_25.mp3                reminder after Q25
+  reminder_40.mp3                reminder after Q40
+  scoreboard_intro.mp3           scoreboard intro
+  scoreboard_legend.mp3          rank: 0-3 wrong
+  scoreboard_expert.mp3          rank: 4-10 wrong
+  scoreboard_good.mp3            rank: 11-20 wrong
+  scoreboard_beginner.mp3        rank: 21-30 wrong
+  scoreboard_keepgoing.mp3       rank: 31+ wrong
+  outro.mp3                      end screen
 
-Run this AFTER uploading new voiceover clips to public/voiceover/:
+Run after uploading clips to public/voiceover/:
   python3 scripts/scan-voiceover.py
-
-Then run:  node scripts/voiceover-scan.js  (the Node version that does the same thing)
 """
-import os, json, subprocess, sys
+import os, json, subprocess, re
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-VO_DIR = os.path.join(ROOT, 'public', 'voiceover')
-MANIFEST = os.path.join(ROOT, 'src', 'voiceover-manifest.json')
+ROOT   = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+VO_DIR = os.path.join(ROOT, "public", "voiceover")
+MANIFEST = os.path.join(ROOT, "src", "voiceover-manifest.json")
 
 def get_duration(path):
-    r = subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration',
-                        '-of', 'csv=p=0', path], capture_output=True, text=True)
+    r = subprocess.run(
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+         "-of", "csv=p=0", path],
+        capture_output=True, text=True
+    )
     try:
         return float(r.stdout.strip())
-    except:
+    except Exception:
         return 0.0
 
 def main():
-    if not os.path.isdir(VO_DIR):
-        print(f"No voiceover directory at {VO_DIR}")
-        print("Creating it...")
-        os.makedirs(VO_DIR, exist_ok=True)
+    os.makedirs(VO_DIR, exist_ok=True)
 
-    manifest = {"q": {}, "bonus": {}}
+    manifest = {
+        "qq": {}, "q": {}, "bonus": {},
+        "hook": None,
+        "reminder": {},
+        "scoreboard": {}
+    }
 
     for f in sorted(os.listdir(VO_DIR)):
-        if not f.endswith(('.wav', '.mp3')):
+        if not re.search(r"\.(mp3|wav|m4a|aac|ogg|flac)$", f, re.I):
             continue
         path = os.path.join(VO_DIR, f)
         dur = get_duration(path)
         if dur <= 0:
+            print(f"  ! could not measure {f}")
             continue
 
-        # Parse: q01.wav -> q/1, bonus1.wav -> bonus/1
-        name = f.rsplit('.', 1)[0]
-        if name.startswith('q') and name[1:].isdigit():
-            qid = int(name[1:])
-            manifest["q"][str(qid)] = {"file": f, "seconds": round(dur, 2)}
-        elif name.startswith('bonus') and name[5:].isdigit():
-            bid = int(name[5:])
-            manifest["bonus"][str(bid)] = {"file": f, "seconds": round(dur, 2)}
+        entry = {"file": f, "seconds": round(dur, 3)}
 
-    with open(MANIFEST, 'w') as f:
-        json.dump(manifest, f, indent=2)
+        # qq## — question phase
+        m = re.match(r"^qq0*(\d+)\.", f, re.I)
+        if m:
+            manifest["qq"][str(int(m.group(1)))] = entry
+            continue
 
-    q_count = len(manifest["q"])
-    b_count = len(manifest["bonus"])
-    print(f"✅ Scanned {q_count + b_count} voiceover clips")
-    print(f"   Questions: {q_count}")
-    print(f"   Bonus: {b_count}")
-    print(f"   Manifest: {MANIFEST}")
+        # r## — reveal
+        m = re.match(r"^r0*(\d+)\.", f, re.I)
+        if m:
+            manifest["q"][str(int(m.group(1)))] = entry
+            continue
 
-if __name__ == '__main__':
+        # bonus##
+        m = re.match(r"^bonus0*(\d+)\.", f, re.I)
+        if m:
+            manifest["bonus"][str(int(m.group(1)))] = entry
+            continue
+
+        # hook
+        if re.match(r"^hook\.", f, re.I):
+            manifest["hook"] = entry
+            continue
+
+        # reminder_##
+        m = re.match(r"^reminder_(\d+)\.", f, re.I)
+        if m:
+            manifest["reminder"][m.group(1)] = entry
+            continue
+
+        # scoreboard_*
+        m = re.match(r"^(scoreboard_intro|scoreboard_legend|scoreboard_expert|scoreboard_good|scoreboard_beginner|scoreboard_keepgoing)\.", f, re.I)
+        if m:
+            key = m.group(1).replace("scoreboard_", "")
+            manifest["scoreboard"][key] = entry
+            continue
+
+        # outro
+        if re.match(r"^outro\.", f, re.I):
+            manifest["scoreboard"]["outro"] = entry
+            continue
+
+        print(f"  ! ignored {f} (unexpected name)")
+
+    with open(MANIFEST, "w") as fh:
+        json.dump(manifest, fh, indent=2)
+        fh.write("\n")
+
+    q  = len(manifest["q"])
+    qq = len(manifest["qq"])
+    b  = len(manifest["bonus"])
+    sc = len(manifest["scoreboard"])
+    print(f"\n  voiceover scan complete")
+    print(f"  {qq}/50 question clips (qq##) · {q}/50 reveal clips (r##) · {b}/5 bonus clips")
+    print(f"  hook: {'✓' if manifest['hook'] else '✗'} · reminders: {len(manifest['reminder'])}/3 · scoreboard: {sc}/6")
+    print(f"  manifest → {os.path.relpath(MANIFEST, ROOT)}\n")
+
+if __name__ == "__main__":
     main()
