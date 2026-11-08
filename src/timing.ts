@@ -33,7 +33,7 @@ export const OUTPUT_SCALE = settings.output.width / settings.width;
  */
 const VO = settings.voiceover;
 export type VoClip = { file: string; frames: number };
-export const voiceClip = (kind: 'q' | 'qq' | 'bonus', n: number): VoClip | undefined => {
+export const voiceClip = (kind: 'q' | 'qq' | 'bonus' | 'bq', n: number): VoClip | undefined => {
   if (!VO.enabled) return undefined;
   const e = (voManifest as Record<string, Record<string, { file: string; seconds: number }>>)[kind]?.[String(n)];
   return e ? { file: e.file, frames: Math.ceil(e.seconds * FPS) } : undefined;
@@ -181,6 +181,15 @@ export const bonusRevealHold = (bonusIndex: number) => {
     settings.bonus.revealHoldFrames,
     clip ? VO.offsetFrames + clip.frames + VO.tailFrames : 0,
   );
+};
+
+
+/** voiceover for a bonus question-phase: plays right after the pre-roll banner exits */
+export const bonusQuestionVoice = (bonusIndex: number) => {
+  const clip = voiceClip('bq', bonusIndex + 1);
+  return clip
+    ? { file: clip.file, frames: clip.frames, start: BONUS_CLOCK_START() + VO.offsetFrames }
+    : undefined;
 };
 
 /** voiceover for a bonus reveal: frame inside the bonus segment where it starts */
