@@ -66,7 +66,8 @@
 
 ---
 
-[excited] There it is — bonus round done. Count your erase and keep going.
+[curious] Which one doesn't belong? Drop it in the comments.
+[punchy] Odd one out! Erase one.
 
 ---
 
@@ -102,14 +103,16 @@
 
 ---
 
-[celebratory] Bonus round done. Check your count — erase one if you got it.
+[focused] Count carefully — how many are there?
+[punchy] That's the count! Erase one.
 
 ---
 
 
 ---
 
-[energetic] Bonus round done. Erase one if you nailed it — let's keep moving.
+[playful] Unscramble those letters — what's the word?
+[punchy] There it is! Erase one.
 
 ---
 
@@ -147,7 +150,8 @@
 
 ---
 
-[punchy] Bonus round done. Erase one if the math checked out.
+[teasing] Solve the last one — the math doesn't lie.
+[punchy] Nailed it! Erase one.
 
 ---
 
@@ -183,7 +187,8 @@
 
 ---
 
-[triumphant] Last bonus done. Erase one if you caught it — that's your final count.
+[intense] Two grids. One thing changed. Find it.
+[punchy] That's the difference! Last erase — final count.
 
 ---
 
