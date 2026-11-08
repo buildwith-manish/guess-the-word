@@ -8,7 +8,7 @@ import { makeConfetti } from './util';
 import type { BonusPuzzle } from './bonus-engine';
 import { Background } from './Background';
 import { Hud } from './Hud';
-import { BonusIcon } from './bonus-icons';
+import { BonusIcon, type IconName } from './bonus-icons';
 import settings from '../settings.json';
 
 const B = settings.bonus;
@@ -377,7 +377,7 @@ const Board: React.FC<{
                 boxShadow: win ? `0 0 ${px(60)}px rgba(52,211,153,0.67)` : undefined,
               }}
             >
-              <BonusIcon name={t} size={d.small ? px(110) : px(135)} />
+              <BonusIcon name={t as IconName} size={d.small ? px(110) : px(135)} />
             </div>
           );
         })}
@@ -418,7 +418,7 @@ const Board: React.FC<{
                 boxShadow: win ? `0 0 ${px(20)}px rgba(52,211,153,0.6)` : undefined,
               }}
             >
-              <BonusIcon name={c.ch} size={px(50)} />
+              <BonusIcon name={c.ch as IconName} size={px(50)} />
             </div>
           );
         })}
@@ -503,7 +503,7 @@ const Board: React.FC<{
             >
               {row.icons.map((icon, k) => (
                 <span key={k} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: px(d.fontSize * 0.92), height: px(d.fontSize * 0.92) }}>
-                  <BonusIcon name={icon} size={px(d.fontSize * 0.92)} />
+                  <BonusIcon name={icon as IconName} size={px(d.fontSize * 0.92)} />
                 </span>
               ))}
               <span style={{ margin: `0 ${px(6)}px` }}>=</span>
@@ -550,7 +550,7 @@ const Board: React.FC<{
               boxShadow: win ? `0 0 ${px(30)}px rgba(52,211,153,0.67)` : undefined,
             }}
           >
-            <BonusIcon name={e} size={px(70)} />
+            <BonusIcon name={e as IconName} size={px(70)} />
           </div>
         );
       })}
