@@ -41,7 +41,7 @@ def main():
     os.makedirs(VO_DIR, exist_ok=True)
 
     manifest = {
-        "qq": {}, "q": {}, "bonus": {},
+        "bq": {}, "qq": {}, "q": {}, "bonus": {},
         "hook": None,
         "reminder": {},
         "scoreboard": {}
@@ -57,6 +57,12 @@ def main():
             continue
 
         entry = {"file": f, "seconds": round(dur, 3)}
+
+        # bq## — bonus question phase
+        m = re.match(r"^bq0*(\d+)\.", f, re.I)
+        if m:
+            manifest["bq"][str(int(m.group(1)))] = entry
+            continue
 
         # qq## — question phase
         m = re.match(r"^qq0*(\d+)\.", f, re.I)
