@@ -1,0 +1,190 @@
+# Guess the Word Voiceover Script — with emotion directions
+
+This is the full guess-the-word voiceover script with `[emotion]` tags preserved for the voice talent or TTS engine. The companion `voiceover-lines-gtw.csv` has the same text with emotion tags stripped (for Whisper alignment).
+
+Total: 118 clips (1 intro + 50 question + 50 reveal + 5 bonus question + 5 bonus reveal + 6 scoreboard + 1 outro)
+
+Voice ID: 5XbWatCr4Q4ezek0ZhfT (ElevenLabs)
+
+---
+
+[pumped-up] Fifty words. Clock's ticking. Under four wrong makes you a legend. Go.
+
+[curious] You'd grab this before stepping outside in a storm.
+[punchy] Raincoat! Let's go.
+
+[playful] It lives in rivers — and it's also what happens when someone fakes their identity online.
+[punchy] Catfish! Only in English.
+
+[warm-nostalgic] Every kid had a dream of building one of these.
+[surprised] Treehouse! Some people actually live in them year-round. Not just for kids.
+
+[casual] You check this every single day without thinking about it.
+[punchy] Mailbox! Original notifications.
+
+[amused] Rock bands and farmers both swear by this — for very different reasons.
+[punchy] Cowbell! Always the right answer.
+
+[energetic] Pack it tight, launch it at your friend — classic winter move.
+[delighted] Snowball! Looks white — it's actually clear ice crystals. Mind blown.
+
+[grounded] No campfire without this — you need to prep it before dark.
+[punchy] Firewood! Patience pays.
+
+[relatable] Every student carries one — your ideas live in here.
+[punchy] Notebook! No wifi required.
+
+[intrigued] You crack it without thinking every morning — but it's more complex than it looks.
+[genuinely-amazed] Eggshell! Thousands of tiny pores — nature's built-in airflow system.
+
+[warm] It goes everywhere with you — and you always know when it's missing.
+[punchy] Handbag! Quite the glow-up.
+
+[curious] Which one doesn't belong? Drop it in the comments.
+[punchy] The carrot! Erase one.
+
+[playful] Hang it above your door for good luck — or nail it to something with four legs.
+[punchy] Horseshoe! Function and luck.
+
+[conspiratorial] Spies love it. Locksmiths need it. What's the word?
+[genuinely-amazed] Keyhole! The oldest known lock is four thousand years old. Privacy is ancient.
+
+[warm-nostalgic] Sunday morning, golden, stacked — you know exactly what this is.
+[punchy] Pancake! Timeless breakfast.
+
+[teasing] Every recipe calls for it — get this wrong and the whole dish is off.
+[punchy] Teaspoon! Zero excuses now.
+
+[reverent] Ships have trusted this in the dark for thousands of years.
+[genuinely-amazed] Lighthouse! The Pharos of Alexandria made the Seven Wonders of the World. An actual lighthouse.
+
+[amused] Loudest thing at the pond at night — and incredibly ambitious about what it'll eat.
+[punchy] Bullfrog! Incredibly ambitious.
+
+[deadpan] Set it carefully — you will definitely know when it works.
+[punchy] Mousetrap! Good luck with that.
+
+[dramatic] The most powerful seat in the room — historically, only leaders had one.
+[punchy] Armchair! Everyone's got one now.
+
+[admiring] Millions of workers built this — no manager, no meetings, no problem.
+[punchy] Anthill! Honestly? Respect.
+
+[breathless] Nature's most dramatic drop — you can hear it before you see it.
+[punchy] Waterfall! Absolutely breathtaking.
+
+[focused] Count carefully — how many are there?
+[punchy] Seven frogs! Erase one.
+
+[empathetic] Winding roads do this to you — your body just can't agree with itself.
+[genuinely-amazed] Carsick! Your eyes and ears send your brain two different signals. It just can't pick a side.
+
+[dry-wit] Rough to touch — but it makes everything else smoother.
+[punchy] Sandpaper! Scratchy by design.
+
+[cheerful] You'll spot this in almost every backyard — birds can't resist it.
+[punchy] Birdbath! Maintenance, not leisure.
+
+[tender] The most affectionate creature you can keep as a pet — tiny but devoted.
+[delighted] Lovebird! Actually a small parrot native to Africa. The name earns itself.
+
+[confident] Alert, loyal, always on duty — this one never clocks out.
+[punchy] Watchdog! In their DNA.
+
+[matter-of-fact] Without this, every drive in the rain would be a disaster.
+[punchy] Windshield! Drivers just got rained on before 1903. Respect.
+
+[casual] Every office wall, every corkboard — this tiny thing holds it all together.
+[surprised] Thumbtack! Patented in 1900 — in Britain they call it a drawing pin. Same thing.
+
+[playful] It wraps your sushi and carpets the ocean floor — same thing.
+[punchy] Seaweed! Technically algae. Everything's a lie.
+
+[warm-nostalgic] Mom's classic — been on dinner tables for longer than you'd think.
+[punchy] Meatloaf! Two-thousand-year head start.
+
+[wondering] One of nature's most beautiful transformations — the name makes no logical sense.
+[genuinely-amazed] Butterfly! They taste with their feet. Every step is a meal.
+
+[playful] Unscramble those letters — what's the word?
+[punchy] Penguin! Erase one.
+
+[casual] Stop at the light, wait for the signal — then use this.
+[punchy] Crosswalk! Same stripes, different names.
+
+[energetic] Beep beep — this real bird actually runs faster than you'd expect.
+[punchy] Roadrunner! Not an exaggeration.
+
+[intense] They move as one — coordinated, loyal, unstoppable together.
+[warm] Wolfpack! Usually just one family — parents and pups. Very intense reunion.
+
+[dramatic] Every kicker stares this down before the most important moment of the game.
+[punchy] Goalpost! They used tape in 1875.
+
+[amused] It's invisible, it's wireless, and it's named after a Viking king — go figure.
+[punchy] Bluetooth! Your headphones have Viking energy.
+
+[romantic] The most anticipated trip of someone's life — happens right after the big day.
+[genuinely-amazed] Honeymoon! One bee makes just a twelfth of a teaspoon in its whole life. Sweet by name, rare by nature.
+
+[dreamy] Your mind slips away mid-conversation — you're physically there but mentally gone.
+[punchy] Daydream! Technically productive.
+
+[playful] Gym class classic — looks easy until you actually try it.
+[punchy] Cartwheel! Still one of the coolest.
+
+[tender] You call someone this when words alone aren't enough.
+[warm] Sweetheart! Eight hundred years strong.
+
+[ceremonial] Thanksgiving tradition — whoever gets the bigger piece wins something intangible.
+[punchy] Wishbone! Thanksgiving just got competitive.
+
+[teasing] Solve the last one — the math doesn't lie.
+[punchy] The answer's ten! Erase one.
+
+[teasing] Why take the long way when there's a faster route?
+[punchy] Shortcut! Nature's GPS.
+
+[storytelling] Jack climbed one all the way to the giant — what's it called?
+[surprised] Beanstalk! These vines grow over six feet in a single season. Jack wasn't exaggerating.
+
+[tense] Cold sweat, heart racing, can't wake up fast enough — that feeling.
+[punchy] Nightmare! Your brain really commits.
+
+[playful] Up when your friend is down — it only works with two people.
+[punchy] Seesaw! Twice the fun name.
+
+[ominous] Water spinning so fast and powerful — you would not want to be near it.
+[genuinely-amazed] Whirlpool! Norway's Saltstraumen is one of the most powerful on Earth. Do not swim there.
+
+[empathetic] The quiet one at every party — standing back, watching everything unfold.
+[punchy] Wallflower! Had to become a metaphor.
+
+[intense] Athletes dread pulling this — one wrong move and you're done for weeks.
+[punchy] Hamstring! You will know.
+
+[carefree] No shoes, no socks — summer's best feeling underfoot.
+[genuinely-amazed] Barefoot! Each foot has twenty-six bones — a quarter of all bones in your body. Everything balanced on that.
+
+[high-stakes] The whole team depends on this one player — most pressure on the field.
+[punchy] Quarterback! Legends in single digits.
+
+[dramatic] Last one — it means complete and total nonsense. What's the word?
+[punchy] Hogwash! What a journey for a word.
+
+[intense] Two grids. One thing changed. Find it.
+[punchy] The clock changed! Last erase — final count.
+
+[grounded] All fifty. Subtract your bonus erases from your wrong answers. Here's how you did.
+
+[euphoric] Zero to three wrong — LEGEND. Crown and bragging rights. Incredible.
+
+[impressed] Four to ten wrong — EXPERT. Seriously solid.
+
+[warm] Eleven to twenty wrong — GOOD. You held your own.
+
+[encouraging] Twenty-one to thirty — BEGINNER. Come back and run it again.
+
+[motivating] Thirty-one or more — KEEP GOING. The emojis will click. Trust the process.
+
+[warm-energetic] Challenge a friend — tag them in the comments. Who scores better? Subscribe for a new quiz every week.

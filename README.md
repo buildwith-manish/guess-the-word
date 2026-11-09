@@ -324,3 +324,27 @@ seeded).
   `settings.json`, so you can re-skin the video without touching a component.
 * The reference HTML's WebAudio score is rendered to WAV files by
   `scripts/generate-audio.js` (Remotion mixes audio from files, not oscillators).
+
+## Backups
+
+After each finished video:
+
+1. **Commit everything** — make sure all content changes (`questions.js`, `settings.json`, `facts.csv`, `VIDEO_LOG.md`) are committed.
+2. **Create an annotated git tag** named `video-NN-final`:
+   ```bash
+   git tag -a video-01-final -m "Video 01 final: Guess the Word — 50 Words"
+   ```
+   Or use the helper: `./tag-video 01 "Guess the Word — 50 Words"`
+3. **Push the branch and the tag**:
+   ```bash
+   git push origin main
+   git push origin video-01-final
+   ```
+4. **Add a row to `VIDEO_LOG.md`** with the details.
+
+The `tag-video` helper script automates steps 1–3:
+```bash
+./tag-video 01 "Guess the Word — 50 Words" 5XbWatCr4Q4ezek0ZhfT
+```
+
+Large generated files (rendered `.mp4`s, the `out/` folder) are gitignored — back them up separately and record the location in `VIDEO_LOG.md`. Voiceover clips in `public/voiceover/` are tracked in git as the source of truth.

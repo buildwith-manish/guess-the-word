@@ -1,0 +1,119 @@
+id,type,text
+intro_1,intro,Fifty words. Clock's ticking. Under four wrong makes you a legend. Go.
+q01_question,question,You'd grab this before stepping outside in a storm.
+q01_reveal,reveal,Raincoat! Let's go.
+q02_question,question,It lives in rivers — and it's also what happens when someone fakes their identity online.
+q02_reveal,reveal,Catfish! Only in English.
+q03_question,question,Every kid had a dream of building one of these.
+q03_reveal,reveal,Treehouse! Some people actually live in them year-round. Not just for kids.
+q04_question,question,You check this every single day without thinking about it.
+q04_reveal,reveal,Mailbox! Original notifications.
+q05_question,question,Rock bands and farmers both swear by this — for very different reasons.
+q05_reveal,reveal,Cowbell! Always the right answer.
+q06_question,question,"Pack it tight, launch it at your friend — classic winter move."
+q06_reveal,reveal,Snowball! Looks white — it's actually clear ice crystals. Mind blown.
+q07_question,question,No campfire without this — you need to prep it before dark.
+q07_reveal,reveal,Firewood! Patience pays.
+q08_question,question,Every student carries one — your ideas live in here.
+q08_reveal,reveal,Notebook! No wifi required.
+q09_question,question,You crack it without thinking every morning — but it's more complex than it looks.
+q09_reveal,reveal,Eggshell! Thousands of tiny pores — nature's built-in airflow system.
+q10_question,question,It goes everywhere with you — and you always know when it's missing.
+q10_reveal,reveal,Handbag! Quite the glow-up.
+bonus01_question,bonus_question,Which one doesn't belong? Drop it in the comments.
+bonus01_reveal,bonus_reveal,The carrot! Erase one.
+q11_question,question,Hang it above your door for good luck — or nail it to something with four legs.
+q11_reveal,reveal,Horseshoe! Function and luck.
+q12_question,question,Spies love it. Locksmiths need it. What's the word?
+q12_reveal,reveal,Keyhole! The oldest known lock is four thousand years old. Privacy is ancient.
+q13_question,question,"Sunday morning, golden, stacked — you know exactly what this is."
+q13_reveal,reveal,Pancake! Timeless breakfast.
+q14_question,question,Every recipe calls for it — get this wrong and the whole dish is off.
+q14_reveal,reveal,Teaspoon! Zero excuses now.
+q15_question,question,Ships have trusted this in the dark for thousands of years.
+q15_reveal,reveal,Lighthouse! The Pharos of Alexandria made the Seven Wonders of the World. An actual lighthouse.
+q16_question,question,Loudest thing at the pond at night — and incredibly ambitious about what it'll eat.
+q16_reveal,reveal,Bullfrog! Incredibly ambitious.
+q17_question,question,Set it carefully — you will definitely know when it works.
+q17_reveal,reveal,Mousetrap! Good luck with that.
+q18_question,question,"The most powerful seat in the room — historically, only leaders had one."
+q18_reveal,reveal,Armchair! Everyone's got one now.
+q19_question,question,"Millions of workers built this — no manager, no meetings, no problem."
+q19_reveal,reveal,Anthill! Honestly? Respect.
+q20_question,question,Nature's most dramatic drop — you can hear it before you see it.
+q20_reveal,reveal,Waterfall! Absolutely breathtaking.
+bonus02_question,bonus_question,Count carefully — how many are there?
+bonus02_reveal,bonus_reveal,Seven frogs! Erase one.
+q21_question,question,Winding roads do this to you — your body just can't agree with itself.
+q21_reveal,reveal,Carsick! Your eyes and ears send your brain two different signals. It just can't pick a side.
+q22_question,question,Rough to touch — but it makes everything else smoother.
+q22_reveal,reveal,Sandpaper! Scratchy by design.
+q23_question,question,You'll spot this in almost every backyard — birds can't resist it.
+q23_reveal,reveal,"Birdbath! Maintenance, not leisure."
+q24_question,question,The most affectionate creature you can keep as a pet — tiny but devoted.
+q24_reveal,reveal,Lovebird! Actually a small parrot native to Africa. The name earns itself.
+q25_question,question,"Alert, loyal, always on duty — this one never clocks out."
+q25_reveal,reveal,Watchdog! In their DNA.
+q26_question,question,"Without this, every drive in the rain would be a disaster."
+q26_reveal,reveal,Windshield! Drivers just got rained on before 1903. Respect.
+q27_question,question,"Every office wall, every corkboard — this tiny thing holds it all together."
+q27_reveal,reveal,Thumbtack! Patented in 1900 — in Britain they call it a drawing pin. Same thing.
+q28_question,question,It wraps your sushi and carpets the ocean floor — same thing.
+q28_reveal,reveal,Seaweed! Technically algae. Everything's a lie.
+q29_question,question,Mom's classic — been on dinner tables for longer than you'd think.
+q29_reveal,reveal,Meatloaf! Two-thousand-year head start.
+q30_question,question,One of nature's most beautiful transformations — the name makes no logical sense.
+q30_reveal,reveal,Butterfly! They taste with their feet. Every step is a meal.
+bonus03_question,bonus_question,Unscramble those letters — what's the word?
+bonus03_reveal,bonus_reveal,Penguin! Erase one.
+q31_question,question,"Stop at the light, wait for the signal — then use this."
+q31_reveal,reveal,"Crosswalk! Same stripes, different names."
+q32_question,question,Beep beep — this real bird actually runs faster than you'd expect.
+q32_reveal,reveal,Roadrunner! Not an exaggeration.
+q33_question,question,"They move as one — coordinated, loyal, unstoppable together."
+q33_reveal,reveal,Wolfpack! Usually just one family — parents and pups. Very intense reunion.
+q34_question,question,Every kicker stares this down before the most important moment of the game.
+q34_reveal,reveal,Goalpost! They used tape in 1875.
+q35_question,question,"It's invisible, it's wireless, and it's named after a Viking king — go figure."
+q35_reveal,reveal,Bluetooth! Your headphones have Viking energy.
+q36_question,question,The most anticipated trip of someone's life — happens right after the big day.
+q36_reveal,reveal,"Honeymoon! One bee makes just a twelfth of a teaspoon in its whole life. Sweet by name, rare by nature."
+q37_question,question,Your mind slips away mid-conversation — you're physically there but mentally gone.
+q37_reveal,reveal,Daydream! Technically productive.
+q38_question,question,Gym class classic — looks easy until you actually try it.
+q38_reveal,reveal,Cartwheel! Still one of the coolest.
+q39_question,question,You call someone this when words alone aren't enough.
+q39_reveal,reveal,Sweetheart! Eight hundred years strong.
+q40_question,question,Thanksgiving tradition — whoever gets the bigger piece wins something intangible.
+q40_reveal,reveal,Wishbone! Thanksgiving just got competitive.
+bonus04_question,bonus_question,Solve the last one — the math doesn't lie.
+bonus04_reveal,bonus_reveal,The answer's ten! Erase one.
+q41_question,question,Why take the long way when there's a faster route?
+q41_reveal,reveal,Shortcut! Nature's GPS.
+q42_question,question,Jack climbed one all the way to the giant — what's it called?
+q42_reveal,reveal,Beanstalk! These vines grow over six feet in a single season. Jack wasn't exaggerating.
+q43_question,question,"Cold sweat, heart racing, can't wake up fast enough — that feeling."
+q43_reveal,reveal,Nightmare! Your brain really commits.
+q44_question,question,Up when your friend is down — it only works with two people.
+q44_reveal,reveal,Seesaw! Twice the fun name.
+q45_question,question,Water spinning so fast and powerful — you would not want to be near it.
+q45_reveal,reveal,Whirlpool! Norway's Saltstraumen is one of the most powerful on Earth. Do not swim there.
+q46_question,question,"The quiet one at every party — standing back, watching everything unfold."
+q46_reveal,reveal,Wallflower! Had to become a metaphor.
+q47_question,question,Athletes dread pulling this — one wrong move and you're done for weeks.
+q47_reveal,reveal,Hamstring! You will know.
+q48_question,question,"No shoes, no socks — summer's best feeling underfoot."
+q48_reveal,reveal,Barefoot! Each foot has twenty-six bones — a quarter of all bones in your body. Everything balanced on that.
+q49_question,question,The whole team depends on this one player — most pressure on the field.
+q49_reveal,reveal,Quarterback! Legends in single digits.
+q50_question,question,Last one — it means complete and total nonsense. What's the word?
+q50_reveal,reveal,Hogwash! What a journey for a word.
+bonus05_question,bonus_question,Two grids. One thing changed. Find it.
+bonus05_reveal,bonus_reveal,The clock changed! Last erase — final count.
+scoreboard_intro,scoreboard,All fifty. Subtract your bonus erases from your wrong answers. Here's how you did.
+scoreboard_legend,scoreboard,Zero to three wrong — LEGEND. Crown and bragging rights. Incredible.
+scoreboard_expert,scoreboard,Four to ten wrong — EXPERT. Seriously solid.
+scoreboard_good,scoreboard,Eleven to twenty wrong — GOOD. You held your own.
+scoreboard_beginner,scoreboard,Twenty-one to thirty — BEGINNER. Come back and run it again.
+scoreboard_keepgoing,scoreboard,Thirty-one or more — KEEP GOING. The emojis will click. Trust the process.
+outro,outro,Challenge a friend — tag them in the comments. Who scores better? Subscribe for a new quiz every week.
