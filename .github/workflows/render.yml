@@ -59,41 +59,35 @@ jobs:
       - name: Determine clips for this job
         id: clips
         run: |
-          python3 - <<'PY'
-          import json, os
-          # This repo renders in batches using render-batches.js
-          # For parallel GitHub Actions, we split the total frames into 20 groups
-          # and render each group as a single remotion render command
+          # Get the REAL total frames from Remotion itself (not a fallback guess)
+          # npx remotion compositions outputs JSON with the composition's durationInFrames
+          COMP_JSON=$(npx remotion compositions src/index.ts --json 2>/dev/null)
+          TOTAL=$(echo "$COMP_JSON" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['compositions'][0]['durationInFrames'])" 2>/dev/null || echo "0")
+          if [ "$TOTAL" = "0" ] || [ -z "$TOTAL" ]; then
+            echo "Could not get duration from remotion — using large fallback"
+            TOTAL=50000
+          fi
+          echo "Total frames: $TOTAL"
 
-          # Read timing to get total frames
-          import subprocess
-          r = subprocess.run(['node', '-e', '''
-          const { RENDER_TOTAL_FRAMES } = require('./src/timing.ts');
-          console.log(RENDER_TOTAL_FRAMES);
-          '''], capture_output=True, text=True)
+          GROUP=${{ matrix.group }}
+          NUM_GROUPS=40
+          # Calculate frame range for this group
+          PER_GROUP=$(( (TOTAL + NUM_GROUPS - 1) / NUM_GROUPS ))
+          START=$(( (GROUP - 1) * PER_GROUP ))
+          END=$(( START + PER_GROUP ))
+          if [ $END -gt $TOTAL ]; then
+            END=$TOTAL
+          fi
+          # Skip groups that have no frames (start >= total)
+          if [ $START -ge $TOTAL ]; then
+            START=0
+            END=0
+          fi
 
-          # Fallback: estimate from questions
-          # 50 questions × ~450 frames + 5 bonus × ~400 + hook + level cards + scoreboard + end
-          # At 60fps that's roughly 30000-35000 frames
-          total = 32000  # fallback
-          try:
-              total = int(r.stdout.strip())
-          except:
-              pass
-
-          group = int("${{ matrix.group }}") - 1  # 0-indexed
-          num_groups = 40
-          per_group = (total + num_groups - 1) // num_groups
-          start = group * per_group
-          end = min(start + per_group, total)
-
-          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
-              f.write(f"start={start}\n")
-              f.write(f"end={end}\n")
-              f.write(f"total={total}\n")
-
-          print(f"Group ${{ matrix.group }}: frames {start}-{end} of {total}")
-          PY
+          echo "start=$START" >> $GITHUB_OUTPUT
+          echo "end=$END" >> $GITHUB_OUTPUT
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+          echo "Group $GROUP: frames $START-$END of $TOTAL"
 
       - name: Render clips
         run: |
@@ -126,6 +120,14 @@ jobs:
           fi
 
           mkdir -p out/clips
+
+          # Skip rendering if this group has no frames (empty group)
+          if [ "$START" = "0" ] && [ "$END" = "0" ]; then
+            echo "Group ${{ matrix.group }}: no frames to render (empty group), skipping"
+            # Create a dummy 1-frame video so the artifact upload doesn't fail
+            ffmpeg -f lavfi -i color=c=black:s=2560x1440:d=1/60 -c:v libx264 -y "out/clips/group-${{ matrix.group }}.mp4" 2>/dev/null
+            exit 0
+          fi
 
           echo "Rendering frames $START-$END..."
           npx remotion render src/index.ts GuessTheWord "out/clips/group-${{ matrix.group }}.mp4" \
@@ -170,15 +172,26 @@ jobs:
           echo "Clips found:"
           ls -la out/clips/
 
+          # Build concat list in group order (1-40), skipping empty/dummy clips
           > concat.txt
-          for i in $(seq 1 20); do
-            if [ -f "out/clips/group-$i.mp4" ]; then
-              echo "file 'out/clips/group-$i.mp4'" >> concat.txt
+          for i in $(seq 1 40); do
+            CLIP="out/clips/group-$i.mp4"
+            if [ -f "$CLIP" ]; then
+              # Check if clip is more than 1 second (skip dummy 1-frame clips)
+              DURATION=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$CLIP" 2>/dev/null || echo "0")
+              if (( $(echo "$DURATION > 1.0" | bc -l 2>/dev/null || echo 0) )); then
+                echo "file '$CLIP'" >> concat.txt
+                echo "  group-$i.mp4: ${DURATION}s — included"
+              else
+                echo "  group-$i.mp4: ${DURATION}s — SKIPPED (too short)"
+              fi
             fi
           done
 
+          echo ""
           echo "Concatenating..."
-          ffmpeg -y -v error -f concat -safe 0 -i concat.txt -c copy final_video.mp4
+          # Use re-encode for the concat (stream copy can fail when clips have different encoding params)
+          ffmpeg -y -v error -f concat -safe 0 -i concat.txt -c:v libx264 -crf 18 -preset fast -c:a aac -b:a 384k -movflags +faststart final_video.mp4
           ls -la final_video.mp4
           ffprobe -v error -show_entries format=duration -of csv=p=0 final_video.mp4
 
