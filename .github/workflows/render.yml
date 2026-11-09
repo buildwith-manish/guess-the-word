@@ -11,6 +11,10 @@ on:
         description: 'Quality (1440p or 1080p)'
         required: false
         default: '1440p'
+      resume_from_run:
+        description: 'Resume from a previous run ID (skip rendering, reuse artifacts). Leave empty for full render.'
+        required: false
+        default: ''
 
 jobs:
   render:
@@ -56,29 +60,61 @@ jobs:
             echo "No voiceover directory — skipping"
           fi
 
+      # ============================================================
+      # RESUME FROM ARTIFACTS: if a previous run ID is provided,
+      # download that run's clip for this group and skip rendering.
+      # ============================================================
+      - name: Try downloading existing clip from previous run
+        id: resume
+        if: ${{ github.event.inputs.resume_from_run != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: clips-group-${{ matrix.group }}
+          path: out/clips
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.inputs.resume_from_run }}
+        continue-on-error: true
+
+      - name: Check if clip already exists
+        id: check
+        run: |
+          if [ -f "out/clips/group-${{ matrix.group }}.mp4" ]; then
+            SIZE=$(stat -c%s "out/clips/group-${{ matrix.group }}.mp4" 2>/dev/null || echo "0")
+            if [ "$SIZE" -gt 100000 ]; then
+              echo "exists=true" >> $GITHUB_OUTPUT
+              echo "Clip already rendered ($(du -h out/clips/group-${{ matrix.group }}.mp4 | cut -f1)) — skipping render"
+            else
+              echo "exists=false" >> $GITHUB_OUTPUT
+              echo "Clip too small ($SIZE bytes) — will re-render"
+              rm -f "out/clips/group-${{ matrix.group }}.mp4"
+            fi
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "No existing clip — will render"
+          fi
+
+      # ============================================================
+      # DETERMINE CLIPS: get the real frame count from Remotion
+      # ============================================================
       - name: Determine clips for this job
         id: clips
+        if: steps.check.outputs.exists != 'true'
         run: |
-          # Get the REAL total frames from Remotion itself (not a fallback guess)
-          # npx remotion compositions outputs JSON with the composition's durationInFrames
           COMP_JSON=$(npx remotion compositions src/index.ts --json 2>/dev/null)
           TOTAL=$(echo "$COMP_JSON" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['compositions'][0]['durationInFrames'])" 2>/dev/null || echo "0")
           if [ "$TOTAL" = "0" ] || [ -z "$TOTAL" ]; then
-            echo "Could not get duration from remotion — using large fallback"
             TOTAL=50000
           fi
           echo "Total frames: $TOTAL"
 
           GROUP=${{ matrix.group }}
           NUM_GROUPS=40
-          # Calculate frame range for this group
           PER_GROUP=$(( (TOTAL + NUM_GROUPS - 1) / NUM_GROUPS ))
           START=$(( (GROUP - 1) * PER_GROUP ))
           END=$(( START + PER_GROUP ))
           if [ $END -gt $TOTAL ]; then
             END=$TOTAL
           fi
-          # Skip groups that have no frames (start >= total)
           if [ $START -ge $TOTAL ]; then
             START=0
             END=0
@@ -89,14 +125,17 @@ jobs:
           echo "total=$TOTAL" >> $GITHUB_OUTPUT
           echo "Group $GROUP: frames $START-$END of $TOTAL"
 
+      # ============================================================
+      # RENDER: only runs if the clip doesn't already exist
+      # ============================================================
       - name: Render clips
+        if: steps.check.outputs.exists != 'true'
         run: |
           START=${{ steps.clips.outputs.start }}
           END=${{ steps.clips.outputs.end }}
           MOTION_BLUR="${{ inputs.motion_blur }}"
           QUALITY="${{ inputs.quality }}"
 
-          # Set motion blur mode in settings.json
           if [ "$MOTION_BLUR" = "true" ]; then
             python3 -c "
           import json
@@ -121,10 +160,8 @@ jobs:
 
           mkdir -p out/clips
 
-          # Skip rendering if this group has no frames (empty group)
           if [ "$START" = "0" ] && [ "$END" = "0" ]; then
             echo "Group ${{ matrix.group }}: no frames to render (empty group), skipping"
-            # Create a dummy 1-frame video so the artifact upload doesn't fail
             ffmpeg -f lavfi -i color=c=black:s=2560x1440:d=1/60 -c:v libx264 -y "out/clips/group-${{ matrix.group }}.mp4" 2>/dev/null
             exit 0
           fi
@@ -147,6 +184,9 @@ jobs:
           path: out/clips/*.mp4
           retention-days: 3
 
+  # ============================================================
+  # CONCAT AND UPLOAD: downloads all clips, joins, uploads to YT
+  # ============================================================
   concat-and-upload:
     needs: render
     runs-on: ubuntu-latest
@@ -164,20 +204,29 @@ jobs:
           path: all-clips
           pattern: clips-group-*
           merge-multiple: true
+        continue-on-error: true
+
+      - name: Move clips to out/clips
+        run: |
+          mkdir -p out/clips
+          if [ -d "all-clips" ]; then
+            find all-clips -type f -name "*.mp4" -exec cp {} out/clips/ \;
+          fi
+          echo "=== clips in out/clips ==="
+          ls out/clips/ | wc -l
+          ls out/clips/ | head -10
+          if [ "$(ls out/clips/ | wc -l)" -eq 0 ]; then
+            echo "ERROR: No clips found! Artifact download may have failed."
+            exit 1
+          fi
 
       - name: Concatenate all clips
         run: |
-          mkdir -p out/clips
-          find all-clips -type f -name "*.mp4" -exec cp {} out/clips/ \;
-          echo "Clips found:"
-          ls -la out/clips/
-
           # Build concat list in group order (1-40), skipping empty/dummy clips
           > concat.txt
           for i in $(seq 1 40); do
             CLIP="out/clips/group-$i.mp4"
             if [ -f "$CLIP" ]; then
-              # Check if clip is more than 1 second (skip dummy 1-frame clips)
               DURATION=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$CLIP" 2>/dev/null || echo "0")
               if (( $(echo "$DURATION > 1.0" | bc -l 2>/dev/null || echo 0) )); then
                 echo "file '$CLIP'" >> concat.txt
@@ -190,7 +239,6 @@ jobs:
 
           echo ""
           echo "Concatenating..."
-          # Use re-encode for the concat (stream copy can fail when clips have different encoding params)
           ffmpeg -y -v error -f concat -safe 0 -i concat.txt -c:v libx264 -crf 18 -preset fast -c:a aac -b:a 384k -movflags +faststart final_video.mp4
           ls -la final_video.mp4
           ffprobe -v error -show_entries format=duration -of csv=p=0 final_video.mp4
@@ -213,7 +261,7 @@ jobs:
           python3 - <<'PY'
           import json, subprocess, os
           if not os.environ.get('CLIENT_SECRET') or not os.environ.get('REFRESH_TOKEN'):
-              print("No YouTube credentials — skipping upload")
+              print("YouTube secrets not set — skipping upload (artifact is still available)")
               exit(0)
           cs = json.loads(os.environ['CLIENT_SECRET'])
           info = cs.get("installed", cs.get("web", {}))
@@ -225,7 +273,7 @@ jobs:
               "-d", "grant_type=refresh_token"], capture_output=True, text=True)
           at = json.loads(r.stdout).get("access_token", "")
           if not at:
-              print("No access token"); exit(0)
+              print("No access token"); exit(1)
           print("Got token")
           meta = {"snippet":{"title":os.environ['TITLE'],"description":os.environ['DESC'],
                             "tags":os.environ['TAGS'].split(","),"categoryId":"24"},
@@ -237,15 +285,14 @@ jobs:
           uu = None
           for line in r1.stdout.split("\n"):
               if line.lower().startswith("location:"): uu = line.split(":",1)[1].strip(); break
-          if uu:
-              print(f"Uploading {os.path.getsize('final_video.mp4')/1e6:.1f}MB...")
-              r2 = subprocess.run(["curl", "-s", "-X", "PUT", "-H", "Content-Type: video/mp4",
-                  "--data-binary", "@final_video.mp4", uu], capture_output=True, text=True, timeout=3600)
-              try:
-                  vid = json.loads(r2.stdout).get("id", "")
-                  if vid: print(f"UPLOADED: https://www.youtube.com/watch?v={vid}")
-                  else: print(f"Response: {r2.stdout[:200]}")
-              except: print(f"Response: {r2.stdout[:200]}")
-          else:
-              print(f"No upload URL: {r1.stdout[:200]}")
+          if not uu:
+              print("No upload URL"); exit(1)
+          print(f"Uploading {os.path.getsize('final_video.mp4')/1e6:.1f}MB...")
+          r2 = subprocess.run(["curl", "-s", "-X", "PUT", "-H", "Content-Type: video/mp4",
+              "--data-binary", "@final_video.mp4", uu], capture_output=True, text=True, timeout=3600)
+          try:
+              vid = json.loads(r2.stdout).get("id", "")
+              if vid: print(f"UPLOADED: https://www.youtube.com/watch?v={vid}")
+              else: print(f"Response: {r2.stdout[:200]}")
+          except: print(f"Response: {r2.stdout[:200]}")
           PY
