@@ -82,7 +82,7 @@ jobs:
               pass
 
           group = int("${{ matrix.group }}") - 1  # 0-indexed
-          num_groups = 20
+          num_groups = 40
           per_group = (total + num_groups - 1) // num_groups
           start = group * per_group
           end = min(start + per_group, total)
