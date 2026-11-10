@@ -1,98 +1,99 @@
-# Video 3 — Guess the American Food by Emoji (50 questions + 5 bonus rounds)
+# Video 3 — Guess the American Food by Emoji (v2: rebus clues)
 
-Order inside each level: the first 2 questions are the tougher "hook" clues, then the rest get easier.
-Answers in brackets are also accepted.
+New rule for every clue: the emoji are a rebus (a sound, a pun or a mini-story), not "ingredient + ingredient".
+No answer shares a food word with the 100 words in ANSWERS.md (only exception: Apple Pie, your own example).
+First 2 questions of each level are the tougher hooks, then the rest get easier.
 
 ## Level 1 — Easy (Q1–Q20)
 
-| # | Emoji | Answer | Clue logic |
+| # | Emoji | Answer | Aha / logic |
 | --- | --- | --- | --- |
-| 1 | 🍗🧇 | Chicken and Waffles | chicken + waffle |
-| 2 | 🍬🍎 | Candy Apple | candy + apple |
-| 3 | 🧀🍝 | Mac and Cheese | cheese + pasta |
-| 4 | 🌽🐶 | Corn Dog | corn + dog |
-| 5 | 🥜🍇 | PB&J | peanut + grape jelly |
-| 6 | 🍎🥧 | Apple Pie | apple + pie |
-| 7 | 🦬🍗 | Buffalo Wings | buffalo + wing meat |
-| 8 | 🥛🍪 | Milk and Cookies | milk + cookie |
-| 9 | 🐔🍜 | Chicken Noodle Soup | chicken + noodles |
-| 10 | 🎃🥧 | Pumpkin Pie | pumpkin + pie |
-| 11 | 🍫🍪 | Chocolate Chip Cookies | chocolate + cookie |
-| 12 | 🍌🍞 | Banana Bread | banana + bread |
-| 13 | 🧀🍰 | Cheesecake | cheese + cake |
-| 14 | 🥛🍦 | Milkshake | milk + ice cream |
-| 15 | 🥕🍰 | Carrot Cake | carrot + cake |
-| 16 | 🥔🥗 | Potato Salad | potato + salad |
-| 17 | 🌶️🍲 | Chili | chili pepper + pot |
-| 18 | 🍳🍗 | Fried Chicken | frying pan + chicken |
-| 19 | 🥓🥚 | Bacon and Eggs | bacon + egg |
-| 20 | 🍿🧈 | Buttered Popcorn | popcorn + butter |
+| 1 | 🦬🪽 | Buffalo Wings | buffalo + wing |
+| 2 | 🏕️🔥🍫 | S'mores | the campfire treat: camp + fire + chocolate |
+| 3 | 🍎🥧 | Apple Pie | "as American as ..." |
+| 4 | 🎃🥧 | Pumpkin Pie | pumpkin + pie |
+| 5 | 🥛🫨 | Milkshake | milk + shaking face |
+| 6 | ☁️🍬 | Cotton Candy | a cloud made of candy |
+| 7 | 🥓🥬🍅 | BLT | each emoji = one letter: Bacon, Lettuce, Tomato |
+| 8 | ♣️🥪 | Club Sandwich | club (card suit) + sandwich |
+| 9 | 🇫🇷🍟 | French Fries | French flag + fries |
+| 10 | 🗽🍕 | New York Pizza | Statue of Liberty + pizza |
+| 11 | 🍳🍗 | Fried Chicken | frying pan + chicken |
+| 12 | 🐔🍜 | Chicken Noodle Soup | chicken + noodle bowl |
+| 13 | 🍅🥣 | Tomato Soup | tomato + soup bowl |
+| 14 | 🌶️🍲 | Chili | chili pepper in a pot |
+| 15 | ☕🍩 | Coffee and Donuts | coffee + donut |
+| 16 | 🦃🍂 | Thanksgiving Turkey | turkey + autumn leaves |
+| 17 | 🍁🍯 | Maple Syrup | maple leaf + syrup |
+| 18 | 🍊🧃 | Orange Juice [OJ] | orange + juice box |
+| 19 | 🍓🥗 | Fruit Salad | fruit + salad |
+| 20 | 🍫🍪 | Chocolate Chip Cookie | chocolate + cookie |
 
 ## Level 2 — Medium (Q21–Q35)
 
-| # | Emoji | Answer | Clue logic |
+| # | Emoji | Answer | Aha / logic |
 | --- | --- | --- | --- |
-| 21 | 🧀🥩 | Philly Cheesesteak [Cheesesteak] | cheese + steak |
-| 22 | 🦞🥖 | Lobster Roll | lobster + roll |
-| 23 | 🍋🥤 | Lemonade | lemon + drink |
-| 24 | 🍅🥣 | Tomato Soup | tomato + bowl |
-| 25 | 🥑🍞 | Avocado Toast | avocado + toast |
-| 26 | 😈🥚 | Deviled Eggs | devil + egg |
-| 27 | 🏕️🍫 | S'mores | campfire + chocolate |
-| 28 | 🍓🍰 | Strawberry Shortcake | strawberry + cake |
-| 29 | 🍇🍩 | Jelly Donut | grape jelly + donut |
-| 30 | 🍳🌯 | Breakfast Burrito | breakfast egg + burrito |
-| 31 | 🍖🔥 | BBQ Ribs [Barbecue Ribs] | meat on bone + fire |
-| 32 | 🍲🥩 | Pot Roast | pot + beef |
-| 33 | 🦀🍰 | Crab Cake | crab + cake |
-| 34 | 🍌🍮 | Banana Pudding | banana + pudding |
-| 35 | 🍠🍬 | Candied Yams | sweet potato + candy |
+| 21 | 🔮🍪 | Fortune Cookie | crystal ball = fortune |
+| 22 | 🍔🛝 | Sliders | burger + playground slide |
+| 23 | 🍫🥛 | Chocolate Milk | chocolate + milk |
+| 24 | 🍒🥤 | Cherry Cola | cherry + soda cup |
+| 25 | 🫚🥤 | Ginger Ale | ginger root + soda cup |
+| 26 | 🦞🥖 | Lobster Roll | lobster + roll |
+| 27 | 🍌🍮 | Banana Pudding | banana + pudding |
+| 28 | 🥾🥜 | Trail Mix | hiking boot + nuts |
+| 29 | 🍤🍸 | Shrimp Cocktail | shrimp + cocktail glass |
+| 30 | 🍲🥩 | Pot Roast | pot + beef |
+| 31 | 🦸🥪 | Hero Sandwich [Hero] | hero + sandwich |
+| 32 | 🤠🥗 | Ranch Dressing [Ranch] | cowboy + salad: a ranch salad dressing |
+| 33 | 🍠🍬 | Candied Yams | sweet potato + candy |
+| 34 | 🐔🍲🥧 | Chicken Pot Pie | chicken + pot + pie |
+| 35 | 🏄🥩 | Surf and Turf | surfing + steak |
 
 ## Level 3 — Hard (Q36–Q50)
 
-| # | Emoji | Answer | Clue logic |
+| # | Emoji | Answer | Aha / logic |
 | --- | --- | --- | --- |
-| 36 | 🍑👞 | Peach Cobbler | peach + cobbler (shoemaker) |
-| 37 | 🌶️💥 | Jalapeño Poppers | hot pepper + pop |
-| 38 | 🔮🍪 | Fortune Cookie | crystal ball (fortune) + cookie |
-| 39 | 🤫🐶 | Hush Puppies | hush + puppy |
-| 40 | 🪨🛣️ | Rocky Road | rock + road |
-| 41 | 🥔👶 | Tater Tots | potato + tot (small child) |
-| 42 | 🔑🍋 | Key Lime Pie | key + lime-family fruit |
-| 43 | 🐷🫘 | Pork and Beans | pig + beans |
-| 44 | 🍤🥣 | Shrimp and Grits | shrimp + bowl |
-| 45 | #️⃣🥔 | Hash Browns | hash sign + potato |
-| 46 | 🥩🍳 | Steak and Eggs | steak + egg |
-| 47 | 🍬🍵 | Sweet Tea | sweet + tea |
-| 48 | 🍫🍓 | Chocolate Covered Strawberries | chocolate + strawberry |
-| 49 | ☁️🍬 | Cotton Candy | cloud + candy |
-| 50 | 🧅💍 | Onion Rings | onion + ring |
+| 36 | 🤫🐶 | Hush Puppies | hush + puppy |
+| 37 | 🎉🥧 | Whoopie Pie | whoopee (party popper) + pie |
+| 38 | 🍑👞 | Peach Cobbler | peach + cobbler (shoemaker) |
+| 39 | 🥔👶 | Tater Tots | potato + tot (small child) |
+| 40 | 🌶️💥 | Jalapeño Poppers | hot pepper + pop |
+| 41 | #️⃣🥔 | Hash Browns | hash sign + potato |
+| 42 | 🫧🍬 | Bubble Gum | bubbles + candy |
+| 43 | 💥🪨 | Pop Rocks | pop + rocks |
+| 44 | 🍋💧 | Lemon Drop | lemon + drop |
+| 45 | 🦃🧸 | Stuffing | turkey + stuffed toy |
+| 46 | 🫠🥪 | Sloppy Joe | melting (sloppy) face + sandwich |
+| 47 | 🐷🛏️ | Pigs in a Blanket | pigs tucked in bed |
+| 48 | 🐚🥣 | Clam Chowder | clam shell + soup bowl |
+| 49 | 🥯🐟 | Bagel and Lox | bagel + (smoked) fish |
+| 50 | 🍇🥊 | Fruit Punch | fruit + punch (boxing glove) |
 
-## Fun facts (shown on every 3rd question, 8 words or fewer)
+## Fun facts (every 3rd question, 8 words or fewer)
 
-- Q3: Kraft launched boxed mac and cheese in 1937.
-- Q6: Apple pie recipes date back to 1300s England.
-- Q9: Campbell's launched chicken noodle soup in 1934.
-- Q12: Banana bread boomed during the Great Depression.
-- Q15: Carrots were once used to sweeten desserts.
-- Q18: Fried chicken is a cornerstone of Southern cooking.
-- Q21: The Philly cheesesteak was invented in the 1930s.
-- Q24: Campbell's tomato soup became an Andy Warhol icon.
-- Q27: First printed in a 1927 Girl Scout guide.
-- Q30: Breakfast burritos are hugely popular in New Mexico.
-- Q33: Maryland is famous for its blue crab cakes.
-- Q36: Georgia is nicknamed the Peach State.
-- Q39: Legend says fried scraps once hushed barking dogs.
-- Q42: Tater Tots were invented in 1953 in Oregon.
-- Q45: Hash comes from French "hacher", meaning to chop.
-- Q48: Chocolate-covered strawberries are a Valentine's Day favorite.
+- Q3: Apple pie recipes date back to 1300s England.
+- Q6: A dentist helped invent cotton candy in 1897.
+- Q9: Thomas Jefferson served fries at the White House.
+- Q12: Campbell's launched chicken noodle soup in 1934.
+- Q15: National Donut Day started in 1938.
+- Q18: Frozen orange juice concentrate debuted in the 1940s.
+- Q21: Fortune cookies were popularized in California, not China.
+- Q24: Coca-Cola was invented in Atlanta in 1886.
+- Q27: Bananas became popular in America around 1876.
+- Q30: Pot roast uses tough, budget-friendly cuts of beef.
+- Q33: Most American "yams" are actually sweet potatoes.
+- Q36: Legend says fried scraps once hushed barking dogs.
+- Q39: Tater Tots were invented in 1953 in Oregon.
+- Q42: Walter Diemer invented bubble gum in 1928.
+- Q45: Stuffing is also called dressing in the South.
+- Q48: Clam chowder is a New England classic.
 
-## Bonus rounds (one per level gate, after Q10 / Q20 / Q30 / Q40 / Q50)
+## Bonus rounds (after Q10 / Q20 / Q30 / Q40 / Q50)
 
 | # | Type | Puzzle | Answer |
 | --- | --- | --- | --- |
-| 1 | Odd One Out | 🍪 🍩 🍰 🥩 — which one is not a dessert? | Steak (🥩) |
-| 2 | Count It | Count the 🍕 slices hidden among 🍟 🌭 🥤 (7 slices in the grid) | 7 pizza slices |
+| 1 | Odd One Out | 🍪 🍩 🍰 🥩: which one is not a dessert? | Steak (🥩) |
+| 2 | Count It | Count the 🍕 slices hidden among 🍟 🌭 🥤 | 9 pizza slices |
 | 3 | Word Scramble | TZEPLER (hint 🥨) | PRETZEL |
-| 4 | Emoji Math | 🍔 + 🍔 = 10, 🍔 + 🍟 = 7, 🍟 + 🥤 = 5, so 🥤 = ? | 3 (🍔 = 5, 🍟 = 2, 🥤 = 3) |
-| 5 | Spot the Difference | A grid of 🍩 donuts hides one look-alike 🥯 bagel | The bagel (🥯) |
+| 4 | Emoji Math | 🍔 + 🍔 = 10, 🍔 + 🍟 = 7, 🍟 + 🥤 = 5, so 🥤 = ? | 3 (🍔 = 5, 🍟 = 2) |
+| 5 | Spot the Difference | A grid of 🍎 apples hides one look-alike 🍅 tomato | The tomato (🍅) |
