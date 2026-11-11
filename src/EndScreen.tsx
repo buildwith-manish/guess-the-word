@@ -5,7 +5,10 @@ import { prog, slamIn, revealIn } from './anim';
 import { elasticOut } from './gsap-helpers';
 import { makeConfetti } from './util';
 import { Background } from './Background';
+import { SubscribeButton3D } from './Solid3D';
 import settings from '../settings.json';
+
+const BUTTON_3D = !!(settings.threeD as { enabled?: boolean; subscribeButton?: boolean } | undefined)?.enabled && !!(settings.threeD as { subscribeButton?: boolean }).subscribeButton;
 
 const E = settings.endScreen;
 
@@ -152,6 +155,28 @@ export const EndScreen: React.FC<{ frame: number }> = ({ frame }) => {
           >
             ▶
           </div>
+          {BUTTON_3D ? (
+            // a real 3D subscribe button: pops in, then gets pressed every couple of seconds
+            <div style={{ opacity: srow.opacity, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: px(2) }}>
+              {frame >= 196 ? (
+                <SubscribeButton3D frame={frame} start={196} label={E.subscribe} width={px(420)} height={px(140)} />
+              ) : (
+                <div style={{ width: px(420), height: px(140) }} />
+              )}
+              <div
+                style={{
+                  fontFamily: FONTS.body,
+                  fontWeight: 800,
+                  fontSize: px(16),
+                  letterSpacing: px(4),
+                  color: 'rgba(255,255,255,0.8)',
+                  marginTop: px(-14),
+                }}
+              >
+                {E.subscribeSub}
+              </div>
+            </div>
+          ) : (
           <div
             style={{
               display: 'flex',
@@ -204,6 +229,7 @@ export const EndScreen: React.FC<{ frame: number }> = ({ frame }) => {
               </small>
             </div>
           </div>
+          )}
         </div>
       </AbsoluteFill>
 

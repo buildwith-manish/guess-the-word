@@ -5,7 +5,10 @@ import { Background } from './Background';
 import { prog, slamIn, revealIn } from './anim';
 import { backOut, linear } from './gsap-helpers';
 import { LEVELS, QUESTIONS } from './timing';
+import { Title3D } from './Solid3D';
 import settings from '../settings.json';
+
+const USE_3D = !!(settings.threeD as { enabled?: boolean; levelCards?: boolean } | undefined)?.enabled && !!(settings.threeD as { levelCards?: boolean }).levelCards;
 
 /** "LEVEL 1 / 3 — EASY — 20 QUESTIONS · 6 SECONDS EACH" between level blocks. */
 export const LevelCard: React.FC<{ frame: number; levelIndex: number }> = ({ frame, levelIndex }) => {
@@ -45,6 +48,12 @@ export const LevelCard: React.FC<{ frame: number; levelIndex: number }> = ({ fra
       >
         LEVEL {levelIndex + 1} / {LEVELS.length}
       </div>
+      {USE_3D ? (
+        // the level name as bevelled 3D letters: they tumble in, then sway gently under moving light
+        <div style={{ margin: `${px(6)}px 0 ${px(18)}px` }}>
+          <Title3D frame={frame} start={12} text={level.name} color={level.accent} width={px(1180)} height={px(250)} />
+        </div>
+      ) : (
       <div
         style={{
           fontFamily: FONTS.display,
@@ -60,6 +69,7 @@ export const LevelCard: React.FC<{ frame: number; levelIndex: number }> = ({ fra
       >
         {level.name}
       </div>
+      )}
       <div
         style={{
           fontFamily: FONTS.display,

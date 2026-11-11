@@ -5,7 +5,10 @@ import { prog, revealIn } from './anim';
 import { backOut } from './gsap-helpers';
 import { makeConfetti } from './util';
 import { Background } from './Background';
+import { RankBadge3D } from './Solid3D';
 import settings from '../settings.json';
+
+const BADGE_3D = !!(settings.threeD as { enabled?: boolean; rankBadge?: boolean } | undefined)?.enabled && !!(settings.threeD as { rankBadge?: boolean }).rankBadge;
 
 const RANKS = settings.scoreboard.ranks as string[][];
 
@@ -93,7 +96,18 @@ export const Scoreboard: React.FC<{ frame: number }> = ({ frame }) => {
                       : (glass(px(18)).boxShadow as string),
                 }}
               >
-                <span style={{ fontFamily: FONTS.emoji, fontSize: px(38), lineHeight: 1 }}>{r[1]}</span>
+                {isTop && BADGE_3D ? (
+                  // the top rank gets a real 3D crown; it spins in with its row and flashes when LEGEND lands
+                  <span style={{ position: 'relative', width: px(38), height: px(38), flex: 'none' }}>
+                    {frame >= at ? (
+                      <div style={{ position: 'absolute', left: -px(36), top: -px(36) }}>
+                        <RankBadge3D frame={frame} start={at} flashAt={legendAt} size={px(110)} />
+                      </div>
+                    ) : null}
+                  </span>
+                ) : (
+                  <span style={{ fontFamily: FONTS.emoji, fontSize: px(38), lineHeight: 1 }}>{r[1]}</span>
+                )}
                 <span
                   style={{
                     fontFamily: FONTS.display,
