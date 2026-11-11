@@ -27,6 +27,7 @@ import { BulbSting } from './Sting';
 import settings from '../settings.json';
 import { imageSrc, hasImage, clueSrc } from './assets';
 import { Card3D } from './Card3D';
+import { RevealStyle } from './RevealStyle';
 
 /** settings.json -> threeD: the answer card as a real 3D object (see Card3D.tsx). */
 const THREE_D = (settings as { threeD?: { enabled?: boolean; backgroundBlur?: number } }).threeD ?? {};
@@ -810,88 +811,90 @@ const ResultCard: React.FC<{
           transform: `rotate(${(frame / 360) * 360}deg)`,
         }}
       />
-      {use3d ? (
-        <Card3D frame={frame} start={start} exit={exit} index={index} word={word} />
-      ) : (
-      <div
-        style={{
-          position: 'relative',
-          width: S.resultImageW,
-          height: S.resultH,
-          borderRadius: px(30),
-          overflow: 'hidden',
-          background: 'linear-gradient(160deg, rgba(20,22,52,0.92), rgba(8,9,28,0.92))',
-          border: `${px(3)}px solid ${COLORS.yellow}`,
-          boxShadow: `0 0 0 ${px(8)}px rgba(255,255,255,0.06), 0 ${px(30)}px ${px(60)}px rgba(0,0,0,0.7), 0 0 ${px(80)}px rgba(255,201,60,0.45)`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        {showImage ? (
-          <>
-            <Img
-              src={imageSrc(index)}
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                display: 'block',
-                // slow "camera" push-in with a slight drift for the whole time the card is on screen
-                transform: `scale(${1.02 + 0.11 * kb}) translate(${-1.4 * kb}%, ${0.9 * kb}%)`,
-              }}
-            />
-            {/* cinematic grade: soft top gloss + bottom falloff */}
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                background:
-                  'linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 26%), linear-gradient(0deg, rgba(0,0,0,0.32) 0%, rgba(0,0,0,0) 38%)',
-              }}
-            />
-            {/* one-time light sweep as the card lands */}
-            {sheen > 0 && sheen < 1 ? (
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '-10%',
-                  height: '120%',
-                  width: '38%',
-                  left: `${-50 + 170 * cssEaseInOut(sheen)}%`,
-                  transform: 'skewX(-18deg)',
-                  background: 'linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.4), rgba(255,255,255,0))',
-                }}
-              />
-            ) : null}
-          </>
+      <RevealStyle frame={frame} start={start} exit={exit} questionId={index + 1}>
+        {use3d ? (
+          <Card3D frame={frame} start={start} exit={exit} index={index} word={word} />
         ) : (
           <div
             style={{
+              position: 'relative',
+              width: S.resultImageW,
+              height: S.resultH,
+              borderRadius: px(30),
+              overflow: 'hidden',
+              background: 'linear-gradient(160deg, rgba(20,22,52,0.92), rgba(8,9,28,0.92))',
+              border: `${px(3)}px solid ${COLORS.yellow}`,
+              boxShadow: `0 0 0 ${px(8)}px rgba(255,255,255,0.06), 0 ${px(30)}px ${px(60)}px rgba(0,0,0,0.7), 0 0 ${px(80)}px rgba(255,201,60,0.45)`,
               display: 'flex',
-              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: px(14),
-              width: '100%',
-              height: '100%',
             }}
           >
-            {/* no photo for this question: neutral placeholder only (no emoji pair, no big word) */}
-            <div
-              style={{
-                fontFamily: FONTS.display,
-                fontSize: px(64),
-                letterSpacing: px(8),
-                color: COLORS.muted,
-              }}
-            >
-              IMAGE HERE
-            </div>
+            {showImage ? (
+              <>
+                <Img
+                  src={imageSrc(index)}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    display: 'block',
+                    // slow "camera" push-in with a slight drift for the whole time the card is on screen
+                    transform: `scale(${1.02 + 0.11 * kb}) translate(${-1.4 * kb}%, ${0.9 * kb}%)`,
+                  }}
+                />
+                {/* cinematic grade: soft top gloss + bottom falloff */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background:
+                      'linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 26%), linear-gradient(0deg, rgba(0,0,0,0.32) 0%, rgba(0,0,0,0) 38%)',
+                  }}
+                />
+                {/* one-time light sweep as the card lands */}
+                {sheen > 0 && sheen < 1 ? (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '-10%',
+                      height: '120%',
+                      width: '38%',
+                      left: `${-50 + 170 * cssEaseInOut(sheen)}%`,
+                      transform: 'skewX(-18deg)',
+                      background: 'linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.4), rgba(255,255,255,0))',
+                    }}
+                  />
+                ) : null}
+              </>
+            ) : (
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: px(14),
+                  width: '100%',
+                  height: '100%',
+                }}
+              >
+                {/* no photo for this question: neutral placeholder only (no emoji pair, no big word) */}
+                <div
+                  style={{
+                    fontFamily: FONTS.display,
+                    fontSize: px(64),
+                    letterSpacing: px(8),
+                    color: COLORS.muted,
+                  }}
+                >
+                  IMAGE HERE
+                </div>
+              </div>
+            )}
           </div>
         )}
-      </div>
-      )}
+      </RevealStyle>
       <Ring frame={frame} start={start} />
       <Ring frame={frame} start={start + ms(160)} />
     </div>
