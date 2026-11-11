@@ -266,5 +266,37 @@
   "threeD": {
     "enabled": true,
     "backgroundBlur": 4
-  }
+  },
+  "background": {
+    "calm": 0.5,
+    "spotlightCalm": 0.35,
+    "dustCalm": 0.4,
+    "riseMs": 900
+  },
+  "levelMood": [
+    {
+      "speed": 0.85,
+      "peak": 1.0,
+      "vignette": 0.0,
+      "ember": 0.0,
+      "pulse": 0.0,
+      "accentMix": 0.0
+    },
+    {
+      "speed": 1.0,
+      "peak": 1.15,
+      "vignette": 0.06,
+      "ember": 0.08,
+      "pulse": 0.05,
+      "accentMix": 0.15
+    },
+    {
+      "speed": 1.6,
+      "peak": 1.5,
+      "vignette": 0.14,
+      "ember": 0.22,
+      "pulse": 0.12,
+      "accentMix": 0.4
+    }
+  ]
 }

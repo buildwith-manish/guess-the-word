@@ -5,6 +5,7 @@ import { Hud } from './Hud';
 import { Watermark } from './Watermark';
 import { TitleLockup } from './TitleLockup';
 import { prog, irisEase } from './anim';
+import { BONUS_THEME } from './timing';
 import type { Segment } from './types';
 
 type IrisSegment = Extract<Segment, { kind: 'iris' }>;
@@ -17,9 +18,13 @@ type IrisSegment = Extract<Segment, { kind: 'iris' }>;
  */
 export const Iris: React.FC<{ frame: number; seg: IrisSegment }> = ({ frame, seg }) => {
   const p = prog(frame, 0, seg.duration, irisEase);
+  // question backdrops are calm; only the orange bonus backdrop is already at full energy
+  const isBonus = (t: [string, string]) => t.join() === BONUS_THEME.join();
+  const fromEnergy = isBonus(seg.fromTheme) ? undefined : 0;
+  const toEnergy = isBonus(seg.toTheme) ? undefined : 0;
   return (
     <AbsoluteFill>
-      <Background frame={frame} theme={seg.fromTheme} iris={{ theme: seg.toTheme, p, variant: seg.variant }} />
+      <Background frame={frame} theme={seg.fromTheme} energy={fromEnergy} iris={{ theme: seg.toTheme, p, variant: seg.variant, energy: toEnergy }} />
       {seg.title ? <TitleLockup frame={frame} animate={false} /> : null}
       <Hud
         label={seg.hud.label}

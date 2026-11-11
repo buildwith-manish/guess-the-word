@@ -1,7 +1,7 @@
 import React from 'react';
 import { AbsoluteFill, Img } from 'remotion';
 import { COLORS, FONTS, S, px, glass } from './style';
-import { buildQuestionPlan, QUESTIONS, TOTAL, themeForQuestion } from './timing';
+import { buildQuestionPlan, QUESTIONS, TOTAL, themeForQuestion, levelMoodFor } from './timing';
 import {
   prog,
   htmlEase,
@@ -125,6 +125,14 @@ export const Round: React.FC<{
   // parallax dust fades in with the question and out as the answer card exits
   const depthOpacity = camCfg.depth ? clamp01((frame - lead) / 14) * (1 - clamp01((frame - plan.exit) / ms(300))) : 0;
 
+  // background energy: calm behind the clues (low aurora, soft centre light, sparse dust) so the
+  // emoji keep their contrast; it opens up as the letters flip and peaks with the answer card
+  const energy =
+    frame < plan.flips
+      ? 0
+      : cssEaseOut(clamp01((frame - plan.flips) / ms(settings.background.riseMs))) *
+        (1 - cssEaseIn(clamp01((frame - plan.exit) / ms(300))));
+
   const bgBlur =
     THREE_D.enabled && THREE_D.backgroundBlur && hasImage(index)
       ? px(THREE_D.backgroundBlur) *
@@ -147,7 +155,7 @@ export const Round: React.FC<{
           filter: bgBlur > 0.01 ? `blur(${bgBlur}px)` : undefined,
         }}
       >
-        <Background frame={frame} theme={theme} hideBars pulse={edgePulse} depth={depthOpacity} />
+        <Background frame={frame} theme={theme} hideBars pulse={edgePulse} depth={depthOpacity} energy={energy} mood={levelMoodFor(levelIndex)} />
       </AbsoluteFill>
       <Hud label="Q" number={index + 1} total={TOTAL} erases={erases} frame={frame} landedAt={plan.stamp} barFrame={frame - lead} />
       <Watermark />

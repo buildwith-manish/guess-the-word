@@ -100,9 +100,30 @@ export type QuestionPlan = {
   vqQuestion?: { file: string; start: number; frames: number };
 };
 
-/** Colour pair behind question `index`: the HTML switches theme on EVERY question (LV[n % 5]). */
-export const themeForQuestion = (index: number): [string, string] =>
-  (THEMES[index % THEMES.length] ?? THEMES[0]) as [string, string];
+const mixHex = (a: string, b: string, k: number) => {
+  const ch = (h: string, i: number) => parseInt(h.slice(1 + i * 2, 3 + i * 2), 16);
+  const out = [0, 1, 2].map((i) => Math.round(ch(a, i) + (ch(b, i) - ch(a, i)) * k));
+  return '#' + out.map((v) => v.toString(16).padStart(2, '0')).join('');
+};
+
+/** Per-level mood (settings.levelMood): speed / reveal peak / vignette / edge ember / pulse / accent mix. */
+export type LevelMood = { speed: number; peak: number; vignette: number; ember: number; pulse: number; accentMix: number };
+export const levelMoodFor = (levelIndex: number): LevelMood =>
+  ((settings.levelMood as LevelMood[])[levelIndex] ?? (settings.levelMood as LevelMood[])[0]);
+
+/**
+ * Colour pair behind question `index`: the HTML switches theme on EVERY question (LV[n % 5]).
+ * The pair is nudged toward the level's own accent / background (settings.levelMood.accentMix), so
+ * Easy keeps the pure palette and Hard drifts warmer and darker without losing the variety.
+ */
+export const themeForQuestion = (index: number): [string, string] => {
+  const base = (THEMES[index % THEMES.length] ?? THEMES[0]) as [string, string];
+  const q = QUESTIONS[index];
+  const lv = q ? LEVELS[Math.max(0, LEVELS.findIndex((l) => l.name === q.level))] : undefined;
+  if (!lv) return base;
+  const k = levelMoodFor(Math.max(0, LEVELS.indexOf(lv))).accentMix;
+  return k > 0 ? [mixHex(base[0], lv.accent, k), mixHex(base[1], lv.bg, k)] : base;
+};
 
 /** Orange backdrop of every bonus round (the HTML's TGB). */
 export const BONUS_THEME = settings.bonus.theme as [string, string];
