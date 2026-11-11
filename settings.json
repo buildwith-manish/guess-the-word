@@ -255,7 +255,13 @@
     "enabled": true,
     "dir": "public/sounds",
     "sfxGain": 3,
-    "musicGain": 2.5
+    "musicGain": 2.5,
+    "panic": {
+      "riserFrames": 30,
+      "hushFloor": 0.0,
+      "hushRamp": 3,
+      "stampBoomVolume": 0.9
+    }
   },
   "threeD": {
     "enabled": true,

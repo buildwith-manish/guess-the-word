@@ -48,6 +48,10 @@ const intensityForQuestion = (n: number) => [0, 1, 1, 2, 2][Math.min(4, Math.flo
 /** A voiceover clip placed on the timeline (absolute design frame, length in design frames). */
 export type Voice = { frame: number; file: string; frames: number };
 const VOICE_LIST: Voice[] = [];
+
+/** Windows where the music drops out completely (the silent beat before an answer lands). */
+const HUSHES: { from: number; to: number }[] = [];
+const PANIC = settings.sound.panic;
 export const VOICE_DIR = settings.voiceover.dir;
 
 const buildCues = (): Cue[] => {
@@ -110,6 +114,9 @@ const buildCues = (): Cue[] => {
         ticks(base + plan.timerStart, plan.timerSeconds, 'tick-low');
         plan.free.forEach((fl) => add(base + fl.at, 'flip'));
 
+        // timer panic: a one-second riser swells into the clock's end, cut dead as the letters start
+        add(base + Math.max(plan.timerStart, plan.flips - PANIC.riserFrames), 'riser');
+
         // clock ends: bulbs flare, then every letter flips with a rising tone
         add(base + plan.flips, 'flare');
         add(base + plan.flips + 5, 'flare');
@@ -120,8 +127,12 @@ const buildCues = (): Cue[] => {
         // streak milestone chip pops in just after the answer lands
         if ((settings.streak.milestones as number[]).includes(seg.index + 1)) add(base + plan.stamp + 12, 'ding-hi');
 
+        // the beat: music drops out once the last letter has flipped and stays gone until the card lands
+        HUSHES.push({ from: Math.round(base + plan.lettersDone), to: Math.round(base + plan.stamp) });
+
         // emojis merge into the answer card
         add(base + plan.stamp - 16, 'whoosh');
+        add(base + plan.stamp, 'boom', { volume: PANIC.stampBoomVolume });
         add(base + plan.stamp + 6, 'stamp');
         add(base + plan.stamp + 10, 'chime-arp');
         // signature: the lightbulb stamp lands 7 frames after the card springs in (see Sting.tsx)
@@ -140,6 +151,8 @@ const buildCues = (): Cue[] => {
         // last 3 seconds are a heartbeat, the rest are ticks; a 2s drumroll rides the end
         ticks(clockStart, seg.puzzle.seconds, 'thump');
         if (seg.puzzle.seconds > 3) add(clockEnd - 2 * FPS, 'drumroll');
+        // music cuts just before the stamp so the drumroll lands on silence
+        HUSHES.push({ from: Math.round(clockEnd - 9), to: Math.round(clockEnd) });
         add(clockEnd, 'stamp');
         add(clockEnd + settings.bonus.answerChipDelayFrames, 'chime-erase');
         // Bonus question voiceover: plays right after the pre-roll banner
@@ -246,6 +259,15 @@ const buildMusicEnvelopes = (): Float32Array[] => {
     for (let f = Math.max(0, c.frame); f < Math.min(n, c.frame + duckFrames + recover * 4); f++) {
       const dt = f - c.frame;
       const v = dt < duckFrames ? DUCK_FLOOR : 1 - (1 - DUCK_FLOOR) * Math.exp(-(dt - duckFrames) / recover);
+      if (v < duck[f]) duck[f] = v;
+    }
+  }
+
+  // hush windows: ramp down just before, hold at the floor, snap back when the answer lands
+  for (const h of HUSHES) {
+    const ramp = PANIC.hushRamp;
+    for (let f = Math.max(0, h.from - ramp); f < Math.min(n, h.to); f++) {
+      const v = f < h.from ? 1 - (1 - PANIC.hushFloor) * ((f - (h.from - ramp) + 1) / (ramp + 1)) : PANIC.hushFloor;
       if (v < duck[f]) duck[f] = v;
     }
   }

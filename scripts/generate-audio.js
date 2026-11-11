@@ -153,6 +153,25 @@ const drumrollInto = (out, sec, rand) => {
   }
 };
 
+/** Rising swell for the last second of the clock: noise sweeping up + a climbing tone, cut dead at the peak. */
+const RISER_SECONDS = 1.0;
+const riserInto = (out, rand) => {
+  const bp = makeBandpass();
+  const n = Math.round(RISER_SECONDS * SR);
+  let ph = 0;
+  for (let i = 0; i < n; i++) {
+    const t = i / SR;
+    const k = t / RISER_SECONDS;
+    const fc = 300 * Math.pow(6000 / 300, k);
+    const g = 0.02 + 0.3 * k * k;
+    ph += (220 * Math.pow(4, k)) / SR;
+    out[i] += bp(rand() * 2 - 1, fc) * g + Math.sin(2 * Math.PI * ph) * 0.12 * k;
+  }
+  // 6 ms fade so the hard stop doesn't click
+  const fade = Math.round(0.006 * SR);
+  for (let i = 0; i < fade; i++) out[n - 1 - i] *= i / fade;
+};
+
 /** Normalise only if a mix would clip; never boosts quiet material. */
 const finish = (b, gain = MASTER) => {
   let peak = 0;
@@ -315,6 +334,12 @@ const main = () => {
     const out = buf(sec + 0.1);
     drumrollInto(out, sec, makeRandom(23));
     report.push([`drumroll`, writeWav('drumroll', finish(out, MASTER * SFX_GAIN))]);
+  }
+
+  {
+    const out = buf(RISER_SECONDS);
+    riserInto(out, makeRandom(37));
+    report.push(['riser', writeWav('riser', finish(out, MASTER * SFX_GAIN))]);
   }
 
   ['base', 'l1', 'l2'].forEach((n, layer) => {

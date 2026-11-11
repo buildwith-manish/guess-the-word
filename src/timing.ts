@@ -86,6 +86,8 @@ export type QuestionPlan = {
   /** free letters flipped while the clock runs (index in the word + frame), mirrors the HTML */
   free: { index: number; at: number }[];
   flips: number;
+  /** frame the last answer letter finishes flipping (the silent beat starts here) */
+  lettersDone: number;
   stamp: number;
   hold: number;
   exit: number;
@@ -177,6 +179,7 @@ export const buildQuestionPlan = (
     timerFrames,
     free,
     flips,
+    lettersDone,
     stamp,
     hold: holdFinal,
     exit,
