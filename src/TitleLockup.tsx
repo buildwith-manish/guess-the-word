@@ -9,9 +9,9 @@ const WORDS = [
   { text: 'WORD', accent: true },
 ];
 
-const TILE_W = px(42);
-const TILE_H = px(52);
-const TILE_FONT = px(36);
+const TILE_W = px(38);
+const TILE_H = px(46);
+const TILE_FONT = px(32);
 const RADIUS = px(11);
 
 /**
@@ -50,7 +50,7 @@ export const TitleLockup: React.FC<{
     <div
       style={{
         position: 'absolute',
-        top: px(20),
+        top: px(38),
         width: '100%',
         display: 'flex',
         flexDirection: 'column',

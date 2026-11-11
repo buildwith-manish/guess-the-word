@@ -29,8 +29,8 @@ export const Watermark: React.FC<{ frame?: number }> = () => {
       style={{
         position: 'absolute',
         zIndex: 13,
-        top: px(26),
-        right: px(40),
+        top: px(40),
+        right: px(68),
         display: 'flex',
         alignItems: 'center',
         fontFamily: FONTS.mono,

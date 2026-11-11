@@ -1,14 +1,14 @@
 import React from 'react';
 import { COLORS, FONTS, S, px, glass, K } from './style';
-import { prog, htmlEase, bounceEase, clamp01, ms } from './anim';
+import { prog, htmlEase, bounceEase, clamp01, ms, keyframes } from './anim';
 import { LEVELS, QUESTIONS, TOTAL } from './timing';
 import settings from '../settings.json';
 
 const BONUS_COLOR = '#FF8A3D';
-const BAR_W = px(1200);
+const BAR_W = px(1152); // 1280 - 2 * 64: stays inside the 5% safe area
 const BAR_GAP = px(4);
 const BAR_H = px(6);
-const BAR_BOTTOM = px(16);
+const BAR_BOTTOM = px(40);
 
 /** how many questions each level has, in level order (drives the width of each bar segment) */
 const LEVEL_COUNTS = LEVELS.map((l) => QUESTIONS.filter((q) => q.level === l.name).length);
@@ -52,7 +52,6 @@ const ProgressBar: React.FC<{ label: string; number: number | string; frame: num
     <div style={{ position: 'absolute', left: (px(1280) - BAR_W) / 2, bottom: BAR_BOTTOM, width: BAR_W, height: BAR_H }}>
       {SEGMENTS.map((s) => {
         const done = clamp01((filled - s.q0) / Math.max(1, s.q1 - s.q0));
-        const active = s === curLevel;
         return (
           <React.Fragment key={s.name}>
             <div
@@ -77,25 +76,26 @@ const ProgressBar: React.FC<{ label: string; number: number | string; frame: num
                 }}
               />
             </div>
-            <div
-              style={{
-                position: 'absolute',
-                left: s.x0,
-                bottom: BAR_H + px(7),
-                fontFamily: FONTS.body,
-                fontWeight: 800,
-                fontSize: px(10.5),
-                letterSpacing: px(2.4),
-                color: active ? s.accent : COLORS.muted,
-                opacity: active ? 1 : 0.6,
-                textShadow: active ? `0 0 ${px(10)}px ${s.accent}` : 'none',
-              }}
-            >
-              {s.name}
-            </div>
           </React.Fragment>
         );
       })}
+
+      {/* current level name, right-aligned above the bar end (clear of the countdown bar) */}
+      <div
+        style={{
+          position: 'absolute',
+          right: 0,
+          bottom: BAR_H + px(8),
+          fontFamily: FONTS.body,
+          fontWeight: 800,
+          fontSize: px(11),
+          letterSpacing: px(2.6),
+          color: isBonus ? BONUS_COLOR : curLevel.accent,
+          textShadow: `0 0 ${px(10)}px ${isBonus ? BONUS_COLOR : curLevel.accent}`,
+        }}
+      >
+        {isBonus ? 'BONUS ROUND' : curLevel.name}
+      </div>
 
       {/* bonus-round diamonds */}
       {bonusAfter.map((pos, j) => {
@@ -148,13 +148,27 @@ export const Hud: React.FC<{
   erases: number;
   eraseAt?: number;
   frame: number;
-}> = ({ label, number, total, erases, eraseAt, frame }) => {
+  /** frame at which this question's answer lands (streak ticks up then); omit = already landed */
+  landedAt?: number;
+  /** frame used for the progress-bar slide (Round passes frame - lead so it plays after the wipe) */
+  barFrame?: number;
+}> = ({ label, number, total, erases, eraseAt, frame, landedAt, barFrame }) => {
   const pop = prog(frame, 0, 18, bounceEase);
+  const numN = typeof number === 'number' ? number : 0;
+  const isBonusHud = label === 'BONUS';
+  const bonusAfterH = settings.bonus.after as number[];
+  const landed = landedAt === undefined || frame >= landedAt;
+  // perfect streak: answers landed so far (the most a viewer can have in a row)
+  const streak = isBonusHud ? bonusAfterH[Math.max(0, numN - 1)] ?? 0 : Math.max(0, numN - (landed ? 0 : 1));
+  const bump =
+    landedAt !== undefined && frame >= landedAt
+      ? keyframes(clamp01((frame - landedAt) / ms(450)), [0, 0.4, 1], [1, 1.35, 1])
+      : 1;
   const eraseIn = eraseAt === undefined || frame < eraseAt ? 1 : prog(frame, eraseAt, 15, htmlEase);
 
   return (
     <>
-      <ProgressBar label={label} number={number} frame={frame} />
+      <ProgressBar label={label} number={number} frame={barFrame ?? frame} />
       <div style={{ position: 'absolute', left: S.hudLeft, top: S.hudTop }}>
         <div
           style={{
@@ -190,13 +204,50 @@ export const Hud: React.FC<{
         </div>
       </div>
 
+      {streak > 0 ? (
+        <div
+          style={{
+            ...glass(px(30)),
+            position: 'absolute',
+            left: S.hudLeft,
+            top: px(104),
+            display: 'flex',
+            alignItems: 'center',
+            gap: px(8),
+            padding: `${px(4)}px ${px(16)}px ${px(5)}px ${px(12)}px`,
+            fontFamily: FONTS.body,
+            fontWeight: 800,
+            color: COLORS.ink,
+          }}
+        >
+          <span style={{ fontFamily: FONTS.emoji, fontSize: px(17), lineHeight: 1 }}>🔥</span>
+          <span style={{ fontSize: px(13), letterSpacing: px(2.4), color: COLORS.muted }}>STREAK</span>
+          <b
+            style={{
+              display: 'inline-block',
+              minWidth: px(22),
+              textAlign: 'center',
+              fontFamily: FONTS.display,
+              fontWeight: 400,
+              fontSize: px(28),
+              lineHeight: 1,
+              color: COLORS.yellow,
+              textShadow: '0 0 ' + px(16) + 'px rgba(255,201,60,0.55)',
+              transform: `scale(${bump})`,
+            }}
+          >
+            {streak}
+          </b>
+        </div>
+      ) : null}
+
       {erases > 0 ? (
         <div
           style={{
             ...glass(px(30)),
             position: 'absolute',
             left: S.hudLeft,
-            top: px(108),
+            top: px(148),
             padding: `${px(5)}px ${px(16)}px ${px(6)}px`,
             fontFamily: FONTS.body,
             fontWeight: 800,

@@ -41,11 +41,15 @@ export const glass = (radius: number, alpha = 0.07): Record<string, string | num
   boxShadow: `0 ${px(14)}px ${px(40)}px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.18)`,
 });
 
+/** Safe area: keep every UI element inside the middle 90% (5% margin each side) so platform UI and crops never touch it. */
+export const SAFE_X = px(64);
+export const SAFE_Y = px(36);
+
 export const S = {
   /** letterbox removed: the full 1440p frame is used */
   bar: 0,
-  hudTop: px(26),
-  hudLeft: px(40),
+  hudTop: px(40),
+  hudLeft: px(68),
   titleTop: px(24),
   titleLetter: px(38),
   titleSpacing: px(7),

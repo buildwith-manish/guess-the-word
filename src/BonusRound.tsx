@@ -292,7 +292,7 @@ export const Bonus: React.FC<{ frame: number; puzzle: BonusPuzzle; index: number
           <div
             style={{
               position: 'absolute',
-              bottom: px(40),
+              bottom: px(68),
               left: '50%',
               marginLeft: -px(320),
               width: px(640),

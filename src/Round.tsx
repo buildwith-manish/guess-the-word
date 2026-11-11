@@ -149,7 +149,7 @@ export const Round: React.FC<{
       >
         <Background frame={frame} theme={theme} hideBars pulse={edgePulse} depth={depthOpacity} />
       </AbsoluteFill>
-      <Hud label="Q" number={index + 1} total={TOTAL} erases={erases} frame={frame} />
+      <Hud label="Q" number={index + 1} total={TOTAL} erases={erases} frame={frame} landedAt={plan.stamp} barFrame={frame - lead} />
       <Watermark />
           {/* ---------- streak milestone: a flame chip under the HUD after the answer lands ---------- */}
           {(settings.streak.milestones as number[]).includes(index + 1)
@@ -161,8 +161,8 @@ export const Round: React.FC<{
                   <div
                     style={{
                       position: 'absolute',
-                      left: px(40),
-                      top: px(150),
+                      left: S.hudLeft,
+                      top: px(192),
                       width: px(124),
                       padding: `${px(8)}px ${px(10)}px ${px(9)}px`,
                       borderRadius: px(18),
@@ -198,8 +198,8 @@ export const Round: React.FC<{
                 <div
                   style={{
                     position: 'absolute',
-                    right: px(40),
-                    top: px(92),
+                    right: px(68),
+                    top: px(104),
                     transformOrigin: '100% 0',
                     transform: `scale(${(0.4 + 0.6 * inP) * (1 + 0.035 * beatP)}) rotate(${(1 - inP) * 6}deg)`,
                     opacity: clamp01(inP * 1.4) * outP,
