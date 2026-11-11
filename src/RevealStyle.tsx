@@ -11,19 +11,35 @@ export type RevealStyleName =
   | 'vault'
   | 'slot-machine';
 
-const STYLES: RevealStyleName[] = [
-  'card-flip',
-  'shatter',
-  'curtain',
-  'spotlight',
-  'vault',
-  'slot-machine',
-];
+/**
+ * The curated pool: four styles that all read cleanly. ('shatter' and 'slot-machine' are still
+ * implemented below but retired from the pool - add them back here to use them again.)
+ */
+const STYLES: RevealStyleName[] = ['card-flip', 'curtain', 'spotlight', 'vault'];
 
-/** Stable per-question selection: the same question always gets the same reveal style. */
+/** One seeded shuffle of the pool per block of questions, so every style appears equally often. */
+const blockOrder = (() => {
+  const cache: RevealStyleName[][] = [];
+  return (block: number): RevealStyleName[] => {
+    if (cache[block]) return cache[block];
+    const random = makeRandom(block * 7919 + 17);
+    const order = [...STYLES];
+    for (let i = order.length - 1; i > 0; i--) {
+      const j = Math.floor(random() * (i + 1));
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+    // never the same style twice in a row across the block boundary
+    const prev = block > 0 ? blockOrder(block - 1) : undefined;
+    if (prev && order[0] === prev[prev.length - 1]) [order[0], order[1]] = [order[1], order[0]];
+    cache[block] = order;
+    return order;
+  };
+})();
+
+/** Stable per-question selection: the same question always gets the same reveal style, and no two in a row match. */
 export const revealStyleFor = (questionId: number): RevealStyleName => {
-  const random = makeRandom(questionId * 7919 + 17);
-  return STYLES[Math.floor(random() * STYLES.length)] ?? STYLES[0];
+  const i = Math.max(0, questionId - 1);
+  return blockOrder(Math.floor(i / STYLES.length))[i % STYLES.length];
 };
 
 const shardTransforms = [

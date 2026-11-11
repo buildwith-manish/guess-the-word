@@ -147,12 +147,17 @@ export const buildQuestionPlan = (
   if (q.reveal > 0) free.push({ index: q.reveal, at: timerStart + timerFrames * (1 - b2) });
 
   const flips = timerStart + timerFrames + t.answerFlipsAfterTimer;
-  const stamp = flips + q.word.length * 2 + 16;
+  // Reveal order: letters flip (50 ms apart, 560 ms each) -> a short beat -> the emoji merge (starts
+  // 720 ms before the card lands) -> the card lands at `stamp`. The merge no longer overlaps the flips.
+  const msF = (v: number) => (v * FPS) / 1000;
+  const lettersDone = flips + (q.word.length - 1) * msF(50) + msF(560);
+  const stamp = Math.round(lettersDone + msF(t.revealBeatMs) + msF(720));
 
   const factWords = q.fact ? q.fact.split(/\s+/).length : 0;
   const showFact = q.id % t.factEvery === 0 && factWords > 0;
+  // the card always stays up at least `answerHold` (2.5 s); a fact line or a longer voiceover extends it
   const hold = showFact
-    ? 22 + Math.round((factWords / t.voiceWordsPerSecond) * FPS) + 10
+    ? Math.max(t.answerHold, 22 + Math.round((factWords / t.voiceWordsPerSecond) * FPS) + 10)
     : t.answerHold;
 
   // reveal voiceover: starts just after the answer stamps in; stretch hold to fit
