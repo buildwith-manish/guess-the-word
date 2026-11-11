@@ -255,5 +255,9 @@
     "dir": "public/sounds",
     "sfxGain": 3,
     "musicGain": 2.5
+  },
+  "threeD": {
+    "enabled": true,
+    "backgroundBlur": 4
   }
 }

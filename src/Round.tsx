@@ -26,6 +26,10 @@ import { Confetti, Ring, Flash } from './Fx';
 import { BulbSting } from './Sting';
 import settings from '../settings.json';
 import { imageSrc, hasImage, clueSrc } from './assets';
+import { Card3D } from './Card3D';
+
+/** settings.json -> threeD: the answer card as a real 3D object (see Card3D.tsx). */
+const THREE_D = (settings as { threeD?: { enabled?: boolean; backgroundBlur?: number } }).threeD ?? {};
 
 /** Layout constants from the reference stage (1280x720, scaled by px()). */
 const PLUS_W = 19.2; // Anton "+" at 54px
@@ -120,6 +124,12 @@ export const Round: React.FC<{
   // parallax dust fades in with the question and out as the answer card exits
   const depthOpacity = camCfg.depth ? clamp01((frame - lead) / 14) * (1 - clamp01((frame - plan.exit) / ms(300))) : 0;
 
+  const bgBlur =
+    THREE_D.enabled && THREE_D.backgroundBlur && hasImage(index)
+      ? px(THREE_D.backgroundBlur) *
+        cssEaseOut(clamp01((frame - R0) / ms(500))) *
+        (1 - cssEaseIn(clamp01((frame - plan.exit) / ms(300))))
+      : 0;
   const bgScale = 1 + 0.018 * camT + 0.006 * kick;
   const camScale = 1 + 0.045 * camT + 0.022 * kick + 0.014 * tension;
   const camY = -px(6) * camT;
@@ -128,7 +138,14 @@ export const Round: React.FC<{
     <>
       {!overlay ? (
         <>
-      <AbsoluteFill style={{ transform: `scale(${bgScale})`, transformOrigin: '50% 46%' }}>
+      <AbsoluteFill
+        style={{
+          transform: `scale(${bgScale})`,
+          transformOrigin: '50% 46%',
+          // rack focus: the backdrop softens while the 3D card is up, so the card reads as the subject
+          filter: bgBlur > 0.01 ? `blur(${bgBlur}px)` : undefined,
+        }}
+      >
         <Background frame={frame} theme={theme} hideBars pulse={edgePulse} depth={depthOpacity} />
       </AbsoluteFill>
       <Hud label="Q" number={index + 1} total={TOTAL} erases={erases} frame={frame} />
@@ -748,14 +765,18 @@ const ResultCard: React.FC<{
   const showImage = settings.images.enabled && hasImage(index);
   const kb = cssEaseOut(clamp01((frame - start) / Math.max(1, exit - start))); // Ken Burns progress
   const sheen = (frame - (start + ms(320))) / ms(750);
+  // 3D card: Card3D owns the entrance (spin-in) and the exit, so the container only keeps the rays
+  const use3d = !!THREE_D.enabled && showImage;
   const sp = springStyle(frame, start, 950, px(30), -10);
-  let style: React.CSSProperties = sp;
+  let style: React.CSSProperties = use3d ? {} : sp;
   if (frame >= exit) {
     const e = cssEaseIn(clamp01((frame - exit) / ms(380)));
-    style = {
-      opacity: 1 - e,
-      transform: `translateY(${-e * px(70)}px) scale(${1 - 0.6 * e})`,
-    };
+    style = use3d
+      ? { opacity: 1 - e }
+      : {
+          opacity: 1 - e,
+          transform: `translateY(${-e * px(70)}px) scale(${1 - 0.6 * e})`,
+        };
   }
   return (
     <div
@@ -789,6 +810,9 @@ const ResultCard: React.FC<{
           transform: `rotate(${(frame / 360) * 360}deg)`,
         }}
       />
+      {use3d ? (
+        <Card3D frame={frame} start={start} exit={exit} index={index} word={word} />
+      ) : (
       <div
         style={{
           position: 'relative',
@@ -867,6 +891,7 @@ const ResultCard: React.FC<{
           </div>
         )}
       </div>
+      )}
       <Ring frame={frame} start={start} />
       <Ring frame={frame} start={start + ms(160)} />
     </div>

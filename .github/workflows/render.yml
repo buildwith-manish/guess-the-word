@@ -34,7 +34,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --no-audit --no-fund # was `npm ci`: switch back after committing the lockfile that includes three + @remotion/three
 
       - name: Setup Python
         uses: actions/setup-python@v5
