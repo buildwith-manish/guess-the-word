@@ -240,8 +240,8 @@
   },
   "images": {
     "enabled": true,
-    "width": 1920,
-    "height": 1080,
+    "width": 2560,
+    "height": 1440,
     "publicDir": "public/images",
     "blockedHosts": [
       "shutterstock.com",

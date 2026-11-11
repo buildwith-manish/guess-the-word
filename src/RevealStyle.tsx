@@ -48,7 +48,7 @@ export const RevealStyle: React.FC<{
   const exitP = cssEaseIn(clamp01((frame - exit) / ms(380)));
   const opacity = 1 - exitP;
   const settle = cssEaseOut(clamp01((f - ms(180)) / ms(720)));
-  const pulse = 0.5 + 0.5 * Math.sin((frame - start) / 60 * Math.PI * 2 * 1.4);
+  const pulse = 0.5 + 0.5 * Math.sin((frame - start) / 30 * Math.PI * 2 * 1.4);
 
   const stageTransform =
     style === 'card-flip'

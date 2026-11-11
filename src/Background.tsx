@@ -4,7 +4,7 @@ import { COLORS, px, K } from './style';
 import { makeRandom } from './util';
 
 const Scene: React.FC<{ frame: number; theme: [string, string] }> = ({ frame, theme }) => {
-  const t = frame / 60;
+  const t = frame / 30;
   // two slow aurora blobs orbit the frame; purely frame-driven
   const ax = 22 + Math.sin(t * 0.35) * 8;
   const ay = 18 + Math.cos(t * 0.28) * 7;
@@ -57,7 +57,7 @@ const DEPTH_PARTICLES = LAYERS.map((L) => {
  * fade out near the top and bottom so the wrap-around never pops.
  */
 const Depth: React.FC<{ frame: number; theme: [string, string]; opacity: number }> = ({ frame, theme, opacity }) => {
-  const t = frame / 60;
+  const t = frame / 30;
   const H = 1440;
   const W = 2560;
   return (
@@ -154,7 +154,7 @@ export const Background: React.FC<{
   /** 0..1 opacity of the parallax dust layers (0 = off) */
   depth?: number;
 }> = ({ frame, theme, pulse = 0, dim = 0, iris, depth = 0 }) => {
-  const drift = ((frame / (16 * 60)) % 1) * 60 * K;
+  const drift = ((frame / (16 * 30)) % 1) * 60 * K;
   return (
     <AbsoluteFill style={{ background: COLORS.base }}>
       <Scene frame={frame} theme={theme} />

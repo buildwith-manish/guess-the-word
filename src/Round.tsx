@@ -90,9 +90,9 @@ export const Round: React.FC<{
 
   // ---- clock ----
   const clockT = (frame - timerStart) / ms(T * 1000);
-  const left = Math.max(0, T - Math.max(0, (frame - timerStart) / 60));
+  const left = Math.max(0, T - Math.max(0, (frame - timerStart) / 30));
   const nShown = Math.ceil(left - 1e-9);
-  const popAt = timerStart + (T - nShown) * 60;
+  const popAt = timerStart + (T - nShown) * 30;
   const pop = prog(frame, popAt, ms(480), bounceEase);
   const low = nShown <= 3;
   const timerIn = htmlEase(clamp01((frame - timerStart) / ms(450)));
@@ -118,9 +118,9 @@ export const Round: React.FC<{
   // tension: the camera creeps in over the last 3 s, a red edge beats on every number, and both
   // release the moment the answer lands
   const inLow = camCfg.tension && low && frame >= timerStart && frame < timerEnd;
-  const toward = clamp01((frame - (timerEnd - 3 * 60)) / (3 * 60));
+  const toward = clamp01((frame - (timerEnd - 3 * 30)) / (3 * 30));
   const tension = camCfg.tension ? (frame < R0 ? toward : 1 - cssEaseOut(clamp01((frame - R0) / ms(300)))) : 0;
-  const beat = inLow ? 1 - cssEaseOut(clamp01(((frame - timerStart) % 60) / ms(450))) : 0;
+  const beat = inLow ? 1 - cssEaseOut(clamp01(((frame - timerStart) % 30) / ms(450))) : 0;
   const edgePulse = 0.34 * beat * Math.min(1, (4 - nShown) / 3);
   // parallax dust fades in with the question and out as the answer card exits
   const depthOpacity = camCfg.depth ? clamp01((frame - lead) / 14) * (1 - clamp01((frame - plan.exit) / ms(300))) : 0;
@@ -156,7 +156,7 @@ export const Round: React.FC<{
             ? (() => {
                 const inP = prog(frame, plan.stamp + 12, 18, backOut);
                 const outP = 1 - clamp01((frame - plan.exit) / ms(250));
-                const beatP = 0.5 + 0.5 * Math.sin((frame / 60) * Math.PI * 2 * 1.1);
+                const beatP = 0.5 + 0.5 * Math.sin((frame / 30) * Math.PI * 2 * 1.1);
                 return (
                   <div
                     style={{
@@ -193,7 +193,7 @@ export const Round: React.FC<{
             (() => {
               const inP = prog(frame, plan.blanksStart - 4, 14, backOut);
               const outP = 1 - clamp01((frame - plan.exit) / ms(250));
-              const beatP = 0.5 + 0.5 * Math.sin((frame / 60) * Math.PI * 2 * 1.4);
+              const beatP = 0.5 + 0.5 * Math.sin((frame / 30) * Math.PI * 2 * 1.4);
               return (
                 <div
                   style={{

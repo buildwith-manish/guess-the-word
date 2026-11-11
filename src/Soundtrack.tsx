@@ -11,6 +11,7 @@ import {
   clipFrames,
   layerAudible,
 } from './sound';
+import { TIME_SCALE } from './timing';
 import settings from '../settings.json';
 
 const MUSIC_FILES = ['music-base.wav', 'music-l1.wav', 'music-l2.wav'];
@@ -42,14 +43,14 @@ export const Soundtrack: React.FC = () => {
           return (
             <Sequence
               key={`m${layer}-${k}`}
-              from={from}
-              durationInFrames={MUSIC_LOOP_FRAMES}
+              from={from * TIME_SCALE}
+              durationInFrames={MUSIC_LOOP_FRAMES * TIME_SCALE}
               layout="none"
             >
               <Audio
                 src={staticFile(`sounds/${file}`)}
                 volume={(f) => {
-                  const d = from + f;
+                  const d = from + f / TIME_SCALE;
                   const i = Math.floor(d);
                   return at(i) + (at(i + 1) - at(i)) * (d - i);
                 }}
@@ -62,8 +63,8 @@ export const Soundtrack: React.FC = () => {
       {CUES.map((c, i) => (
         <Sequence
           key={`s${i}`}
-          from={c.frame}
-          durationInFrames={clipFrames(c.sfx, c.rate ?? 1)}
+          from={c.frame * TIME_SCALE}
+          durationInFrames={clipFrames(c.sfx, c.rate ?? 1) * TIME_SCALE}
           layout="none"
         >
           <Audio
@@ -77,8 +78,8 @@ export const Soundtrack: React.FC = () => {
       {VOICE.map((v, i) => (
         <Sequence
           key={`v${i}`}
-          from={v.frame}
-          durationInFrames={v.frames + 2}
+          from={v.frame * TIME_SCALE}
+          durationInFrames={(v.frames + 2) * TIME_SCALE}
           layout="none"
         >
           <Audio src={staticFile(`${VOICE_DIR}/${v.file}`)} volume={settings.voiceover.volume} />

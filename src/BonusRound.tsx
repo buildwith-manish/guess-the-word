@@ -37,9 +37,9 @@ export const Bonus: React.FC<{ frame: number; puzzle: BonusPuzzle; index: number
   const exitP = prog(frame, dur - 12, 12, linear);
 
   // red heartbeat pulse on the last 3 seconds (like the HTML's beat())
-  const beatPhase = ((frame - (clockEnd - 3 * FPS)) % 44 + 44) % 44;
+  const beatPhase = ((frame - (clockEnd - 3 * FPS)) % 22 + 22) % 22;
   const pulse =
-    frame > clockEnd - 3 * FPS && frame < clockEnd ? Math.max(0, 1 - beatPhase / 28) * 0.55 : 0;
+    frame > clockEnd - 3 * FPS && frame < clockEnd ? Math.max(0, 1 - beatPhase / 14) * 0.55 : 0;
 
   const confetti = makeConfetti(index + 31, 34, { x: 960, y: 560 });
   const answerIn = prog(frame, revealAt + B.answerChipDelayFrames, 16, backOut);

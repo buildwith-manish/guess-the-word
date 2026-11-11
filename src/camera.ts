@@ -10,7 +10,7 @@ import { clamp01 } from './anim';
  * caller, it keeps holds (countdown, fact, cards) from ever looking frozen.
  */
 export const handheld = (frame: number) => {
-  const t = frame / 60;
+  const t = frame / 30;
   const x = (Math.sin(t * 0.83) + 0.5 * Math.sin(t * 1.91 + 1.3)) / 1.5;
   const y = (Math.sin(t * 0.67 + 0.6) + 0.5 * Math.sin(t * 1.57 + 2.1)) / 1.5;
   const r = (Math.sin(t * 0.51 + 2.4) + 0.5 * Math.sin(t * 1.37)) / 1.5;

@@ -12,15 +12,18 @@ import voManifest from './voiceover-manifest.json';
 /**
  * Native canvas: settings.json is the single source of truth - 2560x1440 at 60 fps, rendered 1:1
  * (no render scale). Layout units come from px() in style.ts (1280x720 reference x 2).
- * Motion timing: all durations, `prog()` offsets and `ms()` values are native 60 fps frames.
+ * Motion timing: scene animations are written as durations in 1/30 s "ticks" (the unit of every
+ * easing/duration constant in the scenes), which src/clock.ts samples at the full 60 fps - so each
+ * animation is evaluated every 1/60 s with identical timing.
  */
 export const WIDTH = settings.width;
 export const HEIGHT = settings.height;
-/** native frame rate - settings.json is the single source (60) */
-export const FPS = settings.fps;
-/** kept for Soundtrack.tsx compatibility — always 1 at native 60 fps */
-export const RENDER_FPS = FPS;
-export const TIME_SCALE = 1;
+/** composition / output frame rate (settings.json) */
+export const RENDER_FPS = settings.fps;
+/** motion ticks per second used by the scene timing constants */
+export const FPS = 30;
+/** render frames per tick */
+export const TIME_SCALE = RENDER_FPS / FPS;
 
 /**
  * Voiceover. scripts/voiceover-scan.js measures every public/voiceover/qNN.* (and bonusNN.*) clip
@@ -357,7 +360,7 @@ const buildTimeline = (puzzles: BonusPuzzle[] = PUZZLES): Timeline => {
 export const TIMELINE = buildTimeline();
 
 /** composition length in OUTPUT (60 fps) frames */
-export const RENDER_TOTAL_FRAMES = TIMELINE.totalFrames;
+export const RENDER_TOTAL_FRAMES = Math.round(TIMELINE.totalFrames * TIME_SCALE);
 
 export const locate = (segments: Segment[], frame: number) => {
   let idx = 0;
