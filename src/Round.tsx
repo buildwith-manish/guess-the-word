@@ -445,9 +445,57 @@ export const Round: React.FC<{
             transform = `translateY(${clamp01(xt) * px(40)}px)`;
           }
 
+          // hint callout: a "HINT" tag + ring ping on a free letter, so viewers notice the clue at 1/3 and 2/3
+          const hintT = free ? (frame - free.at) / ms(1500) : -1;
+          const hintIn = free ? prog(frame, free.at, ms(350), backOut) : 0;
+          const hintOut = 1 - clamp01((frame - (free ? free.at : 0) - ms(1200)) / ms(300));
+          const hintExit = 1 - clamp01((frame - plan.exit) / ms(200));
+          const showHint = !!free && hintT >= 0 && hintT < 1;
+          const ringT = free ? (frame - free.at) / ms(700) : -1;
+
           return (
+            <div key={k} style={{ position: 'relative' }}>
+            {showHint ? (
+              <>
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: '50%',
+                    bottom: S.blankH + px(14),
+                    transform: `translateX(-50%) translateY(${(1 - hintIn) * px(14)}px) scale(${0.6 + 0.4 * hintIn})`,
+                    opacity: clamp01(hintIn * 1.4) * hintOut * hintExit,
+                    whiteSpace: 'nowrap',
+                    padding: `${px(4)}px ${px(14)}px ${px(5)}px`,
+                    borderRadius: px(20),
+                    background: `linear-gradient(135deg, ${COLORS.yellow}, ${COLORS.yellowDeep})`,
+                    border: `${px(1.5)}px solid rgba(255,255,255,0.85)`,
+                    boxShadow: `0 0 ${px(20)}px rgba(255,201,60,0.6)`,
+                    color: COLORS.inkDark,
+                    fontFamily: FONTS.body,
+                    fontWeight: 800,
+                    fontSize: px(13),
+                    letterSpacing: px(2),
+                    zIndex: 3,
+                  }}
+                >
+                  💡 HINT
+                </div>
+                {ringT >= 0 && ringT < 1 ? (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      borderRadius: px(14),
+                      border: `${px(3)}px solid ${COLORS.yellow}`,
+                      opacity: 0.9 * (1 - cssEaseOut(ringT)),
+                      transform: `scale(${1 + 0.9 * cssEaseOut(ringT)})`,
+                      pointerEvents: 'none',
+                    }}
+                  />
+                ) : null}
+              </>
+            ) : null}
             <div
-              key={k}
               style={{
                 width: S.blankW,
                 height: S.blankH,
@@ -488,6 +536,7 @@ export const Round: React.FC<{
                   }}
                 />
               ) : null}
+            </div>
             </div>
           );
         })}
