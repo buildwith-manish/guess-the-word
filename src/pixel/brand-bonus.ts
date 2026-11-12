@@ -44,7 +44,7 @@ export const buildBrandBonusPuzzles = (): BonusPuzzle[] => {
     data: {
       palette: cmAnswer.palette,
       options: cmOptions,
-      names: cmOptions.map((id) => brand(id).name),
+      names: ['Hot Pockets', 'Tropicana', 'Kraft Mac & Cheese'], // short labels so they fit on one line
       answerIndex: cmOptions.indexOf(cmAnswer.id),
     },
   };
@@ -61,7 +61,7 @@ export const buildBrandBonusPuzzles = (): BonusPuzzle[] => {
     data: { tiles: memTiles, missingIndex: memMissing, showSeconds: MEMORY_SHOW_SECONDS },
   };
 
-  // 3) EXTREME ZOOM — the embossed Oreo cookie (focal point measured on 36.jpg), zooming out
+  // 3) EXTREME ZOOM — starts on the Oreo cookie's ridged edge (focal point measured on 36.jpg), zooming out
   const zoomBrand = brand(36);
   const zoom: BonusPuzzle = {
     kind: 'zoom' as BonusKind,
@@ -69,7 +69,8 @@ export const buildBrandBonusPuzzles = (): BonusPuzzle[] => {
     question: 'WHAT BRAND IS THIS?',
     answer: `It's the ${zoomBrand.name} cookie!`,
     seconds: 8,
-    data: { id: zoomBrand.id, fx: 0.53, fy: 0.56, startScale: 9, endScale: 2.4 },
+    // start on the ridged cookie edge (no letters readable), end wide enough to show the logo
+    data: { id: zoomBrand.id, fx: 0.40, fy: 0.66, startScale: 10, endScale: 2.4 },
   };
 
   // 4) ODD BRAND OUT — three yellow packs and one blue one (colours checked on the photos)
@@ -81,7 +82,7 @@ export const buildBrandBonusPuzzles = (): BonusPuzzle[] => {
     question: 'WHICH PACK IS THE ODD ONE OUT?',
     answer: `${brand(oddTiles[oddIndex]).name} is blue. The rest are yellow.`,
     seconds: 8,
-    data: { tiles: oddTiles, answerIndex: oddIndex },
+    data: { tiles: oddTiles, answerIndex: oddIndex, names: oddTiles.map((id) => brand(id).name) },
   };
 
   return [colorMatch, memory, zoom, oddBrand];

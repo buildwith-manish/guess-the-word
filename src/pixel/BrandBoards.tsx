@@ -73,16 +73,16 @@ const ColorMatch: React.FC<Props> = ({ puzzle, frame, start, revealed }) => {
   const d = puzzle.data;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: px(16) }}>
-      <div style={{ display: 'flex', gap: px(10) }}>
+      <div style={{ display: 'flex', gap: px(14) }}>
         {(d.palette as string[]).map((c, i) => {
           const seat = prog(frame, start + i * 3, 18, backOut);
           return (
             <div
               key={i}
               style={{
-                width: px(170),
-                height: px(84),
-                borderRadius: px(18),
+                width: px(200),
+                height: px(96),
+                borderRadius: px(20),
                 background: c,
                 border: `${px(3)}px solid rgba(255,255,255,0.7)`,
                 opacity: seat,
@@ -92,18 +92,18 @@ const ColorMatch: React.FC<Props> = ({ puzzle, frame, start, revealed }) => {
           );
         })}
       </div>
-      <div style={{ display: 'flex', gap: px(22) }}>
+      <div style={{ display: 'flex', gap: px(18) }}>
         {(d.options as number[]).map((id, i) => {
           const seat = prog(frame, start + 10 + i * 3, 18, backOut);
           const win = revealed && i === d.answerIndex;
           const dim = revealed && i !== d.answerIndex;
           return (
-            <div key={id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: px(8), width: px(190) }}>
-              <Tile size={140} win={win} dim={dim} seat={seat}>
-                <Pack id={id} size={140} radius={0} />
+            <div key={id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: px(8), width: px(250) }}>
+              <Tile size={150} win={win} dim={dim} seat={seat}>
+                <Pack id={id} size={150} radius={0} />
               </Tile>
-              <div style={{ opacity: (dim ? 0.3 : 1) * seat }}>
-                <Label size={20} color={win ? COLORS.yellow : '#fff'}>
+              <div style={{ opacity: (dim ? 0.3 : 1) * seat, marginTop: px(10) }}>
+                <Label size={18} color={win ? COLORS.yellow : '#fff'}>
                   {(d.names as string[])[i].toUpperCase()}
                 </Label>
               </div>
@@ -122,7 +122,8 @@ const MemoryFlash: React.FC<Props> = ({ puzzle, frame, start, revealed, revealAt
   const vanishAt = clockStart + d.showSeconds * FPS;
   const v = prog(frame, vanishAt, 12, expoOut);
   const r = prog(frame, revealAt, 16, backOut);
-  const heading = revealed ? 'IT WAS BACK!' : frame < vanishAt ? 'MEMORIZE THESE!' : 'WHICH ONE VANISHED?';
+  const secsLeft = Math.max(1, Math.ceil((vanishAt - frame) / FPS));
+  const heading = revealed ? 'IT WAS BACK!' : frame < vanishAt ? `MEMORIZE THESE!  ${secsLeft}` : "WHAT'S MISSING?";
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: px(14) }}>
       <Label color={COLORS.yellow} size={30}>
@@ -137,10 +138,10 @@ const MemoryFlash: React.FC<Props> = ({ puzzle, frame, start, revealed, revealAt
           const win = revealed && missing;
           const dim = revealed && !missing;
           return (
-            <div key={id} style={{ position: 'relative', width: px(124), height: px(124) }}>
+            <div key={id} style={{ position: 'relative', width: px(130), height: px(130) }}>
               <div style={{ position: 'absolute', left: 0, top: 0, opacity: present, transform: `scale(${0.5 + 0.5 * present})` }}>
-                <Tile size={118} win={win} dim={dim} seat={seat}>
-                  <Pack id={id} size={118} radius={0} />
+                <Tile size={124} win={win} dim={dim} seat={seat}>
+                  <Pack id={id} size={124} radius={0} />
                 </Tile>
               </div>
               {missing ? (
@@ -177,7 +178,8 @@ const ExtremeZoom: React.FC<Props> = ({ puzzle, frame, start, revealed, revealAt
   const clockStart = revealAt - clockFrames;
   const seat = prog(frame, start, 18, backOut);
   const clockP = Math.min(1, Math.max(0, (frame - clockStart) / clockFrames));
-  const zoomingOut = d.startScale + (d.endScale - d.startScale) * linear(clockP);
+  // geometric interpolation: a constant ratio per second reads as a steady zoom (linear in scale crawls at the end)
+  const zoomingOut = d.startScale * Math.pow(d.endScale / d.startScale, linear(clockP));
   // after the reveal the crop pulls all the way back to the whole pack
   const scale = revealed ? 1 + (d.endScale - 1) * (1 - prog(frame, revealAt, 20, expoOut)) : zoomingOut;
   // keep the focal point centred while zoomed in, drift to the middle as the scale reaches 1
@@ -218,8 +220,9 @@ const ExtremeZoom: React.FC<Props> = ({ puzzle, frame, start, revealed, revealAt
 };
 
 /* ------------------------------------------------------------ 4. ODD BRAND OUT */
-const OddBrandOut: React.FC<Props> = ({ puzzle, frame, start, revealed }) => {
+const OddBrandOut: React.FC<Props> = ({ puzzle, frame, start, revealed, revealAt }) => {
   const d = puzzle.data;
+  const nameIn = prog(frame, revealAt + 6, 14, backOut);
   return (
     <div style={{ display: 'flex', gap: px(20), justifyContent: 'center' }}>
       {(d.tiles as number[]).map((id, i) => {
@@ -227,9 +230,16 @@ const OddBrandOut: React.FC<Props> = ({ puzzle, frame, start, revealed }) => {
         const win = revealed && i === d.answerIndex;
         const dim = revealed && i !== d.answerIndex;
         return (
-          <Tile key={id} size={168} win={win} dim={dim} seat={seat}>
-            <Pack id={id} size={168} radius={0} />
-          </Tile>
+          <div key={id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: px(8) }}>
+            <Tile size={176} win={win} dim={dim} seat={seat}>
+              <Pack id={id} size={176} radius={0} />
+            </Tile>
+            <div style={{ opacity: revealed ? (dim ? 0.35 : 1) * nameIn : 0, marginTop: px(10), position: 'relative', zIndex: 1 }}>
+              <Label size={18} color={win ? COLORS.yellow : '#fff'}>
+                {(d.names as string[])[i].toUpperCase()}
+              </Label>
+            </div>
+          </div>
         );
       })}
     </div>
