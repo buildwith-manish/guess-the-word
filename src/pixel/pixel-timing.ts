@@ -10,7 +10,8 @@ import { useCurrentFrame } from 'remotion';
 import settings from '../../settings.json';
 import { BRANDS, PIXEL_LEVELS } from './brands';
 import { BONUS_CLOCK_START, bonusRevealHold } from '../timing';
-import { buildBonusPuzzles, type BonusKind, type BonusPuzzle } from '../bonus-engine';
+import type { BonusKind, BonusPuzzle } from '../bonus-engine';
+import { BRAND_BONUS_ORDER, buildBrandBonusPuzzles } from './brand-bonus';
 import type { Hud, Segment } from '../types';
 import type { HudPlan } from '../Hud';
 
@@ -65,12 +66,10 @@ export const questionClock = (brandId: number) => {
 /** a bonus round (erases 1 wrong) plays after these question numbers: the end of each level */
 export const PIXEL_BONUS_AFTER = [12, 25, 38, 46];
 /**
- * Bonus round types, easy -> hard. Picked from the main format's five (odd, count, scramble,
- * math, spot): odd-one-out is food themed; count-it and spot-the-difference are quick visual
- * scans that suit a "look carefully" quiz; emoji-math is the hard finale.
- * Swap in 'scramble' here if you want a word round.
+ * Bonus round types, easy -> hard. Brand-photo rounds built from public/pixel-brands (no new
+ * images): colour match, memory flash, extreme zoom, odd brand out. See brand-bonus.ts.
  */
-export const PIXEL_BONUS_ORDER: BonusKind[] = ['odd', 'count', 'spot', 'math'];
+export const PIXEL_BONUS_ORDER: BonusKind[] = BRAND_BONUS_ORDER;
 /** "Still counting? ❌" pop-ups (kept clear of the bonus rounds) */
 export const PIXEL_REMINDER_AFTER = [6, 19, 32];
 
@@ -107,7 +106,7 @@ export const themeForBrand = (index: number): [string, string] => {
 /** orange backdrop of every bonus round (settings.bonus.theme) */
 export const PIXEL_BONUS_THEME = settings.bonus.theme as [string, string];
 
-const PUZZLES: BonusPuzzle[] = buildBonusPuzzles(PIXEL_BONUS_AFTER.length, undefined, PIXEL_BONUS_ORDER);
+const PUZZLES: BonusPuzzle[] = buildBrandBonusPuzzles();
 
 const bonusDuration = (p: BonusPuzzle, bonusIndex: number) =>
   BONUS_CLOCK_START(bonusIndex) + Math.round(p.seconds * FPS) + bonusRevealHold(bonusIndex);

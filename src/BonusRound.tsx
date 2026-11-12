@@ -9,6 +9,8 @@ import type { BonusPuzzle } from './bonus-engine';
 import { Background } from './Background';
 import { Hud } from './Hud';
 import { BonusIcon, type IconName } from './bonus-icons';
+import { BrandBoard } from './pixel/BrandBoards';
+import { isBrandBonus } from './pixel/brand-bonus';
 import settings from '../settings.json';
 
 const B = settings.bonus;
@@ -350,6 +352,9 @@ const Board: React.FC<{
   revealAt: number;
 }> = ({ puzzle, frame, start, revealed, revealAt }) => {
   const d = puzzle.data;
+  if (isBrandBonus(puzzle.kind)) {
+    return <BrandBoard puzzle={puzzle} frame={frame} start={start} revealed={revealed} revealAt={revealAt} />;
+  }
   if (puzzle.kind === 'odd') {
     return (
       <div style={{ display: 'flex', gap: px(20), flexWrap: 'wrap', justifyContent: 'center' }}>

@@ -27,7 +27,17 @@ import { makeRandom, pickN, range, shuffle } from './util';
 import type { IconName } from './bonus-icons';
 import { iconLabel } from './bonus-icons';
 
-export type BonusKind = 'odd' | 'count' | 'scramble' | 'math' | 'spot';
+export type BonusKind =
+  | 'odd'
+  | 'count'
+  | 'scramble'
+  | 'math'
+  | 'spot'
+  // brand-photo rounds used by the pixel quiz (see src/pixel/brand-bonus.ts)
+  | 'colormatch'
+  | 'memory'
+  | 'zoom'
+  | 'oddbrand';
 
 export type BonusPuzzle = {
   kind: BonusKind;
