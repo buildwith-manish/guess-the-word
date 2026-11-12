@@ -23,7 +23,12 @@
     "voiceover:script": "node scripts/voiceover-script.js",
     "render:fast": "node scripts/voiceover-scan.js && node scripts/render-batches.js --size 1800",
     "render:draft": "node scripts/voiceover-scan.js && node scripts/render-batches.js --lane --concurrency=4 --scale=0.5",
-    "render:full": "node scripts/voiceover-scan.js && node scripts/render-batches.js --lane --concurrency=8"
+    "render:full": "node scripts/voiceover-scan.js && node scripts/render-batches.js --lane --concurrency=8",
+    "pixel:dev": "remotion studio",
+    "pixel:images": "node scripts/fetch-pixel-images.js",
+    "pixel:still": "remotion still PixelGuess out/pixel-still.png --frame=388",
+    "pixel:render": "remotion render PixelGuess out/pixel-guess.mp4",
+    "pixel:draft": "remotion render PixelGuess out/pixel-guess-draft.mp4 --scale=0.5 --concurrency=4"
   },
   "dependencies": {
     "@react-three/fiber": "^9.3.0",
