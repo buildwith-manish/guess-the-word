@@ -20,7 +20,10 @@
     "images:hd": "node scripts/fetch-images.js --force && node scripts/resize-images.js && node scripts/refetch-broken.js",
     "images:all": "node scripts/fetch-images.js && node scripts/resize-images.js && node scripts/refetch-broken.js",
     "voiceover": "node scripts/voiceover-scan.js",
-    "voiceover:script": "node scripts/voiceover-script.js"
+    "voiceover:script": "node scripts/voiceover-script.js",
+    "render:fast": "node scripts/voiceover-scan.js && node scripts/render-batches.js --size 1800",
+    "render:draft": "node scripts/voiceover-scan.js && node scripts/render-batches.js --lane --concurrency=4 --scale=0.5",
+    "render:full": "node scripts/voiceover-scan.js && node scripts/render-batches.js --lane --concurrency=8"
   },
   "dependencies": {
     "@react-three/fiber": "^9.3.0",

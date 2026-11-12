@@ -31,8 +31,19 @@ const BATCH_DIR = path.join(OUT, 'batches');
 const PROGRESS = path.join(OUT, '.render-progress.json');
 const COMPOSITION = process.env.REMOTION_COMPOSITION || 'GuessTheWord';
 
+const os = require('os');
 const argv = process.argv.slice(2);
 const has = (flag) => argv.includes(flag);
+
+// Auto-detect concurrency: use 75% of logical CPU cores if not explicitly set
+// Override with --concurrency=N or GTW_CONCURRENCY env var
+const hasConcurrencyFlag = argv.some((a) => a.startsWith('--concurrency'));
+if (!hasConcurrencyFlag && !process.env.GTW_CONCURRENCY) {
+  const cores = os.cpus().length;
+  const auto = Math.max(2, Math.floor(cores * 0.75));
+  argv.push(`--concurrency=${auto}`);
+  console.log(`  ⚡ auto-concurrency: ${auto} of ${cores} logical cores (set GTW_CONCURRENCY or --concurrency=N to override)`);
+}
 const valueOf = (flag, fallback) => {
   const i = argv.indexOf(flag);
   if (i === -1) return fallback;

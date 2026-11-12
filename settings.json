@@ -3,9 +3,9 @@
   "width": 2560,
   "height": 1440,
   "motionBlur": {
-    "mode": "always",
-    "shutterAngle": 360,
-    "samples": 4
+    "mode": "windows",
+    "shutterAngle": 180,
+    "samples": 2
   },
   "camera": {
     "depth": true,
