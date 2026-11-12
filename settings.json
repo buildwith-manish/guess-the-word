@@ -225,18 +225,6 @@
       "r3b": "4",
       "r3c": "WRONG =",
       "r3d": "LEGEND 👑"
-    },
-    "endScreen": {
-      "frames": 340,
-      "eyebrow": "CHALLENGE A FRIEND",
-      "headlineA": "BEAT YOUR",
-      "headlineB": "FRIEND’S",
-      "headlineC": "SCORE",
-      "cta": "TAG THEM IN THE COMMENTS 👇",
-      "tagline": "WHO SCORES BETTER?",
-      "nextLabel": "WATCH NEXT",
-      "subscribe": "SUBSCRIBE",
-      "subscribeSub": "FOR MORE QUIZZES"
     }
   },
   "images": {
@@ -258,7 +246,7 @@
     "musicGain": 2.5,
     "panic": {
       "riserFrames": 30,
-      "hushFloor": 0.0,
+      "hushFloor": 0,
       "hushRamp": 3,
       "stampBoomVolume": 0.9
     }
@@ -279,14 +267,14 @@
   "levelMood": [
     {
       "speed": 0.85,
-      "peak": 1.0,
-      "vignette": 0.0,
-      "ember": 0.0,
-      "pulse": 0.0,
-      "accentMix": 0.0
+      "peak": 1,
+      "vignette": 0,
+      "ember": 0,
+      "pulse": 0,
+      "accentMix": 0
     },
     {
-      "speed": 1.0,
+      "speed": 1,
       "peak": 1.15,
       "vignette": 0.06,
       "ember": 0.08,

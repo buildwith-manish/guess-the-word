@@ -865,7 +865,7 @@ const ResultCard: React.FC<{
           background: 'repeating-conic-gradient(rgba(255,214,10,0.333) 0 7deg, rgba(0,0,0,0) 7deg 18deg)',
           maskImage: 'radial-gradient(circle, #000 15%, rgba(0,0,0,0) 68%)',
           WebkitMaskImage: 'radial-gradient(circle, #000 15%, rgba(0,0,0,0) 68%)',
-          transform: `rotate(${(frame / 360) * 360}deg)`,
+          transform: `rotate(${frame}deg)`,
         }}
       />
       <RevealStyle frame={frame} start={start} exit={exit} questionId={index + 1}>

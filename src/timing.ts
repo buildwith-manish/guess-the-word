@@ -43,14 +43,14 @@ export const voiceClip = (kind: 'q' | 'qq' | 'bonus' | 'bonusq', n: number): VoC
 export const voiceClipNamed = (kind: 'intro' | 'outro'): VoClip | undefined => {
   if (!VO.enabled) return undefined;
   const e = (voManifest as Record<string, { file: string; seconds: string | number }>)[kind];
-  return e ? { file: e.file, frames: Math.ceil(Number(e.seconds) * FPS) } : undefined;
+  const namedSecs = Number(e?.seconds); return e && Number.isFinite(namedSecs) && namedSecs > 0 ? { file: e.file, frames: Math.ceil(namedSecs * FPS) } : undefined;
 };
 
 /** Scoreboard clip by rank name (legend, expert, good, beginner, keepgoing) or 'intro'. */
 export const voiceClipScoreboard = (rank: string): VoClip | undefined => {
   if (!VO.enabled) return undefined;
   const e = (voManifest as Record<string, Record<string, { file: string; seconds: string | number }>>).scoreboard?.[rank];
-  return e ? { file: e.file, frames: Math.ceil(Number(e.seconds) * FPS) } : undefined;
+  const sbSecs = Number(e?.seconds); return e && Number.isFinite(sbSecs) && sbSecs > 0 ? { file: e.file, frames: Math.ceil(sbSecs * FPS) } : undefined;
 };
 
 export const LEVELS: LevelCfg[] = settings.levels as unknown as LevelCfg[];

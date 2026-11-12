@@ -1,5 +1,29 @@
 # Guess the Word by Emoji — Remotion + GSAP (Pattern 1)
 
+## Quick Start
+
+```bash
+# 1. Clone
+git clone https://github.com/buildwith-manish/guess-the-word.git
+cd guess-the-word
+
+# 2. Install deps + auto-generate src/rounds.json
+npm install
+
+# 3. Set up fonts (see FONTSHARE-SETUP.md)
+
+# 4. Preview in browser
+npm run dev
+
+# 5. Render to video
+npm run render
+```
+
+> **Note:** `src/rounds.json` is generated automatically on `npm install` via the `postinstall` hook.
+> Never edit it by hand — edit `questions.js` instead, then run `npm run data`.
+
+---
+
 A 50-question "guess the word from two emoji" quiz, rendered frame-perfectly
 with **Remotion**. GSAP is used only for its **easing math** (Pattern 1: pure
 functions in → numbers out, **no GSAP timelines**). Look, timings and copy
