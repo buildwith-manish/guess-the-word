@@ -11,7 +11,6 @@ import settings from '../../settings.json';
 import { PixelRound } from './PixelRound';
 import { PixelIntro, PixelLevelCard } from './PixelScenes';
 import {
-  COUNTDOWN_SECONDS,
   FPS,
   PIXEL_HUD_PLAN,
   PIXEL_MUSIC_END,
@@ -19,8 +18,10 @@ import {
   TIME_SCALE,
   T,
   locate,
+  questionClock,
   usePixelFrame,
 } from './pixel-timing';
+import { BRANDS } from './brands';
 
 /**
  * Composition root for "Guess the Brand: Pixelated".
@@ -100,8 +101,13 @@ const buildCues = (): Cue[] => {
         add(f0 + 1, 'pop');
         const start = f0 + T.lead;
         // a tick every second; the picture sharpens on each one
-        ticks(start, COUNTDOWN_SECONDS, 'thump');
-        const reveal = start + T.countdown;
+        const clock = questionClock(BRANDS[seg.index].id);
+        if (clock.fast) {
+          add(f0 + 4, 'ping-hi');
+          add(f0 + 4, 'thump');
+        }
+        ticks(start, clock.seconds, 'thump');
+        const reveal = start + clock.countdown;
         add(reveal - 20, 'riser', { volume: 0.6 });
         add(reveal, 'boom', { volume: settings.sound.panic.stampBoomVolume });
         add(reveal + 6, 'stamp');

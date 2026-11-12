@@ -65,3 +65,11 @@ Shared code touched: `src/Hud.tsx` now reads its level blocks / bonus diamonds f
 `buildBonusPuzzles()` takes an optional `order`.
 
 Total runtime is about 8 minutes.
+
+## Fastest guess questions
+
+Five questions (`PIXEL_FASTEST.questions` in `src/pixel/pixel-timing.ts`, brand ids 4, 16, 29, 36, 40) run a
+3-second clock instead of 5. The grid starts at 8x8 and tops out at 16x16 (`PIXEL_FASTEST.steps`), and a
+red/orange ⚡ FASTEST GUESS badge (same label and look as the main video) pulses beside the picture.
+Sounds: badge ping + thump as it appears, then one tick per second. Change the ids, seconds or grid
+steps in that one object. Video length is about 7.9 minutes.

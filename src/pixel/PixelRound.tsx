@@ -7,7 +7,7 @@ import { COLORS, FONTS, glass, px } from '../style';
 import { prog, revealIn, slamIn, breathe } from '../anim';
 import { backOut, power3Out, linear } from '../gsap-helpers';
 import { BRANDS, PIXEL_LEVELS, imageFile } from './brands';
-import { COUNTDOWN_SECONDS, FPS, PIXEL_STEPS, PIXEL_TOTAL, T } from './pixel-timing';
+import { FPS, PIXEL_FASTEST, PIXEL_TOTAL, T, questionClock } from './pixel-timing';
 import { PixelCanvas } from './PixelCanvas';
 
 const BOX = px(400); // the picture is a square
@@ -25,10 +25,13 @@ export const PixelRound: React.FC<{ frame: number; index: number; erases: number
   const level = PIXEL_LEVELS[brand.level];
   const theme: [string, string] = [level.accent, level.bg];
 
+  const clock = questionClock(brand.id);
+  const PIXEL_STEPS = clock.steps; // fastest-guess questions use a shorter, coarser ladder
   const timerStart = T.lead;
-  const revealAt = timerStart + T.countdown;
+  const revealAt = timerStart + clock.countdown;
   const t = frame - timerStart; // frames into the countdown
   const revealed = frame >= revealAt;
+  const questionEnd = revealAt + T.hold;
 
   // --- which grid are we on? -------------------------------------------------
   const stepIdx = Math.max(0, Math.min(PIXEL_STEPS.length - 1, Math.floor(t / FPS)));
@@ -43,13 +46,16 @@ export const PixelRound: React.FC<{ frame: number; index: number; erases: number
   const pop = revealed ? 0 : 0.018 * (1 - prog(sinceStep, 0, 7, power3Out)) * (stepIdx > 0 ? 1 : 0);
 
   const enter = prog(frame, 0, 14, backOut);
-  const fade = prog(frame, 0, 8, linear) * (1 - prog(frame, QUESTION_END, T.exit, linear));
-  const secondsLeft = Math.max(0, COUNTDOWN_SECONDS - Math.max(0, t) / FPS);
-  const low = !revealed && secondsLeft <= 2;
-  const ringP = revealed ? 0 : Math.max(0, t) / T.countdown;
+  const fade = prog(frame, 0, 8, linear) * (1 - prog(frame, questionEnd, T.exit, linear));
+  const secondsLeft = Math.max(0, clock.seconds - Math.max(0, t) / FPS);
+  const low = !revealed && (clock.fast ? true : secondsLeft <= 2);
+  const ringP = revealed ? 0 : Math.max(0, t) / clock.countdown;
   const urgent = low ? 1 : 0;
   const stamp = slamIn(frame, revealAt + 6, 16);
   const glow = revealed ? prog(frame, revealAt, 12, power3Out) : 0;
+  const badgeIn = prog(frame, 2, 14, backOut);
+  const badgeOut = 1 - prog(frame, revealAt, 8, linear);
+  const beat = 0.5 + 0.5 * Math.sin((frame / FPS) * Math.PI * 2 * 1.4);
 
   return (
     <AbsoluteFill style={{ opacity: fade }}>
@@ -75,6 +81,32 @@ export const PixelRound: React.FC<{ frame: number; index: number; erases: number
       {/* shared HUD: Q counter, progress bar, perfect STREAK, BONUS ERASES */}
       <Hud label="Q" number={brand.id} total={PIXEL_TOTAL} erases={erases} frame={frame} landedAt={revealAt} />
       <Watermark />
+
+      {/* fastest guess: short clock, hot colours (same look as the main video's badge) */}
+      {clock.fast ? (
+        <div
+          style={{
+            position: 'absolute',
+            right: px(60),
+            top: px(100),
+            transformOrigin: '100% 0',
+            transform: `scale(${(0.4 + 0.6 * badgeIn) * (1 + 0.035 * beat)}) rotate(${(1 - badgeIn) * 6}deg)`,
+            opacity: Math.min(1, badgeIn * 1.4) * badgeOut,
+            padding: `${px(8)}px ${px(18)}px ${px(9)}px`,
+            borderRadius: px(16),
+            background: `linear-gradient(135deg, ${COLORS.red}, ${COLORS.yellowDeep})`,
+            border: `${px(2)}px solid rgba(255,255,255,0.85)`,
+            boxShadow: `0 0 ${px(22 + 10 * beat)}px rgba(255,77,106,0.65)`,
+            textAlign: 'center',
+            color: '#fff',
+          }}
+        >
+          <div style={{ fontFamily: FONTS.display, fontSize: px(26), letterSpacing: px(2), lineHeight: 1.05 }}>⚡ {PIXEL_FASTEST.label}</div>
+          <div style={{ fontFamily: FONTS.body, fontWeight: 700, fontSize: px(12), letterSpacing: px(2.2), opacity: 0.92 }}>
+            ONLY {clock.seconds} SECONDS
+          </div>
+        </div>
+      ) : null}
 
       {/* the pixelated picture */}
       <div
@@ -179,7 +211,7 @@ export const PixelRound: React.FC<{ frame: number; index: number; erases: number
               <path d="M4 12.5l5 5L20 6.5" />
             </svg>
           ) : t < 0 ? (
-            COUNTDOWN_SECONDS
+            clock.seconds
           ) : (
             Math.ceil(secondsLeft)
           )}
@@ -242,6 +274,3 @@ export const PixelRound: React.FC<{ frame: number; index: number; erases: number
     </AbsoluteFill>
   );
 };
-
-/** frame (inside the segment) where the exit fade begins */
-const QUESTION_END = T.lead + T.countdown + T.hold;

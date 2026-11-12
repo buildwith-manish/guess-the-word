@@ -33,6 +33,33 @@ export const COUNTDOWN_SECONDS = 5;
  */
 export const PIXEL_STEPS = [8, 12, 20, 32, 48];
 
+/**
+ * "Fastest guess" questions: a much shorter clock that starts at the coarsest 8x8 grid
+ * and never gets finer than 16x16, so only real fans get it. The badge reuses the main
+ * video's label (settings.fastest.label). Spread across the four levels, kept clear of
+ * the questions right before a bonus round.
+ */
+export const PIXEL_FASTEST = {
+  questions: [4, 16, 29, 36, 40], // brand ids (1..46)
+  seconds: settings.fastest.seconds as number, // 3
+  steps: [8, 10, 16], // one grid per second
+  label: settings.fastest.label as string,
+};
+export const isFastest = (brandId: number) => PIXEL_FASTEST.questions.includes(brandId);
+
+/** per-question clock: seconds, grid ladder, and frame counts */
+export const questionClock = (brandId: number) => {
+  const fast = isFastest(brandId);
+  const seconds = fast ? PIXEL_FASTEST.seconds : COUNTDOWN_SECONDS;
+  return {
+    fast,
+    seconds,
+    steps: fast ? PIXEL_FASTEST.steps : PIXEL_STEPS,
+    countdown: seconds * FPS,
+    frames: T.lead + seconds * FPS + T.hold + T.exit,
+  };
+};
+
 /* ------------------------------------------------------------ scoring / bonus */
 
 /** a bonus round (erases 1 wrong) plays after these question numbers: the end of each level */
@@ -58,7 +85,6 @@ export const T = {
   exit: 8,
 };
 export const INTRO_FRAMES = T.introA + T.introB;
-export const QUESTION_FRAMES = T.lead + T.countdown + T.hold + T.exit;
 
 type IrisSeg = Extract<Segment, { kind: 'iris' }>;
 type ReminderSeg = Extract<Segment, { kind: 'reminder' }>;
@@ -105,7 +131,7 @@ const build = () => {
       lastLevel = b.level;
       push({ kind: 'levelCard', from: cursor, duration: T.levelCard, level: b.level });
     }
-    push({ kind: 'question', from: cursor, duration: QUESTION_FRAMES, index, erases });
+    push({ kind: 'question', from: cursor, duration: questionClock(b.id).frames, index, erases });
 
     const qHud: Hud = { label: 'Q', number: index + 1, total: BRANDS.length, erases };
     if (PIXEL_REMINDER_AFTER.includes(index + 1)) {
