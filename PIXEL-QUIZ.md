@@ -44,4 +44,24 @@ Tune it in `src/pixel/pixel-timing.ts` (`PIXEL_STEPS`, `COUNTDOWN_SECONDS`, `T`)
 - `src/pixel/pixel-timing.ts` — frame-accurate timeline
 - `scripts/fetch-pixel-images.js` — photo fetcher (same CLI as `fetch-images.js`)
 
-Total runtime is roughly 46 × 8 s + intros ≈ 6.5 minutes.
+## Scoring and bonus rounds
+
+Same rules as the main video, so viewers who know it already know how to play:
+
+- **Intro** = title, then *THE RULES* (count every wrong answer · bonus right = −1 wrong · under 4 wrong = LEGEND).
+- **HUD**: Q counter, level-coloured progress bar, perfect **STREAK**, and **BONUS ERASES** once a bonus is done.
+- **4 bonus rounds**, one at the end of each level (after Q12, Q25, Q38, Q46). Each is a colour wipe into the orange
+  bonus backdrop, a timed puzzle, and a "NAIL IT → ERASE 1 WRONG" reveal. They are the main format's rounds, picked for
+  this quiz in `PIXEL_BONUS_ORDER` (`src/pixel/pixel-timing.ts`):
+  1. **Odd one out** (food themed) 2. **Count it** 3. **Spot the difference** 4. **Emoji math** (hardest).
+  Swap in `'scramble'` for a word round. Boards are seeded, so every render is identical.
+- **"Still counting? ❌"** pop-ups after Q6, Q19 and Q32 (`PIXEL_REMINDER_AFTER`).
+- **Scoreboard** (LEGEND → KEEP GOING) before the end screen, with the existing rank sounds and confetti.
+
+Moving a bonus round or reminder is one number in `pixel-timing.ts`; the progress bar, diamonds and BONUS counter follow.
+
+Shared code touched: `src/Hud.tsx` now reads its level blocks / bonus diamonds from a `HudPlan` context
+(the main video's plan is the default, so `GuessTheWord` renders exactly as before), and
+`buildBonusPuzzles()` takes an optional `order`.
+
+Total runtime is about 8 minutes.

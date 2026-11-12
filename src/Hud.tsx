@@ -10,26 +10,52 @@ const BAR_GAP = px(4);
 const BAR_H = px(6);
 const BAR_BOTTOM = px(40);
 
-/** how many questions each level has, in level order (drives the width of each bar segment) */
-const LEVEL_COUNTS = LEVELS.map((l) => QUESTIONS.filter((q) => q.level === l.name).length);
-const SEG_SPACE = BAR_W - BAR_GAP * (LEVELS.length - 1);
-const SEGMENTS = (() => {
+/**
+ * What the progress bar needs to know about a video: the level blocks (name, accent, question
+ * count), the total, and where the bonus diamonds sit. The main video's plan is the default;
+ * other compositions (e.g. the pixel quiz) wrap their scenes in <HudPlanContext.Provider>.
+ */
+export type HudPlan = {
+  total: number;
+  /** question numbers after which a bonus round plays */
+  bonusAfter: number[];
+  levels: { name: string; accent: string; count: number }[];
+};
+
+export const MAIN_HUD_PLAN: HudPlan = {
+  total: TOTAL,
+  bonusAfter: settings.bonus.after as number[],
+  levels: LEVELS.map((l) => ({ name: l.name, accent: l.accent, count: QUESTIONS.filter((q) => q.level === l.name).length })),
+};
+export const HudPlanContext = React.createContext<HudPlan>(MAIN_HUD_PLAN);
+
+const layoutOf = (plan: HudPlan) => {
+  const space = BAR_W - BAR_GAP * (plan.levels.length - 1);
   let q0 = 0;
   let x0 = 0;
-  return LEVELS.map((lv, i) => {
-    const w = (SEG_SPACE * LEVEL_COUNTS[i]) / Math.max(1, TOTAL);
-    const seg = { name: lv.name, accent: lv.accent, q0, q1: q0 + LEVEL_COUNTS[i], x0, w };
-    q0 += LEVEL_COUNTS[i];
+  const segments = plan.levels.map((lv) => {
+    const w = (space * lv.count) / Math.max(1, plan.total);
+    const seg = { name: lv.name, accent: lv.accent, q0, q1: q0 + lv.count, x0, w };
+    q0 += lv.count;
     x0 += w + BAR_GAP;
     return seg;
   });
-})();
-
-/** x position (inside the bar) of "p questions finished", p = 0..TOTAL */
-const xAt = (p: number) => {
-  const seg = SEGMENTS.find((s) => p <= s.q1) ?? SEGMENTS[SEGMENTS.length - 1];
-  const t = clamp01((p - seg.q0) / Math.max(1, seg.q1 - seg.q0));
-  return seg.x0 + seg.w * t;
+  /** x position (inside the bar) of "p questions finished", p = 0..total */
+  const xAt = (p: number) => {
+    const seg = segments.find((s) => p <= s.q1) ?? segments[segments.length - 1];
+    const t = clamp01((p - seg.q0) / Math.max(1, seg.q1 - seg.q0));
+    return seg.x0 + seg.w * t;
+  };
+  return { segments, xAt };
+};
+const layoutCache = new WeakMap<HudPlan, ReturnType<typeof layoutOf>>();
+const layoutFor = (plan: HudPlan) => {
+  let l = layoutCache.get(plan);
+  if (!l) {
+    l = layoutOf(plan);
+    layoutCache.set(plan, l);
+  }
+  return l;
 };
 
 /**
@@ -39,9 +65,11 @@ const xAt = (p: number) => {
 const ProgressBar: React.FC<{ label: string; number: number | string; frame: number }> = ({ label, number, frame }) => {
   const isBonus = label === 'BONUS';
   const n = typeof number === 'number' ? number : 0;
-  const bonusAfter = settings.bonus.after as number[];
+  const plan = React.useContext(HudPlanContext);
+  const { segments: SEGMENTS, xAt } = layoutFor(plan);
+  const bonusAfter = plan.bonusAfter;
   // questions finished (or in progress) at this moment
-  const target = isBonus ? bonusAfter[Math.max(0, n - 1)] ?? TOTAL : Math.min(TOTAL, n);
+  const target = isBonus ? bonusAfter[Math.max(0, n - 1)] ?? plan.total : Math.min(plan.total, n);
   const from = isBonus ? target : Math.max(0, target - 1);
   const filled = from + (target - from) * htmlEase(clamp01(frame / ms(500)));
   const headX = xAt(filled);
@@ -156,7 +184,8 @@ export const Hud: React.FC<{
   const pop = prog(frame, 0, 18, bounceEase);
   const numN = typeof number === 'number' ? number : 0;
   const isBonusHud = label === 'BONUS';
-  const bonusAfterH = settings.bonus.after as number[];
+  const plan = React.useContext(HudPlanContext);
+  const bonusAfterH = plan.bonusAfter;
   const landed = landedAt === undefined || frame >= landedAt;
   // perfect streak: answers landed so far (the most a viewer can have in a row)
   const streak = isBonusHud ? bonusAfterH[Math.max(0, numN - 1)] ?? 0 : Math.max(0, numN - (landed ? 0 : 1));
@@ -200,7 +229,7 @@ export const Hud: React.FC<{
           >
             {number}
           </b>
-          <small style={{ fontWeight: 800, fontSize: px(17), letterSpacing: px(1), color: COLORS.muted }}>/{total}</small>
+          <small style={{ fontWeight: 800, fontSize: px(17), letterSpacing: px(1), color: COLORS.muted }}>/{isBonusHud ? plan.bonusAfter.length : total}</small>
         </div>
       </div>
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { AbsoluteFill } from 'remotion';
 import { Background } from '../Background';
 import { Watermark } from '../Watermark';
+import { Hud } from '../Hud';
 import { COLORS, FONTS, glass, px } from '../style';
 import { prog, revealIn, slamIn, breathe } from '../anim';
 import { backOut, power3Out, linear } from '../gsap-helpers';
@@ -9,7 +10,7 @@ import { BRANDS, PIXEL_LEVELS, imageFile } from './brands';
 import { COUNTDOWN_SECONDS, FPS, PIXEL_STEPS, PIXEL_TOTAL, T } from './pixel-timing';
 import { PixelCanvas } from './PixelCanvas';
 
-const BOX = px(430); // the picture is a square
+const BOX = px(400); // the picture is a square
 const mix = (a: number, b: number, k: number) => a + (b - a) * k;
 
 /**
@@ -19,7 +20,7 @@ const mix = (a: number, b: number, k: number) => a + (b - a) * k;
  *   +150 .. +10          pixels resolve into the full picture
  *   then                 answer chip + hold
  */
-export const PixelRound: React.FC<{ frame: number; index: number }> = ({ frame, index }) => {
+export const PixelRound: React.FC<{ frame: number; index: number; erases: number }> = ({ frame, index, erases }) => {
   const brand = BRANDS[index];
   const level = PIXEL_LEVELS[brand.level];
   const theme: [string, string] = [level.accent, level.bg];
@@ -71,27 +72,8 @@ export const PixelRound: React.FC<{ frame: number; index: number }> = ({ frame, 
         GUESS THE <span style={{ color: level.accent }}>BRAND</span>
       </div>
 
-      {/* HUD: question counter + level */}
-      <div
-        style={{
-          ...glass(px(40)),
-          position: 'absolute',
-          top: px(40),
-          left: px(68),
-          padding: `${px(8)}px ${px(22)}px`,
-          display: 'flex',
-          alignItems: 'center',
-          gap: px(12),
-          fontFamily: FONTS.body,
-          fontWeight: 800,
-          fontSize: px(18),
-          color: COLORS.ink,
-          zIndex: 5,
-        }}
-      >
-        <span style={{ color: level.accent }}>Q {brand.id}</span>
-        <span style={{ opacity: 0.55 }}>/ {PIXEL_TOTAL}</span>
-      </div>
+      {/* shared HUD: Q counter, progress bar, perfect STREAK, BONUS ERASES */}
+      <Hud label="Q" number={brand.id} total={PIXEL_TOTAL} erases={erases} frame={frame} landedAt={revealAt} />
       <Watermark />
 
       {/* the pixelated picture */}
@@ -99,7 +81,7 @@ export const PixelRound: React.FC<{ frame: number; index: number }> = ({ frame, 
         style={{
           position: 'absolute',
           left: '50%',
-          top: px(92),
+          top: px(88),
           width: BOX,
           height: BOX,
           marginLeft: -BOX / 2,
@@ -122,7 +104,7 @@ export const PixelRound: React.FC<{ frame: number; index: number }> = ({ frame, 
         style={{
           position: 'absolute',
           left: px(70),
-          top: px(210),
+          top: px(220),
           width: px(250),
           display: 'flex',
           flexDirection: 'column',
@@ -210,7 +192,7 @@ export const PixelRound: React.FC<{ frame: number; index: number }> = ({ frame, 
           style={{
             ...glass(px(40)),
             position: 'absolute',
-            bottom: px(52),
+            bottom: px(78),
             left: '50%',
             transform: `translateX(-50%) scale(${1 + 0.02 * breathe(frame, 60)})`,
             padding: `${px(12)}px ${px(36)}px`,
@@ -228,7 +210,7 @@ export const PixelRound: React.FC<{ frame: number; index: number }> = ({ frame, 
         <div
           style={{
             position: 'absolute',
-            bottom: px(30),
+            bottom: px(56),
             width: '100%',
             display: 'flex',
             flexDirection: 'column',

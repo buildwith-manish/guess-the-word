@@ -1,18 +1,19 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
 import { Background } from '../Background';
-import { COLORS, FONTS, px } from '../style';
+import { COLORS, FONTS, K, px } from '../style';
 import { prog, revealIn, slamIn } from '../anim';
 import { backOut, linear } from '../gsap-helpers';
 import { PIXEL_LEVELS } from './brands';
+import settings from '../../settings.json';
 import { LEVEL_COUNT, COUNTDOWN_SECONDS, PIXEL_TOTAL, T, levelCount } from './pixel-timing';
 
-/** Hook: a mosaic that sharpens while the title slams in. */
-export const PixelIntro: React.FC<{ frame: number }> = ({ frame }) => {
+/** Hook scene A: a mosaic that sharpens while the title slams in. */
+const TitleScene: React.FC<{ frame: number }> = ({ frame }) => {
   const a = slamIn(frame, 4, 18);
   const b = slamIn(frame, 26, 18);
   const c = revealIn(frame, 52, 16, 24);
-  const out = 1 - prog(frame, T.intro - 8, 8, linear);
+  const out = 1 - prog(frame, T.introA - 8, 8, linear);
   // decorative mosaic: 12x7 blocks that "resolve" from big chunks into a tidy grid
   const cols = 16;
   const rows = 9;
@@ -84,3 +85,46 @@ export const PixelLevelCard: React.FC<{ frame: number; level: number }> = ({ fra
     </AbsoluteFill>
   );
 };
+
+const H = settings.text.hook;
+
+/** Hook scene B: the three scoring rules (same copy as the main video's hook). */
+const RulesScene: React.FC<{ frame: number }> = ({ frame }) => {
+  const exitP = prog(frame, T.introB - 12, 12, linear);
+  const eyebrow = revealIn(frame, 0, 14, 18);
+  const r1 = slamIn(frame, 4, 14);
+  const r2 = prog(frame, 38, 20, backOut);
+  const r3 = prog(frame, 84, 20, backOut);
+  const row = (p: number): React.CSSProperties => ({
+    fontFamily: FONTS.display,
+    fontSize: px(58),
+    letterSpacing: px(4),
+    textAlign: 'center',
+    opacity: Math.min(1, Math.max(0, p)),
+    transform: `translate3d(0, ${(1 - p) * 30 * K}px, 0)`,
+  });
+  return (
+    <AbsoluteFill>
+      <Background frame={frame} theme={['#2563EB', '#06214F']} />
+      <AbsoluteFill style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff', opacity: 1 - exitP, transform: `scale(${1 - 0.07 * exitP})` }}>
+        <div style={{ fontFamily: FONTS.display, fontSize: px(32), letterSpacing: px(10), color: 'rgba(255,255,255,0.8)', marginBottom: px(22), opacity: eyebrow.opacity, transform: eyebrow.transform }}>
+          {H.rulesEyebrow}
+        </div>
+        <div style={{ fontFamily: FONTS.display, fontSize: px(74), lineHeight: 1.05, letterSpacing: px(4), textAlign: 'center', opacity: r1.opacity, transform: r1.transform, filter: r1.filter }}>
+          {H.r1a} <span style={{ color: COLORS.redSoft }}>{H.r1b}</span> {H.r1c}
+        </div>
+        <div style={{ ...row(r2), marginTop: px(26) }}>
+          {H.r2a} <b style={{ color: COLORS.yellow, fontWeight: 400 }}>{H.r2b}</b>
+        </div>
+        <div style={{ ...row(r3), marginTop: px(20) }}>
+          {H.r3a} <b style={{ color: COLORS.yellow, fontWeight: 400 }}>{H.r3b}</b> {H.r3c}{' '}
+          <b style={{ color: COLORS.yellow, fontWeight: 400 }}>{H.r3d}</b>
+        </div>
+      </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+
+/** Intro = title (3 s) then the scoring rules (4 s). */
+export const PixelIntro: React.FC<{ frame: number }> = ({ frame }) =>
+  frame < T.introA ? <TitleScene frame={frame} /> : <RulesScene frame={frame - T.introA} />;

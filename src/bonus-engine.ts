@@ -311,9 +311,10 @@ const makeSpot = (d: number, rand: () => number): BonusPuzzle => {
 export const buildBonusPuzzles = (
   count = settings.bonus.after.length,
   seed = 20260101,
+  /** round types to cycle through, easy -> hard (defaults to settings.bonus.order) */
+  order: BonusKind[] = settings.bonus.order as BonusKind[],
 ): BonusPuzzle[] => {
   const pick = makePicker();
-  const order = settings.bonus.order as BonusKind[];
   return range(count).map((i) => {
     const rand = makeRandom(seed + i * 977);
     const d = count > 1 ? i / (count - 1) : 0.5;

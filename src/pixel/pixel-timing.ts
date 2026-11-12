@@ -2,10 +2,17 @@
  * pixel-timing.ts — frame-accurate plan for the pixelated quiz.
  * Same rules as timing.ts: pure arithmetic, everything derived from constants,
  * authored in 30 fps "design frames" and sampled at the composition's real fps.
+ *
+ * Flow: intro (title + scoring rules) -> level card -> questions ... -> colour wipe ->
+ * BONUS round (erases 1 wrong) -> wipe -> next level ... -> scoreboard -> end screen.
  */
 import { useCurrentFrame } from 'remotion';
 import settings from '../../settings.json';
 import { BRANDS, PIXEL_LEVELS } from './brands';
+import { BONUS_CLOCK_START, bonusRevealHold } from '../timing';
+import { buildBonusPuzzles, type BonusKind, type BonusPuzzle } from '../bonus-engine';
+import type { Hud, Segment } from '../types';
+import type { HudPlan } from '../Hud';
 
 export const WIDTH = settings.width;
 export const HEIGHT = settings.height;
@@ -26,8 +33,23 @@ export const COUNTDOWN_SECONDS = 5;
  */
 export const PIXEL_STEPS = [8, 12, 20, 32, 48];
 
+/* ------------------------------------------------------------ scoring / bonus */
+
+/** a bonus round (erases 1 wrong) plays after these question numbers: the end of each level */
+export const PIXEL_BONUS_AFTER = [12, 25, 38, 46];
+/**
+ * Bonus round types, easy -> hard. Picked from the main format's five (odd, count, scramble,
+ * math, spot): odd-one-out is food themed; count-it and spot-the-difference are quick visual
+ * scans that suit a "look carefully" quiz; emoji-math is the hard finale.
+ * Swap in 'scramble' here if you want a word round.
+ */
+export const PIXEL_BONUS_ORDER: BonusKind[] = ['odd', 'count', 'spot', 'math'];
+/** "Still counting? ❌" pop-ups (kept clear of the bonus rounds) */
+export const PIXEL_REMINDER_AFTER = [6, 19, 32];
+
 export const T = {
-  intro: 90,
+  introA: 90, // title
+  introB: settings.timing.hookB, // the three scoring rules
   levelCard: 60,
   lead: 14, // picture pops in, then the clock starts
   countdown: COUNTDOWN_SECONDS * FPS,
@@ -35,13 +57,34 @@ export const T = {
   hold: 70, // answer stays up
   exit: 8,
 };
+export const INTRO_FRAMES = T.introA + T.introB;
 export const QUESTION_FRAMES = T.lead + T.countdown + T.hold + T.exit;
+
+type IrisSeg = Extract<Segment, { kind: 'iris' }>;
+type ReminderSeg = Extract<Segment, { kind: 'reminder' }>;
 
 export type PixelSegment =
   | { kind: 'intro'; from: number; duration: number }
   | { kind: 'levelCard'; from: number; duration: number; level: number }
-  | { kind: 'question'; from: number; duration: number; index: number }
+  | { kind: 'question'; from: number; duration: number; index: number; erases: number }
+  | { kind: 'bonus'; from: number; duration: number; index: number; puzzle: BonusPuzzle }
+  | IrisSeg
+  | ReminderSeg
+  | { kind: 'scoreboard'; from: number; duration: number }
   | { kind: 'endScreen'; from: number; duration: number };
+
+export const themeForBrand = (index: number): [string, string] => {
+  const lv = PIXEL_LEVELS[BRANDS[index].level];
+  return [lv.accent, lv.bg];
+};
+
+/** orange backdrop of every bonus round (settings.bonus.theme) */
+export const PIXEL_BONUS_THEME = settings.bonus.theme as [string, string];
+
+const PUZZLES: BonusPuzzle[] = buildBonusPuzzles(PIXEL_BONUS_AFTER.length, undefined, PIXEL_BONUS_ORDER);
+
+const bonusDuration = (p: BonusPuzzle, bonusIndex: number) =>
+  BONUS_CLOCK_START(bonusIndex) + Math.round(p.seconds * FPS) + bonusRevealHold(bonusIndex);
 
 const build = () => {
   const segments: PixelSegment[] = [];
@@ -50,15 +93,39 @@ const build = () => {
     segments.push(seg);
     cursor += seg.duration;
   };
-  push({ kind: 'intro', from: 0, duration: T.intro });
+  const pushIris = (fromTheme: [string, string], toTheme: [string, string], hud: Hud, watermark: boolean) =>
+    push({ kind: 'iris', from: cursor, duration: settings.timing.irisFrames, fromTheme, toTheme, hud, watermark, title: false, variant: 'circle' });
+
+  push({ kind: 'intro', from: 0, duration: INTRO_FRAMES });
+
   let lastLevel = -1;
+  let erases = 0; // bonus rounds finished so far = the "BONUS ERASES" badge
   BRANDS.forEach((b, index) => {
     if (b.level !== lastLevel) {
       lastLevel = b.level;
       push({ kind: 'levelCard', from: cursor, duration: T.levelCard, level: b.level });
     }
-    push({ kind: 'question', from: cursor, duration: QUESTION_FRAMES, index });
+    push({ kind: 'question', from: cursor, duration: QUESTION_FRAMES, index, erases });
+
+    const qHud: Hud = { label: 'Q', number: index + 1, total: BRANDS.length, erases };
+    if (PIXEL_REMINDER_AFTER.includes(index + 1)) {
+      push({ kind: 'reminder', from: cursor, duration: settings.reminder.frames, theme: themeForBrand(index), hud: qHud, title: false });
+    }
+
+    const bonusIndex = PIXEL_BONUS_AFTER.indexOf(index + 1);
+    if (bonusIndex >= 0) {
+      const puzzle = PUZZLES[bonusIndex];
+      const isLast = index === BRANDS.length - 1;
+      pushIris(themeForBrand(index), PIXEL_BONUS_THEME, qHud, true);
+      push({ kind: 'bonus', from: cursor, duration: bonusDuration(puzzle, bonusIndex), index: bonusIndex, puzzle });
+      erases += 1;
+      if (!isLast) {
+        pushIris(PIXEL_BONUS_THEME, themeForBrand(index + 1), { label: 'BONUS', number: bonusIndex + 1, total: PIXEL_BONUS_AFTER.length, erases }, false);
+      }
+    }
   });
+
+  push({ kind: 'scoreboard', from: cursor, duration: settings.scoreboard.frames });
   push({ kind: 'endScreen', from: cursor, duration: settings.endScreen.frames });
   return { segments, totalFrames: cursor };
 };
@@ -68,6 +135,16 @@ export const PIXEL_TOTAL_FRAMES = Math.round(PIXEL_TIMELINE.totalFrames * TIME_S
 export const PIXEL_TOTAL = BRANDS.length;
 export const levelCount = (level: number) => BRANDS.filter((b) => b.level === level).length;
 export const LEVEL_COUNT = PIXEL_LEVELS.length;
+
+/** progress-bar layout for the shared HUD (level blocks, bonus diamonds) */
+export const PIXEL_HUD_PLAN: HudPlan = {
+  total: PIXEL_TOTAL,
+  bonusAfter: PIXEL_BONUS_AFTER,
+  levels: PIXEL_LEVELS.map((l, i) => ({ name: l.name, accent: l.accent, count: levelCount(i) })),
+};
+
+/** first frame of the scoreboard (the music stops there, like the main video) */
+export const PIXEL_MUSIC_END = (PIXEL_TIMELINE.segments.find((s) => s.kind === 'scoreboard') ?? { from: PIXEL_TIMELINE.totalFrames }).from;
 
 export const locate = (frame: number) => {
   const segs = PIXEL_TIMELINE.segments;
