@@ -9,7 +9,7 @@
 import { useCurrentFrame } from 'remotion';
 import settings from '../../settings.json';
 import { BRANDS, PIXEL_LEVELS } from './brands';
-import { BONUS_CLOCK_START, bonusRevealHold } from '../timing';
+import voManifest from './pixel-voiceover-manifest.json';
 import type { BonusKind, BonusPuzzle } from '../bonus-engine';
 import { BRAND_BONUS_ORDER, buildBrandBonusPuzzles } from './brand-bonus';
 import type { Hud, Segment } from '../types';
@@ -48,16 +48,69 @@ export const PIXEL_FASTEST = {
 };
 export const isFastest = (brandId: number) => PIXEL_FASTEST.questions.includes(brandId);
 
-/** per-question clock: seconds, grid ladder, and frame counts */
+/**
+ * Voiceover for the pixel quiz. Same rules as timing.ts, but its own clips and manifest so the
+ * brand numbers never collide with the main video's q01..q50:
+ *   public/voiceover/pxqq01.mp3   question line of brand 1 (the clock starts AFTER it ends)
+ *   public/voiceover/pxq01.mp3    answer line of brand 1 (plays just after the reveal; hold stretches to fit)
+ *   public/voiceover/pxbonusq01.mp3 / pxbonus01.mp3   the same pair for bonus round 1..4
+ * scripts/voiceover-scan.js measures them into src/pixel/pixel-voiceover-manifest.json.
+ * A missing clip changes nothing. Fastest-guess questions never use a question line (the badge and
+ * the 3 s clock already create the urgency).
+ */
+const VO = settings.voiceover;
+export type VoClip = { file: string; frames: number };
+export type PixelVoiceKind = 'q' | 'qq' | 'bonus' | 'bonusq';
+export const pixelClip = (kind: PixelVoiceKind, n: number): VoClip | undefined => {
+  if (!VO.enabled) return undefined;
+  const e = (voManifest as Record<string, Record<string, { file: string; seconds: number }>>)[kind]?.[String(n)];
+  return e && Number.isFinite(e.seconds) && e.seconds > 0 ? { file: e.file, frames: Math.ceil(e.seconds * FPS) } : undefined;
+};
+
+/** per-question clock + voiceover plan: seconds, grid ladder and frame counts (design frames) */
 export const questionClock = (brandId: number) => {
   const fast = isFastest(brandId);
   const seconds = fast ? PIXEL_FASTEST.seconds : COUNTDOWN_SECONDS;
+  const countdown = seconds * FPS;
+
+  // question line: plays once the picture has popped in, the clock starts when it ends
+  const qq = fast ? undefined : pixelClip('qq', brandId);
+  const timerStart = T.lead + (qq ? qq.frames : 0);
+  const reveal = timerStart + countdown;
+
+  // answer line: starts just after the reveal lands; the hold stretches so it always finishes
+  const clip = pixelClip('q', brandId);
+  const hold = Math.max(T.hold, clip ? VO.offsetFrames + clip.frames + VO.tailFrames : 0);
+
   return {
     fast,
     seconds,
     steps: fast ? PIXEL_FASTEST.steps : PIXEL_STEPS,
-    countdown: seconds * FPS,
-    frames: T.lead + seconds * FPS + T.hold + T.exit,
+    countdown,
+    timerStart,
+    hold,
+    questionVoice: qq ? { file: qq.file, frames: qq.frames, start: T.lead } : undefined,
+    answerVoice: clip ? { file: clip.file, frames: clip.frames, start: reveal + VO.offsetFrames } : undefined,
+    frames: timerStart + countdown + hold + T.exit,
+  };
+};
+
+/** bonus rounds: pre-roll is stretched for the question line, the answer hold for the answer line */
+export const pixelBonusClockStart = (bonusIndex: number) => {
+  const base = settings.bonus.preRollFrames + settings.bonus.buildFrames + 10;
+  const clip = pixelClip('bonusq', bonusIndex + 1);
+  return clip ? Math.max(base, VO.offsetFrames + clip.frames + 10) : base;
+};
+export const pixelBonusRevealHold = (bonusIndex: number) => {
+  const clip = pixelClip('bonus', bonusIndex + 1);
+  return Math.max(settings.bonus.revealHoldFrames, clip ? VO.offsetFrames + clip.frames + VO.tailFrames : 0);
+};
+export const pixelBonusVoices = (bonusIndex: number, seconds: number) => {
+  const q = pixelClip('bonusq', bonusIndex + 1);
+  const a = pixelClip('bonus', bonusIndex + 1);
+  return {
+    question: q ? { file: q.file, frames: q.frames, start: VO.offsetFrames } : undefined,
+    answer: a ? { file: a.file, frames: a.frames, start: pixelBonusClockStart(bonusIndex) + Math.round(seconds * FPS) + VO.offsetFrames } : undefined,
   };
 };
 
@@ -109,7 +162,7 @@ export const PIXEL_BONUS_THEME = settings.bonus.theme as [string, string];
 const PUZZLES: BonusPuzzle[] = buildBrandBonusPuzzles();
 
 const bonusDuration = (p: BonusPuzzle, bonusIndex: number) =>
-  BONUS_CLOCK_START(bonusIndex) + Math.round(p.seconds * FPS) + bonusRevealHold(bonusIndex);
+  pixelBonusClockStart(bonusIndex) + Math.round(p.seconds * FPS) + pixelBonusRevealHold(bonusIndex);
 
 const build = () => {
   const segments: PixelSegment[] = [];

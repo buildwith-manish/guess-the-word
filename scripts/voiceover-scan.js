@@ -40,6 +40,7 @@ const settings = require(path.join(ROOT, 'settings.json'));
 const VO = settings.voiceover;
 const DIR = path.join(ROOT, 'public', VO.dir);
 const MANIFEST = path.join(ROOT, 'src', 'voiceover-manifest.json');
+const PIXEL_MANIFEST = path.join(ROOT, 'src', 'pixel', 'pixel-voiceover-manifest.json');
 const EXT = /\.(mp3|wav|m4a|aac|ogg|flac)$/i;
 
 const wavSeconds = (file) => {
@@ -81,6 +82,9 @@ const seconds = (file) => {
 
 const main = () => {
   const manifest = { q: {}, qq: {}, bonus: {}, bonusq: {}, intro: null, scoreboard: {}, outro: null };
+  // Pixel quiz clips (own namespace so brand numbers never collide with q01..q50):
+  //   pxqq##  question line · pxq##  answer line · pxbonusq##  bonus question · pxbonus##  bonus answer
+  const pixel = { q: {}, qq: {}, bonus: {}, bonusq: {} };
   const problems = [];
   if (fs.existsSync(DIR)) {
     for (const name of fs.readdirSync(DIR).sort()) {
@@ -92,6 +96,19 @@ const main = () => {
         continue;
       }
       const entry = { file: name, seconds: Math.round(s * 1000) / 1000 };
+
+      // Pixel quiz clips: pxqq##, pxq##, pxbonus##, pxbonusq##
+      const px = /^px(bonusq|qq|q|bonus)0*(\d+)\.[a-z0-9]+$/i.exec(name);
+      if (px) {
+        const kind = px[1].toLowerCase();
+        const n = String(Number(px[2]));
+        if (pixel[kind][n]) {
+          problems.push(`two clips for px${kind} ${n}: keeping ${pixel[kind][n].file}, ignoring ${name}`);
+          continue;
+        }
+        pixel[kind][n] = entry;
+        continue;
+      }
 
       // Numbered clips: qq##, q##, bonus##, bonusq##
       const m = /^(bonusq|qq|q|bonus)0*(\d+)\.[a-z0-9]+$/i.exec(name);
@@ -127,8 +144,14 @@ const main = () => {
   }
 
   fs.writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2) + '\n');
+  fs.writeFileSync(PIXEL_MANIFEST, JSON.stringify(pixel, null, 2) + '\n');
 
-  const total = require(path.join(ROOT, 'src', 'rounds.json')).length;
+  let total = 0;
+  try {
+    total = require(path.join(ROOT, 'src', 'rounds.json')).length;
+  } catch (e) {
+    /* rounds.json is generated; the pixel quiz does not need it */
+  }
   const bonusTotal = settings.bonus.after.length;
   const qn = Object.keys(manifest.q).length;
   const qqn = Object.keys(manifest.qq).length;
@@ -144,6 +167,12 @@ const main = () => {
   if (long.length) {
     console.log(
       `  ${long.length} clip(s) are longer than the default reveal (${defaultHoldSec.toFixed(1)} s): the video holds the answer longer where needed so nothing is cut off.`,
+    );
+  }
+  const pxCount = (k) => Object.keys(pixel[k]).length;
+  if (pxCount('q') + pxCount('qq') + pxCount('bonus') + pxCount('bonusq') > 0) {
+    console.log(
+      `  pixel quiz voiceover: ${pxCount('q')}/46 answer · ${pxCount('qq')}/46 question · ${pxCount('bonus')}/4 bonus answer · ${pxCount('bonusq')}/4 bonus question`,
     );
   }
   const odd = Object.entries(manifest.q).filter(([, v]) => v.seconds < 0.3 || v.seconds > 9);

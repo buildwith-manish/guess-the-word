@@ -27,8 +27,8 @@
     "pixel:dev": "remotion studio",
     "pixel:images": "node scripts/fetch-pixel-images.js",
     "pixel:still": "remotion still PixelGuess out/pixel-still.png --frame=388",
-    "pixel:render": "remotion render PixelGuess out/pixel-guess.mp4",
-    "pixel:draft": "remotion render PixelGuess out/pixel-guess-draft.mp4 --scale=0.5 --concurrency=4"
+    "pixel:render": "node scripts/voiceover-scan.js && remotion render PixelGuess out/pixel-guess.mp4",
+    "pixel:draft": "node scripts/voiceover-scan.js && remotion render PixelGuess out/pixel-guess-draft.mp4 --scale=0.5 --concurrency=4"
   },
   "dependencies": {
     "@react-three/fiber": "^9.3.0",

@@ -15,8 +15,8 @@ const mix = (a: number, b: number, k: number) => a + (b - a) * k;
 
 /**
  * One question. frame = design frames (30 fps) since the segment started.
- *   0 .. lead            picture pops in at the coarsest grid
- *   lead .. +150         countdown: the grid gets finer every second
+ *   0 .. lead            picture pops in at the coarsest grid (+ the question voice line, if any)
+ *   timerStart .. +150   countdown: the grid gets finer every second
  *   +150 .. +10          pixels resolve into the full picture
  *   then                 answer chip + hold
  */
@@ -27,11 +27,11 @@ export const PixelRound: React.FC<{ frame: number; index: number; erases: number
 
   const clock = questionClock(brand.id);
   const PIXEL_STEPS = clock.steps; // fastest-guess questions use a shorter, coarser ladder
-  const timerStart = T.lead;
+  const timerStart = clock.timerStart; // later than T.lead when a question line plays first
   const revealAt = timerStart + clock.countdown;
   const t = frame - timerStart; // frames into the countdown
   const revealed = frame >= revealAt;
-  const questionEnd = revealAt + T.hold;
+  const questionEnd = revealAt + clock.hold; // stretched when the answer voiceover is long
 
   // --- which grid are we on? -------------------------------------------------
   const stepIdx = Math.max(0, Math.min(PIXEL_STEPS.length - 1, Math.floor(t / FPS)));

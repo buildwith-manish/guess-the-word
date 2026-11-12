@@ -6,7 +6,6 @@ import { Iris } from '../Iris';
 import { Reminder } from '../Reminder';
 import { Scoreboard } from '../Scoreboard';
 import { HudPlanContext } from '../Hud';
-import { BONUS_CLOCK_START } from '../timing';
 import settings from '../../settings.json';
 import { PixelRound } from './PixelRound';
 import { PixelIntro, PixelLevelCard } from './PixelScenes';
@@ -18,6 +17,9 @@ import {
   TIME_SCALE,
   T,
   locate,
+  pixelBonusClockStart,
+  pixelBonusRevealHold,
+  pixelBonusVoices,
   questionClock,
   usePixelFrame,
 } from './pixel-timing';
@@ -48,7 +50,13 @@ const Scenes: React.FC = () => {
     case 'bonus':
       return (
         <AbsoluteFill>
-          <Bonus frame={local} puzzle={seg.puzzle} index={seg.index} />
+          <Bonus
+            frame={local}
+            puzzle={seg.puzzle}
+            index={seg.index}
+            clockStart={pixelBonusClockStart(seg.index)}
+            revealHold={pixelBonusRevealHold(seg.index)}
+          />
         </AbsoluteFill>
       );
     case 'reminder':
@@ -67,6 +75,9 @@ const Scenes: React.FC = () => {
 };
 
 type Cue = { frame: number; sfx: string; volume?: number; rate?: number };
+/** a voiceover clip on the timeline (absolute design frames) */
+type Voice = { frame: number; file: string; frames: number };
+const VOICE_LIST: Voice[] = [];
 
 const RANK_COUNT = (settings.scoreboard.ranks as string[][]).length;
 /** Scoreboard beats — keep in sync with Scoreboard.tsx (rowBase 46, step 22), same as sound.ts. */
@@ -74,6 +85,7 @@ const SB_ROW_BASE = 46;
 const SB_STEP = 22;
 
 /** Reuses the WAVs already in public/sounds; mirrors the cue timing in sound.ts. */
+const clockOf = (index: number) => questionClock(BRANDS[index].id);
 const buildCues = (): Cue[] => {
   const cues: Cue[] = [];
   const add = (frame: number, sfx: string, extra: Partial<Cue> = {}) => cues.push({ frame: Math.round(frame), sfx, ...extra });
@@ -99,9 +111,11 @@ const buildCues = (): Cue[] => {
         break;
       case 'question': {
         add(f0 + 1, 'pop');
-        const start = f0 + T.lead;
+        const start = f0 + clockOf(seg.index).timerStart;
         // a tick every second; the picture sharpens on each one
-        const clock = questionClock(BRANDS[seg.index].id);
+        const clock = clockOf(seg.index);
+        if (clock.questionVoice) VOICE_LIST.push({ frame: Math.round(f0 + clock.questionVoice.start), file: clock.questionVoice.file, frames: clock.questionVoice.frames });
+        if (clock.answerVoice) VOICE_LIST.push({ frame: Math.round(f0 + clock.answerVoice.start), file: clock.answerVoice.file, frames: clock.answerVoice.frames });
         if (clock.fast) {
           add(f0 + 4, 'ping-hi');
           add(f0 + 4, 'thump');
@@ -115,7 +129,10 @@ const buildCues = (): Cue[] => {
         break;
       }
       case 'bonus': {
-        const clockStart = f0 + BONUS_CLOCK_START(seg.index);
+        const clockStart = f0 + pixelBonusClockStart(seg.index);
+        const bv = pixelBonusVoices(seg.index, seg.puzzle.seconds);
+        if (bv.question) VOICE_LIST.push({ frame: Math.round(f0 + bv.question.start), file: bv.question.file, frames: bv.question.frames });
+        if (bv.answer) VOICE_LIST.push({ frame: Math.round(f0 + bv.answer.start), file: bv.answer.file, frames: bv.answer.frames });
         const clockFrames = Math.round(seg.puzzle.seconds * FPS);
         const clockEnd = clockStart + clockFrames;
         add(f0, 'siren');
@@ -151,16 +168,37 @@ const buildCues = (): Cue[] => {
   return cues;
 };
 const CUES = buildCues();
+const VOICE: Voice[] = VOICE_LIST.slice().sort((a, b) => a.frame - b.frame);
+
+/** music dips under every voiceover clip (quick attack, slower release), like the main video */
+const MUSIC_VOL = 0.35;
+const musicVolume = (renderFrame: number) => {
+  const f = renderFrame / TIME_SCALE; // design frames
+  let duck = 1;
+  for (const v of VOICE) {
+    const into = f - v.frame;
+    if (into < -4 || into > v.frames + 12) continue;
+    const k = into < 0 ? (into + 4) / 4 : into <= v.frames ? 1 : 1 - (into - v.frames) / 12;
+    duck = Math.min(duck, 1 - (1 - settings.voiceover.duckFloor) * Math.max(0, Math.min(1, k)));
+  }
+  return MUSIC_VOL * duck;
+};
 
 const Sound: React.FC = () => (
   <>
     {/* music runs until the scoreboard, like the main video */}
     <Sequence from={0} durationInFrames={Math.max(1, Math.round(PIXEL_MUSIC_END * TIME_SCALE))} layout="none">
-      <Audio src={staticFile('sounds/music-base.wav')} loop volume={0.35} />
+      <Audio src={staticFile('sounds/music-base.wav')} loop volume={musicVolume} />
     </Sequence>
     {CUES.map((c, i) => (
       <Sequence key={i} from={Math.round(c.frame * TIME_SCALE)} durationInFrames={Math.round(3 * FPS * TIME_SCALE)} layout="none">
         <Audio src={staticFile(`sounds/${c.sfx}.wav`)} playbackRate={c.rate ?? 1} volume={c.volume ?? 1} />
+      </Sequence>
+    ))}
+    {/* voiceover: question lines before the clock, answer lines after the reveal */}
+    {VOICE.map((v, i) => (
+      <Sequence key={`vo${i}`} from={Math.round(v.frame * TIME_SCALE)} durationInFrames={Math.max(1, Math.ceil(v.frames * TIME_SCALE))} layout="none">
+        <Audio src={staticFile(`${settings.voiceover.dir}/${v.file}`)} volume={settings.voiceover.volume} />
       </Sequence>
     ))}
   </>

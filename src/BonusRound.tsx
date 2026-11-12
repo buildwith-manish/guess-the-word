@@ -19,17 +19,20 @@ const B = settings.bonus;
  * Bonus round = pre-roll banner -> tile board -> clock -> reveal -> answer.
  * The board is built by seed (see bonus-engine.ts) so this component stays pure.
  */
-export const Bonus: React.FC<{ frame: number; puzzle: BonusPuzzle; index: number }> = ({
-  frame,
-  puzzle,
-  index,
-}) => {
+export const Bonus: React.FC<{
+  frame: number;
+  puzzle: BonusPuzzle;
+  index: number;
+  /** override the clock start / reveal hold (the pixel quiz has its own voiceover clips) */
+  clockStart?: number;
+  revealHold?: number;
+}> = ({ frame, puzzle, index, clockStart: clockStartOverride, revealHold }) => {
   const pre = B.preRollFrames;
-  const clockStart = BONUS_CLOCK_START(index);
+  const clockStart = clockStartOverride ?? BONUS_CLOCK_START(index);
   const clockFrames = Math.round(puzzle.seconds * FPS);
   const clockEnd = clockStart + clockFrames;
   const revealAt = clockEnd;
-  const dur = clockEnd + bonusRevealHold(index);
+  const dur = clockEnd + (revealHold ?? bonusRevealHold(index));
 
   const bannerOut = prog(frame, pre - 8, 10, linear);
   const boardIn = prog(frame, pre + 2, 16, expoOut);

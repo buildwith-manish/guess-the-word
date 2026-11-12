@@ -34,6 +34,23 @@ centred square, so keep the pack in the middle of the shot.
 
 Tune it in `src/pixel/pixel-timing.ts` (`PIXEL_STEPS`, `COUNTDOWN_SECONDS`, `T`).
 
+## Voiceover
+
+The pixel quiz uses the same fit-around-the-clip logic as the main video, with its own clip names
+(so brand numbers never collide with `q01..q50`). Drop clips into `public/voiceover/`:
+
+| file | plays | effect on timing |
+| --- | --- | --- |
+| `pxqq01.mp3` | question line of brand 1, once the picture has popped in | the 5 s clock starts **after** the clip ends |
+| `pxq01.mp3` | answer line of brand 1, just after the reveal lands | the reveal hold stretches to `max(default, 14 + clip + 10)` frames |
+| `pxbonusq01.mp3` | bonus round 1 question line | bonus pre-roll stretches |
+| `pxbonus01.mp3` | bonus round 1 answer line | bonus reveal hold stretches |
+
+Fastest-guess questions skip the question line on purpose (the badge and the 3 s clock are the urgency).
+A missing clip changes nothing. `npm run voiceover` measures the clips into
+`src/pixel/pixel-voiceover-manifest.json`; `pixel:render` and `pixel:draft` run it automatically.
+Music ducks under every clip.
+
 ## Files
 
 - `src/pixel/brands.ts` — the 46 brands, 4 levels, hint line, palette, image-search query
