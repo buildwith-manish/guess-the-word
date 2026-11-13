@@ -106,7 +106,7 @@ jobs:
           CHUNKS: ${{ inputs.chunks }}
           TEST_FRAMES: ${{ inputs.test_frames }}
         run: |
-          if ! npx remotion compositions "$ENTRY" --quiet --json > comps.raw 2> comps.err; then
+          if ! npx remotion compositions "$ENTRY" --json > comps.raw 2> comps.err; then
             cat comps.err
             echo "::error title=remotion compositions failed::$(tail -c 900 comps.err | tr '\n' ' ' | tr -d '\r')"
             exit 1
