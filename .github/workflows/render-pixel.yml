@@ -256,7 +256,7 @@ jobs:
           FR=""
           if [ "${TEST_FRAMES:-0}" != "0" ]; then FR="--frames=0-$((TEST_FRAMES-1))"; fi
           if ! npx remotion render "$ENTRY" "$COMPOSITION" out/audio.wav \
-            --codec=wav $FR \
+            --codec=wav --config=remotion.audio.config.ts $FR \
             --log=info > audio.log 2>&1; then
             tail -n 40 audio.log
             echo "::error title=audio render failed::$(tail -c 1200 audio.log | sed 's/\x1b\[[0-9;]*m//g' | tr '\n' ' ' | tr -d '\r')"
