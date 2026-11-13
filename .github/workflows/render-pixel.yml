@@ -22,6 +22,10 @@ on:
         description: 'x264 CRF (lower = better quality, bigger file)'
         type: string
         default: '14'
+      keep_days:
+        description: 'How many days to keep the final video download (1-90)'
+        type: string
+        default: '21'
       preset:
         description: 'x264 preset'
         type: choice
@@ -258,6 +262,6 @@ jobs:
         with:
           name: pixel-guess-final
           path: pixel-guess.mp4
-          retention-days: 3
+          retention-days: ${{ inputs.keep_days }}
           compression-level: 0
           if-no-files-found: error
