@@ -106,14 +106,34 @@ jobs:
           CHUNKS: ${{ inputs.chunks }}
           TEST_FRAMES: ${{ inputs.test_frames }}
         run: |
-          npx remotion compositions "$ENTRY" --quiet --json > comps.raw 2> comps.err || { cat comps.err; exit 1; }
+          if ! npx remotion compositions "$ENTRY" --quiet --json > comps.raw 2> comps.err; then
+            cat comps.err
+            echo "::error title=remotion compositions failed::$(tail -c 900 comps.err | tr '\n' ' ' | tr -d '\r')"
+            exit 1
+          fi
           python3 - <<'PY'
           import json, os, re, math
           raw = open('comps.raw').read()
-          m = re.search(r'[\[{]', raw)
-          data = json.loads(raw[m.start():])
-          comps = data['compositions'] if isinstance(data, dict) else data
-          comp = next(c for c in comps if c['id'] == os.environ['COMPOSITION'])
+          dec = json.JSONDecoder()
+          data = None
+          for m in re.finditer(r'[\[{]', raw):
+              try:
+                  data, _ = dec.raw_decode(raw[m.start():])
+              except ValueError:
+                  continue
+              comps = data['compositions'] if isinstance(data, dict) and 'compositions' in data else data
+              if isinstance(comps, list) and comps and isinstance(comps[0], dict) and 'id' in comps[0]:
+                  break
+              data = None
+          if data is None:
+              flat = raw[-700:].replace(chr(10), ' ')
+              print(f"::error title=could not parse compositions JSON::{flat}")
+              raise SystemExit(1)
+          comp = next((c for c in comps if c['id'] == os.environ['COMPOSITION']), None)
+          if comp is None:
+              ids = ', '.join(c['id'] for c in comps)
+              print(f"::error title=composition not found::{os.environ['COMPOSITION']} not in: {ids}")
+              raise SystemExit(1)
           total = int(comp['durationInFrames'])
           test = int(os.environ.get('TEST_FRAMES') or 0)
           if test > 0:
