@@ -1,0 +1,109 @@
+id,type,wired_in_video,text
+pxintro,intro,yes,Name the brand from a few blurry pixels. Ready?
+pxrules,rules,yes,"Wrong answers count. Bonus rounds erase one. Under four wrong? Legend."
+pxlevel01,level,yes,Level one: Breakfast. Twelve brands. Rise and shine.
+pxqq01,question,yes,Frosted toaster pastry. Sprinkles included.
+pxq01,answer,yes,Pop-Tarts! Toaster royalty.
+pxqq02,question,yes,Leggo my… what?
+pxq02,answer,yes,Eggo Waffles! Leggo indeed.
+pxqq03,question,yes,Little yellow box. Little oat rings.
+pxq03,answer,yes,Cheerios! Bowl classic.
+pxq04,answer,yes,Froot Loops! Toucan Sam.
+pxqq05,question,yes,Marshmallows hiding in your cereal.
+pxq05,answer,yes,Lucky Charms! Magically delicious.
+pxqq06,question,yes,A friendly face on warm oats.
+pxq06,answer,yes,Quaker Oatmeal! Cozy start.
+pxqq07,question,yes,That pop when the can opens.
+pxq07,answer,yes,Pillsbury! Pop goes the can.
+pxqq08,question,yes,An orange with a straw.
+pxq08,answer,yes,Tropicana! Sip it fresh.
+pxqq09,question,yes,"Breakfast sandwich, straight from the freezer."
+pxq09,answer,yes,Jimmy Dean! Microwave hero.
+pxqq10,question,yes,Hazelnut spread. Straight to the spoon.
+pxq10,answer,yes,Nutella! Spoon approved.
+pxqq11,question,yes,Gingham lid. Toast's best friend.
+pxq11,answer,yes,Smucker's! Jelly time.
+pxqq12,question,yes,Choosy moms choose this one.
+pxq12,answer,yes,Jif! Creamy or crunchy?
+pxbonusq01,bonus question,yes,Which brand wears these colors?
+pxbonus01,bonus answer,yes,"Tropicana! Orange, white, and green."
+pxlevel02,level,yes,Level two: Lunch and pantry. Thirteen brands.
+pxqq13,question,yes,Blue box. Powdered cheese. Comfort.
+pxq13,answer,yes,Kraft Mac! Dinner solved.
+pxqq14,question,yes,Red and white soup can.
+pxq14,answer,yes,Campbell's! Soup season.
+pxqq15,question,yes,Slow to pour. Worth the wait.
+pxq15,answer,yes,Heinz! Fries' best friend.
+pxq16,answer,yes,French's! Hot dog essential.
+pxqq17,question,yes,Try not to hum the jingle.
+pxq17,answer,yes,Oscar Mayer! Jingle stuck.
+pxqq18,question,yes,"Lunch, assembled by you."
+pxq18,answer,yes,Lunchables! Stack and snack.
+pxqq19,question,yes,Teal label. Peanut butter time.
+pxq19,answer,yes,Skippy! Spread it on.
+pxqq20,question,yes,"Dip it, drizzle it, dunk it."
+pxq20,answer,yes,Hidden Valley! Dunk everything.
+pxqq21,question,yes,"Canned ravioli, ready in minutes."
+pxq21,answer,yes,Chef Boyardee! Pantry classic.
+pxqq22,question,yes,Navy box. Spaghetti night.
+pxq22,answer,yes,Barilla! Pasta perfection.
+pxqq23,question,yes,Tuna in a can. Sandwich-ready.
+pxq23,answer,yes,Bumble Bee! Tuna time.
+pxqq24,question,yes,Melts smooth. Famously smooth.
+pxq24,answer,yes,Velveeta! Queso king.
+pxqq25,question,yes,Crispy outside. Lava inside.
+pxq25,answer,yes,Hot Pockets! Careful now.
+pxbonusq02,bonus question,yes,Study the packs. One's about to vanish.
+pxbonus02,bonus answer,yes,Heinz Ketchup vanished!
+pxlevel03,level,yes,Level three: Snacks and chips. Thirteen brands. Crunch time.
+pxqq26,question,yes,The snack that smiles back.
+pxq26,answer,yes,Goldfish! Cheesy little swimmers.
+pxqq27,question,yes,Square crackers. Serious cheddar.
+pxq27,answer,yes,Cheez-It! Cheddar crunch.
+pxqq28,question,yes,Orange dust on your fingers.
+pxq28,answer,yes,Nacho Doritos! Worth it.
+pxq29,answer,yes,Cool Ranch! Blue bag legend.
+pxqq30,question,yes,Bet you can't eat just one.
+pxq30,answer,yes,Lay's! Crispy classic.
+pxqq31,question,yes,That cool cat on the bag.
+pxq31,answer,yes,Cheetos! Chester approves.
+pxqq32,question,yes,"Once you pop, you can't stop."
+pxq32,answer,yes,Pringles! Stack 'em up.
+pxqq33,question,yes,Chips built for scooping salsa.
+pxq33,answer,yes,Tostitos! Party starter.
+pxqq34,question,yes,"Buttery, round, and a little fancy."
+pxq34,answer,yes,Ritz Crackers! Fancy snack.
+pxqq35,question,yes,Elves baking inside a tree.
+pxq35,answer,yes,Keebler! Elf-made goodness.
+pxq36,answer,yes,"Oreo! Twist, lick, dunk."
+pxqq37,question,yes,Chewy chocolate chip cookies. Ahoy!
+pxq37,answer,yes,Chips Ahoy! Cookie crew.
+pxqq38,question,yes,Spicy meat stick. Pure snap.
+pxq38,answer,yes,Slim Jim! Snap into it.
+pxbonusq03,bonus question,yes,Zoomed way in. What brand is this?
+pxbonus03,bonus answer,yes,Oreo! That's the cookie edge.
+pxlevel04,level,yes,Level four: Dinner and fast food. Eight brands. Final stretch.
+pxqq39,question,yes,Red C. Chicken sandwich.
+pxq39,answer,yes,Chick-fil-A! My pleasure.
+pxq40,answer,yes,McDonald's! Golden arches.
+pxqq41,question,yes,Purple bell. Late-night cravings.
+pxq41,answer,yes,Taco Bell! Crunchwrap time.
+pxqq42,question,yes,Red pigtails. Square burgers.
+pxq42,answer,yes,Wendy's! Square burger fame.
+pxqq43,question,yes,"Frozen lasagna, family-size comfort."
+pxq43,answer,yes,Stouffer's! Freezer-aisle star.
+pxqq44,question,yes,Tiny pizza bites from the freezer.
+pxq44,answer,yes,Totino's! Snack time.
+pxqq45,question,yes,It's not delivery.
+pxq45,answer,yes,DiGiorno! Rising crust.
+pxqq46,question,yes,Pint-sized happiness. Cows on the carton.
+pxq46,answer,yes,Ben and Jerry's! Scoop time.
+pxbonusq04,bonus question,yes,Which pack is the odd one out?
+pxbonus04,bonus answer,yes,Pop-Tarts! Blue among the yellows.
+pxscore0,scoreboard,yes,All forty-six done. Where do you land?
+pxscore1,scoreboard,yes,Zero to three wrong: Legend. Crown time.
+pxscore2,scoreboard,yes,Four to ten: Expert. Seriously good.
+pxscore3,scoreboard,yes,Eleven to twenty: Good. Solid shopper.
+pxscore4,scoreboard,yes,Twenty-one to thirty: Beginner. Replay it.
+pxscore5,scoreboard,yes,Thirty-one or more: Keep going!
+pxoutro,outro,yes,"Drop your score in the comments, then tag a friend who's a snack expert. Subscribe for a new quiz every week."
