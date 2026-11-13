@@ -38,15 +38,15 @@
     },
     "10": {
       "file": "pxq10.wav",
-      "seconds": 2.02
+      "seconds": 2.025
     },
     "11": {
       "file": "pxq11.wav",
-      "seconds": 1.855
+      "seconds": 1.86
     },
     "12": {
       "file": "pxq12.wav",
-      "seconds": 1.965
+      "seconds": 1.97
     },
     "13": {
       "file": "pxq13.wav",
@@ -54,7 +54,7 @@
     },
     "14": {
       "file": "pxq14.wav",
-      "seconds": 1.735
+      "seconds": 1.74
     },
     "15": {
       "file": "pxq15.wav",
@@ -78,7 +78,7 @@
     },
     "20": {
       "file": "pxq20.wav",
-      "seconds": 2.27
+      "seconds": 2.275
     },
     "21": {
       "file": "pxq21.wav",
@@ -94,7 +94,7 @@
     },
     "24": {
       "file": "pxq24.wav",
-      "seconds": 1.97
+      "seconds": 1.975
     },
     "25": {
       "file": "pxq25.wav",
@@ -110,7 +110,7 @@
     },
     "28": {
       "file": "pxq28.wav",
-      "seconds": 2.295
+      "seconds": 2.3
     },
     "29": {
       "file": "pxq29.wav",
@@ -130,7 +130,7 @@
     },
     "33": {
       "file": "pxq33.wav",
-      "seconds": 1.99
+      "seconds": 1.995
     },
     "34": {
       "file": "pxq34.wav",
@@ -138,7 +138,7 @@
     },
     "35": {
       "file": "pxq35.wav",
-      "seconds": 2.195
+      "seconds": 2.2
     },
     "36": {
       "file": "pxq36.wav",
@@ -178,7 +178,11 @@
     },
     "45": {
       "file": "pxq45.wav",
-      "seconds": 2.075
+      "seconds": 2.08
+    },
+    "46": {
+      "file": "pxq46.wav",
+      "seconds": 2.175
     }
   },
   "qq": {
@@ -192,11 +196,11 @@
     },
     "3": {
       "file": "pxqq03.wav",
-      "seconds": 2.33
+      "seconds": 2.335
     },
     "5": {
       "file": "pxqq05.wav",
-      "seconds": 2.08
+      "seconds": 2.18
     },
     "6": {
       "file": "pxqq06.wav",
@@ -228,7 +232,7 @@
     },
     "13": {
       "file": "pxqq13.wav",
-      "seconds": 2.83
+      "seconds": 2.835
     },
     "14": {
       "file": "pxqq14.wav",
@@ -236,7 +240,7 @@
     },
     "15": {
       "file": "pxqq15.wav",
-      "seconds": 2.28
+      "seconds": 2.285
     },
     "17": {
       "file": "pxqq17.wav",
@@ -248,11 +252,11 @@
     },
     "19": {
       "file": "pxqq19.wav",
-      "seconds": 2.09
+      "seconds": 2.095
     },
     "20": {
       "file": "pxqq20.wav",
-      "seconds": 1.99
+      "seconds": 1.995
     },
     "21": {
       "file": "pxqq21.wav",
@@ -280,7 +284,7 @@
     },
     "27": {
       "file": "pxqq27.wav",
-      "seconds": 2.455
+      "seconds": 2.46
     },
     "28": {
       "file": "pxqq28.wav",
@@ -304,7 +308,7 @@
     },
     "34": {
       "file": "pxqq34.wav",
-      "seconds": 2.51
+      "seconds": 2.615
     },
     "35": {
       "file": "pxqq35.wav",
@@ -324,7 +328,7 @@
     },
     "41": {
       "file": "pxqq41.wav",
-      "seconds": 2.315
+      "seconds": 2.32
     },
     "42": {
       "file": "pxqq42.wav",
@@ -340,7 +344,11 @@
     },
     "45": {
       "file": "pxqq45.wav",
-      "seconds": 1.315
+      "seconds": 1.32
+    },
+    "46": {
+      "file": "pxqq46.wav",
+      "seconds": 2.745
     }
   },
   "bonus": {
@@ -355,12 +363,16 @@
     "3": {
       "file": "pxbonus03.wav",
       "seconds": 2.44
+    },
+    "4": {
+      "file": "pxbonus04.wav",
+      "seconds": 2.275
     }
   },
   "bonusq": {
     "1": {
       "file": "pxbonusq01.wav",
-      "seconds": 1.92
+      "seconds": 1.925
     },
     "2": {
       "file": "pxbonusq02.wav",
@@ -369,6 +381,10 @@
     "3": {
       "file": "pxbonusq03.wav",
       "seconds": 2.48
+    },
+    "4": {
+      "file": "pxbonusq04.wav",
+      "seconds": 1.77
     }
   },
   "level": {
@@ -378,7 +394,7 @@
     },
     "2": {
       "file": "pxlevel02.wav",
-      "seconds": 3.66
+      "seconds": 3.665
     },
     "3": {
       "file": "pxlevel03.wav",
@@ -389,7 +405,32 @@
       "seconds": 4.84
     }
   },
-  "score": {},
+  "score": {
+    "0": {
+      "file": "pxscore0.wav",
+      "seconds": 2.42
+    },
+    "1": {
+      "file": "pxscore1.wav",
+      "seconds": 3.5
+    },
+    "2": {
+      "file": "pxscore2.wav",
+      "seconds": 3.025
+    },
+    "3": {
+      "file": "pxscore3.wav",
+      "seconds": 2.775
+    },
+    "4": {
+      "file": "pxscore4.wav",
+      "seconds": 2.735
+    },
+    "5": {
+      "file": "pxscore5.wav",
+      "seconds": 2.235
+    }
+  },
   "intro": {
     "file": "pxintro.wav",
     "seconds": 3.405
@@ -398,5 +439,8 @@
     "file": "pxrules.wav",
     "seconds": 5.305
   },
-  "outro": null
+  "outro": {
+    "file": "pxoutro.wav",
+    "seconds": 6.383
+  }
 }
