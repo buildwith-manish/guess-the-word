@@ -126,6 +126,16 @@ jobs:
                   break
               data = None
           if data is None:
+              # Remotion versions that ignore --json print a table: id fps WxH frames (secs)
+              clean = re.sub(r'\x1b\[[0-9;]*m', '', raw)
+              comps = []
+              for line in clean.splitlines():
+                  t = re.match(r'^\s*([A-Za-z0-9_-]+)\s+(\d+(?:\.\d+)?)\s+(\d+)x(\d+)\s+(\d+)\b', line)
+                  if t:
+                      comps.append({'id': t.group(1), 'fps': t.group(2), 'width': t.group(3), 'height': t.group(4), 'durationInFrames': int(t.group(5))})
+              if comps:
+                  data = comps
+          if data is None:
               flat = raw[-700:].replace(chr(10), ' ')
               print(f"::error title=could not parse compositions JSON::{flat}")
               raise SystemExit(1)
