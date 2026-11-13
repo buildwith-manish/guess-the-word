@@ -33,7 +33,7 @@ on:
       crf:
         description: 'x264 CRF (lower = better quality, bigger file)'
         type: string
-        default: '14'
+        default: '18'
       keep_days:
         description: 'How many days to keep the final video download (1-90)'
         type: string
