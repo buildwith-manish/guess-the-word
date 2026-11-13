@@ -29,8 +29,9 @@ const TitleScene: React.FC<{ frame: number; a: number }> = ({ frame, a: dur }) =
   const out = 1 - prog(frame, dur - 8, 8, linear);
   const wallW = WALL.length * TILE + (WALL.length - 1) * GAP;
   return (
-    <AbsoluteFill style={{ opacity: out }}>
+    <AbsoluteFill>
       <Background frame={frame} theme={['#6D5BFF', '#0B0A2E']} />
+      <AbsoluteFill style={{ opacity: out }}>
       <AbsoluteFill style={{ alignItems: 'center', justifyContent: 'flex-start', display: 'flex', flexDirection: 'column', textAlign: 'center', paddingTop: px(52) }}>
         <div style={{ fontFamily: FONTS.display, fontSize: px(84), lineHeight: 1.05, color: COLORS.ink, opacity: a.opacity, transform: a.transform, filter: a.filter, textShadow: `0 ${px(6)}px ${px(24)}px rgba(0,0,0,0.6)` }}>
           CAN YOU NAME THE BRAND
@@ -66,6 +67,7 @@ const TitleScene: React.FC<{ frame: number; a: number }> = ({ frame, a: dur }) =
       <div style={{ position: 'absolute', left: 0, right: 0, top: px(566), textAlign: 'center', fontFamily: FONTS.body, fontWeight: 800, fontSize: px(22), letterSpacing: px(6), color: COLORS.ink, opacity: c.opacity, transform: c.transform }}>
         {PIXEL_TOTAL} FOOD BRANDS · {COUNTDOWN_SECONDS} SECONDS EACH
       </div>
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };

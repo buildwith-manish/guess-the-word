@@ -44,7 +44,7 @@ const Scenes: React.FC = () => {
     case 'levelCard':
       return <PixelLevelCard frame={local} level={seg.level} duration={seg.duration} />;
     case 'question':
-      return <PixelRound frame={local} index={seg.index} erases={seg.erases} />;
+      return <PixelRound frame={local} index={seg.index} erases={seg.erases} bgFrame={seg.from + local} />;
     case 'iris':
       return (
         <AbsoluteFill>

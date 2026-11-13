@@ -20,7 +20,7 @@ const mix = (a: number, b: number, k: number) => a + (b - a) * k;
  *   +150 .. +10          pixels resolve into the full picture
  *   then                 answer chip + hold
  */
-export const PixelRound: React.FC<{ frame: number; index: number; erases: number }> = ({ frame, index, erases }) => {
+export const PixelRound: React.FC<{ frame: number; index: number; erases: number; bgFrame?: number }> = ({ frame, index, erases, bgFrame }) => {
   const brand = BRANDS[index];
   const level = PIXEL_LEVELS[brand.level];
   const theme: [string, string] = [level.accent, level.bg];
@@ -58,8 +58,10 @@ export const PixelRound: React.FC<{ frame: number; index: number; erases: number
   const beat = 0.5 + 0.5 * Math.sin((frame / FPS) * Math.PI * 2 * 1.4);
 
   return (
-    <AbsoluteFill style={{ opacity: fade }}>
-      <Background frame={frame} theme={theme} energy={revealed ? 1 : 0} />
+    <AbsoluteFill>
+      {/* the background never fades (it stays solid between questions); only the content on top fades */}
+      <Background frame={bgFrame ?? frame} theme={theme} energy={revealed ? 1 : 0} />
+      <AbsoluteFill style={{ opacity: fade }}>
 
       {/* title */}
       <div
@@ -80,7 +82,6 @@ export const PixelRound: React.FC<{ frame: number; index: number; erases: number
 
       {/* shared HUD: Q counter, progress bar, perfect STREAK, BONUS ERASES */}
       <Hud label="Q" number={brand.id} total={PIXEL_TOTAL} erases={erases} frame={frame} landedAt={revealAt} />
-      <Watermark />
 
       {/* fastest guess: short clock, hot colours (same look as the main video's badge) */}
       {clock.fast ? (
@@ -271,6 +272,8 @@ export const PixelRound: React.FC<{ frame: number; index: number; erases: number
           <div style={{ fontFamily: FONTS.body, fontWeight: 600, fontSize: px(18), color: COLORS.muted }}>{brand.hint}</div>
         </div>
       )}
+      </AbsoluteFill>
+      <Watermark />
     </AbsoluteFill>
   );
 };
