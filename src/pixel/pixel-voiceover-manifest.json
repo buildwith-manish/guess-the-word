@@ -1,62 +1,402 @@
 {
-  "q": {},
-  "qq": {},
-  "bonus": {},
-  "bonusq": {},
+  "q": {
+    "1": {
+      "file": "pxq01.wav",
+      "seconds": 2.235
+    },
+    "2": {
+      "file": "pxq02.wav",
+      "seconds": 2.595
+    },
+    "3": {
+      "file": "pxq03.wav",
+      "seconds": 2.13
+    },
+    "4": {
+      "file": "pxq04.wav",
+      "seconds": 2.04
+    },
+    "5": {
+      "file": "pxq05.wav",
+      "seconds": 2.705
+    },
+    "6": {
+      "file": "pxq06.wav",
+      "seconds": 2.15
+    },
+    "7": {
+      "file": "pxq07.wav",
+      "seconds": 2.14
+    },
+    "8": {
+      "file": "pxq08.wav",
+      "seconds": 2.135
+    },
+    "9": {
+      "file": "pxq09.wav",
+      "seconds": 2.355
+    },
+    "10": {
+      "file": "pxq10.wav",
+      "seconds": 2.02
+    },
+    "11": {
+      "file": "pxq11.wav",
+      "seconds": 1.855
+    },
+    "12": {
+      "file": "pxq12.wav",
+      "seconds": 1.965
+    },
+    "13": {
+      "file": "pxq13.wav",
+      "seconds": 2.13
+    },
+    "14": {
+      "file": "pxq14.wav",
+      "seconds": 1.735
+    },
+    "15": {
+      "file": "pxq15.wav",
+      "seconds": 2.22
+    },
+    "16": {
+      "file": "pxq16.wav",
+      "seconds": 2.14
+    },
+    "17": {
+      "file": "pxq17.wav",
+      "seconds": 2.115
+    },
+    "18": {
+      "file": "pxq18.wav",
+      "seconds": 2.32
+    },
+    "19": {
+      "file": "pxq19.wav",
+      "seconds": 1.845
+    },
+    "20": {
+      "file": "pxq20.wav",
+      "seconds": 2.27
+    },
+    "21": {
+      "file": "pxq21.wav",
+      "seconds": 2.51
+    },
+    "22": {
+      "file": "pxq22.wav",
+      "seconds": 2.175
+    },
+    "23": {
+      "file": "pxq23.wav",
+      "seconds": 1.82
+    },
+    "24": {
+      "file": "pxq24.wav",
+      "seconds": 1.97
+    },
+    "25": {
+      "file": "pxq25.wav",
+      "seconds": 1.87
+    },
+    "26": {
+      "file": "pxq26.wav",
+      "seconds": 2.275
+    },
+    "27": {
+      "file": "pxq27.wav",
+      "seconds": 1.92
+    },
+    "28": {
+      "file": "pxq28.wav",
+      "seconds": 2.295
+    },
+    "29": {
+      "file": "pxq29.wav",
+      "seconds": 2.62
+    },
+    "30": {
+      "file": "pxq30.wav",
+      "seconds": 2.07
+    },
+    "31": {
+      "file": "pxq31.wav",
+      "seconds": 2.105
+    },
+    "32": {
+      "file": "pxq32.wav",
+      "seconds": 1.775
+    },
+    "33": {
+      "file": "pxq33.wav",
+      "seconds": 1.99
+    },
+    "34": {
+      "file": "pxq34.wav",
+      "seconds": 2.27
+    },
+    "35": {
+      "file": "pxq35.wav",
+      "seconds": 2.195
+    },
+    "36": {
+      "file": "pxq36.wav",
+      "seconds": 2.485
+    },
+    "37": {
+      "file": "pxq37.wav",
+      "seconds": 1.975
+    },
+    "38": {
+      "file": "pxq38.wav",
+      "seconds": 2.135
+    },
+    "39": {
+      "file": "pxq39.wav",
+      "seconds": 1.895
+    },
+    "40": {
+      "file": "pxq40.wav",
+      "seconds": 2.06
+    },
+    "41": {
+      "file": "pxq41.wav",
+      "seconds": 2.25
+    },
+    "42": {
+      "file": "pxq42.wav",
+      "seconds": 2.245
+    },
+    "43": {
+      "file": "pxq43.wav",
+      "seconds": 2.29
+    },
+    "44": {
+      "file": "pxq44.wav",
+      "seconds": 1.985
+    },
+    "45": {
+      "file": "pxq45.wav",
+      "seconds": 2.075
+    }
+  },
+  "qq": {
+    "1": {
+      "file": "pxqq01.wav",
+      "seconds": 3.005
+    },
+    "2": {
+      "file": "pxqq02.wav",
+      "seconds": 1.775
+    },
+    "3": {
+      "file": "pxqq03.wav",
+      "seconds": 2.33
+    },
+    "5": {
+      "file": "pxqq05.wav",
+      "seconds": 2.08
+    },
+    "6": {
+      "file": "pxqq06.wav",
+      "seconds": 2.09
+    },
+    "7": {
+      "file": "pxqq07.wav",
+      "seconds": 1.86
+    },
+    "8": {
+      "file": "pxqq08.wav",
+      "seconds": 1.56
+    },
+    "9": {
+      "file": "pxqq09.wav",
+      "seconds": 2.36
+    },
+    "10": {
+      "file": "pxqq10.wav",
+      "seconds": 2.445
+    },
+    "11": {
+      "file": "pxqq11.wav",
+      "seconds": 2.45
+    },
+    "12": {
+      "file": "pxqq12.wav",
+      "seconds": 1.825
+    },
+    "13": {
+      "file": "pxqq13.wav",
+      "seconds": 2.83
+    },
+    "14": {
+      "file": "pxqq14.wav",
+      "seconds": 1.445
+    },
+    "15": {
+      "file": "pxqq15.wav",
+      "seconds": 2.28
+    },
+    "17": {
+      "file": "pxqq17.wav",
+      "seconds": 1.61
+    },
+    "18": {
+      "file": "pxqq18.wav",
+      "seconds": 1.915
+    },
+    "19": {
+      "file": "pxqq19.wav",
+      "seconds": 2.09
+    },
+    "20": {
+      "file": "pxqq20.wav",
+      "seconds": 1.99
+    },
+    "21": {
+      "file": "pxqq21.wav",
+      "seconds": 2.27
+    },
+    "22": {
+      "file": "pxqq22.wav",
+      "seconds": 1.98
+    },
+    "23": {
+      "file": "pxqq23.wav",
+      "seconds": 2.235
+    },
+    "24": {
+      "file": "pxqq24.wav",
+      "seconds": 2.585
+    },
+    "25": {
+      "file": "pxqq25.wav",
+      "seconds": 2.655
+    },
+    "26": {
+      "file": "pxqq26.wav",
+      "seconds": 1.86
+    },
+    "27": {
+      "file": "pxqq27.wav",
+      "seconds": 2.455
+    },
+    "28": {
+      "file": "pxqq28.wav",
+      "seconds": 2
+    },
+    "30": {
+      "file": "pxqq30.wav",
+      "seconds": 1.565
+    },
+    "31": {
+      "file": "pxqq31.wav",
+      "seconds": 1.74
+    },
+    "32": {
+      "file": "pxqq32.wav",
+      "seconds": 1.945
+    },
+    "33": {
+      "file": "pxqq33.wav",
+      "seconds": 2.205
+    },
+    "34": {
+      "file": "pxqq34.wav",
+      "seconds": 2.51
+    },
+    "35": {
+      "file": "pxqq35.wav",
+      "seconds": 2.005
+    },
+    "37": {
+      "file": "pxqq37.wav",
+      "seconds": 2.68
+    },
+    "38": {
+      "file": "pxqq38.wav",
+      "seconds": 2.565
+    },
+    "39": {
+      "file": "pxqq39.wav",
+      "seconds": 1.765
+    },
+    "41": {
+      "file": "pxqq41.wav",
+      "seconds": 2.315
+    },
+    "42": {
+      "file": "pxqq42.wav",
+      "seconds": 2.425
+    },
+    "43": {
+      "file": "pxqq43.wav",
+      "seconds": 2.685
+    },
+    "44": {
+      "file": "pxqq44.wav",
+      "seconds": 2.045
+    },
+    "45": {
+      "file": "pxqq45.wav",
+      "seconds": 1.315
+    }
+  },
+  "bonus": {
+    "1": {
+      "file": "pxbonus01.wav",
+      "seconds": 2.7
+    },
+    "2": {
+      "file": "pxbonus02.wav",
+      "seconds": 1.665
+    },
+    "3": {
+      "file": "pxbonus03.wav",
+      "seconds": 2.44
+    }
+  },
+  "bonusq": {
+    "1": {
+      "file": "pxbonusq01.wav",
+      "seconds": 1.92
+    },
+    "2": {
+      "file": "pxbonusq02.wav",
+      "seconds": 2.43
+    },
+    "3": {
+      "file": "pxbonusq03.wav",
+      "seconds": 2.48
+    }
+  },
   "level": {
     "1": {
       "file": "pxlevel01.wav",
-      "seconds": 1.8
+      "seconds": 4.135
     },
     "2": {
       "file": "pxlevel02.wav",
-      "seconds": 2.6
+      "seconds": 3.66
     },
     "3": {
       "file": "pxlevel03.wav",
-      "seconds": 2.2
+      "seconds": 4.675
     },
     "4": {
       "file": "pxlevel04.wav",
-      "seconds": 2.2
+      "seconds": 4.84
     }
   },
-  "score": {
-    "0": {
-      "file": "pxscore0.wav",
-      "seconds": 2.6
-    },
-    "1": {
-      "file": "pxscore1.wav",
-      "seconds": 2.4
-    },
-    "2": {
-      "file": "pxscore2.wav",
-      "seconds": 1.8
-    },
-    "3": {
-      "file": "pxscore3.wav",
-      "seconds": 2
-    },
-    "4": {
-      "file": "pxscore4.wav",
-      "seconds": 2.2
-    },
-    "5": {
-      "file": "pxscore5.wav",
-      "seconds": 2.2
-    }
-  },
+  "score": {},
   "intro": {
     "file": "pxintro.wav",
-    "seconds": 3.6
+    "seconds": 3.405
   },
   "rules": {
     "file": "pxrules.wav",
-    "seconds": 4.2
+    "seconds": 5.305
   },
-  "outro": {
-    "file": "pxoutro.wav",
-    "seconds": 6
-  }
+  "outro": null
 }
