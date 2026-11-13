@@ -60,10 +60,18 @@ export const isFastest = (brandId: number) => PIXEL_FASTEST.questions.includes(b
  */
 const VO = settings.voiceover;
 export type VoClip = { file: string; frames: number };
-export type PixelVoiceKind = 'q' | 'qq' | 'bonus' | 'bonusq';
+export type PixelVoiceKind = 'q' | 'qq' | 'bonus' | 'bonusq' | 'level' | 'score';
+export type PixelNamedKind = 'intro' | 'rules' | 'outro';
 export const pixelClip = (kind: PixelVoiceKind, n: number): VoClip | undefined => {
   if (!VO.enabled) return undefined;
   const e = (voManifest as Record<string, Record<string, { file: string; seconds: number }>>)[kind]?.[String(n)];
+  return e && Number.isFinite(e.seconds) && e.seconds > 0 ? { file: e.file, frames: Math.ceil(e.seconds * FPS) } : undefined;
+};
+
+/** single clips with no number: pxintro, pxrules, pxoutro */
+export const pixelNamed = (kind: PixelNamedKind): VoClip | undefined => {
+  if (!VO.enabled) return undefined;
+  const e = (voManifest as unknown as Record<string, { file: string; seconds: number } | null>)[kind];
   return e && Number.isFinite(e.seconds) && e.seconds > 0 ? { file: e.file, frames: Math.ceil(e.seconds * FPS) } : undefined;
 };
 
@@ -127,8 +135,8 @@ export const PIXEL_BONUS_ORDER: BonusKind[] = BRAND_BONUS_ORDER;
 export const PIXEL_REMINDER_AFTER = [6, 19, 32];
 
 export const T = {
-  introA: 90, // title
-  introB: settings.timing.hookB, // the three scoring rules
+  introA: 100, // cold open + title (stretches to the pxintro clip)
+  introB: 150, // the three rule cards + 3-2-1 (built from the pxrules clip)
   levelCard: 60,
   lead: 14, // picture pops in, then the clock starts
   countdown: COUNTDOWN_SECONDS * FPS,
@@ -136,7 +144,84 @@ export const T = {
   hold: 70, // answer stays up
   exit: 8,
 };
-export const INTRO_FRAMES = T.introA + T.introB;
+
+/* ------------------------------------------------------------ intro / levels / scoreboard / outro voiceover */
+
+/**
+ * Hook plan. Scene A (cold open + title) lasts as long as the pxintro line needs; scene B shows the
+ * three rule cards while pxrules is spoken, then a 3-2-1 beat into level 1. No clip = default lengths.
+ */
+export const INTRO_A_VOICE_AT = 8;
+export const INTRO_B_VOICE_AT = 10;
+export const INTRO_COUNT_FRAMES = 45; // 3 - 2 - 1, 15 frames each
+export const introPlan = () => {
+  const ic = pixelNamed('intro');
+  const rc = pixelNamed('rules');
+  const a = Math.max(T.introA, ic ? INTRO_A_VOICE_AT + ic.frames + 10 : 0);
+  const ruleSpan = rc ? rc.frames : 90; // frames the three cards are spread over
+  const countAt = INTRO_B_VOICE_AT + ruleSpan + 6;
+  const b = Math.max(T.introB, countAt + INTRO_COUNT_FRAMES);
+  return {
+    a,
+    b,
+    ruleSpan,
+    countAt,
+    frames: a + b,
+    introVoice: ic ? { file: ic.file, frames: ic.frames, start: INTRO_A_VOICE_AT } : undefined,
+    rulesVoice: rc ? { file: rc.file, frames: rc.frames, start: a + INTRO_B_VOICE_AT } : undefined,
+  };
+};
+export const INTRO_PLAN = introPlan();
+export const INTRO_FRAMES = INTRO_PLAN.frames;
+
+/** level card: the card stretches so the spoken line (starts as the title lands) always finishes */
+export const levelCardPlan = (level: number) => {
+  const c = pixelClip('level', level + 1);
+  return {
+    frames: Math.max(T.levelCard, c ? 8 + c.frames + 14 : 0),
+    voice: c ? { file: c.file, frames: c.frames, start: 8 } : undefined,
+  };
+};
+
+/**
+ * Scoreboard: with clips, the intro line plays first, then each rank row drops in WHEN its line is
+ * spoken, bottom -> top, so LEGEND (the last line) lands with the crown and confetti.
+ * Without clips the original 168-frame layout is used unchanged.
+ */
+const SB_BASE_FRAMES = 168;
+export const scoreboardPlan = () => {
+  const intro = pixelClip('score', 0);
+  const ranks = [1, 2, 3, 4, 5].map((n) => pixelClip('score', n)); // legend, expert, good, beginner, keepgoing
+  if (!intro && ranks.every((r) => !r)) {
+    return { frames: SB_BASE_FRAMES, rowAt: undefined as number[] | undefined, voices: [] as { file: string; frames: number; start: number }[] };
+  }
+  const voices: { file: string; frames: number; start: number }[] = [];
+  let t = 46; // default first-row time, if there is no intro clip
+  if (intro) {
+    voices.push({ file: intro.file, frames: intro.frames, start: 12 });
+    t = 12 + intro.frames + 8;
+  }
+  const rowAt: number[] = [0, 0, 0, 0, 0];
+  for (let n = 5; n >= 1; n--) {
+    const c = ranks[n - 1];
+    rowAt[n - 1] = t;
+    if (c) voices.push({ file: c.file, frames: c.frames, start: t + 4 });
+    t += Math.max(22, c ? c.frames + 10 : 0);
+  }
+  return { frames: Math.max(SB_BASE_FRAMES, t + 60), rowAt, voices };
+};
+export const PIXEL_SCOREBOARD = scoreboardPlan();
+
+/** end screen: stretches so the outro line (starts at frame 60, after the first hits) finishes */
+export const OUTRO_VOICE_AT = 60;
+export const endScreenPlan = () => {
+  const c = pixelNamed('outro');
+  return {
+    frames: Math.max(settings.endScreen.frames, c ? OUTRO_VOICE_AT + c.frames + 30 : 0),
+    voice: c ? { file: c.file, frames: c.frames, start: OUTRO_VOICE_AT } : undefined,
+  };
+};
+export const PIXEL_END = endScreenPlan();
 
 type IrisSeg = Extract<Segment, { kind: 'iris' }>;
 type ReminderSeg = Extract<Segment, { kind: 'reminder' }>;
@@ -174,14 +259,14 @@ const build = () => {
   const pushIris = (fromTheme: [string, string], toTheme: [string, string], hud: Hud, watermark: boolean) =>
     push({ kind: 'iris', from: cursor, duration: settings.timing.irisFrames, fromTheme, toTheme, hud, watermark, title: false, variant: 'circle' });
 
-  push({ kind: 'intro', from: 0, duration: INTRO_FRAMES });
+  push({ kind: 'intro', from: 0, duration: INTRO_PLAN.frames });
 
   let lastLevel = -1;
   let erases = 0; // bonus rounds finished so far = the "BONUS ERASES" badge
   BRANDS.forEach((b, index) => {
     if (b.level !== lastLevel) {
       lastLevel = b.level;
-      push({ kind: 'levelCard', from: cursor, duration: T.levelCard, level: b.level });
+      push({ kind: 'levelCard', from: cursor, duration: levelCardPlan(b.level).frames, level: b.level });
     }
     push({ kind: 'question', from: cursor, duration: questionClock(b.id).frames, index, erases });
 
@@ -203,8 +288,8 @@ const build = () => {
     }
   });
 
-  push({ kind: 'scoreboard', from: cursor, duration: settings.scoreboard.frames });
-  push({ kind: 'endScreen', from: cursor, duration: settings.endScreen.frames });
+  push({ kind: 'scoreboard', from: cursor, duration: PIXEL_SCOREBOARD.frames });
+  push({ kind: 'endScreen', from: cursor, duration: PIXEL_END.frames });
   return { segments, totalFrames: cursor };
 };
 

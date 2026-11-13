@@ -84,7 +84,8 @@ const main = () => {
   const manifest = { q: {}, qq: {}, bonus: {}, bonusq: {}, intro: null, scoreboard: {}, outro: null };
   // Pixel quiz clips (own namespace so brand numbers never collide with q01..q50):
   //   pxqq##  question line · pxq##  answer line · pxbonusq##  bonus question · pxbonus##  bonus answer
-  const pixel = { q: {}, qq: {}, bonus: {}, bonusq: {} };
+  //   pxintro · pxrules · pxoutro (single clips) · pxlevel01..04 · pxscore0 (intro) + pxscore1..5 (legend..keepgoing)
+  const pixel = { q: {}, qq: {}, bonus: {}, bonusq: {}, level: {}, score: {}, intro: null, rules: null, outro: null };
   const problems = [];
   if (fs.existsSync(DIR)) {
     for (const name of fs.readdirSync(DIR).sort()) {
@@ -96,6 +97,23 @@ const main = () => {
         continue;
       }
       const entry = { file: name, seconds: Math.round(s * 1000) / 1000 };
+
+      // Pixel quiz single clips + level cards + scoreboard
+      const pxOne = /^px(intro|rules|outro)\.[a-z0-9]+$/i.exec(name);
+      if (pxOne) {
+        const k = pxOne[1].toLowerCase();
+        if (pixel[k]) problems.push(`two clips for px${k}: keeping ${pixel[k].file}, ignoring ${name}`);
+        else pixel[k] = entry;
+        continue;
+      }
+      const pxNum = /^px(level|score)0*(\d+)\.[a-z0-9]+$/i.exec(name);
+      if (pxNum) {
+        const k = pxNum[1].toLowerCase();
+        const n = String(Number(pxNum[2]));
+        if (pixel[k][n]) problems.push(`two clips for px${k} ${n}: keeping ${pixel[k][n].file}, ignoring ${name}`);
+        else pixel[k][n] = entry;
+        continue;
+      }
 
       // Pixel quiz clips: pxqq##, pxq##, pxbonus##, pxbonusq##
       const px = /^px(bonusq|qq|q|bonus)0*(\d+)\.[a-z0-9]+$/i.exec(name);
@@ -170,9 +188,10 @@ const main = () => {
     );
   }
   const pxCount = (k) => Object.keys(pixel[k]).length;
-  if (pxCount('q') + pxCount('qq') + pxCount('bonus') + pxCount('bonusq') > 0) {
+  const pxExtra = pxCount('level') + pxCount('score') + (pixel.intro ? 1 : 0) + (pixel.rules ? 1 : 0) + (pixel.outro ? 1 : 0);
+  if (pxCount('q') + pxCount('qq') + pxCount('bonus') + pxCount('bonusq') + pxExtra > 0) {
     console.log(
-      `  pixel quiz voiceover: ${pxCount('q')}/46 answer · ${pxCount('qq')}/46 question · ${pxCount('bonus')}/4 bonus answer · ${pxCount('bonusq')}/4 bonus question`,
+      `  pixel quiz voiceover: ${pxCount('q')}/46 answer · ${pxCount('qq')}/46 question · ${pxCount('bonus')}/4 bonus answer · ${pxCount('bonusq')}/4 bonus question · ${pxCount('level')}/4 level · ${pxCount('score')}/6 scoreboard · intro ${pixel.intro ? '✓' : '✗'} rules ${pixel.rules ? '✓' : '✗'} outro ${pixel.outro ? '✓' : '✗'}`,
     );
   }
   const odd = Object.entries(manifest.q).filter(([, v]) => v.seconds < 0.3 || v.seconds > 9);

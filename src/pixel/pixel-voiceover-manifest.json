@@ -2,5 +2,61 @@
   "q": {},
   "qq": {},
   "bonus": {},
-  "bonusq": {}
+  "bonusq": {},
+  "level": {
+    "1": {
+      "file": "pxlevel01.wav",
+      "seconds": 1.8
+    },
+    "2": {
+      "file": "pxlevel02.wav",
+      "seconds": 2.6
+    },
+    "3": {
+      "file": "pxlevel03.wav",
+      "seconds": 2.2
+    },
+    "4": {
+      "file": "pxlevel04.wav",
+      "seconds": 2.2
+    }
+  },
+  "score": {
+    "0": {
+      "file": "pxscore0.wav",
+      "seconds": 2.6
+    },
+    "1": {
+      "file": "pxscore1.wav",
+      "seconds": 2.4
+    },
+    "2": {
+      "file": "pxscore2.wav",
+      "seconds": 1.8
+    },
+    "3": {
+      "file": "pxscore3.wav",
+      "seconds": 2
+    },
+    "4": {
+      "file": "pxscore4.wav",
+      "seconds": 2.2
+    },
+    "5": {
+      "file": "pxscore5.wav",
+      "seconds": 2.2
+    }
+  },
+  "intro": {
+    "file": "pxintro.wav",
+    "seconds": 3.6
+  },
+  "rules": {
+    "file": "pxrules.wav",
+    "seconds": 4.2
+  },
+  "outro": {
+    "file": "pxoutro.wav",
+    "seconds": 6
+  }
 }

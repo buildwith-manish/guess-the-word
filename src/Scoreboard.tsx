@@ -17,12 +17,14 @@ const RANKS = settings.scoreboard.ranks as string[][];
  * exactly like the reference HTML. One row per 22 frames, rows are pure
  * functions of the frame so seeking backwards is safe.
  */
-export const Scoreboard: React.FC<{ frame: number }> = ({ frame }) => {
+export const Scoreboard: React.FC<{ frame: number; rowAt?: number[] }> = ({ frame, rowAt }) => {
   const kicker = revealIn(frame, 6, 14, 20);
   const title = revealIn(frame, 14, 16, 30);
   const rowBase = 46;
   const step = 22;
-  const lastRowAt = rowBase + (RANKS.length - 1) * step;
+  // rowAt (optional): exact frame each rank row drops in, so the pixel quiz can sync rows to voiceover
+  const rowStart = (i: number) => (rowAt ? rowAt[i] : rowBase + (RANKS.length - 1 - i) * step);
+  const lastRowAt = rowStart(0);
   const legendAt = lastRowAt + 21;
   const footer = revealIn(frame, legendAt + 8, 16, 26);
   const confetti = makeConfetti(99, 110, { x: 960, y: 1040 });
@@ -69,8 +71,7 @@ export const Scoreboard: React.FC<{ frame: number }> = ({ frame }) => {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: px(10) }}>
           {RANKS.map((r, i) => {
-            const fromBottom = RANKS.length - 1 - i;
-            const at = rowBase + fromBottom * step;
+            const at = rowStart(i);
             const p = prog(frame, at, 20, backOut);
             const isTop = i === 0;
             return (

@@ -11,11 +11,15 @@ import { PixelRound } from './PixelRound';
 import { PixelIntro, PixelLevelCard } from './PixelScenes';
 import {
   FPS,
+  INTRO_PLAN,
+  PIXEL_END,
+  PIXEL_SCOREBOARD,
   PIXEL_HUD_PLAN,
   PIXEL_MUSIC_END,
   PIXEL_TIMELINE,
   TIME_SCALE,
   T,
+  levelCardPlan,
   locate,
   pixelBonusClockStart,
   pixelBonusRevealHold,
@@ -36,9 +40,9 @@ const Scenes: React.FC = () => {
   const { seg, local } = locate(frame);
   switch (seg.kind) {
     case 'intro':
-      return <PixelIntro frame={local} />;
+      return <PixelIntro frame={local} plan={INTRO_PLAN} />;
     case 'levelCard':
-      return <PixelLevelCard frame={local} level={seg.level} />;
+      return <PixelLevelCard frame={local} level={seg.level} duration={seg.duration} />;
     case 'question':
       return <PixelRound frame={local} index={seg.index} erases={seg.erases} />;
     case 'iris':
@@ -66,7 +70,7 @@ const Scenes: React.FC = () => {
         </AbsoluteFill>
       );
     case 'scoreboard':
-      return <Scoreboard frame={local} />;
+      return <Scoreboard frame={local} rowAt={PIXEL_SCOREBOARD.rowAt} />;
     case 'endScreen':
       return <EndScreen frame={local} />;
     default:
@@ -79,6 +83,8 @@ type Cue = { frame: number; sfx: string; volume?: number; rate?: number };
 type Voice = { frame: number; file: string; frames: number };
 const VOICE_LIST: Voice[] = [];
 
+/** when each rule card lands, as a fraction of the rules line (keep in sync with PixelScenes RULE_CARDS) */
+const RULE_CARD_AT = [0, 0.34, 0.64];
 const RANK_COUNT = (settings.scoreboard.ranks as string[][]).length;
 /** Scoreboard beats — keep in sync with Scoreboard.tsx (rowBase 46, step 22), same as sound.ts. */
 const SB_ROW_BASE = 46;
@@ -96,18 +102,31 @@ const buildCues = (): Cue[] => {
   PIXEL_TIMELINE.segments.forEach((seg) => {
     const f0 = seg.from;
     switch (seg.kind) {
-      case 'intro':
-        add(f0 + 4, 'boom');
-        add(f0 + 26, 'boom');
-        // rules scene
-        add(f0 + T.introA + 4, 'thump');
-        add(f0 + T.introA + 4, 'rule-sweep');
-        add(f0 + T.introA + 38, 'ping-hi');
-        add(f0 + T.introA + 84, 'jingle-rules');
+      case 'intro': {
+        const P = INTRO_PLAN;
+        // cold open: whoosh as the wall builds, title slams
+        add(f0 + 2, 'whoosh');
+        add(f0 + 3, 'boom');
+        add(f0 + 18, 'boom');
+        // rule cards: one ping per card as it lands, a pop for the tease
+        add(f0 + P.a + 2, 'thump');
+        add(f0 + P.a + 4, 'rule-sweep');
+        RULE_CARD_AT.forEach((k) => add(f0 + P.a + 4 + Math.round(P.ruleSpan * k), 'ping-hi'));
+        add(f0 + P.a + 4 + Math.round(P.ruleSpan * 0.64) + 12, 'pop');
+        // 3 - 2 - 1
+        for (let k = 0; k < 3; k++) add(f0 + P.a + P.countAt + k * 15, k === 2 ? 'thump' : 'tick');
+        add(f0 + P.frames - 6, 'whoosh');
+        if (P.introVoice) VOICE_LIST.push({ frame: f0 + P.introVoice.start, file: P.introVoice.file, frames: P.introVoice.frames });
+        if (P.rulesVoice) VOICE_LIST.push({ frame: f0 + P.rulesVoice.start, file: P.rulesVoice.file, frames: P.rulesVoice.frames });
         break;
+      }
       case 'levelCard':
         add(f0 + 3, 'thump');
         add(f0 + 15, 'boom');
+        {
+          const lv = levelCardPlan(seg.level).voice;
+          if (lv) VOICE_LIST.push({ frame: f0 + lv.start, file: lv.file, frames: lv.frames });
+        }
         break;
       case 'question': {
         add(f0 + 1, 'pop');
@@ -150,18 +169,23 @@ const buildCues = (): Cue[] => {
       case 'iris':
         add(f0, 'whoosh');
         break;
-      case 'scoreboard':
+      case 'scoreboard': {
+        const rowAt = PIXEL_SCOREBOARD.rowAt;
         for (let i = 0; i < RANK_COUNT; i++) {
           const fromBottom = RANK_COUNT - 1 - i;
-          add(f0 + SB_ROW_BASE + fromBottom * SB_STEP, 'row', { rate: (330 + fromBottom * 110) / 330 });
+          const at = rowAt ? rowAt[i] : SB_ROW_BASE + fromBottom * SB_STEP;
+          add(f0 + at, 'row', { rate: (330 + fromBottom * 110) / 330 });
         }
-        add(f0 + SB_ROW_BASE + (RANK_COUNT - 1) * SB_STEP + 21, 'legend');
+        add(f0 + (rowAt ? rowAt[0] : SB_ROW_BASE + (RANK_COUNT - 1) * SB_STEP) + 21, 'legend');
+        PIXEL_SCOREBOARD.voices.forEach((v) => VOICE_LIST.push({ frame: f0 + v.start, file: v.file, frames: v.frames }));
         break;
+      }
       case 'endScreen':
         add(f0 + 9, 'boom');
         add(f0 + 52, 'jingle-cta');
         add(f0 + 140, 'ding');
         add(f0 + 196, 'ding-hi');
+        if (PIXEL_END.voice) VOICE_LIST.push({ frame: f0 + PIXEL_END.voice.start, file: PIXEL_END.voice.file, frames: PIXEL_END.voice.frames });
         break;
     }
   });
