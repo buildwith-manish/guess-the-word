@@ -4,8 +4,8 @@ name: Upload Video to YouTube
 # uploaded. Nothing here runs automatically after a render.
 #
 # One-time setup: add repository secrets (Settings -> Secrets and variables -> Actions):
-#   YT_CLIENT_SECRET (paste the whole client_secret.json - it contains the client ID) and YT_REFRESH_TOKEN
-#   (YT_CLIENT_ID is only needed if YT_CLIENT_SECRET holds just the plain secret string)
+#   YOUTUBE_CLIENT_SECRET (paste the whole client_secret.json - it contains the client ID) and YOUTUBE_REFRESH_TOKEN
+#   (YOUTUBE_CLIENT_ID is only needed if YOUTUBE_CLIENT_SECRET holds just the plain secret string)
 # (OAuth client from Google Cloud with the YouTube Data API v3 enabled, and a refresh
 #  token created with the scope https://www.googleapis.com/auth/youtube.upload)
 
@@ -88,9 +88,9 @@ jobs:
 
       - name: Upload to YouTube
         env:
-          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
-          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
-          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          YT_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
           VIDEO_FILE: video/${{ inputs.video_name }}.mp4
           YT_TITLE: ${{ inputs.title }}
           YT_DESCRIPTION: ${{ inputs.description }}
