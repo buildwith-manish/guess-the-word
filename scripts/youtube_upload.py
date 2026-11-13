@@ -29,11 +29,41 @@ if len(description) > 5000:
 if sum(len(t) + 1 for t in tags) > 480:
     sys.exit("::error::keywords are too long (YouTube allows about 500 characters in total)")
 
+import json
+
+
+def parse_client():
+    """Return (client_id, client_secret). YT_CLIENT_SECRET may be the whole client_secret.json
+    (contains the client ID) or just the plain secret string plus a separate YT_CLIENT_ID."""
+    raw = need('YT_CLIENT_SECRET').strip()
+    if raw.startswith('{'):
+        try:
+            data = json.loads(raw)
+        except json.JSONDecodeError:
+            sys.exit("::error::YT_CLIENT_SECRET looks like JSON but is not valid JSON - paste the full file again")
+        block = data.get('installed') or data.get('web') or data
+        cid, sec = block.get('client_id'), block.get('client_secret')
+        if not cid or not sec:
+            sys.exit("::error::YT_CLIENT_SECRET JSON has no client_id / client_secret")
+        return cid, sec
+    return need('YT_CLIENT_ID'), raw
+
+
+def parse_refresh():
+    raw = need('YT_REFRESH_TOKEN').strip()
+    if raw.startswith('{'):  # whole token.json pasted
+        raw = json.loads(raw).get('refresh_token', '')
+        if not raw:
+            sys.exit("::error::YT_REFRESH_TOKEN JSON has no refresh_token")
+    return raw
+
+
+client_id, client_secret = parse_client()
 creds = Credentials(
     token=None,
-    refresh_token=need('YT_REFRESH_TOKEN'),
-    client_id=need('YT_CLIENT_ID'),
-    client_secret=need('YT_CLIENT_SECRET'),
+    refresh_token=parse_refresh(),
+    client_id=client_id,
+    client_secret=client_secret,
     token_uri='https://oauth2.googleapis.com/token',
     scopes=['https://www.googleapis.com/auth/youtube.upload'],
 )

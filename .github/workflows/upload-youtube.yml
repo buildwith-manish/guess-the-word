@@ -3,8 +3,9 @@ name: Upload Video to YouTube
 # Manual only. Fill in the boxes, click "Run workflow", and the chosen video is
 # uploaded. Nothing here runs automatically after a render.
 #
-# One-time setup: add 3 repository secrets (Settings -> Secrets and variables -> Actions):
-#   YT_CLIENT_ID, YT_CLIENT_SECRET, YT_REFRESH_TOKEN
+# One-time setup: add repository secrets (Settings -> Secrets and variables -> Actions):
+#   YT_CLIENT_SECRET (paste the whole client_secret.json - it contains the client ID) and YT_REFRESH_TOKEN
+#   (YT_CLIENT_ID is only needed if YT_CLIENT_SECRET holds just the plain secret string)
 # (OAuth client from Google Cloud with the YouTube Data API v3 enabled, and a refresh
 #  token created with the scope https://www.googleapis.com/auth/youtube.upload)
 
