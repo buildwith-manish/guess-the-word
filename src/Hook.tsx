@@ -1,4 +1,5 @@
 import React from 'react';
+import { Rich } from './Icon';
 import { AbsoluteFill } from 'remotion';
 import { COLORS, FONTS, px, K } from './style';
 import { prog, slamIn } from './anim';
@@ -174,7 +175,7 @@ const SceneB: React.FC<{ frame: number }> = ({ frame }) => {
         }}
       >
         {H.r3a} <b style={{ color: COLORS.yellow, fontWeight: 400 }}>{H.r3b}</b> {H.r3c}{' '}
-        <b style={{ color: COLORS.yellow, fontWeight: 400 }}>{H.r3d}</b>
+        <b style={{ color: COLORS.yellow, fontWeight: 400 }}><Rich>{H.r3d}</Rich></b>
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Rich } from '../Icon';
 import { AbsoluteFill } from 'remotion';
 import { Background } from '../Background';
 import { Watermark } from '../Watermark';
@@ -102,7 +103,7 @@ export const PixelRound: React.FC<{ frame: number; index: number; erases: number
             color: '#fff',
           }}
         >
-          <div style={{ fontFamily: FONTS.display, fontSize: px(26), letterSpacing: px(2), lineHeight: 1.05 }}>⚡ {PIXEL_FASTEST.label}</div>
+          <div style={{ fontFamily: FONTS.display, fontSize: px(26), letterSpacing: px(2), lineHeight: 1.05 }}><Rich tone="light">{`⚡ ${PIXEL_FASTEST.label}`}</Rich></div>
           <div style={{ fontFamily: FONTS.body, fontWeight: 700, fontSize: px(12), letterSpacing: px(2.2), opacity: 0.92 }}>
             ONLY {clock.seconds} SECONDS
           </div>

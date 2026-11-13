@@ -1,4 +1,5 @@
 import React from 'react';
+import { Icon, Rich } from './Icon';
 import { AbsoluteFill } from 'remotion';
 import { COLORS, FONTS, S, px, glass, K } from './style';
 import { prog, slamIn, revealIn } from './anim';
@@ -97,7 +98,7 @@ export const EndScreen: React.FC<{ frame: number }> = ({ frame }) => {
               transform: e3.transform,
             }}
           >
-            {E.cta}
+            <Rich tone="dark">{E.cta}</Rich>
           </div>
           <div
             style={{
@@ -201,7 +202,7 @@ export const EndScreen: React.FC<{ frame: number }> = ({ frame }) => {
                 boxShadow: `0 0 ${px(40 * (0.6 + 0.4 * ringPulse))}px rgba(255,214,10,0.4)`,
               }}
             >
-              🔔
+              <Icon name="bell" size="1em" />
             </div>
             <div
               style={{

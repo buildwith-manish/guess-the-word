@@ -1,4 +1,5 @@
 import React from 'react';
+import { Icon } from './Icon';
 import { COLORS, FONTS, S, px, glass, K } from './style';
 import { prog, htmlEase, bounceEase, clamp01, ms, keyframes } from './anim';
 import { LEVELS, QUESTIONS, TOTAL } from './timing';
@@ -249,7 +250,7 @@ export const Hud: React.FC<{
             color: COLORS.ink,
           }}
         >
-          <span style={{ fontFamily: FONTS.emoji, fontSize: px(17), lineHeight: 1 }}>🔥</span>
+          <Icon name="fire" size={px(20)} />
           <span style={{ fontSize: px(13), letterSpacing: px(2.4), color: COLORS.muted }}>STREAK</span>
           <b
             style={{

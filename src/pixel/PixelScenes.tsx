@@ -1,4 +1,6 @@
 import React from 'react';
+import { Icon, Rich } from '../Icon';
+import type { IconName } from '../Icon';
 import { AbsoluteFill } from 'remotion';
 import { Background } from '../Background';
 import { COLORS, FONTS, K, px } from '../style';
@@ -107,9 +109,9 @@ type IntroPlan = { a: number; b: number; ruleSpan: number; countAt: number };
  * a "fastest guess" tease keeps curiosity up, then 3 - 2 - 1 cuts straight into level 1.
  */
 const RULE_CARDS = [
-  { emoji: '❌', head: 'EVERY WRONG ANSWER COUNTS', accent: COLORS.red, at: 0 },
-  { emoji: '⚡', head: 'BONUS ROUND ERASES 1 WRONG', accent: COLORS.yellow, at: 0.34 },
-  { emoji: '👑', head: 'UNDER 4 WRONG = LEGEND', accent: COLORS.cyan, at: 0.64 },
+  { icon: 'cross' as IconName, head: 'EVERY WRONG ANSWER COUNTS', accent: COLORS.red, at: 0 },
+  { icon: 'bolt' as IconName, head: 'BONUS ROUND ERASES 1 WRONG', accent: COLORS.yellow, at: 0.34 },
+  { icon: 'crown' as IconName, head: 'UNDER 4 WRONG = LEGEND', accent: COLORS.cyan, at: 0.64 },
 ];
 const RulesScene: React.FC<{ frame: number; plan: IntroPlan }> = ({ frame, plan }) => {
   const exitP = prog(frame, plan.b - 8, 8, linear);
@@ -152,7 +154,7 @@ const RulesScene: React.FC<{ frame: number; plan: IntroPlan }> = ({ frame, plan 
                   transform: `translate3d(0, ${(1 - p) * 50 * K}px, 0) scale(${0.85 + 0.15 * p})`,
                 }}
               >
-                <span style={{ fontFamily: FONTS.emoji, fontSize: px(92), lineHeight: 1 }}>{r.emoji}</span>
+                <span style={{ display: 'inline-block', height: px(92), lineHeight: 1 }}><Icon name={r.icon} size={px(92)} phase={r.at} /></span>
                 <span style={{ fontFamily: FONTS.display, fontSize: px(42), lineHeight: 1.08, letterSpacing: px(2), color: r.accent }}>{r.head}</span>
               </div>
             );
@@ -160,7 +162,7 @@ const RulesScene: React.FC<{ frame: number; plan: IntroPlan }> = ({ frame, plan 
         </div>
         <div style={{ position: 'absolute', left: 0, right: 0, top: px(512), textAlign: 'center', opacity: Math.min(1, Math.max(0, tease)) * dim, transform: `translate3d(0, ${(1 - tease) * 20 * K}px, 0)` }}>
           <span style={{ display: 'inline-block', fontFamily: FONTS.body, fontWeight: 800, fontSize: px(24), letterSpacing: px(3), padding: `${px(12)}px ${px(28)}px`, borderRadius: px(40), background: 'rgba(255,255,255,0.12)', border: `${px(2)}px solid rgba(255,255,255,0.4)` }}>
-            ⚡ WATCH FOR THE 3-SECOND FASTEST GUESS ROUNDS
+            <Rich>{'⚡ WATCH FOR THE 3-SECOND FASTEST GUESS ROUNDS'}</Rich>
           </span>
         </div>
         {counting ? (

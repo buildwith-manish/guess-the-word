@@ -1,4 +1,5 @@
 import React from 'react';
+import { Rich } from './Icon';
 import { AbsoluteFill } from 'remotion';
 import { COLORS, FONTS, S, px, glass, K } from './style';
 import { prog, revealIn } from './anim';
@@ -101,13 +102,13 @@ export const Scoreboard: React.FC<{ frame: number; rowAt?: number[] }> = ({ fram
                   // the top rank gets a real 3D crown; it spins in with its row and flashes when LEGEND lands
                   <span style={{ position: 'relative', width: px(38), height: px(38), flex: 'none' }}>
                     {frame >= at ? (
-                      <div style={{ position: 'absolute', left: -px(36), top: -px(36) }}>
-                        <RankBadge3D frame={frame} start={at} flashAt={legendAt} size={px(110)} />
+                      <div style={{ position: 'absolute', left: -px(23), top: -px(23) }}>
+                        <RankBadge3D frame={frame} start={at} flashAt={legendAt} size={px(84)} />
                       </div>
                     ) : null}
                   </span>
                 ) : (
-                  <span style={{ fontFamily: FONTS.emoji, fontSize: px(38), lineHeight: 1 }}>{r[1]}</span>
+                  <span style={{ fontSize: px(38), lineHeight: 1, display: 'inline-flex', alignItems: 'center' }}><Rich size={px(38)} style={{ verticalAlign: 'middle', margin: 0 }}>{r[1]}</Rich></span>
                 )}
                 <span
                   style={{

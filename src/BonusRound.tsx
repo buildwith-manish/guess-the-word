@@ -1,4 +1,5 @@
 import React from 'react';
+import { Rich } from './Icon';
 import { AbsoluteFill } from 'remotion';
 import { COLORS, FONTS, S, px, glass, K } from './style';
 import { BONUS_CLOCK_START, BONUS_THEME, FPS, bonusRevealHold } from './timing';
@@ -198,7 +199,7 @@ export const Bonus: React.FC<{
               prog(frame, clockStart - 8, 12, expoOut) * (1 - prog(frame, clockEnd, 8, linear)),
           }}
         >
-          {settings.text.comment}
+          <Rich>{settings.text.comment}</Rich>
         </div>
       ) : null}
 
@@ -315,7 +316,7 @@ export const Bonus: React.FC<{
               transform: `translate3d(0, ${(1 - chipIn) * 30 * K}px, 0) scale(${0.6 + 0.4 * chipIn})`,
             }}
           >
-            {settings.text.eraseChip}
+            <Rich tone="dark">{settings.text.eraseChip}</Rich>
           </div>
           {confetti.map((c) => {
             const start = revealAt + c.delay;

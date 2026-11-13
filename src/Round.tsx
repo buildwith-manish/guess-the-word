@@ -1,4 +1,5 @@
 import React from 'react';
+import { Icon, Rich } from './Icon';
 import { AbsoluteFill, Img } from 'remotion';
 import { COLORS, FONTS, S, px, glass } from './style';
 import { buildQuestionPlan, QUESTIONS, TOTAL, themeForQuestion, levelMoodFor } from './timing';
@@ -184,13 +185,13 @@ export const Round: React.FC<{
                       opacity: clamp01(inP * 1.4) * outP,
                     }}
                   >
-                    <div style={{ fontFamily: FONTS.emoji, fontSize: px(26), lineHeight: 1 }}>🔥</div>
+                    <div style={{ lineHeight: 1, display: 'flex', justifyContent: 'center' }}><Icon name="fire" size={px(26)} tone="dark" /></div>
                     <div style={{ fontFamily: FONTS.display, fontSize: px(46), lineHeight: 1, marginTop: px(2) }}>{index + 1}</div>
                     <div style={{ fontFamily: FONTS.display, fontSize: px(15), letterSpacing: px(2), lineHeight: 1.1 }}>
                       {settings.streak.label}
                     </div>
                     <div style={{ fontFamily: FONTS.body, fontWeight: 800, fontSize: px(8.5), letterSpacing: px(1.2), marginTop: px(4), opacity: 0.8 }}>
-                      {settings.streak.cta} 👇
+                      <Rich tone="dark">{`${settings.streak.cta} 👇`}</Rich>
                     </div>
                   </div>
                 );
@@ -221,7 +222,7 @@ export const Round: React.FC<{
                   }}
                 >
                   <div style={{ fontFamily: FONTS.display, fontSize: px(22), letterSpacing: px(2), lineHeight: 1.05 }}>
-                    ⚡ {settings.fastest.label}
+                    <Rich tone="light">{`⚡ ${settings.fastest.label}`}</Rich>
                   </div>
                   <div style={{ fontFamily: FONTS.body, fontWeight: 700, fontSize: px(10.5), letterSpacing: px(2.2), opacity: 0.92 }}>
                     ONLY {plan.timerSeconds} SECONDS
@@ -486,7 +487,7 @@ export const Round: React.FC<{
                     zIndex: 3,
                   }}
                 >
-                  💡 HINT
+                  <Rich tone="dark">{'💡 HINT'}</Rich>
                 </div>
                 {ringT >= 0 && ringT < 1 ? (
                   <div
@@ -729,7 +730,7 @@ export const Round: React.FC<{
                       borderRadius: px(2),
                     }}
                   />
-                  💡
+                  <Icon name="bulb" size={px(28)} style={{ verticalAlign: 'middle' }} />
                 </div>
                 {lit ? pingAt(litAt, 0.3, 2.6, 800) : null}
                 {pingAt(flareAt, 0.3, 4, 900)}
@@ -765,7 +766,7 @@ export const Round: React.FC<{
           }}
         >
           <b style={{ display: 'block', color: COLORS.yellow, fontSize: px(15), letterSpacing: px(3) }}>
-            {settings.text.factEyebrow}
+            <Rich>{settings.text.factEyebrow}</Rich>
           </b>
           {plan.fact}
         </div>
@@ -805,7 +806,7 @@ const ChipBox: React.FC<{ frame: number; start: number; exit: number }> = ({ fra
         transform: `translateY(${(1 - e) * px(30)}px) scale(${0.6 + 0.4 * e})`,
       }}
     >
-      {settings.text.correctChip}
+      <Rich tone="dark">{settings.text.correctChip}</Rich>
     </div>
   );
 };
