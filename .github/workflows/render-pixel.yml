@@ -1,9 +1,10 @@
-name: Render Pixel Quiz (parallel)
+name: Render Video (parallel)
 
 # prepare -> N parallel video-only chunks + 1 audio pass -> merge (no re-encode of video)
 #
-# Run it from Actions -> "Render Pixel Quiz (parallel)" -> Run workflow, and pick the
-# branch that holds the video (pixelated-quiz). Download the result from the run's
+# Run it from Actions -> "Render Video (parallel)" -> Run workflow, and pick the
+# branch that holds the video project. Set "composition" (and "entry" if it is not
+# src/index.ts) for any Remotion project; defaults are the pixel quiz. Download the result from the run's
 # "Artifacts" section (named after the "video_name" box you fill in).
 #
 # Only the final video is kept as an artifact. The temporary chunk and audio
@@ -12,6 +13,14 @@ name: Render Pixel Quiz (parallel)
 on:
   workflow_dispatch:
     inputs:
+      composition:
+        description: 'Remotion composition ID to render'
+        type: string
+        default: 'PixelGuess'
+      entry:
+        description: 'Remotion entry file'
+        type: string
+        default: 'src/index.ts'
       chunks:
         description: 'Parallel render jobs (Pro plan allows 40 at once, Free 20)'
         type: choice
@@ -45,7 +54,8 @@ on:
         default: '40'
 
 env:
-  COMPOSITION: PixelGuess
+  COMPOSITION: ${{ inputs.composition }}
+  ENTRY: ${{ inputs.entry }}
 
 jobs:
   # ---------------------------------------------------------------------------
@@ -63,6 +73,10 @@ jobs:
         env:
           VIDEO_NAME: ${{ inputs.video_name }}
         run: |
+          [[ "$COMPOSITION" =~ ^[A-Za-z0-9_-]{1,80}$ ]] || { echo "::error::composition: letters, numbers, - and _ only"; exit 1; }
+          if ! [[ "$ENTRY" =~ ^[A-Za-z0-9_./-]+$ ]] || [[ "$ENTRY" == *..* ]]; then
+            echo "::error::entry must be a relative file path"; exit 1
+          fi
           if ! [[ "$VIDEO_NAME" =~ ^[A-Za-z0-9_-]{1,80}$ ]]; then
             echo "::error::video_name must be 1-80 characters: letters, numbers, - and _ only"
             exit 1
@@ -80,8 +94,8 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Measure voiceover clips
-        run: node scripts/voiceover-scan.js
+      - name: Measure voiceover clips (if the project has them)
+        run: if [ -f scripts/voiceover-scan.js ]; then node scripts/voiceover-scan.js; else echo 'no voiceover scan script, skipping'; fi
 
       - name: Install Chrome for Remotion
         run: npx remotion browser ensure
@@ -92,7 +106,7 @@ jobs:
           CHUNKS: ${{ inputs.chunks }}
           TEST_FRAMES: ${{ inputs.test_frames }}
         run: |
-          npx remotion compositions src/index.ts --quiet --json > comps.raw 2> comps.err || { cat comps.err; exit 1; }
+          npx remotion compositions "$ENTRY" --quiet --json > comps.raw 2> comps.err || { cat comps.err; exit 1; }
           python3 - <<'PY'
           import json, os, re, math
           raw = open('comps.raw').read()
@@ -147,8 +161,8 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Measure voiceover clips
-        run: node scripts/voiceover-scan.js
+      - name: Measure voiceover clips (if the project has them)
+        run: if [ -f scripts/voiceover-scan.js ]; then node scripts/voiceover-scan.js; else echo 'no voiceover scan script, skipping'; fi
 
       - name: Install Chrome for Remotion
         run: npx remotion browser ensure
@@ -156,7 +170,7 @@ jobs:
       - name: Render frames ${{ matrix.start }}-${{ matrix.end }}
         run: |
           mkdir -p out
-          npx remotion render src/index.ts "$COMPOSITION" "out/chunk-${{ matrix.name }}.mp4" \
+          npx remotion render "$ENTRY" "$COMPOSITION" "out/chunk-${{ matrix.name }}.mp4" \
             --frames=${{ matrix.start }}-${{ matrix.end }} \
             --muted \
             --codec=h264 \
@@ -198,8 +212,8 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Measure voiceover clips
-        run: node scripts/voiceover-scan.js
+      - name: Measure voiceover clips (if the project has them)
+        run: if [ -f scripts/voiceover-scan.js ]; then node scripts/voiceover-scan.js; else echo 'no voiceover scan script, skipping'; fi
 
       - name: Install Chrome for Remotion
         run: npx remotion browser ensure
@@ -207,7 +221,7 @@ jobs:
       - name: Render audio only (lossless WAV)
         run: |
           mkdir -p out
-          npx remotion render src/index.ts "$COMPOSITION" out/audio.wav \
+          npx remotion render "$ENTRY" "$COMPOSITION" out/audio.wav \
             --codec=wav \
             --log=info
           ls -la out/
