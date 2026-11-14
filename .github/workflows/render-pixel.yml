@@ -389,6 +389,7 @@ jobs:
   # ---------------------------------------------------------------------------
   cleanup:
     needs: merge
+    if: ${{ !cancelled() && needs.merge.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -402,7 +403,7 @@ jobs:
           RUN_ID: ${{ github.run_id }}
         run: |
           gh api --paginate "repos/$REPO/actions/runs/$RUN_ID/artifacts" \
-            --jq '.artifacts[] | select(.name | startswith("chunk-") or . == "pixel-audio") | .id' |
+            --jq '.artifacts[] | select(.name | test("^chunk-[0-9]{3}$") or . == "pixel-audio") | .id' |
           while read -r id; do
             echo "deleting artifact $id"
             gh api -X DELETE "repos/$REPO/actions/artifacts/$id" --silent
