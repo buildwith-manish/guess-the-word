@@ -2,6 +2,11 @@ name: Render Video (parallel)
 
 # prepare -> N parallel video-only chunks + 1 audio pass -> merge (no re-encode of video)
 #
+# Audio: one pass over the whole timeline (no seams). It renders with audioOnly=true, which skips
+# the visuals (they are not needed for sound), so it takes minutes instead of about an hour.
+# Re-doing only the audio/merge: put the run ID of an earlier run whose video chunks are still
+# available (they are kept 1 day) in "reuse_run_id"; the video is then not rendered again.
+#
 # Run it from Actions -> "Render Video (parallel)" -> Run workflow, and pick the
 # branch that holds the video project. Set "composition" (and "entry" if it is not
 # src/index.ts) for any Remotion project; defaults are the pixel quiz. Download the result from the run's
@@ -52,6 +57,10 @@ on:
         type: choice
         options: ['40', '20', '10']
         default: '40'
+      reuse_run_id:
+        description: 'Optional: run ID of an earlier run whose video chunks are still available. Skips the video render and only redoes audio + merge. Keep chunks / test_frames the same as that run (crf / preset are then ignored).'
+        type: string
+        default: ''
 
 env:
   COMPOSITION: ${{ inputs.composition }}
@@ -64,6 +73,9 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      actions: read
+      contents: read
     outputs:
       matrix: ${{ steps.plan.outputs.matrix }}
       total: ${{ steps.plan.outputs.total }}
@@ -72,7 +84,11 @@ jobs:
       - name: Check the file name
         env:
           VIDEO_NAME: ${{ inputs.video_name }}
+          REUSE: ${{ inputs.reuse_run_id }}
         run: |
+          if [ -n "$REUSE" ] && ! [[ "$REUSE" =~ ^[0-9]{1,20}$ ]]; then
+            echo "::error::reuse_run_id must be the numeric run ID (the number at the end of the run's URL), or empty"; exit 1
+          fi
           [[ "$COMPOSITION" =~ ^[A-Za-z0-9_-]{1,80}$ ]] || { echo "::error::composition: letters, numbers, - and _ only"; exit 1; }
           if ! [[ "$ENTRY" =~ ^[A-Za-z0-9_./-]+$ ]] || [[ "$ENTRY" == *..* ]]; then
             echo "::error::entry must be a relative file path"; exit 1
@@ -167,11 +183,28 @@ jobs:
               f.write(f'count={count}\n')
           PY
 
+      - name: Check the video chunks of the run being reused
+        if: ${{ inputs.reuse_run_id != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          REUSE: ${{ inputs.reuse_run_id }}
+          COUNT: ${{ steps.plan.outputs.count }}
+        run: |
+          N=$(gh api --paginate "repos/$REPO/actions/runs/$REUSE/artifacts" \
+            --jq '.artifacts[] | select((.expired | not) and (.name | test("^chunk-[0-9]{3}$"))) | .name' | wc -l)
+          echo "chunks still available in run $REUSE: $N (this plan needs $COUNT)"
+          if [ "$N" -ne "$COUNT" ]; then
+            echo "::error title=cannot reuse run $REUSE::found $N unexpired chunk artifacts, need $COUNT. Use the same chunks / test_frames as that run, or run without reuse_run_id (chunks expire after 1 day)."
+            exit 1
+          fi
+
   # ---------------------------------------------------------------------------
   # 2a. RENDER: each job renders its frame range, video only (--muted)
   # ---------------------------------------------------------------------------
   render:
     needs: prepare
+    if: ${{ inputs.reuse_run_id == '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
@@ -223,12 +256,13 @@ jobs:
           if-no-files-found: error
 
   # ---------------------------------------------------------------------------
-  # 2b. AUDIO: one pass over the whole timeline, so there are no seams
+  # 2b. AUDIO: one pass over the whole timeline, so there are no seams.
+  #     audioOnly=true skips the visuals; the samples are identical to a full render.
   # ---------------------------------------------------------------------------
   audio:
     needs: prepare
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
         with:
@@ -257,6 +291,7 @@ jobs:
           if [ "${TEST_FRAMES:-0}" != "0" ]; then FR="--frames=0-$((TEST_FRAMES-1))"; fi
           if ! npx remotion render "$ENTRY" "$COMPOSITION" out/audio.wav \
             --codec=wav --config=remotion.audio.config.ts $FR \
+            --props='{"audioOnly":true}' \
             --log=info > audio.log 2>&1; then
             tail -n 40 audio.log
             echo "::error title=audio render failed::$(tail -c 1200 audio.log | sed 's/\x1b\[[0-9;]*m//g' | tr '\n' ' ' | tr -d '\r')"
@@ -278,8 +313,12 @@ jobs:
   # ---------------------------------------------------------------------------
   merge:
     needs: [prepare, render, audio]
+    if: ${{ !cancelled() && needs.prepare.result == 'success' && needs.audio.result == 'success' && (needs.render.result == 'success' || needs.render.result == 'skipped') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      actions: read
+      contents: read
     steps:
       - name: Install ffmpeg
         run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
@@ -290,6 +329,9 @@ jobs:
           pattern: chunk-*
           path: parts
           merge-multiple: true
+          run-id: ${{ inputs.reuse_run_id || github.run_id }}
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
 
       - name: Download audio
         uses: actions/download-artifact@v4

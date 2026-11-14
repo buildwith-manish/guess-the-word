@@ -228,9 +228,15 @@ const Sound: React.FC = () => (
   </>
 );
 
-export const PixelMain: React.FC = () => (
+/**
+ * audioOnly: the CI audio pass renders the WAV with --props='{"audioOnly":true}'. The audio is
+ * built entirely by <Sound /> (it never reads anything from <Scenes />), so skipping the visuals
+ * gives byte-identical audio while Remotion no longer has to render every video frame just to
+ * collect the audio cues. Normal renders are untouched (the prop is off by default).
+ */
+export const PixelMain: React.FC<{ audioOnly?: boolean }> = ({ audioOnly }) => (
   <HudPlanContext.Provider value={PIXEL_HUD_PLAN}>
-    <Scenes />
+    {audioOnly ? null : <Scenes />}
     <Sound />
   </HudPlanContext.Provider>
 );
