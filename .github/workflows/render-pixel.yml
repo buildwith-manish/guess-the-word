@@ -369,9 +369,8 @@ jobs:
           if [ "${TEST_FRAMES:-0}" != "0" ]; then SHORTEST="-shortest"; fi
           ffmpeg -y -v error -i video-only.mp4 -i audio/audio.wav \
             -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 320k $SHORTEST \
-            -movflags +faststart pixel-guess.mp4
+            -movflags +faststart "$VIDEO_NAME.mp4"
 
-          mv pixel-guess.mp4 "$VIDEO_NAME.mp4"
           ls -la "$VIDEO_NAME.mp4"
           echo "video duration: $(ffprobe -v error -select_streams v:0 -show_entries stream=duration -of csv=p=0 "$VIDEO_NAME.mp4")"
           echo "audio duration: $(ffprobe -v error -select_streams a:0 -show_entries stream=duration -of csv=p=0 "$VIDEO_NAME.mp4")"
