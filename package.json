@@ -12,6 +12,7 @@
     "render:batches": "node scripts/voiceover-scan.js && node scripts/render-batches.js",
     "render:lanes": "node scripts/voiceover-scan.js && node scripts/render-batches.js --size 1800",
     "still": "remotion still GuessTheWord out/still.png --frame=1400",
+    "thumbs": "remotion still src/index.ts ThumbZero out/thumbs/zero-wrong.png && remotion still src/index.ts ThumbLadder out/thumbs/46-of-46.png && remotion still src/index.ts ThumbEasy out/thumbs/too-easy.png",
     "data": "node scripts/build-questions.js",
     "sounds": "node scripts/generate-audio.js",
     "images": "node scripts/fetch-images.js",

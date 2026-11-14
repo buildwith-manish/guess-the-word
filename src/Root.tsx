@@ -1,10 +1,11 @@
 import React from 'react';
-import { Composition } from 'remotion';
+import { Composition, Still } from 'remotion';
 import './fonts';
 import { Main } from './Main';
 import { HEIGHT, RENDER_FPS, RENDER_TOTAL_FRAMES, WIDTH } from './timing';
 import { PixelMain } from './pixel/PixelMain';
 import { PIXEL_TOTAL_FRAMES } from './pixel/pixel-timing';
+import { ThumbEasy, ThumbLadder, ThumbZero } from './thumbnails/Thumbnails';
 
 /**
  * One composition. Its duration comes from the timeline (settings.json +
@@ -31,6 +32,10 @@ export const RemotionRoot: React.FC = () => {
         width={WIDTH}
         height={HEIGHT}
       />
+      {/* YouTube thumbnails (1280x720). Render: npx remotion still src/index.ts ThumbZero out/thumb-zero.png */}
+      <Still id="ThumbZero" component={ThumbZero} width={1280} height={720} />
+      <Still id="ThumbLadder" component={ThumbLadder} width={1280} height={720} />
+      <Still id="ThumbEasy" component={ThumbEasy} width={1280} height={720} />
     </>
   );
 };
