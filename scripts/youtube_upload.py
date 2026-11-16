@@ -15,9 +15,19 @@ def need(name):
     return v
 
 
+import glob
+
 path = need('VIDEO_FILE')
 if not os.path.isfile(path):
-    sys.exit(f"::error::{path} not found in the downloaded artifact")
+    # The artifact's file name may differ from video_name: use the only .mp4 inside it if there is exactly one.
+    folder = os.path.dirname(path) or '.'
+    found = sorted(glob.glob(os.path.join(folder, '**', '*.mp4'), recursive=True))
+    if len(found) == 1:
+        print(f"::warning::{path} not found; using the only .mp4 in the artifact: {found[0]}")
+        path = found[0]
+    else:
+        listing = ', '.join(sorted(os.listdir(folder))) if os.path.isdir(folder) else '(folder missing)'
+        sys.exit(f"::error::{path} not found in the downloaded artifact. Files present: {listing}")
 
 title = need('YT_TITLE')
 description = os.environ.get('YT_DESCRIPTION', '').replace('\\n', '\n')
@@ -67,7 +77,18 @@ creds = Credentials(
     token_uri='https://oauth2.googleapis.com/token',
     scopes=['https://www.googleapis.com/auth/youtube.upload'],
 )
-creds.refresh(Request())
+try:
+    creds.refresh(Request())
+except Exception as e:
+    msg = str(e)
+    hint = ''
+    if 'invalid_grant' in msg:
+        hint = (' The refresh token was rejected (expired or revoked). If the Google OAuth consent screen is in Testing mode, '
+                'refresh tokens expire after 7 days: set the app to In production, create a new refresh token and update '
+                'the YOUTUBE_REFRESH_TOKEN secret.')
+    elif 'invalid_client' in msg or 'unauthorized_client' in msg:
+        hint = ' The client ID/secret do not match the client that created the refresh token.'
+    sys.exit(f"::error::Could not get a YouTube access token: {msg}.{hint}")
 yt = build('youtube', 'v3', credentials=creds, cache_discovery=False)
 
 body = {
@@ -96,6 +117,8 @@ try:
             print(f"  {int(status.progress() * 100)}%")
 except HttpError as e:
     sys.exit(f"::error::YouTube rejected the upload: {e}")
+except Exception as e:
+    sys.exit(f"::error::Upload failed: {type(e).__name__}: {e}")
 
 vid = resp['id']
 url = f"https://youtu.be/{vid}"
