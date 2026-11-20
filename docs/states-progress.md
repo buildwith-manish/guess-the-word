@@ -5,7 +5,7 @@
 - [ ] 0c (label to fill from docs/states-prompts-split.md)
 - [ ] 0d (label to fill from docs/states-prompts-split.md)
 - [ ] 0e (label to fill from docs/states-prompts-split.md)
-- [ ] 1a (label to fill from docs/states-prompts-split.md)
+- [x] 1a build-states-geo script + src/states/states-geo.json
 - [ ] 1b (label to fill from docs/states-prompts-split.md)
 - [ ] 1c (label to fill from docs/states-prompts-split.md)
 - [ ] 1d (label to fill from docs/states-prompts-split.md)

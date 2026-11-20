@@ -29,7 +29,8 @@
     "pixel:images": "node scripts/fetch-pixel-images.js",
     "pixel:still": "remotion still PixelGuess out/pixel-still.png --frame=388",
     "pixel:render": "node scripts/voiceover-scan.js && remotion render PixelGuess out/pixel-guess.mp4",
-    "pixel:draft": "node scripts/voiceover-scan.js && remotion render PixelGuess out/pixel-guess-draft.mp4 --scale=0.5 --concurrency=4"
+    "pixel:draft": "node scripts/voiceover-scan.js && remotion render PixelGuess out/pixel-guess-draft.mp4 --scale=0.5 --concurrency=4",
+    "states:geo": "node scripts/build-states-geo.js"
   },
   "dependencies": {
     "@react-three/fiber": "^9.3.0",
@@ -47,6 +48,10 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@types/three": "^0.180.0",
-    "typescript": "^5.6.0"
+    "d3-geo": "3.1.1",
+    "d3-polygon": "3.0.1",
+    "topojson-client": "3.1.0",
+    "typescript": "^5.6.0",
+    "us-atlas": "3.0.1"
   }
 }

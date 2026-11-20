@@ -84,6 +84,8 @@ fps, width, height, motionBlur, camera, voiceover, transitions, fastest, streak,
 
 ## C Data
 
+- Geometry (src/states/states-geo.json, built by `npm run states:geo`): US Census Bureau cartographic boundaries via us-atlas
+
 ## D Components
 
 ## E Scenes
