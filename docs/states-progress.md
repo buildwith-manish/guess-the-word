@@ -7,7 +7,7 @@
 - [ ] 0e (label to fill from docs/states-prompts-split.md)
 - [x] 1a build-states-geo script + src/states/states-geo.json
 - [x] 1b src/states/states-data.ts (facts need manual check M1)
-- [ ] 1c (label to fill from docs/states-prompts-split.md)
+- [x] 1c scripts/check-states.js (npm run states:check)
 - [ ] 1d (label to fill from docs/states-prompts-split.md)
 - [ ] 1e (label to fill from docs/states-prompts-split.md)
 - [ ] 2a (label to fill from docs/states-prompts-split.md)
