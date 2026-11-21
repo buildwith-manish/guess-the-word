@@ -11,6 +11,9 @@
     "after": [10, 20, 30],
     "clockSeconds": 9,
     "answerHoldTicks": 75,
+    "searchHoldChars": 6,
+    "chipStaggerTicks": 8,
+    "chipsToClockTicks": 15,
     "theme": ["#FF8A3D", "#2B1204"]
   },
   "reminder": { "after": [8, 22], "ticks": 51 },

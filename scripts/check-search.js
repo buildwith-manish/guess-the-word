@@ -125,6 +125,91 @@ const isOneEmoji = (s) => {
   check("bonus answers are not round names", p);
 }
 
+// ---- bonus scene plans (task 4a): src/search/bonus-engine.ts via search-timing.ts
+const fs = require("fs");
+const tm = { exports: {} };
+new Function(
+  "module",
+  "exports",
+  esbuild.buildSync({
+    entryPoints: [path.join(__dirname, "..", "src", "search", "search-timing.ts")],
+    bundle: true,
+    write: false,
+    format: "cjs",
+    platform: "node",
+    logLevel: "silent",
+  }).outputFiles[0].text
+)(tm, tm.exports);
+const { buildBonusPlan, TIMELINE } = tm.exports;
+const plans = BONUS.map((_, i) => buildBonusPlan(i));
+const cfg = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "src", "search", "search-settings.json"), "utf8"));
+
+// 8. exactly one correct option, no duplicate options, fixed data order
+{
+  const p = [];
+  plans.forEach((pl, i) => {
+    const t = `bonus ${i + 1}`;
+    const b = BONUS[i];
+    if (pl.options.length !== 4) p.push(`${t}: ${pl.options.length} options in the plan`);
+    const correct = pl.options.filter((o) => o.correct);
+    if (correct.length !== 1) p.push(`${t}: ${correct.length} correct options, expected 1`);
+    else if (correct[0].text !== pl.answer) p.push(`${t}: the correct option is not the answer`);
+    if (pl.options.findIndex((o) => o.correct) !== pl.correctIndex) p.push(`${t}: correctIndex does not match the flagged option`);
+    const keys = pl.options.map((o) => o.text.trim().toLowerCase());
+    if (new Set(keys).size !== keys.length) p.push(`${t}: duplicate options`);
+    if (pl.options.map((o) => o.text).join("|") !== b.options.join("|")) p.push(`${t}: option order differs from the data`);
+  });
+  check("bonus plans: exactly one correct option, no duplicates, data order", p);
+}
+
+// 9. bonus scene order and durations
+{
+  const p = [];
+  const per = cfg.typing.ticksPerChar;
+  plans.forEach((pl, i) => {
+    const t = `bonus ${i + 1}`;
+    if (pl.searchAt.length !== 3) p.push(`${t}: ${pl.searchAt.length} search starts`);
+    pl.searchAt.forEach((at, k) => {
+      if (k === 0) return;
+      const need = Math.max(cfg.typing.minTicks, pl.searches[k - 1].length * per) + cfg.bonus.searchHoldChars * per;
+      if (at - pl.searchAt[k - 1] < need) p.push(`${t}: search ${k + 1} starts before search ${k} has typed and held`);
+    });
+    const lastNeed = Math.max(cfg.typing.minTicks, pl.searches[2].length * per) + cfg.bonus.searchHoldChars * per;
+    if (pl.chipsAt[0] < pl.searchAt[2] + lastNeed) p.push(`${t}: chips start before the last search is done`);
+    pl.chipsAt.forEach((at, k) => {
+      if (k && at <= pl.chipsAt[k - 1]) p.push(`${t}: chips ${k} and ${k + 1} not in order`);
+    });
+    if (pl.clockStart <= pl.chipsAt[3]) p.push(`${t}: clock starts before the last chip`);
+    if (pl.revealAt !== pl.clockStart + pl.clockFrames) p.push(`${t}: revealAt is not clockStart + clockFrames`);
+    if (pl.clockFrames !== Math.round(cfg.bonus.clockSeconds * 30)) p.push(`${t}: clock is not bonus.clockSeconds`);
+    if (pl.duration !== pl.revealAt + pl.holdFrames + pl.exitFrames) p.push(`${t}: duration is not reveal + hold + exit`);
+    const seg = TIMELINE.segments.find((s) => s.kind === "bonus" && s.index === i);
+    if (!seg) p.push(`${t}: no bonus segment in the timeline`);
+    else if (seg.duration !== pl.duration) p.push(`${t}: timeline segment is ${seg.duration}, plan is ${pl.duration}`);
+  });
+  check("bonus plans: searches, chips, clock, reveal in order; timeline durations match", p);
+}
+
+// 10. settings searchHoldChars equals HOLD_CHARS in the SearchBar component
+{
+  const p = [];
+  const src = fs.readFileSync(path.join(__dirname, "..", "src", "search", "components", "SearchBar.tsx"), "utf8");
+  const m = src.match(/export const HOLD_CHARS\s*=\s*(\d+)/);
+  if (!m) p.push("HOLD_CHARS not found in SearchBar.tsx");
+  else if (Number(m[1]) !== cfg.bonus.searchHoldChars) p.push(`bonus.searchHoldChars is ${cfg.bonus.searchHoldChars}, HOLD_CHARS is ${m[1]}`);
+  check("bonus.searchHoldChars equals HOLD_CHARS in SearchBar", p);
+}
+
+if (process.argv.includes("--plans")) {
+  plans.forEach((pl, i) => {
+    console.log(`\nBonus ${i + 1} (after round ${pl.afterRound}): ${pl.answer} (${pl.from})`);
+    pl.searches.forEach((s, k) => console.log(`  search ${k + 1} @ tick ${pl.searchAt[k]}: ${s}`));
+    pl.options.forEach((o, k) => console.log(`  chip ${k + 1} @ tick ${pl.chipsAt[k]}: ${o.text}${o.correct ? "  <- correct" : ""}`));
+    console.log(`  clock: tick ${pl.clockStart}, ${pl.clockFrames} ticks; reveal @ tick ${pl.revealAt}`);
+    console.log(`  hold ${pl.holdFrames}, exit ${pl.exitFrames}, total ${pl.duration} ticks (${pl.duration * 2} frames at 60 fps)`);
+  });
+}
+
 // table
 const w = Math.max(...results.map((r) => r.name.length));
 console.log("\nsearch-data check\n");

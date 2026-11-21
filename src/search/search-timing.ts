@@ -14,6 +14,8 @@ import rootSettings from '../../settings.json';
 import cfg from './search-settings.json';
 import voManifest from './search-voiceover-manifest.json';
 import { BONUS, ROUNDS } from './search-data';
+import { buildBonusScene } from './bonus-engine';
+import type { BonusScenePlan } from './bonus-engine';
 import type { BonusSegment, Hud, IrisVariant, LevelCfg, Segment, Timeline } from './types';
 
 export const WIDTH = rootSettings.width;
@@ -121,11 +123,7 @@ export const buildRoundPlan = (index: number): RoundPlan => {
   };
 };
 
-export type BonusPlan = {
-  index: number;
-  clockStart: number;
-  clockFrames: number;
-  revealAt: number;
+export type BonusPlan = BonusScenePlan & {
   holdFrames: number;
   exitFrames: number;
   duration: number;
@@ -133,20 +131,15 @@ export type BonusPlan = {
 };
 
 export const buildBonusPlan = (index: number): BonusPlan => {
-  if (!BONUS[index]) throw new Error(`no bonus puzzle ${index + 1}`);
-  const clockStart = rootSettings.bonus.preRollFrames;
-  const clockFrames = toTicks(cfg.bonus.clockSeconds);
+  const scene = buildBonusScene(index, { startTick: rootSettings.bonus.preRollFrames, fps: FPS });
   const clip = voiceBonus(index + 1);
   const holdFrames = Math.max(cfg.bonus.answerHoldTicks, needFor(clip));
   const exitFrames = T.revealExit;
   return {
-    index,
-    clockStart,
-    clockFrames,
-    revealAt: clockStart + clockFrames,
+    ...scene,
     holdFrames,
     exitFrames,
-    duration: clockStart + clockFrames + holdFrames + exitFrames,
+    duration: scene.revealAt + holdFrames + exitFrames,
     vo: clip,
   };
 };
