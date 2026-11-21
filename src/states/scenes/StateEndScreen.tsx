@@ -22,15 +22,17 @@
  * Outro voiceover: manifest.outro (via voiceOutro) starts `voiceover.offsetFrames` into the segment; state-timing
  * stretches the segment to offset + clip + tail, so the hold fits the clip. The clip is returned by `endScreenVoice()`.
  *
+ * iOS look: calm backdrop, Inter, spring entrances, hairline (not dashed/glowing) slot guides, no confetti. Beats, cues,
+ * END_SLOTS and the clear bottom half are unchanged.
+ *
  * Time: `frame` = design ticks (30 per second) since the segment started. Not rendered or viewed.
  */
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { Background } from '../../Background';
-import { Confetti } from '../../Fx';
-import { COLORS, FONTS, K, glass, px } from '../../style';
-import { prog, slamIn, revealIn, clamp01 } from '../../anim';
-import { elasticOut } from '../../gsap-helpers';
+import { px } from '../../style';
+import { IOS, IosBackground, iosSurface, spring } from '../../ios';
+import { clamp01 } from '../../anim';
+import { rise } from '../ios-rise';
 import root from '../../../settings.json';
 import settings from '../states-settings.json';
 import { LEVELS, TOTAL, voiceOutro } from '../state-timing';
@@ -94,26 +96,24 @@ const slotBox = (r: R): React.CSSProperties => ({ position: 'absolute', left: px
 /** Faint outlines where YouTube's elements go: two video slots and the subscribe circle. Guides only. */
 const Outlines: React.FC<{ frame: number }> = ({ frame }) => {
   if (frame < EB.slotsAt) return null;
-  const pop = prog(frame, EB.slotsAt, 22, elasticOut);
-  const pulse = 0.5 + 0.5 * Math.sin((frame - EB.subscribeSlotAt) / 12);
-  const subOn = prog(frame, EB.subscribeSlotAt, 16, elasticOut);
-  const line = `${px(3)}px dashed rgba(255,255,255,0.35)`;
+  const pop = spring((frame - EB.slotsAt) / 22);
+  const subOn = spring((frame - EB.subscribeSlotAt) / 16);
+  const pulse = 0.5 + 0.5 * Math.sin((frame - EB.subscribeSlotAt) / 24); // slow breathing, no glow
   const common = (r: R, delay: number): React.CSSProperties => {
-    const p = prog(frame, EB.slotsAt + delay, 22, elasticOut);
-    return { ...slotBox(r), opacity: clamp01(p * 1.2), transform: `translateY(${(1 - p) * 40 * K}px) scale(${0.8 + 0.2 * p})` };
+    const p = spring((frame - EB.slotsAt - delay) / 22);
+    return { ...slotBox(r), opacity: Math.min(1, p * 1.4), transform: `translateY(${(1 - p) * px(24)}px)` };
   };
   return (
     <>
-      <div style={{ ...common(END_SLOTS.videoLeft, 0), ...glass(px(20), 0.05), border: line, borderRadius: px(20) }} />
-      <div style={{ ...common(END_SLOTS.videoRight, 4), ...glass(px(20), 0.05), border: line, borderRadius: px(20) }} />
+      <div style={{ ...common(END_SLOTS.videoLeft, 0), ...iosSurface(px(IOS.radius.lg), 0.3), background: 'transparent' }} />
+      <div style={{ ...common(END_SLOTS.videoRight, 4), ...iosSurface(px(IOS.radius.lg), 0.3), background: 'transparent' }} />
       <div
         style={{
           ...slotBox(END_SLOTS.subscribe),
           borderRadius: '50%',
-          border: `${px(3)}px dashed ${COLORS.yellow}`,
-          opacity: clamp01(subOn * 1.2) * (0.55 + 0.45 * pulse),
-          transform: `scale(${0.7 + 0.3 * subOn})`,
-          boxShadow: `0 0 ${px(40 * (0.6 + 0.4 * pulse))}px rgba(255,214,10,0.4)`,
+          border: `${px(2)}px solid ${IOS.color.red}`,
+          opacity: Math.min(1, subOn * 1.4) * (0.6 + 0.4 * pulse),
+          transform: `scale(${0.9 + 0.1 * subOn})`,
         }}
       />
       {/* label above the slots (nothing below them, so the YouTube elements stay clear) */}
@@ -124,13 +124,12 @@ const Outlines: React.FC<{ frame: number }> = ({ frame }) => {
             position: 'absolute',
             left: px(r.x),
             width: px(r.w),
-            top: px(r.y - 34),
+            top: px(r.y - 36),
             textAlign: 'center',
-            fontFamily: FONTS.body,
-            fontWeight: 800,
-            fontSize: px(18),
-            letterSpacing: px(6),
-            color: 'rgba(255,255,255,0.7)',
+            fontFamily: IOS.font,
+            fontWeight: IOS.weight.medium,
+            fontSize: px(20),
+            color: IOS.color.secondary,
             opacity: clamp01(pop),
           }}
         >
@@ -143,17 +142,17 @@ const Outlines: React.FC<{ frame: number }> = ({ frame }) => {
 
 // ------------------------------------------------------------------ scene
 export const StateEndScreen: React.FC<{ frame: number }> = ({ frame }) => {
-  const e1 = revealIn(frame, EB.eyebrowAt, 15, 24);
-  const e2 = slamIn(frame, EB.headAt, 16);
-  const e3 = revealIn(frame, EB.subscribeAt, 15, 24);
-  const e4 = revealIn(frame, EB.slotsAt, 15, 24);
-  const theme = LEVELS[LEVELS.length - 1].theme;
+  const e1 = rise(frame, EB.eyebrowAt, 15, 16);
+  const e2 = rise(frame, EB.headAt, 18, 28);
+  const e3 = rise(frame, EB.subscribeAt, 15, 20);
+  const e4 = rise(frame, EB.slotsAt, 15, 16);
+  const last = LEVELS[LEVELS.length - 1];
   const next = settings.nextVideo;
   const nextLine = next.title ? next.title : '';
 
   return (
-    <AbsoluteFill>
-      <Background frame={frame} theme={theme} />
+    <AbsoluteFill style={{ fontFamily: IOS.font }}>
+      <IosBackground accent={last.accent} />
       {/* top half only: copy */}
       <div
         style={{
@@ -167,16 +166,15 @@ export const StateEndScreen: React.FC<{ frame: number }> = ({ frame }) => {
           alignItems: 'center',
           justifyContent: 'center',
           textAlign: 'center',
-          gap: px(10),
+          gap: px(12),
         }}
       >
         <div
           style={{
-            fontFamily: FONTS.body,
-            fontWeight: 800,
-            fontSize: px(22),
-            letterSpacing: px(9),
-            color: 'rgba(255,255,255,0.8)',
+            fontWeight: IOS.weight.semibold,
+            fontSize: px(24),
+            letterSpacing: px(2),
+            color: IOS.color.secondary,
             opacity: e1.opacity,
             transform: e1.transform,
           }}
@@ -185,60 +183,54 @@ export const StateEndScreen: React.FC<{ frame: number }> = ({ frame }) => {
         </div>
         <div
           style={{
-            fontFamily: FONTS.display,
-            fontSize: px(96),
-            lineHeight: 1.02,
-            letterSpacing: px(3),
-            color: '#fff',
+            fontWeight: IOS.weight.bold,
+            fontSize: px(92),
+            lineHeight: 1.04,
+            letterSpacing: px(-2),
+            color: IOS.color.label,
             opacity: e2.opacity,
             transform: e2.transform,
-            filter: e2.filter,
           }}
         >
           {COPY.headA}
           <br />
-          <b style={{ color: COLORS.yellow, fontWeight: 400 }}>{COPY.headB}</b>
+          <span style={{ color: last.accent }}>{COPY.headB}</span>
         </div>
         <div
           style={{
-            marginTop: px(6),
-            padding: `${px(10)}px ${px(28)}px`,
+            marginTop: px(8),
+            padding: `${px(10)}px ${px(26)}px`,
             borderRadius: px(40),
-            background: COLORS.yellow,
-            color: '#2a1d00',
-            fontFamily: FONTS.display,
+            background: IOS.color.red,
+            color: '#fff',
+            fontWeight: IOS.weight.semibold,
             fontSize: px(26),
-            letterSpacing: px(5),
             opacity: e3.opacity,
             transform: e3.transform,
           }}
         >
           {COPY.subscribe}
-          <span style={{ fontFamily: FONTS.body, fontWeight: 800, fontSize: px(16), letterSpacing: px(4), marginLeft: px(16) }}>{COPY.subscribeSub}</span>
+          <span style={{ fontWeight: IOS.weight.medium, fontSize: px(18), marginLeft: px(16), opacity: 0.85 }}>{COPY.subscribeSub}</span>
         </div>
         {nextLine ? (
           <div
             style={{
-              fontFamily: FONTS.body,
-              fontWeight: 800,
-              fontSize: px(22),
-              letterSpacing: px(4),
-              color: '#fff',
+              fontWeight: IOS.weight.medium,
+              fontSize: px(24),
+              color: IOS.color.label,
               opacity: e4.opacity,
               transform: e4.transform,
             }}
           >
-            <span style={{ color: COLORS.yellow }}>{COPY.nextLabel}: </span>
+            <span style={{ color: IOS.color.secondary }}>{COPY.nextLabel}: </span>
             {nextLine}
-            {next.linkText ? <span style={{ color: 'rgba(255,255,255,0.7)' }}> {'•'} {next.linkText}</span> : null}
+            {next.linkText ? <span style={{ color: IOS.color.secondary }}> {'•'} {next.linkText}</span> : null}
           </div>
         ) : null}
       </div>
 
       {/* bottom half: only the slot outlines, see END_SLOTS */}
       <Outlines frame={frame} />
-
-      {frame >= EB.headAt ? <Confetti frame={frame} start={EB.headAt} seed={2024} count={40} origin={{ x: 640, y: 200 }} /> : null}
     </AbsoluteFill>
   );
 };
