@@ -4,7 +4,7 @@
  * Writes the voiceover script of Video 4, same method as scripts/voiceover-script.js (esbuild-bundle the timing
  * module, read the data, write the lines), but with its own wording:
  *   docs/states-voiceover-script.md        the lines WITH [emotion] tags (paste into ElevenLabs)
- *   public/voiceover/states-lines.csv      the same text with the tags stripped (id,text)
+ *   public/voiceover/states-lines.csv      the same text with the tags stripped (id,type,text)
  * Every line comes from the data (states-data.ts, states-settings.json, the bonus puzzles in state-timing.ts):
  * no state fact is typed here. The on-screen `fact` field is NOT used (every fact is still unverified, factVerify).
  *
@@ -161,7 +161,10 @@ const csvCell = (s) => `"${s.replace(/"/g, '""')}"`;
   fs.mkdirSync(path.join(ROOT, 'docs'), { recursive: true });
   fs.writeFileSync(path.join(ROOT, 'docs', 'states-voiceover-script.md'), md.join('\n'));
 
-  const csv = ['id,text', ...rows.map((r) => `${r.id},${csvCell(strip(r.text))}`)].join('\n') + '\n';
+  const TYPE = { INTRO: 'intro', LEVELS: 'level', REVEALS: 'reveal', 'BONUS QUESTIONS': 'bonus_question', 'BONUS ANSWERS': 'bonus_answer', SCOREBOARD: 'scoreboard', OUTRO: 'outro' };
+  const csv = ['id,type,text', ...rows.map((r) => `${r.id},${TYPE[r.section]},${csvCell(strip(r.text))}`)].join('\n') + '\n';
+  // plain lines for copy-paste: spoken text only (no ids, headings or tags), one per line
+  fs.writeFileSync(path.join(ROOT, 'public', 'voiceover', 'states-lines.txt'), rows.map((r) => strip(r.text)).join('\n') + '\n');
   fs.mkdirSync(path.join(ROOT, 'public', 'voiceover'), { recursive: true });
   fs.writeFileSync(path.join(ROOT, 'public', 'voiceover', 'states-lines.csv'), csv);
 
