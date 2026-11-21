@@ -27,7 +27,7 @@ export type HintEmojiProps = {
   at: { x: number; y: number };
   /** Emoji size in reference units. */
   size: number;
-  /** Ping ring colour. */
+  /** Level accent. Kept for API compatibility; the ping is neutral (accent lives on timer, current dot, stamp). */
   accent?: string;
 };
 
@@ -40,7 +40,7 @@ const bounce = (t: number): number => {
   return 1 - Math.exp(-DAMP * t) * Math.cos(Math.PI * WOBBLE * t);
 };
 
-export const HintEmoji: React.FC<HintEmojiProps> = ({ emoji, from, at, size, accent = COLORS.yellow }) => {
+export const HintEmoji: React.FC<HintEmojiProps> = ({ emoji, from, at, size }) => {
   const frame = useDesignFrame();
   if (frame < from) return null;
 
@@ -72,7 +72,7 @@ export const HintEmoji: React.FC<HintEmojiProps> = ({ emoji, from, at, size, acc
                   position: 'absolute',
                   inset: 0,
                   borderRadius: '50%',
-                  border: `${px(3)}px solid ${accent}`,
+                  border: `${px(3)}px solid ${COLORS.ink}`,
                   boxSizing: 'border-box',
                   transform: `scale(${0.6 + pingT * 1.1})`,
                   opacity: 1 - pingT,

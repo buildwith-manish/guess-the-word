@@ -1,5 +1,5 @@
 import React from 'react';
-import { COLORS, FONTS, px } from '../../style';
+import { COLORS, FONTS, glass, px } from '../../style';
 import { useDesignFrame } from '../../clock';
 import '../../fonts';
 
@@ -54,7 +54,7 @@ export type SearchBarProps = {
   starts: number[];
   /** Ticks per typed character: one number for all searches, or one value per search. */
   typeTicks: number | readonly number[];
-  /** Accent colour (caret, magnifier, bar glow). */
+  /** Level accent. Kept for API compatibility; the bar is neutral (the accent lives on the timer, current dot and stamp). */
   accent: string;
   /** Bar width in 1280x720 reference units (passed through px()). */
   size: number;
@@ -78,33 +78,51 @@ const Clock: React.FC<{ s: number; color: string }> = ({ s, color }) => (
   </svg>
 );
 
-export const SearchBar: React.FC<SearchBarProps> = ({
-  searches,
-  starts,
-  typeTicks,
-  accent,
-  size,
-  at,
-  heading = 'Recent searches',
-}) => {
+/**
+ * Look (task 7g). Every size is a multiple of `u`, the px per 1280x720 reference unit at this bar width
+ * (2 at the stage's own search width). One type scale: CLUE for the big line in the bar (at most 2 lines),
+ * LABEL for list rows, HEAD for the small heading. All three stay at or above 28 px at 1440p.
+ */
+const REF_WIDTH = 576; // the search slot width the proportions below were set for
+const CLUE = 26; // 52 px at 1440p
+const LABEL = 15; // 30 px
+const HEAD = 14; // 28 px
+const CLUE_LINE_HEIGHT = 1.25;
+/** Part of the slide in which the big clue crossfades into its small list row. */
+const XFADE_FROM = 0.25;
+const XFADE_SPAN = 0.5;
+
+const smooth = (t: number) => {
+  const k = clamp01(t);
+  return k * k * (3 - 2 * k);
+};
+
+export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTicks, size, at, heading = 'Recent searches' }) => {
   const frame = useDesignFrame();
 
-  // Layout proportions, all derived from the bar width.
   const W = px(size);
-  const barH = W * 0.13;
-  const barPad = barH * 0.4;
-  const icon = barH * 0.42;
-  const gap = barH * 0.3;
-  const barFont = barH * 0.4;
-  const rowH = barH * 0.82;
-  const rowFont = barH * 0.32;
-  const rowIcon = rowH * 0.42;
-  const headH = barH * 0.62;
-  const listGap = barH * 0.45;
+  const u = W / REF_WIDTH;
+  const barH = 100 * u; // room for two lines of clue plus padding
+  const barPad = 20 * u;
+  const icon = 28 * u;
+  const gap = 12 * u;
+  const barFont = CLUE * u;
+  const rowH = 42 * u;
+  const rowFont = LABEL * u;
+  const rowIcon = 17 * u;
+  const headH = 32 * u;
+  const headFont = HEAD * u;
+  const listGap = 24 * u;
   const listTop = barH + listGap;
   const rowsTop = listTop + headH;
   const n = searches.length;
-  const panelH = headH + n * rowH + barH * 0.2;
+  const panelH = headH + n * rowH + 16 * u;
+  const radius = barH * 0.32;
+
+  const barTextX = barPad + icon + gap;
+  const rowTextX = barPad + rowIcon + gap;
+  const barTextW = W - barTextX - barPad;
+  const rowTextW = W - rowTextX - barPad;
 
   // Eased slide progress per search.
   const tt = (i: number) => typeTicksOf(typeTicks, i);
@@ -123,9 +141,16 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   const blinkOn = Math.floor(frame / (BLINK_CHARS * tt(Math.max(0, cur)))) % 2 === 0;
   const caretOn = typing || blinkOn;
 
-  const barTextX = barPad + icon + gap;
-  const rowTextX = barPad + rowIcon + gap;
   const panelIn = n ? e.reduce((m, v) => Math.max(m, v), 0) : 0;
+
+  // Glass surface: frosted, dark-tinted so light text stays readable over the moving background.
+  const surface = (r: number, shadowY: number, shadowBlur: number): React.CSSProperties => ({
+    ...(glass(r, 0.09) as React.CSSProperties),
+    background: 'linear-gradient(160deg, rgba(34,40,86,0.62), rgba(10,12,32,0.58))',
+    border: `${px(1.5)}px solid ${COLORS.stroke}`,
+    boxShadow: `0 ${shadowY}px ${shadowBlur}px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2)`,
+    boxSizing: 'border-box',
+  });
 
   return (
     <div
@@ -138,45 +163,45 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         color: COLORS.ink,
       }}
     >
-      {/* Bar */}
-      <div
-        style={{
-          position: 'relative',
-          height: barH,
-          borderRadius: barH / 2,
-          background: COLORS.glassStrong,
-          border: `${px(1.5)}px solid ${COLORS.stroke}`,
-          boxShadow: `0 ${px(14)}px ${px(40)}px rgba(0,0,0,0.45), 0 0 ${px(26)}px ${accent}33`,
-          boxSizing: 'border-box',
-        }}
-      >
+      {/* Bar: the hero. Up to two lines of clue, vertically centred. */}
+      <div style={{ position: 'relative', height: barH, ...surface(radius, 24 * u, 64 * u) }}>
         <div style={{ position: 'absolute', left: barPad, top: (barH - icon) / 2, display: 'flex' }}>
-          <Magnifier s={icon} color={accent} />
+          <Magnifier s={icon} color={COLORS.ink} />
         </div>
         <div
           style={{
             position: 'absolute',
             left: barTextX,
             top: 0,
+            width: barTextW,
             height: barH,
             display: 'flex',
             alignItems: 'center',
-            fontSize: barFont,
-            whiteSpace: 'pre',
           }}
         >
-          <span>{barText}</span>
-          <span
+          <div
             style={{
-              display: 'inline-block',
-              width: barFont * 0.09,
-              height: barFont * 1.15,
-              marginLeft: barFont * 0.1,
-              borderRadius: barFont * 0.05,
-              background: accent,
-              opacity: caretOn ? 1 : 0,
+              width: barTextW,
+              fontSize: barFont,
+              lineHeight: CLUE_LINE_HEIGHT,
+              whiteSpace: 'pre-wrap',
+              overflowWrap: 'break-word',
             }}
-          />
+          >
+            <span>{barText}</span>
+            <span
+              style={{
+                display: 'inline-block',
+                width: barFont * 0.09,
+                height: barFont * 1.05,
+                marginLeft: barFont * 0.1,
+                verticalAlign: 'text-bottom',
+                borderRadius: barFont * 0.05,
+                background: COLORS.ink,
+                opacity: caretOn ? 1 : 0,
+              }}
+            />
+          </div>
         </div>
       </div>
 
@@ -188,11 +213,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           top: listTop,
           width: W,
           height: panelH,
-          borderRadius: barH * 0.4,
-          background: COLORS.glassStrong,
-          border: `${px(1.5)}px solid ${COLORS.stroke}`,
-          boxSizing: 'border-box',
           opacity: panelIn,
+          ...surface(radius * 0.8, 16 * u, 44 * u),
         }}
       >
         <div
@@ -203,9 +225,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             height: headH,
             display: 'flex',
             alignItems: 'center',
-            fontSize: barH * 0.26,
+            fontSize: headFont,
             color: COLORS.muted,
-            letterSpacing: barH * 0.012,
+            letterSpacing: headFont * 0.08,
             textTransform: 'uppercase',
           }}
         >
@@ -213,16 +235,19 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         </div>
       </div>
 
-      {/* Rows: newest on top. Row i sits below one slot for every later search that has landed. */}
+      {/* Rows: newest on top. Row i sits below one slot for every later search that has landed.
+          The big clue (ghost) shrinks and moves while it crossfades into the small row, so the text
+          never re-wraps mid-slide. */}
       {searches.map((s, i) => {
         if (e[i] <= 0) return null;
         let slot = 0;
         for (let j = i + 1; j < n; j++) slot += e[j];
-        const barRowY = (barH - rowH) / 2;
-        const y = lerp(barRowY, rowsTop + slot * rowH, e[i]);
+        const y = lerp(0, rowsTop + slot * rowH, e[i]);
+        const h = lerp(barH, rowH, e[i]);
         const x = lerp(barTextX, rowTextX, e[i]);
-        const fs = lerp(barFont, rowFont, e[i]);
         const settled = clamp01(e[i]);
+        const f = smooth((e[i] - XFADE_FROM) / XFADE_SPAN);
+        const shrink = lerp(1, rowFont / barFont, e[i]);
         return (
           <div
             key={i}
@@ -231,24 +256,56 @@ export const SearchBar: React.FC<SearchBarProps> = ({
               left: 0,
               top: y,
               width: W,
-              height: rowH,
+              height: h,
               opacity: slot > n - 1 ? 0 : 1,
             }}
           >
-            <div style={{ position: 'absolute', left: barPad, top: (rowH - rowIcon) / 2, display: 'flex', opacity: settled }}>
+            <div style={{ position: 'absolute', left: barPad, top: (h - rowIcon) / 2, display: 'flex', opacity: settled }}>
               <Clock s={rowIcon} color={COLORS.muted} />
             </div>
+            {/* ghost: the big clue, scaled down */}
             <div
               style={{
                 position: 'absolute',
                 left: x,
                 top: 0,
-                height: rowH,
+                width: barTextW,
+                height: h,
                 display: 'flex',
                 alignItems: 'center',
-                fontSize: fs,
-                whiteSpace: 'pre',
+                opacity: 1 - f,
+              }}
+            >
+              <div
+                style={{
+                  width: barTextW,
+                  fontSize: barFont,
+                  lineHeight: CLUE_LINE_HEIGHT,
+                  whiteSpace: 'pre-wrap',
+                  overflowWrap: 'break-word',
+                  transform: `scale(${shrink})`,
+                  transformOrigin: 'left center',
+                }}
+              >
+                {s}
+              </div>
+            </div>
+            {/* list row at its final size */}
+            <div
+              style={{
+                position: 'absolute',
+                left: x,
+                top: 0,
+                width: rowTextW,
+                height: h,
+                display: 'flex',
+                alignItems: 'center',
+                fontSize: rowFont,
+                lineHeight: 1.25,
+                whiteSpace: 'pre-wrap',
+                overflowWrap: 'break-word',
                 color: COLORS.ink,
+                opacity: f,
               }}
             >
               {s}

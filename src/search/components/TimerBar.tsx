@@ -6,7 +6,8 @@ import '../../fonts';
 
 /**
  * Slim progress bar that drains over the clock, with the remaining whole seconds beside it.
- * Colour is `accent`, switching to red for the last second. Once a second the bar and the number pulse.
+ * Colour is `accent`, switching to red for the last second. Once a second the bar and the number pulse;
+ * in the last second they take one slow breath instead (scale and glow up and down once).
  * `from` and `duration` are design ticks (30 per second), local to the scene that mounts it.
  * Nothing is drawn before `from`; after the end the bar stays empty.
  */
@@ -14,6 +15,9 @@ import '../../fonts';
 /** Share of a second the tick pulse lasts, and its strength as a fraction of scale. Motion constants. */
 const PULSE_SHARE = 0.5;
 const PULSE_GAIN = 0.12;
+/** Last second: one slow breath (scale and glow rise and fall once), gentler than the per-second tick. */
+const LAST_BREATH_SCALE = 0.07;
+const LAST_BREATH_GLOW = 0.9;
 
 export type TimerBarProps = {
   /** Tick the clock starts. */
@@ -45,10 +49,13 @@ export const TimerBar: React.FC<TimerBarProps> = ({ from, duration, accent, size
   const phase = (elapsed % FPS) / FPS;
   const running = frame - from < duration;
   const pulse = running ? Math.pow(1 - clamp01(phase / PULSE_SHARE), 3) : 0;
-  const scale = 1 + PULSE_GAIN * pulse;
+  const breathing = running && lastSecond;
+  const breath = breathing ? 0.5 - 0.5 * Math.cos(2 * Math.PI * clamp01(1 - left / FPS)) : 0;
+  const scale = breathing ? 1 + LAST_BREATH_SCALE * breath : 1 + PULSE_GAIN * pulse;
+  const glow = 1 + LAST_BREATH_GLOW * breath;
 
   const W = px(size);
-  const barH = W * 0.022;
+  const barH = W * 0.028;
   const numW = W * 0.09;
   const gap = W * 0.025;
   const trackW = W - numW - gap;
@@ -77,6 +84,8 @@ export const TimerBar: React.FC<TimerBarProps> = ({ from, duration, accent, size
           boxSizing: 'border-box',
           overflow: 'hidden',
           transform: `scaleY(${scale})`,
+          // the fill's own glow is clipped by the track, so the last-second breath glows from the track itself
+          boxShadow: breathing ? `0 0 ${barH * 1.6 * breath}px ${color}` : 'none',
         }}
       >
         <div
@@ -85,7 +94,7 @@ export const TimerBar: React.FC<TimerBarProps> = ({ from, duration, accent, size
             height: '100%',
             borderRadius: barH / 2,
             background: color,
-            boxShadow: `0 0 ${barH * 1.2}px ${color}`,
+            boxShadow: `0 0 ${barH * 1.2 * glow}px ${color}`,
           }}
         />
       </div>

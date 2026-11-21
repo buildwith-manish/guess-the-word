@@ -24,6 +24,14 @@ export type Rect = { x: number; y: number; w: number; h: number }; // x = centre
 /** Fade-in length of a slot, in seconds. Motion constant. */
 const FADE_SECONDS = 0.25;
 
+/** Background drift light: loop length in seconds, travel in % of the frame, size in %, strength. Motion constants. */
+const DRIFT_SECONDS = 40;
+const DRIFT_RANGE_X = 14;
+const DRIFT_RANGE_Y = 9;
+const DRIFT_W = 60;
+const DRIFT_H = 55;
+const DRIFT_ALPHA = 0.045;
+
 // Safe box in reference units, taken from style.ts.
 const X0 = SAFE_X / SCALE;
 const Y0 = SAFE_Y / SCALE;
@@ -36,7 +44,7 @@ const rowY = (f: number) => Y0 + SH * f;
 /** Slot rects (centre-x, top-y, width, height), as proportions of the safe box. */
 export const SLOTS = {
   hud: { x: X0, y: Y0, w: SW * 0.2, h: SH * 0.07 } as Rect, // x here is the LEFT edge
-  search: { x: colX(0.36), y: rowY(0.14), w: SW * 0.5, h: SH * 0.64 } as Rect,
+  search: { x: colX(0.36), y: rowY(0.17), w: SW * 0.5, h: SH * 0.62 } as Rect,
   timer: { x: colX(0.36), y: rowY(0.81), w: SW * 0.5, h: SH * 0.07 } as Rect,
   hint: { x: colX(0.82), y: rowY(0.2), w: SW * 0.34, h: SH * 0.3 } as Rect,
   answer: { x: colX(0.82), y: rowY(0.58), w: SW * 0.34, h: SH * 0.24 } as Rect,
@@ -51,7 +59,7 @@ export type SlotProps = {
 export type SearchStageProps = {
   /** Background colour pair [accent, base], from the level. */
   theme: [string, string];
-  /** Level accent (HUD label colour). */
+  /** Level accent. Kept for API compatibility; the stage itself is neutral (accent lives on timer, current dot, stamp). */
   accent: string;
   /** HUD text, e.g. label "EASY", number 3, total 10. */
   hud: HudInfo;
@@ -76,14 +84,27 @@ const Slot: React.FC<{ slot?: SlotProps; rect: Rect; frame: number }> = ({ slot,
   );
 };
 
-export const SearchStage: React.FC<SearchStageProps> = ({ theme, accent, hud, energy, search, timer, hint, answer, dots }) => {
+export const SearchStage: React.FC<SearchStageProps> = ({ theme, hud, energy, search, timer, hint, answer, dots }) => {
   const frame = useDesignFrame();
   const pill = SLOTS.hud;
   const H = px(pill.h);
+  const driftT = (frame / (DRIFT_SECONDS * FPS)) * Math.PI * 2;
+  const driftX = 40 + DRIFT_RANGE_X * Math.sin(driftT);
+  const driftY = 45 + DRIFT_RANGE_Y * Math.sin(driftT * 2 + 1);
 
   return (
     <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
       <Background frame={frame} theme={theme} energy={energy} />
+
+      {/* Subtle drift: one very soft light that wanders behind the content (about 40 s per loop). */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          background: `radial-gradient(ellipse ${DRIFT_W}% ${DRIFT_H}% at ${driftX}% ${driftY}%, rgba(255,255,255,${DRIFT_ALPHA}), rgba(255,255,255,0) 70%)`,
+        }}
+      />
 
       {/* HUD pill, top left */}
       <div
@@ -103,7 +124,7 @@ export const SearchStage: React.FC<SearchStageProps> = ({ theme, accent, hud, en
           ...glass(H / 2),
         }}
       >
-        <span style={{ color: accent }}>{hud.label}</span>
+        <span style={{ color: COLORS.muted }}>{hud.label}</span>
         <span style={{ color: COLORS.ink }}>
           {hud.number}/{hud.total}
         </span>
