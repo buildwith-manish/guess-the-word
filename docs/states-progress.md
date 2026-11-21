@@ -12,7 +12,7 @@
 - [x] 1e state-timing.ts + voiceover manifest + states:timeline (runtime 11:59, outside 9-11, see reply)
 - [x] 2a StateShape + geo.ts (not rendered or viewed)
 - [x] 2b TimerRing + EmojiFill (not rendered or viewed)
-- [ ] 2c (label to fill from docs/states-prompts-split.md)
+- [x] 2c MiniMap + FlyIn (not rendered or viewed)
 - [ ] 2d (label to fill from docs/states-prompts-split.md)
 - [ ] 2e (label to fill from docs/states-prompts-split.md)
 - [ ] 2f (label to fill from docs/states-prompts-split.md)

@@ -138,4 +138,38 @@ The state's three `hintEmoji` tiled in a grid (NotoColorEmoji, loaded by importi
 | `opacity` | 0..1 | 1 | peak opacity |
 | `frame` | ticks | useDesignFrame() | optional override from a parent |
 
+### MiniMap (src/states/components/MiniMap.tsx)
+
+All 50 `mini` paths in the 975x610 map system. Unanswered = dim outline, answered = filled in the state's level colour (from states-settings.json), current = pulsing gold outline, `highlightRegion` = soft stacked-stroke glow (no filter). Time from `useDesignFrame()` unless `frame` is passed. Also exports `Rect` (`{x, y, w, h}`), `miniMapHeight(size)`, `levelAccent(key)` and `getMiniRect(key, mapRect)`.
+
+| Prop | Type | Default | Meaning |
+|---|---|---|---|
+| `answered` | string[] | [] | keys drawn filled |
+| `current` | string | none | key with the pulsing outline |
+| `highlightRegion` | "West" \| "Midwest" \| "South" \| "Northeast" | none | region with a soft glow |
+| `size` | px | required | map width; height = `miniMapHeight(size)` (size x 610 / 975) |
+| `frame` | ticks | useDesignFrame() | optional override |
+
+### FlyIn (src/states/components/FlyIn.tsx)
+
+Moves the stage shape to its slot on the mini map on an eased arc (cssEaseInOut; the arc is 25% of the travel distance), scaling down, un-rotating and fading the glow on the way. Absolutely positioned: mount it in a layer with the same origin as the rects. Before `at` it sits on `from`; after `at + dur` it stays on its slot.
+
+| Prop | Type | Default | Meaning |
+|---|---|---|---|
+| `stateKey` | string | required | two-letter key |
+| `from` | Rect | required | the StateShape's square box on the stage |
+| `to` | Rect | required | the MiniMap's box |
+| `at` | ticks | required | flight start |
+| `dur` | ticks | required | flight length |
+| `accent` | CSS colour | COLORS.cyan | level accent, same as the stage shape |
+| `rotation` | degrees | 0 | stage rotation; eases to 0 |
+| `mode` | StateShapeMode | "filled" | StateShape mode while flying |
+| `fill`, `glow` | 0..1 | 1, 1 | at take-off; glow fades out during the flight |
+| `frame` | ticks | useDesignFrame() | optional override |
+
+**How to compute the two rects** (both in the coordinate space of the layer FlyIn is mounted in):
+- `from` = the StateShape's *square box*, not the fitted shape: `{ x, y, w: size, h: size }`, with x, y the top-left where the StateShape sits and `size` the same px value passed to it. (The fitted shape is centred in that box; `getShapeBox` gives its w and h.)
+- `to` = the MiniMap's box: `{ x, y, w: mapSize, h: miniMapHeight(mapSize) }`, with x, y the top-left of the MiniMap and `mapSize` its `size` prop.
+- FlyIn does the rest: it takes the state's `miniBBox` (`getMiniRect(key, to)`), centres the shape on it and scales it with `min(slot.w / fittedW, slot.h / fittedH)`, so the shape lands inside its bbox (the stage conic projection and the Albers map differ a little, so the fit is approximate).
+
 ## E Scenes
