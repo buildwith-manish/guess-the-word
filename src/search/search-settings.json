@@ -1,0 +1,27 @@
+{
+  "levels": [
+    { "name": "EASY", "time": 7, "accent": "#34D399", "bg": "#05241B", "theme": ["#6D5BFF", "#0B0A2E"] },
+    { "name": "MEDIUM", "time": 8, "accent": "#FBBF24", "bg": "#2B1B04", "theme": ["#00B8D9", "#04202B"] },
+    { "name": "HARD", "time": 9, "accent": "#FB7185", "bg": "#2A0712", "theme": ["#FF4D8D", "#2A0720"] }
+  ],
+  "searchAt": [0.04, 0.26, 0.48, 0.7],
+  "hintAt": 0.82,
+  "reveal": { "minHoldSeconds": 2.5 },
+  "bonus": {
+    "after": [10, 20, 30],
+    "clockSeconds": 9,
+    "answerHoldTicks": 75,
+    "theme": ["#FF8A3D", "#2B1204"]
+  },
+  "reminder": { "after": [8, 22], "ticks": 51 },
+  "levelCardFrames": 72,
+  "ranks": [
+    { "name": "LEGEND", "min": 27, "accent": "#FFC93C" },
+    { "name": "EXPERT", "min": 21, "accent": "#38E1FF" },
+    { "name": "GOOD", "min": 15, "accent": "#34D399" },
+    { "name": "BEGINNER", "min": 9, "accent": "#FBBF24" },
+    { "name": "KEEP GOING", "min": 0, "accent": "#FB7185" }
+  ],
+  "typing": { "ticksPerChar": 2, "minTicks": 12 },
+  "nextVideo": { "title": "", "linkText": "" }
+}

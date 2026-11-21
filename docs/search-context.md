@@ -88,6 +88,37 @@ Read from the GTW files on this branch (grep and short reads; bodies not read in
 
 ## C Data
 
+### C.2 search-settings.json and types.ts (task 1c)
+
+**src/search/search-settings.json** (the only place for level accents and search timings; read it, never hard-code):
+
+| Key | Shape | Values |
+|---|---|---|
+| levels | `[{ name, time, accent, bg, theme: [a, b] }]` | EASY 7 s `#34D399` / `#05241B`; MEDIUM 8 s `#FBBF24` / `#2B1B04`; HARD 9 s `#FB7185` / `#2A0712`. `time` = clock seconds. Accent and bg reuse GTW's level colours. `theme` pairs reuse the first three GTW `levelThemes` |
+| searchAt | 4 fractions of the clock | 0.04, 0.26, 0.48, 0.7 (clue 1 to clue 4) |
+| hintAt | fraction of the clock | 0.82 (the 2-emoji hint) |
+| reveal | `{ minHoldSeconds }` | 2.5 |
+| bonus | `{ after[], clockSeconds, answerHoldTicks, theme }` | after rounds 10, 20, 30; clock 9 s; answer hold 75 ticks; theme `#FF8A3D` / `#2B1204` (GTW bonus theme) |
+| reminder | `{ after[], ticks }` | after rounds 8 and 22; 51 ticks (GTW value) |
+| levelCardFrames | ticks | 72 (GTW value) |
+| ranks | `[{ name, min, accent }]` | LEGEND 27, EXPERT 21, GOOD 15, BEGINNER 9, KEEP GOING 0 (`min` = lowest score for the rank; accents are GTW's rank colours) |
+| typing | `{ ticksPerChar, minTicks }` | 2 ticks per character, at least 12 ticks per search |
+| nextVideo | `{ title, linkText }` | both empty for now |
+
+Units: "ticks" and `levelCardFrames` are 1/30 s design frames (see B). `time`, `clockSeconds` and `minHoldSeconds` are seconds. `searchAt` and `hintAt` are fractions of the level (or bonus) clock.
+
+Values the task did not give, chosen by task 1c and easy to change: bonus `clockSeconds` 9, bonus `answerHoldTicks` 75, reminder `ticks` 51, `levelCardFrames` 72, typing 2 / 12, the level `theme` pairs, all `accent` colours in `ranks`, the bonus `theme`. The rank name is `KEEP GOING` (with a space) as GTW shows it.
+
+**src/search/types.ts** (types only, no imports; does not import search-data.ts):
+- `LevelCfg` = `{ name, time, accent, bg, theme }`
+- `Hud` = `{ label, number, total }` (no `erases`: this video has none)
+- `IrisVariant` = `'circle' | 'sweep' | 'curtain'`
+- `RoundSegment` = `{ kind: 'round', from, duration, index, levelIndex, lead? }` (`index` is 0-based into `ROUNDS`)
+- `BonusSegment` = `{ kind: 'bonus', from, duration, index }` (`index` is 0-based into `BONUS`)
+- `Segment` = hook | levelCard `{ levelIndex }` | `RoundSegment` | `BonusSegment` | iris `{ fromTheme, toTheme, hud, variant? }` | reminder `{ theme, hud }` | scoreboard | endScreen. Every member has `from` and `duration` (design frames)
+- `Timeline` = `{ segments, totalFrames }`
+- The Round and Bonus data types are owned by `search-data.ts` (task 1a). In `types.ts` the names are `RoundSegment` and `BonusSegment` so they do not clash with them.
+
 ## D Components
 
 ### SearchBar (src/search/components/SearchBar.tsx)
