@@ -32,6 +32,9 @@ import { StateReminder } from './scenes/StateReminder';
 import { StateIris, stateIrisOverlap } from './scenes/StateIris';
 import { StateScoreboard } from './scenes/StateScoreboard';
 import { StateEndScreen } from './scenes/StateEndScreen';
+import { STAGE_LAYOUT } from './components/StateStage';
+import { MiniMap } from './components/MiniMap';
+import { STATES } from './states-data';
 import { StateSoundtrack } from './StateSoundtrack';
 import { questionHasTitle } from './state-sound';
 
@@ -89,9 +92,18 @@ const Scenes: React.FC = () => {
       const next = TIMELINE.segments[index + 1];
       const { lead, startsAt } = stateIrisOverlap(seg, next);
       const rf = local - startsAt;
+      // Before the next round mounts on top (its first `lead` ticks play inside the wipe) the wipe alone would show
+      // an empty stage for a few frames, a visible blink. So the corner map stays on screen all through the wipe, in
+      // the rect and with the answered states the next round draws, and the round simply takes it over.
+      const L = STAGE_LAYOUT;
       return (
         <AbsoluteFill>
           <StateIris frame={local} seg={seg} />
+          {next && next.kind === 'question' && rf < 0 ? (
+            <div style={{ position: 'absolute', left: L.miniMap.x, top: L.miniMap.y, width: L.miniMap.w, height: L.miniMap.h }}>
+              <MiniMap answered={STATES.slice(0, next.index).map((st) => st.key)} size={L.miniMap.w} frame={local} />
+            </div>
+          ) : null}
           {next && next.kind === 'question' && lead > 0 && rf >= 0 ? (
             <StateRound frame={rf} index={next.index} lead={lead} withTitle={questionHasTitle(next.index)} />
           ) : null}
