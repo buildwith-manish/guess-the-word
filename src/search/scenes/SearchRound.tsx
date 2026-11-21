@@ -9,6 +9,8 @@ import { SearchBar } from '../components/SearchBar';
 import { TimerBar } from '../components/TimerBar';
 import { HintClue } from '../components/HintClue';
 import { AnswerCard, answerCardHeight } from '../components/AnswerCard';
+import { AnswerPicture } from '../components/AnswerPicture';
+import settings from '../search-settings.json';
 import { ProgressDots } from '../components/ProgressDots';
 import { Flash } from '../../Fx';
 import { useDesignFrame } from '../../clock';
@@ -26,8 +28,9 @@ import { useDesignFrame } from '../../clock';
  *
  * Question phase: search bar and recent list in the middle, four searches typed at plan.searchAt (each slides
  * into the list, which keeps the last RECENT_VISIBLE), hint pair under the list, timer at the bottom.
- * Reveal phase: the question side fades out and the answer card (with its picture, if answer-images.json has one)
- * stamps in the middle.
+ * Reveal phase: everything else fades out (question side, HUD pill, dots). If answer-images.json has a picture for the
+ * round, only that picture is shown, large (AnswerPicture; the name only when settings reveal.showName is true).
+ * Without a picture the text answer card stamps in instead.
  */
 
 /** How far the search bar travels while it slides in, in 1280x720 reference units. Motion constant. */
@@ -70,6 +73,8 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
   const dimK = easeOutCubic(clamp01((frame - revealAt) / (DIM_SECONDS * FPS)));
   const searchOpacity = slideK * (1 - dimK);
   const answerImage = (answerImages as Record<string, string>)[String(round.id)];
+  // With a picture, the reveal is the picture alone: the HUD pill and the dots clear as well.
+  const chromeOpacity = answerImage ? 1 - dimK : 1;
 
   // Tension (task 8c): an accent vignette that builds over the clock, scaled by how hard the level is
   // (first level = 0, last level = 1), and gone once the answer lands.
@@ -87,6 +92,7 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
       accent={level.accent}
       hud={hud}
       tension={tension}
+      hudOpacity={chromeOpacity}
       search={{
         children: (rect) => (
           <div
@@ -141,28 +147,42 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
         children: (rect) => (
           <>
             <Flash frame={frame} start={revealAt} />
-            <AnswerCard
-              name={round.name}
-              from={round.from}
-              at={revealAt}
-              accent={level.accent}
-              place={{ x: rect.x, y: rect.y + (rect.h - answerCardHeight(rect.w, !!answerImage)) / 2 }}
-              size={rect.w}
-              image={answerImage}
-              anticipate={false}
-            />
+            {answerImage ? (
+              <AnswerPicture
+                image={answerImage}
+                name={round.name}
+                from={round.from}
+                at={revealAt}
+                accent={level.accent}
+                place={{ x: rect.x, y: rect.y }}
+                size={rect.h}
+                showName={settings.reveal.showName}
+              />
+            ) : (
+              <AnswerCard
+                name={round.name}
+                from={round.from}
+                at={revealAt}
+                accent={level.accent}
+                place={{ x: rect.x, y: rect.y + (rect.h - answerCardHeight(rect.w)) / 2 }}
+                size={rect.w}
+                anticipate={false}
+              />
+            )}
           </>
         ),
       }}
       dots={{
         children: (rect) => (
-          <ProgressDots
-            index={dotsIndex}
-            total={ROUNDS.length}
-            levelOf={colorOfRound}
-            at={{ x: rect.x, y: rect.y }}
-            size={rect.w}
-          />
+          <div style={{ position: 'absolute', inset: 0, opacity: chromeOpacity }}>
+            <ProgressDots
+              index={dotsIndex}
+              total={ROUNDS.length}
+              levelOf={colorOfRound}
+              at={{ x: rect.x, y: rect.y }}
+              size={rect.w}
+            />
+          </div>
         ),
       }}
       // The hold (plan.holdFrames: settings minimum, stretched by a voiceover clip) is part of the scene

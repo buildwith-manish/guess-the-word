@@ -2,7 +2,6 @@ import React from 'react';
 import { COLORS, FONTS, glass, px } from '../../style';
 import { useDesignFrame } from '../../clock';
 import { FPS } from '../../timing';
-import { Img, staticFile } from 'remotion';
 import { Flash, Ring } from '../../Fx';
 import '../../fonts';
 
@@ -13,9 +12,7 @@ import '../../fonts';
  *   1. anticipation: from ANTICIPATION_SECONDS before `at` the card's edge glow builds (an empty outline)
  *   2. stamp-in at `at`: big and fast down to full size (it LANDS at at + STAMP_SECONDS, unchanged)
  *   3. on landing: a damped shake, one Flash (Fx), a Ring (Fx) and a small burst of confetti in `accent`
- * With `image` (a file name in public/search/answers) the card is taller: the picture on top, name and "from" under it.
- * Without it the card is the text block alone. Nothing is drawn for a missing picture.
- * Built here because src/states does not exist on this branch.
+ * No image. Built here because src/states does not exist on this branch.
  *
  * `at` is the stamp tick (design ticks, local to the scene). Only the anticipation outline is drawn before it.
  * The 'stamp' sound is cued on `at`; the landing tick, at + STAMP_SECONDS * FPS, is the same as before this change.
@@ -44,14 +41,8 @@ const BURST_SECONDS = 0.7;
 const BURST_REACH = 0.6; // furthest distance as a share of the card width
 const BURST_FALL = 0.12; // gravity drop as a share of the card width
 const BURST_SIZE = 0.016; // piece width as a share of the card width
-/** Card proportions as shares of the card width: the text block, and the picture area on top of it. */
-const TEXT_SHARE = 0.42;
-const IMAGE_SHARE = 0.56;
-/** Picture entrance: scale-up from IMG_FROM with a little overshoot, then a slow float. */
-const IMG_POP_SECONDS = 0.4;
-const IMG_FROM = 0.8;
-const IMG_FLOAT = 0.006; // share of the card width
-const IMG_FLOAT_SECONDS = 3;
+/** Card height as a share of the card width. */
+const CARD_HEIGHT_SHARE = 0.42;
 /** Rough average glyph width of the display face, as a share of font size (first guess; measured fit corrects it). */
 const GLYPH_WIDTH = 0.5;
 
@@ -68,15 +59,12 @@ export type AnswerCardProps = {
   place: { x: number; y: number };
   /** Card width, reference units. */
   size: number;
-  /** Picture file name inside public/search/answers (from answer-images.json). Omit for the text-only card. */
-  image?: string;
   /** Draw the empty glowing outline just before the stamp. Default true. */
   anticipate?: boolean;
 };
 
-/** Card height in reference units for a card of width `size`, so the caller can centre it. */
-export const answerCardHeight = (size: number, hasImage: boolean): number =>
-  size * (TEXT_SHARE + (hasImage ? IMAGE_SHARE : 0));
+/** Card height in reference units for a card of width `size`. */
+export const answerCardHeight = (size: number): number => size * CARD_HEIGHT_SHARE;
 
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 const hash = (n: number) => {
@@ -99,13 +87,11 @@ const useFit = (avail: number) => {
   return { ref, fit };
 };
 
-export const AnswerCard: React.FC<AnswerCardProps> = ({ name, from, at, accent, place, size, image, anticipate = true }) => {
+export const AnswerCard: React.FC<AnswerCardProps> = ({ name, from, at, accent, place, size, anticipate = true }) => {
   const frame = useDesignFrame();
 
   const W = px(size);
-  const textH = W * TEXT_SHARE;
-  const imgH = image ? W * IMAGE_SHARE : 0;
-  const H = textH + imgH;
+  const H = W * CARD_HEIGHT_SHARE;
   const pad = W * 0.06;
   const nameFit = useFit(W - 2 * pad);
   const fromFit = useFit(W - 2 * pad);
@@ -133,16 +119,10 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ name, from, at, accent, 
   const glow = px(36) * (1 + flare);
 
   // Fit the name on one line: as big as the card height allows, shrunk for long names, then measured.
-  const nameBase = Math.min(textH * 0.5, (W - 2 * pad) / (Math.max(1, name.length) * GLYPH_WIDTH));
+  const nameBase = Math.min(H * 0.5, (W - 2 * pad) / (Math.max(1, name.length) * GLYPH_WIDTH));
   const nameFont = nameBase * nameFit.fit;
-  const fromFont = Math.min(textH * 0.16, nameBase * 0.4) * fromFit.fit;
-  const radius = Math.min(H * 0.18, W * 0.09);
-
-  // Picture: pops in with a little overshoot when the card appears, then floats slowly.
-  const imgT = clamp01((frame - at) / (IMG_POP_SECONDS * FPS));
-  const back = 1 + 2.70158 * Math.pow(imgT - 1, 3) + 1.70158 * Math.pow(imgT - 1, 2);
-  const imgScale = IMG_FROM + (1 - IMG_FROM) * back;
-  const imgFloat = frame >= land ? Math.sin(((frame - land) / (IMG_FLOAT_SECONDS * FPS)) * Math.PI * 2) * W * IMG_FLOAT : 0;
+  const fromFont = Math.min(H * 0.16, nameBase * 0.4) * fromFit.fit;
+  const radius = H * 0.18;
 
   const box: React.CSSProperties = { position: 'absolute', left: px(place.x) - W / 2, top: px(place.y), width: W, height: H };
 
@@ -181,7 +161,7 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ name, from, at, accent, 
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: textH * 0.06,
+              gap: H * 0.06,
               padding: `0 ${pad}px`,
               ...glass(radius, 0.1),
               border: `${px(3)}px solid ${accent}`,
@@ -189,29 +169,6 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ name, from, at, accent, 
               background: COLORS.glassStrong,
             }}
           >
-            {image ? (
-              <div
-                style={{
-                  width: '100%',
-                  height: imgH,
-                  boxSizing: 'border-box',
-                  padding: `${pad * 0.9}px 0 0`,
-                  marginBottom: -textH * 0.06,
-                  background: `radial-gradient(ellipse 60% 55% at 50% 58%, ${accent}33, transparent 72%)`,
-                }}
-              >
-                <Img
-                  src={staticFile(`search/answers/${image}`)}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'contain',
-                    transform: `translateY(${imgFloat}px) scale(${imgScale})`,
-                    filter: `drop-shadow(0 ${W * 0.02}px ${W * 0.035}px rgba(0,0,0,0.45))`,
-                  }}
-                />
-              </div>
-            ) : null}
             <div
               ref={nameFit.ref}
               style={{

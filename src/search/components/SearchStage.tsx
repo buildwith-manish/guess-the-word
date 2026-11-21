@@ -79,6 +79,8 @@ export type SearchStageProps = {
   energy?: number;
   /** 0..1. Builds an accent vignette (and a pulse) toward the end of the clock. 0 or omitted = none. */
   tension?: number;
+  /** 0..1 opacity of the HUD pill (omit = fully shown). Used to clear the screen for a picture-only reveal. */
+  hudOpacity?: number;
   search?: SlotProps;
   timer?: SlotProps;
   hint?: SlotProps;
@@ -98,7 +100,7 @@ const Slot: React.FC<{ slot?: SlotProps; rect: Rect; frame: number }> = ({ slot,
   );
 };
 
-export const SearchStage: React.FC<SearchStageProps> = ({ theme, accent, hud, energy, tension = 0, search, timer, hint, answer, dots }) => {
+export const SearchStage: React.FC<SearchStageProps> = ({ theme, accent, hud, energy, tension = 0, hudOpacity = 1, search, timer, hint, answer, dots }) => {
   const frame = useDesignFrame();
   const pill = SLOTS.hud;
   const H = px(pill.h);
@@ -164,6 +166,7 @@ export const SearchStage: React.FC<SearchStageProps> = ({ theme, accent, hud, en
           fontSize: H * 0.55,
           letterSpacing: H * 0.05,
           whiteSpace: 'pre',
+          opacity: hudOpacity,
           ...glass(H / 2),
         }}
       >
