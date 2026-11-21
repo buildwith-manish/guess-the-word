@@ -32,6 +32,16 @@ const DRIFT_W = 60;
 const DRIFT_H = 55;
 const DRIFT_ALPHA = 0.045;
 
+/** Atmosphere (task 8c). Two slow accent-coloured lights and a vignette that builds with `tension`. Motion constants. */
+const AMBIENT_SECONDS = [53, 71]; // loop length of each light; different, so they never line up
+const AMBIENT_SIZE = 46; // % of the frame
+const AMBIENT_PERCENT = 13; // strength of each light, percent of the accent
+const VIGNETTE_PERCENT = 46; // accent strength at the frame edge when tension = 1
+const VIGNETTE_INNER = 52; // % of the way out where the vignette starts
+const PULSE_FROM = 0.55; // tension where the once-a-second pulse starts
+const PULSE_DEPTH = 0.18;
+const mixAlpha = (color: string, percent: number) => `color-mix(in srgb, ${color} ${percent.toFixed(2)}%, transparent)`;
+
 // Safe box in reference units, taken from style.ts.
 const X0 = SAFE_X / SCALE;
 const Y0 = SAFE_Y / SCALE;
@@ -65,6 +75,8 @@ export type SearchStageProps = {
   hud: HudInfo;
   /** Background calm-to-reveal energy, 0..1 (omit for the full look). */
   energy?: number;
+  /** 0..1. Builds an accent vignette (and a pulse) toward the end of the clock. 0 or omitted = none. */
+  tension?: number;
   search?: SlotProps;
   timer?: SlotProps;
   hint?: SlotProps;
@@ -84,13 +96,17 @@ const Slot: React.FC<{ slot?: SlotProps; rect: Rect; frame: number }> = ({ slot,
   );
 };
 
-export const SearchStage: React.FC<SearchStageProps> = ({ theme, hud, energy, search, timer, hint, answer, dots }) => {
+export const SearchStage: React.FC<SearchStageProps> = ({ theme, accent, hud, energy, tension = 0, search, timer, hint, answer, dots }) => {
   const frame = useDesignFrame();
   const pill = SLOTS.hud;
   const H = px(pill.h);
   const driftT = (frame / (DRIFT_SECONDS * FPS)) * Math.PI * 2;
   const driftX = 40 + DRIFT_RANGE_X * Math.sin(driftT);
   const driftY = 45 + DRIFT_RANGE_Y * Math.sin(driftT * 2 + 1);
+
+  const amb = AMBIENT_SECONDS.map((sec, i) => (frame / (sec * FPS)) * Math.PI * 2 + i * 2.1);
+  const pulse = tension > PULSE_FROM ? 1 - PULSE_DEPTH * (0.5 + 0.5 * Math.cos((frame / FPS) * Math.PI * 2)) : 1;
+  const vignette = Math.max(0, Math.min(1, tension)) * pulse;
 
   return (
     <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
@@ -105,6 +121,31 @@ export const SearchStage: React.FC<SearchStageProps> = ({ theme, hud, energy, se
           background: `radial-gradient(ellipse ${DRIFT_W}% ${DRIFT_H}% at ${driftX}% ${driftY}%, rgba(255,255,255,${DRIFT_ALPHA}), rgba(255,255,255,0) 70%)`,
         }}
       />
+
+      {/* Atmosphere: two slow lights in the level accent, behind everything. */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          background: [
+            `radial-gradient(ellipse ${AMBIENT_SIZE}% ${AMBIENT_SIZE}% at ${72 + 16 * Math.sin(amb[0])}% ${28 + 14 * Math.cos(amb[0])}%, ${mixAlpha(accent, AMBIENT_PERCENT)}, transparent 70%)`,
+            `radial-gradient(ellipse ${AMBIENT_SIZE}% ${AMBIENT_SIZE}% at ${24 + 14 * Math.cos(amb[1])}% ${72 + 12 * Math.sin(amb[1])}%, ${mixAlpha(accent, AMBIENT_PERCENT)}, transparent 70%)`,
+          ].join(', '),
+        }}
+      />
+
+      {/* Tension: accent vignette that builds as the clock runs down (harder levels pass a higher value). */}
+      {vignette > 0.001 && (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            pointerEvents: 'none',
+            background: `radial-gradient(ellipse at 50% 50%, transparent ${VIGNETTE_INNER}%, ${mixAlpha(accent, VIGNETTE_PERCENT * vignette)} 100%)`,
+          }}
+        />
+      )}
 
       {/* HUD pill, top left */}
       <div

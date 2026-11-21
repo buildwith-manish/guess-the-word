@@ -23,23 +23,39 @@ const PING_SECONDS = 0.7;
 const DAMP = 5;
 const WOBBLE = 2.2;
 
-/** The picture fills this much of its S x S box (HintEmoji's glyph is 0.82). */
-const IMAGE_FILL = 0.9;
-/** Glow behind each picture: extends this far past the box, as a fraction of S. */
-const GLOW_REACH = 0.22;
-/** Strength of the light backing and the accent glow, in percent. Picture outlines are dark, so they need a light backing. */
-const BACKING_PERCENT = 20;
-const GLOW_PERCENT = 38;
-const SHADOW_PERCENT = 75;
+/** Picture size inside its glass card, as a fraction of the card (the card is the S x S box HintEmoji uses). */
+const IMAGE_FILL = 0.74;
+/** Glass card. Light frosted glass, so dark picture outlines read on the dark background. Percentages of COLORS.ink / accent. */
+const CARD_RADIUS = 0.24; // fraction of S
+const CARD_TOP_PERCENT = 36;
+const CARD_BOTTOM_PERCENT = 14;
+const RIM_PERCENT = 70;
+const GLOW_PERCENT = 34;
+const CARD_SHADOW_PERCENT = 60;
+const IMAGE_SHADOW_PERCENT = 75;
+/** One shine sweep across each card after it lands. */
+const SHINE_DELAY_SECONDS = 0.3;
+const SHINE_SECONDS = 0.8;
+const SHINE_PERCENT = 34;
+/** Gentle float once landed: loop length in seconds, travel as a fraction of S. */
+const FLOAT_SECONDS = 3.2;
+const FLOAT_AMOUNT = 0.02;
+/** At the reveal the pair steps back so the answer card takes the focus. */
+const SETTLE_SECONDS = 0.35;
+const SETTLE_SCALE = 0.88;
+const SETTLE_OPACITY = 0.55;
 
 const MANIFEST = hintImages as Record<string, string[]>;
 
 export type HintClueProps = HintEmojiProps & {
   /** Round id (1-50), the key in hint-images.json. */
   roundId: number;
+  /** Scene tick of the reveal. From here the pair eases back (smaller, dimmer). Omit to keep it full. */
+  revealAt?: number;
 };
 
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
+const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 
 /** 0 at t=0, overshoots, settles at 1 at t=1. */
 const bounce = (t: number): number => {
@@ -58,21 +74,37 @@ export const hintFilesFor = (roundId: number): [string, string] | null => {
     : null;
 };
 
-export const HintClue: React.FC<HintClueProps> = ({ roundId, emoji, from, at, size, accent }) => {
+export const HintClue: React.FC<HintClueProps> = ({ roundId, emoji, from, at, size, accent, revealAt }) => {
   const frame = useDesignFrame();
   const [failed, setFailed] = useState(false);
   const files = hintFilesFor(roundId);
 
+  const settleK = revealAt === undefined ? 0 : easeOutCubic(clamp01((frame - revealAt) / (SETTLE_SECONDS * FPS)));
+  const settle = (children: React.ReactNode) => (
+    <div
+      style={{
+        position: 'absolute',
+        inset: 0,
+        opacity: 1 - (1 - SETTLE_OPACITY) * settleK,
+        transform: `scale(${1 - (1 - SETTLE_SCALE) * settleK})`,
+        transformOrigin: `${px(at.x)}px ${px(at.y)}px`,
+      }}
+    >
+      {children}
+    </div>
+  );
+
   if (!files || failed) {
-    return <HintEmoji emoji={emoji} from={from} at={at} size={size} accent={accent} />;
+    return settle(<HintEmoji emoji={emoji} from={from} at={at} size={size} accent={accent} />);
   }
   if (frame < from) return null;
 
   const S = px(size);
   const gap = S * 0.3;
   const glowColor = accent || COLORS.yellow;
+  const radius = S * CARD_RADIUS;
 
-  return (
+  return settle(
     <div
       style={{
         position: 'absolute',
@@ -89,6 +121,8 @@ export const HintClue: React.FC<HintClueProps> = ({ roundId, emoji, from, at, si
         const pingT = clamp01((frame - t0) / (PING_SECONDS * FPS));
         const visible = frame >= t0;
         const scale = visible ? bounce(t) : 0;
+        const floatY = visible ? Math.sin(((frame - t0) / (FLOAT_SECONDS * FPS)) * Math.PI * 2) * S * FLOAT_AMOUNT * clamp01(t) : 0;
+        const shineT = clamp01((frame - t0 - SHINE_DELAY_SECONDS * FPS) / (SHINE_SECONDS * FPS));
         return (
           <div key={i} style={{ position: 'relative', width: S, height: S }}>
             {visible && pingT < 1 && (
@@ -96,7 +130,7 @@ export const HintClue: React.FC<HintClueProps> = ({ roundId, emoji, from, at, si
                 style={{
                   position: 'absolute',
                   inset: 0,
-                  borderRadius: '50%',
+                  borderRadius: radius,
                   border: `${px(3)}px solid ${COLORS.ink}`,
                   boxSizing: 'border-box',
                   transform: `scale(${0.6 + pingT * 1.1})`,
@@ -104,43 +138,63 @@ export const HintClue: React.FC<HintClueProps> = ({ roundId, emoji, from, at, si
                 }}
               />
             )}
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transform: `scale(${scale})`,
-              }}
-            >
-              {/* light backing + accent glow, so dark outlines read on the dark background */}
+            <div style={{ position: 'absolute', inset: 0, transform: `translateY(${floatY}px) scale(${scale})` }}>
+              {/* frosted glass card: light, accent rim, soft glow, one shine sweep */}
               <div
                 style={{
                   position: 'absolute',
-                  inset: -S * GLOW_REACH,
-                  borderRadius: '50%',
-                  background: `radial-gradient(circle, ${mixAlpha(COLORS.ink, BACKING_PERCENT)} 0%, ${mixAlpha(
+                  inset: 0,
+                  borderRadius: radius,
+                  overflow: 'hidden',
+                  boxSizing: 'border-box',
+                  background: `linear-gradient(155deg, ${mixAlpha(COLORS.ink, CARD_TOP_PERCENT)} 0%, ${mixAlpha(
+                    COLORS.ink,
+                    CARD_BOTTOM_PERCENT,
+                  )} 100%)`,
+                  border: `${px(2)}px solid ${mixAlpha(glowColor, RIM_PERCENT)}`,
+                  boxShadow: `0 ${px(12)}px ${px(30)}px ${mixAlpha(COLORS.base, CARD_SHADOW_PERCENT)}, 0 0 ${S * 0.3}px ${mixAlpha(
                     glowColor,
                     GLOW_PERCENT,
-                  )} 42%, transparent 72%)`,
+                  )}`,
                 }}
-              />
-              <Img
-                src={staticFile(`search/hints/${file}`)}
-                onError={() => setFailed(true)}
-                style={{
-                  position: 'relative',
-                  width: S * IMAGE_FILL,
-                  height: S * IMAGE_FILL,
-                  objectFit: 'contain',
-                  filter: `drop-shadow(0 ${px(6)}px ${px(10)}px ${mixAlpha(COLORS.base, SHADOW_PERCENT)})`,
-                }}
-              />
+              >
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: `radial-gradient(circle at 50% 42%, ${mixAlpha(glowColor, GLOW_PERCENT)} 0%, transparent 68%)`,
+                  }}
+                />
+                {shineT > 0 && shineT < 1 && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '-30%',
+                      height: '160%',
+                      width: '38%',
+                      left: `${-45 + shineT * 170}%`,
+                      transform: 'skewX(-18deg)',
+                      background: `linear-gradient(90deg, transparent, ${mixAlpha(COLORS.ink, SHINE_PERCENT)}, transparent)`,
+                    }}
+                  />
+                )}
+              </div>
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Img
+                  src={staticFile(`search/hints/${file}`)}
+                  onError={() => setFailed(true)}
+                  style={{
+                    width: S * IMAGE_FILL,
+                    height: S * IMAGE_FILL,
+                    objectFit: 'contain',
+                    filter: `drop-shadow(0 ${px(6)}px ${px(10)}px ${mixAlpha(COLORS.base, IMAGE_SHADOW_PERCENT)})`,
+                  }}
+                />
+              </div>
             </div>
           </div>
         );
       })}
-    </div>
+    </div>,
   );
 };

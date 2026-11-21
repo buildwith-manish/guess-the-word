@@ -68,6 +68,12 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
   const dimK = easeOutCubic(clamp01((frame - revealAt) / (DIM_SECONDS * FPS)));
   const searchOpacity = slideK * (1 - (1 - DIM_TO) * dimK);
 
+  // Tension (task 8c): an accent vignette that builds over the clock, scaled by how hard the level is
+  // (first level = 0, last level = 1), and gone once the answer lands.
+  const levelWeight = LEVELS.length > 1 ? Math.max(0, LEVELS.findIndex((l) => l.name === level.name)) / (LEVELS.length - 1) : 0;
+  const clockProgress = clamp01((frame - shift(plan.clockStart)) / Math.max(1, plan.clockFrames));
+  const tension = levelWeight * clockProgress * clockProgress * (1 - dimK);
+
   // Progress dots: the current round pulses until the reveal, then counts as finished.
   const dotsIndex = frame >= revealAt ? index + 1 : index;
   const colorOfRound = (i: number) => (LEVELS.find((l) => l.name === ROUNDS[i].level) ?? level).accent;
@@ -77,6 +83,7 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
       theme={level.theme}
       accent={level.accent}
       hud={hud}
+      tension={tension}
       search={{
         children: (rect) => (
           <div
@@ -113,6 +120,7 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
         children: (rect) => (
           <HintClue
             roundId={round.id}
+            revealAt={revealAt}
             emoji={round.hint}
             from={shift(plan.hintAt)}
             at={{ x: rect.x, y: rect.y + rect.h / 2 }}

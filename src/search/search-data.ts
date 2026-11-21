@@ -95,7 +95,7 @@ export const ROUNDS: Round[] = [
     level: "EASY",
     hint: ["❄️", "👑"],
     searches: [
-      "how to stop everything from freezing when I'm nervous",
+      "how to stop freezing everything when I'm nervous",
       "best gloves for people who freeze things",
       "ice castle building permit",
       "how to build a palace out of snow",
@@ -173,7 +173,7 @@ export const ROUNDS: Round[] = [
     level: "EASY",
     hint: ["👽", "🌺"],
     searches: [
-      "best ukulele songs for a loud little troublemaker",
+      "best ukulele songs for a loud troublemaker",
       "how to teach manners to an alien who bites",
       "my neighbor's pet is a blue alien in disguise",
       "help, my little sister adopted a blue alien from space",
@@ -186,7 +186,7 @@ export const ROUNDS: Round[] = [
     level: "EASY",
     hint: ["💚", "🎄"],
     searches: [
-      "how to stop loud neighbors from singing all night",
+      "how to stop loud neighbors singing all night",
       "my heart feels a few sizes too small lately",
       "how to disguise a dog as a reindeer",
       "best way to take every present from a whole town",
@@ -200,7 +200,7 @@ export const ROUNDS: Round[] = [
     hint: ["🍪", "🔵"],
     searches: [
       "why does my grammar vanish when I'm hungry",
-      "how many chocolate chip treats can one blue guy eat",
+      "how many choc-chip treats can one blue guy eat",
       "best googly eyes for a big blue furry friend",
       "my favorite letter is C, what's yours",
     ],
@@ -213,7 +213,7 @@ export const ROUNDS: Round[] = [
     hint: ["🐶", "💙"],
     searches: [
       "how to make up a game that lasts all afternoon",
-      "best backyard games for two sisters and a patient dad",
+      "best games for two sisters and a patient dad",
       "how to keep a balloon from touching the ground",
       "my little sister Bingo wants to play again",
     ],
@@ -225,9 +225,9 @@ export const ROUNDS: Round[] = [
     level: "EASY",
     hint: ["🍌", "👓"],
     searches: [
-      "how to tell my boss I speak a language nobody understands",
+      "how to tell my boss nobody gets my language",
       "best goggles for a tiny, loud, one-eyed helper",
-      "where to buy overalls for a small yellow capsule",
+      "where to buy overalls for a tiny yellow capsule",
       "why do I love bananas this much",
     ],
   },
