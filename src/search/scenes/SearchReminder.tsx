@@ -1,8 +1,9 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { COLORS, FONTS, K, SAFE_X, glass, px } from '../../style';
+import { SAFE_X, px } from '../../style';
 import { prog, mix } from '../../anim';
-import { expoOut, power2InOut } from '../../gsap-helpers';
+import { power2InOut } from '../../gsap-helpers';
+import { IOS, iosSurface, spring } from '../../ios';
 import { FPS } from '../../timing';
 import type { Cue } from '../../sound';
 import type { Segment } from '../types';
@@ -36,10 +37,10 @@ const outStart = (duration: number) => duration - (OUT_SECONDS + OUT_REST_SECOND
 export const searchReminderCues = (): Cue[] => [{ frame: 0, sfx: 'remind' }];
 
 export const SearchReminder: React.FC<{ frame: number; seg: ReminderSegment }> = ({ frame, seg }) => {
-  const inP = prog(frame, 0, ENTER_TICKS, expoOut);
+  const inP = spring(frame / ENTER_TICKS);
   const outP = prog(frame, outStart(seg.duration), Math.round(OUT_SECONDS * FPS), power2InOut);
-  const opacity = inP * (1 - outP);
-  const accent = LEVELS.find((l) => l.name === seg.hud.label)?.accent ?? COLORS.red;
+  const opacity = Math.min(1, inP * 1.4) * (1 - outP);
+  const accent = LEVELS.find((l) => l.name === seg.hud.label)?.accent ?? IOS.color.red;
 
   return (
     <AbsoluteFill>
@@ -55,17 +56,14 @@ export const SearchReminder: React.FC<{ frame: number; seg: ReminderSegment }> =
           marginLeft: -px(PILL_W / 2),
           textAlign: 'center',
           padding: `${px(16)}px 0`,
-          ...glass(px(50), 0.12),
-          background: 'linear-gradient(160deg, rgba(20,22,52,0.92), rgba(8,9,28,0.92))',
-          fontFamily: FONTS.body,
-          fontWeight: 800,
+          ...iosSurface(px(50)),
+          fontFamily: IOS.font,
+          fontWeight: IOS.weight.semibold,
           fontSize: px(PILL_FONT),
-          letterSpacing: px(2),
-          color: COLORS.ink,
+          color: IOS.color.label,
           whiteSpace: 'nowrap',
-          boxShadow: `0 ${px(14)}px ${px(40)}px rgba(0,0,0,0.55), 0 0 ${px(40)}px ${accent}40`,
           opacity,
-          transform: `translate3d(0, ${mix(20 * K, 0, inP)}px, 0) scale(${mix(0.9, 1, inP) * (1 - EXIT_SCALE * outP)})`,
+          transform: `translate3d(0, ${mix(px(14), 0, inP)}px, 0) scale(${mix(0.96, 1, inP) * (1 - EXIT_SCALE * outP)})`,
         }}
       >
         {TEXT}

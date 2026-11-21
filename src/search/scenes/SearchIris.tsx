@@ -1,7 +1,7 @@
 import React from 'react';
 import { AbsoluteFill, Sequence } from 'remotion';
-import { Background } from '../../Background';
-import { COLORS, FONTS, glass, px } from '../../style';
+import { px } from '../../style';
+import { IOS, IosBackground, iosSurface, spring } from '../../ios';
 import { prog, irisEase } from '../../anim';
 import { TIME_SCALE } from '../../timing';
 import type { Cue } from '../../sound';
@@ -69,12 +69,7 @@ export const SearchIris: React.FC<{ frame: number; seg: IrisSegment; next?: { in
 
   return (
     <AbsoluteFill>
-      <Background
-        frame={frame}
-        theme={seg.fromTheme}
-        energy={fromEnergy}
-        iris={{ theme: seg.toTheme, p, variant: seg.variant, energy: toEnergy }}
-      />
+      <IosBackground accent={accent} />
 
       {/* HUD pill, same look and place as SearchStage's. It shows the OLD round; the incoming round's
           own pill covers it as the wipe reaches it. */}
@@ -88,21 +83,21 @@ export const SearchIris: React.FC<{ frame: number; seg: IrisSegment; next?: { in
           display: 'flex',
           alignItems: 'center',
           gap: H * 0.3,
-          fontFamily: FONTS.display,
-          fontSize: H * 0.55,
-          letterSpacing: H * 0.05,
+          fontFamily: IOS.font,
+          fontWeight: IOS.weight.semibold,
+          fontSize: H * 0.5,
           whiteSpace: 'pre',
-          ...glass(H / 2),
+          ...iosSurface(H / 2, 0.6),
         }}
       >
-        <span style={{ color: accent }}>{seg.hud.label}</span>
-        <span style={{ color: COLORS.ink }}>
+        <span style={{ color: IOS.color.secondary }}>{seg.hud.label}</span>
+        <span style={{ color: IOS.color.label }}>
           {seg.hud.number}/{seg.hud.total}
         </span>
       </div>
 
       {next && planTick >= 0 ? (
-        <AbsoluteFill style={{ clipPath: wipeClip(seg.variant ?? 'circle', p) }}>
+        <AbsoluteFill style={{ opacity: spring(p) }}>
           {/* the child scene reads its own clock, so it gets a Sequence that starts at the overlap */}
           <Sequence from={Math.round(overlapStart * TIME_SCALE)}>
             <SearchRound frame={planTick} index={next.index} lead={0} />
