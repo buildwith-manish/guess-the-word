@@ -140,4 +140,14 @@ Exports:
 
 Timing note: leave at least `slideStart` between one search's start and the next search's start (typed length + hold), or the bar clears mid-typing.
 
+### TimerBar (src/search/components/TimerBar.tsx)
+Slim bar that drains over the clock, remaining whole seconds at its right, pulse once per second. Accent colour, red in the last second. Nothing before `from`; stays empty after the end. No src/states TimerRing exists, so it is a bar. Ticks are design ticks (30/s) local to the scene.
+
+Props `TimerBarProps`: `from: number` start tick, `duration: number` ticks, `accent: string`, `size: number` bar width incl. number (reference units), `at: {x, y}` centre-x and top-y (reference units).
+
+### HintEmoji (src/search/components/HintEmoji.tsx)
+Two large emoji, each with a ping ring and a spring scale-bounce, second one staggered. Glyphs use `FONTS.emoji` (Noto Color Emoji, loaded by src/fonts.ts).
+
+Props `HintEmojiProps`: `emoji: [string, string]`, `from: number` hint tick, `at: {x, y}` centre of the pair (reference units), `size: number` emoji size (reference units), `accent?: string` ping colour (default COLORS.yellow).
+
 ## E Scenes
