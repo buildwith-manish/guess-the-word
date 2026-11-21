@@ -20,7 +20,7 @@
 - [x] 3b tiers (CropMask, rotation, PixelReveal), emoji hint, region hint, answered MiniMap in StateRound (not rendered or viewed)
 - [x] 3c reveal, hold, FlyIn, streak banner, FASTEST GUESS badge in StateRound; ST-Round composition in Root.tsx (prop index is 0-based; not rendered or viewed)
 - [x] 3d StateHook (silence, ten drops, map snap, question, lockup, rules) + StateTitleLockup + stateHookCues; no composition registered; TIMELINE hook segment still 8 s (not rendered or viewed)
-- [ ] 3e (label to fill from docs/states-prompts-split.md)
+- [x] 3e StateLevelCard (rule demos), StateReminder (subscribe pop-up), StateIris (circle/sweep/curtain + pixel-dissolve for EXPERT), each with cues; not wired into Main, not rendered or viewed
 - [ ] 4a (label to fill from docs/states-prompts-split.md)
 - [ ] 4b (label to fill from docs/states-prompts-split.md)
 - [ ] 4c (label to fill from docs/states-prompts-split.md)
@@ -40,3 +40,5 @@
 ## Notes
 
 - 0a prompt listed the task IDs but not their labels; fill the one-line labels from docs/states-prompts-split.md when it is next read.
+- 3e: tsc reports no errors in src/states; 4 older errors remain elsewhere (src/fontshare/load-fonts.ts x2 missing @remotion/google-fonts modules, src/pixel/pixel-timing.ts:67 and src/timing.ts:45 manifest casts). Not touched.
+- 3e: Main.tsx is still the word quiz. Wiring for a later task: levelCard -> StateLevelCard(frame, levelIndex, duration=seg.duration); reminder -> StateReminder; iris -> StateIris, and overlay the next StateRound with frame = local - stateIrisOverlap(seg, next).startsAt, lead = .lead. Cue builders: stateLevelCardCues, stateReminderCues, stateIrisCues(seg); ticks from segment start.
