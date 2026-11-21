@@ -13,14 +13,14 @@
  */
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { Background } from '../../Background';
 import { Watermark } from '../../Watermark';
 import { Icon } from '../../Icon';
-import { COLORS, FONTS, K, glass, px } from '../../style';
-import { prog, htmlEase, mix, ms } from '../../anim';
+import { px } from '../../style';
+import { IOS, IosBackground, iosSurface, spring } from '../../ios';
+import { prog, ms } from '../../anim';
 import { linear } from '../../gsap-helpers';
 import rootSettings from '../../../settings.json';
-import { HEIGHT } from '../state-timing';
+import { BONUS_THEME, HEIGHT, LEVELS } from '../state-timing';
 import type { Segment } from '../types';
 import { StateHudPill, StateTitleSlot } from './StateIris';
 import type { StateCue } from './stateRoundCues';
@@ -42,13 +42,13 @@ export const stateReminderCues = (): StateCue[] => [{ frame: 0, sfx: 'remind' }]
 
 export const StateReminder: React.FC<{ frame: number; seg: ReminderSegment }> = ({ frame, seg }) => {
   const t = reminderTimes(seg.duration);
-  const inP = prog(frame, 0, ms(REMINDER_BEATS.inMs), htmlEase);
+  const inP = spring(frame / ms(REMINDER_BEATS.inMs));
   const outP = prog(frame, t.outStart, ms(REMINDER_BEATS.outMs), linear);
   const opacity = inP * (1 - outP);
 
   return (
     <AbsoluteFill>
-      <Background frame={frame} theme={seg.theme} />
+      <IosBackground accent={LEVELS.find((l) => l.theme[0] === seg.theme[0] && l.theme[1] === seg.theme[1])?.accent ?? BONUS_THEME[0]} />
       {seg.title ? <StateTitleSlot frame={frame} /> : null}
       <StateHudPill hud={seg.hud} />
       <Watermark />
@@ -65,40 +65,28 @@ export const StateReminder: React.FC<{ frame: number; seg: ReminderSegment }> = 
           justifyContent: 'center',
           gap: px(22),
           padding: `${px(18)}px ${px(26)}px`,
-          ...glass(px(50), 0.12),
-          background: 'linear-gradient(160deg, rgba(20,22,52,0.92), rgba(8,9,28,0.92))',
-          boxShadow: `0 ${px(14)}px ${px(40)}px rgba(0,0,0,0.55), 0 0 ${px(40)}px ${COLORS.red}59`,
+          ...iosSurface(px(IOS.radius.xl)),
           opacity,
-          transform: `translate3d(0, ${mix(20 * K, 0, inP)}px, 0) scale(${mix(0.9, 1, inP)})`,
+          transform: `translateY(${(1 - inP) * px(24)}px) scale(${0.96 + 0.04 * inP})`,
         }}
       >
         <Icon name="bell" size={px(56)} />
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: px(6) }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: px(8), fontFamily: IOS.font }}>
           <div
             style={{
-              fontFamily: FONTS.display,
-              fontSize: px(40),
-              letterSpacing: px(3),
+              fontWeight: IOS.weight.semibold,
+              fontSize: px(34),
               lineHeight: 1,
               color: '#fff',
-              background: COLORS.red,
-              borderRadius: px(10),
-              padding: `${px(6)}px ${px(18)}px`,
+              background: IOS.color.red,
+              borderRadius: px(IOS.radius.sm),
+              padding: `${px(8)}px ${px(18)}px`,
               whiteSpace: 'nowrap',
             }}
           >
             {rootSettings.endScreen.subscribe}
           </div>
-          <div
-            style={{
-              fontFamily: FONTS.body,
-              fontWeight: 800,
-              fontSize: px(20),
-              letterSpacing: px(2),
-              color: COLORS.ink,
-              whiteSpace: 'nowrap',
-            }}
-          >
+          <div style={{ fontWeight: IOS.weight.medium, fontSize: px(22), color: IOS.color.secondary, whiteSpace: 'nowrap' }}>
             {rootSettings.endScreen.subscribeSub}
           </div>
         </div>

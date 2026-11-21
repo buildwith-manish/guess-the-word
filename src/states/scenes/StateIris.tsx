@@ -1,4 +1,7 @@
 /**
+ * iOS look: the wipe is a soft cross-fade between the two calm backdrops (no circle / sweep / curtain / pixel cells);
+ * the look names below only decide the sound cues. Original description follows.
+ *
  * StateIris (task 3e): the colour wipe between questions, between a question and a bonus, and into a
  * level card. Adapted from src/Iris.tsx (props `frame` + the `iris` segment, same layers: old backdrop,
  * the new theme growing over it, HUD pill, watermark, optional title lockup).
@@ -22,11 +25,10 @@
  */
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { Background } from '../../Background';
 import { Watermark } from '../../Watermark';
-import { COLORS, FONTS, S, glass, px } from '../../style';
+import { S, px } from '../../style';
+import { IOS, IosBackground, iosSurface } from '../../ios';
 import { prog, irisEase } from '../../anim';
-import { makeRandom } from '../../util';
 import rootSettings from '../../../settings.json';
 import { BONUS_THEME, HEIGHT, LEVELS, QUESTIONS, WIDTH } from '../state-timing';
 import type { Hud, IrisVariant, Segment } from '../types';
@@ -83,12 +85,11 @@ export const StateHudPill: React.FC<{ hud: Hud }> = ({ hud }) => {
   const isBonus = hud.label === 'BONUS';
   const q = isBonus ? undefined : QUESTIONS[hud.number - 1];
   const cfg = q ? LEVELS.find((l) => l.name === q.level) : undefined;
-  const accent = cfg?.accent ?? BONUS_THEME[0];
   const name = cfg?.name ?? hud.label;
   return (
     <div
       style={{
-        ...glass(px(HUD_LOOK.radius)),
+        ...iosSurface(px(HUD_LOOK.radius), 0.6),
         position: 'absolute',
         left: S.hudLeft,
         top: S.hudTop,
@@ -96,13 +97,14 @@ export const StateHudPill: React.FC<{ hud: Hud }> = ({ hud }) => {
         display: 'flex',
         alignItems: 'baseline',
         gap: px(14),
-        fontFamily: FONTS.body,
+        fontFamily: IOS.font,
+        fontWeight: IOS.weight.semibold,
         fontSize: px(HUD_LOOK.font),
-        border: `${px(2)}px solid ${accent}`,
+        whiteSpace: 'pre',
       }}
     >
-      <span style={{ fontWeight: 800, letterSpacing: px(3), color: accent }}>{name}</span>
-      <span style={{ fontWeight: 800, color: COLORS.ink }}>{`${hud.number} / ${hud.total}`}</span>
+      <span style={{ color: IOS.color.secondary }}>{name}</span>
+      <span style={{ color: IOS.color.label }}>{`${hud.number} / ${hud.total}`}</span>
     </div>
   );
 };
@@ -117,70 +119,17 @@ export const StateTitleSlot: React.FC<{ frame: number }> = ({ frame }) => {
   );
 };
 
-const CLIP_ID = 'state-iris-pixel-clip';
-
-/** The new backdrop, visible only through the cells that have switched on at progress `p`. */
-const PixelCover: React.FC<{ frame: number; p: number; theme: [string, string]; energy: number | undefined }> = ({ frame, p, theme, energy }) => {
-  const cell = px(PIXEL_WIPE.cell);
-  const cols = Math.ceil(WIDTH / cell);
-  const rows = Math.ceil(HEIGHT / cell);
-  // per-cell switch-on time in [0, 1): random part + distance from the centre
-  const times = React.useMemo(() => {
-    const rnd = makeRandom(PIXEL_WIPE.seed);
-    const cx = (cols - 1) / 2;
-    const cy = (rows - 1) / 2;
-    const maxD = Math.hypot(cx, cy) || 1;
-    const out: number[] = [];
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        out.push(PIXEL_WIPE.noise * rnd() + (1 - PIXEL_WIPE.noise) * (Math.hypot(c - cx, r - cy) / maxD));
-      }
-    }
-    return out;
-  }, [cols, rows]);
-
-  if (p <= 0) return null;
-  const rects: React.ReactNode[] = [];
-  times.forEach((t, i) => {
-    if (t >= p) return;
-    const c = i % cols;
-    const r = Math.floor(i / cols);
-    // normalised to the element box; a hair of overlap keeps neighbouring cells from showing seams
-    rects.push(<rect key={i} x={(c * cell) / WIDTH} y={(r * cell) / HEIGHT} width={cell / WIDTH + 0.0005} height={cell / HEIGHT + 0.0005} />);
-  });
-  return (
-    <>
-      <svg width={0} height={0} style={{ position: 'absolute' }}>
-        <defs>
-          <clipPath id={CLIP_ID} clipPathUnits="objectBoundingBox">
-            {rects}
-          </clipPath>
-        </defs>
-      </svg>
-      <div style={{ position: 'absolute', left: 0, top: 0, width: WIDTH, height: HEIGHT, clipPath: `url(#${CLIP_ID})` }}>
-        <Background frame={frame} theme={theme} energy={energy} />
-      </div>
-    </>
-  );
-};
+/** Accent of a wipe's backdrop: the level's colour, or the bonus colour. */
+const accentOfTheme = (theme: [string, string]): string => LEVELS.find((l) => sameTheme(l.theme, theme))?.accent ?? BONUS_THEME[0];
 
 export const StateIris: React.FC<{ frame: number; seg: IrisSegment }> = ({ frame, seg }) => {
   const p = irisProgress(frame, seg);
-  const look = irisLook(seg);
-  // question backdrops are calm; only the orange bonus backdrop is already at full energy (as in the word quiz)
-  const isBonus = (t: [string, string]) => sameTheme(t, BONUS_THEME);
-  const fromEnergy = isBonus(seg.fromTheme) ? undefined : 0;
-  const toEnergy = isBonus(seg.toTheme) ? undefined : 0;
   return (
     <AbsoluteFill>
-      {look === 'pixel' ? (
-        <>
-          <Background frame={frame} theme={seg.fromTheme} energy={fromEnergy} />
-          <PixelCover frame={frame} p={p} theme={seg.toTheme} energy={toEnergy} />
-        </>
-      ) : (
-        <Background frame={frame} theme={seg.fromTheme} energy={fromEnergy} iris={{ theme: seg.toTheme, p, variant: look, energy: toEnergy }} />
-      )}
+      <IosBackground accent={accentOfTheme(seg.fromTheme)} />
+      <div style={{ position: 'absolute', inset: 0, opacity: p }}>
+        <IosBackground accent={accentOfTheme(seg.toTheme)} />
+      </div>
       {seg.title ? <StateTitleSlot frame={frame} /> : null}
       <StateHudPill hud={seg.hud} />
       {seg.watermark ? <Watermark /> : null}
