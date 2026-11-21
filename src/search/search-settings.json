@@ -14,6 +14,7 @@
     "searchHoldChars": 6,
     "chipStaggerTicks": 8,
     "chipsToClockTicks": 15,
+    "badgeText": "BONUS: WHO SEARCHED THIS?",
     "theme": ["#FF8A3D", "#2B1204"]
   },
   "reminder": { "after": [8, 22], "ticks": 51 },
