@@ -16,7 +16,7 @@
 - [x] 2d PixelReveal + CropMask (not rendered or viewed)
 - [x] 2e AnswerCard (2D, not rendered or viewed)
 - [x] 2f StateStage + ST-Components Still + final docs D (not rendered or viewed)
-- [ ] 3a (label to fill from docs/states-prompts-split.md)
+- [x] 3a StateRound skeleton + stateRoundCues (stage-in, clock, answer hold; TODO slots for 3b hints and 3c reveal; not rendered or viewed)
 - [ ] 3b (label to fill from docs/states-prompts-split.md)
 - [ ] 3c (label to fill from docs/states-prompts-split.md)
 - [ ] 3d (label to fill from docs/states-prompts-split.md)

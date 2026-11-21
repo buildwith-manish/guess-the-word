@@ -1,0 +1,56 @@
+/**
+ * stateRoundCues: the sound cue list of one state round (task 3a: stage-in and clock only).
+ *
+ * Same shape as the word quiz cue list (`Cue = { frame, sfx, rate?, volume? }`), but all `frame`s are
+ * design ticks (30 per second) counted from PLAN TICK 0 of the question, i.e. from
+ * `segment.from - segment.lead`. The caller that walks TIMELINE.segments adds that base:
+ *     absoluteTick = seg.from - (seg.lead ?? 0) + cue.frame
+ * Nothing here knows about the video clock: any frame range renders in any order.
+ *
+ * All timings come from buildQuestionPlan (state-timing.ts); sound names are files in public/sounds.
+ *
+ * TODO(3b): hint cues at plan.hintAt.
+ * TODO(3c): answer cues (stamp / boom at plan.stamp, reveal build from plan.revealStart).
+ */
+import soundManifest from '../../sound-manifest.json';
+import { FPS, buildQuestionPlan } from '../state-timing';
+
+/** A sound effect name: a key of src/sound-manifest.json (a file in public/sounds), minus the music loops. */
+export type StateSfx = Exclude<keyof typeof soundManifest, `music-${string}`>;
+
+export type StateCue = {
+  /** design tick, counted from plan tick 0 of the question */
+  frame: number;
+  sfx: StateSfx;
+  rate?: number;
+  volume?: number;
+};
+
+/**
+ * Cues of question `index` (0-based).
+ * `withTitle` must match what the timeline used for that question (buildQuestionPlan's second argument).
+ *
+ * - whoosh at the moment the outline starts drawing (stage-in)
+ * - tick on every whole second the clock has run (the same instants the TimerRing pulses on)
+ * - tick-low instead of tick for every second boundary that falls inside the last second
+ *   (the last FPS ticks of the clock, where the ring turns red)
+ */
+export const stateRoundCues = (index: number, withTitle = false): StateCue[] => {
+  const plan = buildQuestionPlan(index, withTitle);
+  const cues: StateCue[] = [];
+  const add = (frame: number, sfx: StateSfx, extra: Partial<StateCue> = {}) => cues.push({ frame, sfx, ...extra });
+
+  // stage-in
+  add(plan.drawStart, 'whoosh');
+
+  // clock: a boundary at 1 s, 2 s, ... strictly before the clock ends
+  const lastSecondFrom = plan.timerFrames - FPS;
+  for (let t = FPS; t < plan.timerFrames; t += FPS) {
+    add(plan.timerStart + t, t >= lastSecondFrom ? 'tick-low' : 'tick');
+  }
+
+  // TODO(3b): hints   -> plan.hintAt.forEach(...)
+  // TODO(3c): answer  -> plan.revealStart, plan.stamp
+
+  return cues.sort((a, b) => a.frame - b.frame);
+};
