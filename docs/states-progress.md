@@ -9,7 +9,7 @@
 - [x] 1b src/states/states-data.ts (facts need manual check M1)
 - [x] 1c scripts/check-states.js (npm run states:check)
 - [x] 1d states-settings.json + types.ts (several values provisional, see _provisional)
-- [ ] 1e (label to fill from docs/states-prompts-split.md)
+- [x] 1e state-timing.ts + voiceover manifest + states:timeline (runtime 11:59, outside 9-11, see reply)
 - [x] 2a StateShape + geo.ts (not rendered or viewed)
 - [ ] 2b (label to fill from docs/states-prompts-split.md)
 - [ ] 2c (label to fill from docs/states-prompts-split.md)
