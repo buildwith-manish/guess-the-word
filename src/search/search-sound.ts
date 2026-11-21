@@ -1,0 +1,186 @@
+/** search-sound.ts: the audio plan for the search-history video (task 6b).
+ *
+ *  Copy-and-adapt of src/sound.ts, built from the search TIMELINE and the scenes' own cue
+ *  lists. Pure arithmetic, no DOM, so Remotion can render any frame range in any order.
+ *  All frames are design frames (1/30 s ticks); SearchSoundtrack converts to 60 fps.
+ *
+ *  Nothing from src/sound.ts is imported as a value (that would build GTW's whole audio
+ *  plan); only its types. Clip lengths come from src/sound-manifest.json.
+ *
+ *  Music: the three GTW layers are stacked by level (music-base < music-l1 < music-l2):
+ *    EASY   -> base only            (hook and the end of the video also sit here)
+ *    MEDIUM -> base + l1
+ *    HARD   -> base + l1 + l2
+ *    bonus  -> all three (as in GTW)
+ *  A level card switches the layers for its level; the music stops when the scoreboard starts. */
+import rootSettings from '../../settings.json';
+import manifest from '../sound-manifest.json';
+import type { Cue, Sfx, Voice } from '../sound';
+import { FPS, TIMELINE, TIME_SCALE, buildBonusPlan, voiceLevel, voiceIntro, voiceBonus } from './search-timing';
+import { buildBonusCues } from './scenes/searchBonusCues';
+import { searchRoundCues } from './scenes/searchRoundCues';
+import { searchHookCues } from './scenes/SearchHook';
+import { searchScoreboardCues, scoreboardVoice } from './scenes/searchScoreboardCues';
+import { searchEndScreenCues, endScreenVoice } from './scenes/searchEndScreenCues';
+import { buildRoundPlan } from './search-timing';
+
+export type { Cue, Voice };
+export { TIME_SCALE };
+
+export const SOUND_ENABLED = Boolean((rootSettings as { sound?: { enabled?: boolean } }).sound?.enabled);
+export const VOICE_DIR = rootSettings.voiceover.dir;
+/** Music loop = exactly 256 ticks (scripts/generate-audio.js). */
+export const MUSIC_LOOP_FRAMES = 256;
+
+/** Clip length in ticks (rounded up, +1 so a clip is never cut). */
+export const clipFrames = (sfx: Sfx, rate = 1) => Math.ceil((manifest[sfx] * FPS) / rate) + 1;
+
+// ---- sound design constants (not content, not timing from the settings files)
+/** level card stinger: heartbeat, then a two-note jingle, one step higher for each level */
+const STINGER_THUMP_AT = 3;
+const STINGER_JINGLE_AT = 8;
+const STINGER_RATE_STEP = 0.12;
+/** cues that never duck the music (they repeat every few ticks while typing) */
+const NO_DUCK: ReadonlySet<Sfx> = new Set<Sfx>(['key-click']);
+const DUCK_FLOOR = 0.44; // as GTW: music bus .5 -> .22 under a sound
+const MUSIC_RAMP = 10; // ticks for a layer to fade in or out
+const MAX_LAYER = 2;
+
+const layerForLevel = (levelIndex: number) => Math.min(MAX_LAYER, Math.max(0, levelIndex));
+
+// ---------------------------------------------------------------- cues + voice
+
+const VOICE_LIST: Voice[] = [];
+
+const buildCues = (): Cue[] => {
+  const cues: Cue[] = [];
+  const add = (frame: number, sfx: Sfx, extra: Partial<Cue> = {}) =>
+    cues.push({ frame: Math.round(frame), sfx, ...extra });
+  const place = (f0: number, list: Cue[]) => list.forEach((c) => cues.push({ ...c, frame: Math.round(f0 + c.frame) }));
+  const voice = (frame: number, clip?: { file: string; frames: number }) => {
+    if (clip) VOICE_LIST.push({ frame: Math.round(frame), file: clip.file, frames: clip.frames });
+  };
+  const VO_AT = rootSettings.voiceover.offsetFrames;
+  const riserFrames = rootSettings.sound.panic.riserFrames;
+
+  TIMELINE.segments.forEach((seg) => {
+    const f0 = seg.from;
+    switch (seg.kind) {
+      case 'hook':
+        place(f0, searchHookCues(seg.duration));
+        voice(f0 + VO_AT, voiceIntro());
+        break;
+      case 'levelCard':
+        add(f0 + STINGER_THUMP_AT, 'thump');
+        add(f0 + STINGER_JINGLE_AT, 'jingle-rules', { rate: 1 + seg.levelIndex * STINGER_RATE_STEP });
+        voice(f0 + VO_AT, voiceLevel(seg.levelIndex));
+        break;
+      case 'round': {
+        const plan = buildRoundPlan(seg.index);
+        const base = f0 - (seg.lead ?? 0); // the first `lead` ticks play inside the previous wipe
+        place(base, searchRoundCues(seg.index));
+        // riser into the answer: the last second of the clock
+        add(base + Math.max(plan.clockStart, plan.revealAt - riserFrames), 'riser');
+        voice(base + plan.revealAt + VO_AT, plan.vo);
+        break;
+      }
+      case 'bonus': {
+        const plan = buildBonusPlan(seg.index);
+        place(0, buildBonusCues(seg.index, f0));
+        add(f0 + Math.max(plan.clockStart, plan.clockStart + plan.clockFrames - riserFrames), 'riser');
+        voice(f0 + plan.revealAt + VO_AT, voiceBonus(seg.index + 1));
+        break;
+      }
+      case 'reminder':
+        add(f0, 'remind');
+        break;
+      case 'iris':
+        add(f0, 'whoosh');
+        break;
+      case 'scoreboard':
+        place(f0, searchScoreboardCues());
+        scoreboardVoice(f0).forEach((v) => VOICE_LIST.push(v));
+        break;
+      case 'endScreen':
+        place(f0, searchEndScreenCues());
+        endScreenVoice(f0).forEach((v) => VOICE_LIST.push(v));
+        break;
+    }
+  });
+  return cues.sort((a, b) => a.frame - b.frame);
+};
+
+export const CUES: Cue[] = buildCues();
+/** Every voiceover clip in the video, in order (empty while the manifest is empty). */
+export const VOICE: Voice[] = VOICE_LIST.slice().sort((a, b) => a.frame - b.frame);
+
+// ----------------------------------------------------------------------- music
+
+/** First tick with no music: the scoreboard starts. */
+export const MUSIC_END = (TIMELINE.segments.find((s) => s.kind === 'scoreboard') ?? { from: TIMELINE.totalFrames }).from;
+
+/** Ticks where the number of music layers changes; the value holds until the next entry. */
+const layerChanges = (): { frame: number; layer: number }[] => {
+  const out: { frame: number; layer: number }[] = [{ frame: 0, layer: 0 }];
+  TIMELINE.segments.forEach((seg) => {
+    if (seg.kind === 'levelCard') out.push({ frame: seg.from, layer: layerForLevel(seg.levelIndex) });
+    else if (seg.kind === 'round') out.push({ frame: seg.from, layer: layerForLevel(seg.levelIndex) });
+    else if (seg.kind === 'bonus') out.push({ frame: seg.from, layer: MAX_LAYER });
+  });
+  return out;
+};
+
+/** Per-tick volume for each of the three layers, with ducking under sounds and voiceover baked in. */
+const buildMusicEnvelopes = (): Float32Array[] => {
+  const n = Math.max(1, TIMELINE.totalFrames);
+  const changes = layerChanges();
+  const duck = new Float32Array(n).fill(1);
+
+  const duckFrames = FPS * 0.28;
+  const recover = FPS * 0.18;
+  for (const c of CUES) {
+    if (NO_DUCK.has(c.sfx)) continue;
+    for (let f = Math.max(0, c.frame); f < Math.min(n, c.frame + duckFrames + recover * 4); f++) {
+      const dt = f - c.frame;
+      const v = dt < duckFrames ? DUCK_FLOOR : 1 - (1 - DUCK_FLOOR) * Math.exp(-(dt - duckFrames) / recover);
+      if (v < duck[f]) duck[f] = v;
+    }
+  }
+
+  // under every voiceover clip: quick attack, slower release (only when clips exist)
+  const vDuck = rootSettings.voiceover.duckFloor;
+  for (const v of VOICE) {
+    const a = Math.max(0, v.frame - 4);
+    const b = Math.min(n, v.frame + v.frames + 12);
+    for (let f = a; f < b; f++) {
+      const down = Math.min(1, (f - a) / 4);
+      const up = Math.min(1, (v.frame + v.frames + 12 - f) / 12);
+      const val = 1 - (1 - vDuck) * Math.min(down, up);
+      if (val < duck[f]) duck[f] = val;
+    }
+  }
+
+  return [0, 1, 2].map((layer) => {
+    const env = new Float32Array(n);
+    let active = 0;
+    let ci = 0;
+    let cur = layer === 0 ? 1 : 0;
+    for (let f = 0; f < n; f++) {
+      while (ci < changes.length && changes[ci].frame <= f) active = changes[ci++].layer;
+      const target = f >= MUSIC_END ? 0 : layer <= active ? 1 : 0;
+      const step = 1 / MUSIC_RAMP;
+      cur = cur < target ? Math.min(target, cur + step) : Math.max(target, cur - step);
+      env[f] = cur * duck[f];
+    }
+    return env;
+  });
+};
+
+export const MUSIC_ENVELOPES = buildMusicEnvelopes();
+
+/** Does `layer` make any sound inside [from, to)? Lets the soundtrack skip silent loop repeats. */
+export const layerAudible = (layer: number, from: number, to: number) => {
+  const env = MUSIC_ENVELOPES[layer];
+  for (let f = Math.max(0, from); f < Math.min(env.length, to); f += 3) if (env[f] > 0.001) return true;
+  return false;
+};

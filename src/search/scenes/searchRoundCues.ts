@@ -8,14 +8,14 @@
  *  SearchBar helpers, so they follow the scene exactly. */
 import type { Cue } from '../../sound';
 import { FPS } from '../../timing';
+import { makeRandom } from '../../util';
 import cfg from '../search-settings.json';
 import { getRound } from '../search-data';
 import { buildRoundPlan } from '../search-timing';
 import { slideEnd } from '../components/SearchBar';
 
-/** Volume and pitch of the key-click while it is a stand-in sound. Motion constants. */
-const CLICK_VOLUME = 0.6;
-const CLICK_RATE = 1.6;
+/** Key-click pitch: playbackRate varies by +/- this fraction per click (seeded, so every render is identical). */
+const CLICK_JITTER = 0.12;
 
 /** Ticks per typed character: the settings value, raised so even a short search takes at least minTicks. */
 export const typeTicksFor = (searches: readonly string[], typing: { ticksPerChar: number; minTicks: number }): number =>
@@ -26,6 +26,7 @@ export const searchRoundCues = (index: number): Cue[] => {
   const round = getRound(index);
   const typeTicks = typeTicksFor(round.searches, cfg.typing);
   const cues: Cue[] = [];
+  const rand = makeRandom(index + 1); // one stream per round, drawn in click order
   const add = (frame: number, sfx: Cue['sfx'], extra: Partial<Cue> = {}) =>
     cues.push({ frame: Math.round(frame), sfx, ...extra });
 
@@ -33,8 +34,7 @@ export const searchRoundCues = (index: number): Cue[] => {
     const start = plan.searchAt[i];
     // Key-click on every second typed character. Character k (1-based) appears at start + (k - 1) * typeTicks.
     for (let k = 2; k <= text.length; k += 2) {
-      // TODO(6b): 'tick' stands in for a key-click. Task 6b creates a real 'key-click' sound; then switch to it.
-      add(start + (k - 1) * typeTicks, 'tick', { volume: CLICK_VOLUME, rate: CLICK_RATE });
+      add(start + (k - 1) * typeTicks, 'key-click', { rate: 1 + (rand() * 2 - 1) * CLICK_JITTER });
     }
     // Soft "send" sound when the search has landed in the history list.
     // TODO(6b): 'pop' stands in for a soft "send". Task 6b creates a real 'send' sound.

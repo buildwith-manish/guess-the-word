@@ -10,11 +10,12 @@ import { SearchScoreboard } from './scenes/SearchScoreboard';
 import { SearchBonus } from './scenes/SearchBonus';
 import { SearchEndScreen } from './scenes/SearchEndScreen';
 import { SearchHook } from './scenes/SearchHook';
+import { SearchSoundtrack } from './SearchSoundtrack';
 
 /**
  * Search History composition root. Like src/Main.tsx it only decides WHICH scene is on
  * screen; each scene owns its motion and reads its scene-local tick, so any frame range
- * can be rendered in any order. No audio here (a later task).
+ * can be rendered in any order. Audio: <SearchSoundtrack/>.
  *
  * Scenes that do not exist yet (levelCard, reminder, iris wipe) render
  * <Pending/>: a plain gradient from the segment's own theme, so the timeline can be
@@ -96,4 +97,10 @@ const Scenes: React.FC = () => {
   }
 };
 
-export const SearchMain: React.FC = () => <Scenes />;
+/** Scenes + the audio plan (src/search/search-sound.ts). */
+export const SearchMain: React.FC = () => (
+  <>
+    <Scenes />
+    <SearchSoundtrack />
+  </>
+);

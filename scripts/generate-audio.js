@@ -220,6 +220,9 @@ const TONES = {
   // timer tick: tone(760,.09,'square',.07) and the last-3-seconds tone(1250,...)
   tick: [T(0, 760, 0.09, 'square', 0.07)],
   'tick-low': [T(0, 1250, 0.09, 'square', 0.07)],
+  // search video: soft key-click (a tiny high tick over a short low thock); the cue list pitches it
+  // slightly at random with playbackRate. Quieter than 'tick' (.07) so typing never competes with the music.
+  'key-click': [T(0, 2600, 0.018, 'triangle', 0.035), T(0, 420, 0.03, 'sine', 0.05, 200)],
   // free-letter flip: tone(1568,.25,'triangle',.14)
   flip: [T(0, 1568, 0.25, 'triangle', 0.14)],
   // bulb flare: tone(1760,.5,'sine',.13)
