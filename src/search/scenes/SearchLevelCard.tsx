@@ -1,8 +1,8 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { SAFE_X, px } from '../../style';
+import { px } from '../../style';
 import { prog } from '../../anim';
-import { IOS, IosBackground, spring, easeOut } from '../../ios';
+import { IOS, IosBackground, spring, easeOut, SAFE_X } from '../../ios';
 import type { Cue } from '../../sound';
 import cfg from '../search-settings.json';
 import { ROUNDS } from '../search-data';
@@ -90,7 +90,7 @@ export const SearchLevelCard: React.FC<{ frame: number; levelIndex: number; dura
   const meta = rise(META_AT, 16);
   const demoIn = Math.min(1, spring((frame - (p.demoAt - 8)) / 8) * 1.4);
 
-  const abs = (top: number): React.CSSProperties => ({ position: 'absolute', left: SAFE_X, right: SAFE_X, top: px(top), textAlign: 'center' });
+  const abs = (top: number): React.CSSProperties => ({ position: 'absolute', left: px(SAFE_X), right: px(SAFE_X), top: px(top), textAlign: 'center' });
 
   return (
     <AbsoluteFill>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { SAFE_X, SAFE_Y, SCALE, px } from '../../style';
-import { IOS, IosBackground, iosSurface, spring } from '../../ios';
+import { px } from '../../style';
+import { IOS, IosBackground, iosSurface, spring, SAFE_X, SAFE_TOP } from '../../ios';
 import rootSettings from '../../../settings.json';
 import cfg from '../search-settings.json';
 import { BONUS_THEME } from '../search-timing';
@@ -36,12 +36,12 @@ const THEME = BONUS_THEME;
 
 /**
  * Layout of the top-half copy, 1280x720 reference units. One column that keeps SAFE_X at the sides and
- * starts SAFE_Y + 24 from the top; the gaps are the same as before (24 and 30). It ends above y 300, well
+ * starts SAFE_TOP + 8 from the top; the gaps are the same as before (24 and 30). It ends above y 300, well
  * clear of the pointer (y 336) and the slot frames (y 400).
  * Hierarchy: score line (largest, white) > character line (white, quieter) > subscribe pill (the one accent fill).
  * The accent is used for the pill and the slot frames only.
  */
-const COPY_TOP = SAFE_Y / SCALE + 24; // 60 reference units
+const COPY_TOP = SAFE_TOP + 8; // 64 reference units
 const GAP_LINE1_LINE2 = 24;
 const GAP_LINE2_SUBSCRIBE = 30;
 const POINTER_TOP = 336;
@@ -84,8 +84,8 @@ export const SearchEndScreen: React.FC<{ frame: number }> = ({ frame }) => {
       <div
         style={{
           position: 'absolute',
-          left: SAFE_X,
-          right: SAFE_X,
+          left: px(SAFE_X),
+          right: px(SAFE_X),
           top: px(COPY_TOP),
           display: 'flex',
           flexDirection: 'column',

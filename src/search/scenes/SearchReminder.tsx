@@ -1,8 +1,8 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { SAFE_X, px } from '../../style';
+import { px } from '../../style';
 import { prog, mix } from '../../anim';
-import { IOS, iosSurface, spring, easeOut } from '../../ios';
+import { IOS, iosSurface, spring, easeOut, SAFE_X } from '../../ios';
 import { FPS } from '../../timing';
 import type { Cue } from '../../sound';
 import type { Segment } from '../types';
@@ -50,7 +50,7 @@ export const SearchReminder: React.FC<{ frame: number; seg: ReminderSegment }> =
           left: '50%',
           top: px(PILL_TOP),
           width: px(PILL_W),
-          maxWidth: `calc(100% - ${2 * SAFE_X}px)`,
+          maxWidth: `calc(100% - ${px(2 * SAFE_X)}px)`,
           transformOrigin: '50% 50%',
           marginLeft: -px(PILL_W / 2),
           textAlign: 'center',

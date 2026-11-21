@@ -1,6 +1,6 @@
 import React from 'react';
-import { IOS, IosBackground, iosSurface, easeOut } from '../../ios';
-import { COLORS, FONTS, SCALE, SAFE_X, SAFE_Y, glass, px } from '../../style';
+import { IOS, IosBackground, iosSurface, easeOut, CONTENT, HUD_H } from '../../ios';
+import { COLORS, FONTS, glass, px } from '../../style';
 import { useDesignFrame } from '../../clock';
 import { FPS } from '../../timing';
 import type { Hud as HudInfo } from '../types';
@@ -16,7 +16,8 @@ import '../../fonts';
  *    given `at` and `size` from one source. The slot layer fills the frame, so children position
  *    themselves with their own reference-unit `at`, exactly as SearchBar / TimerBar / HintEmoji do.
  *
- * All rects are inside the safe margin from style.ts (SAFE_X, SAFE_Y), in 1280x720 reference units.
+ * All rects are inside the safe margins from src/ios/layout.ts (SAFE_X, SAFE_TOP, SAFE_BOTTOM), in 1280x720
+ * reference units. The HUD pill is centred on the top margin line and its left edge is on SAFE_X.
  */
 
 export type Rect = { x: number; y: number; w: number; h: number }; // x = centre-x, y = top, w, h
@@ -24,11 +25,11 @@ export type Rect = { x: number; y: number; w: number; h: number }; // x = centre
 /** Fade-in length of a slot, in seconds. Motion constant. */
 const FADE_SECONDS = 0.25;
 
-// Safe box in reference units, taken from style.ts.
-const X0 = SAFE_X / SCALE;
-const Y0 = SAFE_Y / SCALE;
-const SW = 1280 - 2 * X0;
-const SH = 720 - 2 * Y0;
+// Safe box in reference units, from src/ios/layout.ts.
+const X0 = CONTENT.left;
+const Y0 = CONTENT.top;
+const SW = CONTENT.w;
+const SH = CONTENT.h;
 
 const colX = (f: number) => X0 + SW * f;
 const rowY = (f: number) => Y0 + SH * f;
@@ -37,7 +38,7 @@ const rowY = (f: number) => Y0 + SH * f;
  *  Question phase: search bar and recent list in the middle, the hint pair under them, the timer at the bottom.
  *  Reveal phase: the answer slot is the whole middle; the other slots fade out. */
 export const SLOTS = {
-  hud: { x: X0, y: Y0, w: SW * 0.2, h: SH * 0.07 } as Rect, // x here is the LEFT edge
+  hud: { x: X0, y: Y0, w: SW * 0.2, h: HUD_H } as Rect, // x here is the LEFT edge
   search: { x: colX(0.5), y: rowY(0.12), w: SW * 0.52, h: SH * 0.5 } as Rect,
   timer: { x: colX(0.5), y: rowY(0.87), w: SW * 0.52, h: SH * 0.07 } as Rect,
   hint: { x: colX(0.5), y: rowY(0.62), w: SW * 0.4, h: SH * 0.24 } as Rect,
