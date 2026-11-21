@@ -1,6 +1,6 @@
 /**
- * StateTitleLockup: "GUESS THE STATE" as plain display type (no tiles or boxes); the old keycap-tile look
- * was replaced on request. Same props, same lockupTimes() so sound cues are unchanged.
+ * StateTitleLockup: "GUESS THE STATE" as plain Inter bold type in the iOS style (no tiles, gold gradient, shine or pop):
+ * letters rise in on the shared spring and STATE turns to the accent colour, letter by letter. Same props, same lockupTimes() so sound cues are unchanged.
  *
  *   1. every letter rises and fades in, one per LOOK.flipEveryMs
  *   2. GUESS / THE stay white
@@ -13,8 +13,9 @@
  * `lockupTimes()` gives the ignite moments in the same ticks, for sound cues.
  */
 import React from 'react';
-import { COLORS, FONTS, px } from '../../style';
-import { prog, htmlEase, cssEaseInOut, keyframes, clamp01, ms } from '../../anim';
+import { px } from '../../style';
+import { IOS, spring } from '../../ios';
+import { clamp01, ms } from '../../anim';
 
 const WORDS = [
   { text: 'GUESS', accent: false },
@@ -60,13 +61,15 @@ export interface StateTitleLockupProps {
   animate?: boolean;
   /** multiplies every size, default 1 (the GTW title size) */
   scale?: number;
+  /** colour STATE turns to; default the iOS orange */
+  accent?: string;
 }
 
-export const StateTitleLockup: React.FC<StateTitleLockupProps> = ({ frame, animate = true, scale = 1 }) => {
+export const StateTitleLockup: React.FC<StateTitleLockupProps> = ({ frame, animate = true, scale = 1, accent = IOS.color.orange }) => {
   const u = (v: number) => px(v) * scale;
   const font = u(LOOK.textFont);
 
-  const ruleP = animate ? prog(frame, ms(LOOK.ruleDelayMs), ms(LOOK.ruleMs), htmlEase) : 1;
+  const ruleP = animate ? spring((frame - ms(LOOK.ruleDelayMs)) / ms(LOOK.ruleMs)) : 1;
   const igniteBase = lockupTimes().igniteAt;
   let running = -1;
   let accentIdx = -1;
@@ -81,62 +84,29 @@ export const StateTitleLockup: React.FC<StateTitleLockupProps> = ({ frame, anima
               if (w.accent) accentIdx += 1;
 
               // plain letters rise and fade in, one after another (no tiles, no boxes)
-              const p = animate ? htmlEase(clamp01((frame - ms(running * LOOK.flipEveryMs)) / ms(LOOK.flipMs))) : 1;
-              const rise = (1 - p) * u(26);
+              const p = animate ? spring((frame - ms(running * LOOK.flipEveryMs)) / ms(LOOK.flipMs)) : 1;
+              const rise = (1 - p) * u(22);
 
               // STATE ignites to gold, letter by letter
               const at = igniteBase + (w.accent ? accentIdx * ms(LOOK.igniteStepMs) : 0);
               const g = !w.accent ? 0 : animate ? clamp01((frame - at) / ms(LOOK.igniteMs)) : 1;
-              const pop = w.accent && animate ? keyframes(clamp01((frame - at) / ms(LOOK.popMs)), [0, 0.45, 1], [1, 1.14, 1]) : 1;
-              const shineT = w.accent && animate ? (frame - (at + ms(LOOK.shineDelayMs))) / ms(LOOK.shineMs) : -1;
 
               return (
                 <div
                   key={ci}
                   style={{
-                    position: 'relative',
-                    opacity: p,
-                    transform: `translateY(${rise}px) scale(${pop})`,
-                    fontFamily: FONTS.display,
+                    opacity: Math.min(1, p * 1.4),
+                    transform: `translateY(${rise}px)`,
+                    fontFamily: IOS.font,
+                    fontWeight: IOS.weight.bold,
                     fontSize: font,
                     lineHeight: 1,
-                    letterSpacing: u(2),
-                    color: '#FFFFFF',
-                    textShadow: `0 ${u(4)}px ${u(18)}px rgba(0,0,0,0.55)`,
+                    letterSpacing: u(-1),
+                    // STATE fades from white to the accent
+                    color: g > 0 ? `color-mix(in srgb, ${accent} ${Math.round(g * 100)}%, #FFFFFF)` : '#FFFFFF',
                   }}
                 >
                   {ch}
-                  {g > 0 ? (
-                    <div
-                      style={{
-                        position: 'absolute',
-                        inset: 0,
-                        opacity: g,
-                        backgroundImage: `linear-gradient(180deg, ${COLORS.yellowSoft}, ${COLORS.yellow} 55%, ${COLORS.yellowDeep})`,
-                        WebkitBackgroundClip: 'text',
-                        backgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        color: 'transparent',
-                        filter: `drop-shadow(0 0 ${u(16 * g)}px rgba(255,201,60,0.6))`,
-                      }}
-                    >
-                      {ch}
-                    </div>
-                  ) : null}
-                  {shineT > 0 && shineT < 1 ? (
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: '-10%',
-                        height: '120%',
-                        width: '55%',
-                        left: `${-70 + 190 * cssEaseInOut(shineT)}%`,
-                        transform: 'skewX(-18deg)',
-                        mixBlendMode: 'overlay',
-                        background: 'linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.8), rgba(255,255,255,0))',
-                      }}
-                    />
-                  ) : null}
                 </div>
               );
             })}
@@ -149,7 +119,8 @@ export const StateTitleLockup: React.FC<StateTitleLockupProps> = ({ frame, anima
           width: u(LOOK.ruleW),
           marginTop: u(10),
           borderRadius: u(3),
-          background: `linear-gradient(90deg, rgba(0,0,0,0), ${COLORS.yellow}, rgba(0,0,0,0))`,
+          background: accent,
+          opacity: 0.7,
           transform: `scaleX(${ruleP})`,
         }}
       />

@@ -19,10 +19,9 @@
  */
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { Background } from '../../Background';
-import { Flash } from '../../Fx';
-import { prog, cssEaseOut, cssEaseInOut, bounceEase, keyframes, clamp01 } from '../../anim';
-import { COLORS, FONTS, glass, px } from '../../style';
+import { prog, cssEaseOut, cssEaseInOut, keyframes, clamp01 } from '../../anim';
+import { px } from '../../style';
+import { IOS, IosBackground, iosSurface, spring } from '../../ios';
 import root from '../../../settings.json';
 import { FPS, HEIGHT, LEVELS, TOTAL, WIDTH, voiceIntro } from '../state-timing';
 import { STATES } from '../states-data';
@@ -63,7 +62,7 @@ const LAYOUT = {
   mapCy: 0.6,
   /** lockup tile scale (1 = the GTW title size) */
   lockupScale: 1.6,
-  glow: 0.7,
+  glow: 0,
 };
 
 export type StateHookPlan = typeof HOOK_BEATS & {
@@ -130,7 +129,7 @@ const DropShape: React.FC<{ stateKey: string; map: Rect; f: number; start: numbe
   const box = target.w * Math.min(target.w / probe.w, target.h / probe.h);
   const left = target.x + target.w / 2 - box / 2;
   const top = target.y + target.h / 2 - box / 2;
-  const p = prog(f, start, HOOK_BEATS.dropFall, bounceEase); // overshoots 1 a little = the snap
+  const p = spring((f - start) / HOOK_BEATS.dropFall); // overshoots 1 by about 1.5% = the settle
   const fallY = -(1 - p) * (top + box);
   return (
     <div style={{ position: 'absolute', left, top, width: box, height: box, transform: `translateY(${fallY}px)`, opacity: fade }}>
@@ -148,7 +147,6 @@ export const StateHook: React.FC<{ frame: number }> = ({ frame: f }) => {
   const map: Rect = { x: (WIDTH - mapW) / 2, y: HEIGHT * LAYOUT.mapCy - mapH / 2, w: mapW, h: mapH };
 
   const mapIn = prog(f, P.snapAt, P.mapFade, cssEaseOut);
-  const energy = prog(f, P.silence, P.snapAt - P.silence);
 
   // question line: fade + rise in, fade out
   const qIn = prog(f, P.questionIn, P.questionFade, cssEaseOut);
@@ -172,7 +170,7 @@ export const StateHook: React.FC<{ frame: number }> = ({ frame: f }) => {
 
   return (
     <AbsoluteFill>
-      <Background frame={f} theme={LEVELS[0].theme} energy={energy} />
+      <IosBackground accent={LEVELS[0].accent} />
 
       {/* the full US map, under the ten dropped shapes */}
       <div style={{ position: 'absolute', left: map.x, top: map.y, width: map.w, height: map.h, opacity: mapIn }}>
@@ -188,7 +186,6 @@ export const StateHook: React.FC<{ frame: number }> = ({ frame: f }) => {
           fade={1 - clamp01(mapIn)}
         />
       ))}
-      <Flash frame={f} start={P.snapAt} />
 
       <div style={textZone}>
         {showQuestion ? (
@@ -196,12 +193,12 @@ export const StateHook: React.FC<{ frame: number }> = ({ frame: f }) => {
             style={{
               maxWidth: WIDTH * 0.86,
               textAlign: 'center',
-              fontFamily: FONTS.body,
-              fontWeight: 800,
+              fontFamily: IOS.font,
+              fontWeight: IOS.weight.semibold,
               fontSize: px(54),
               lineHeight: 1.15,
-              color: COLORS.ink,
-              textShadow: `0 ${px(4)}px ${px(24)}px rgba(0,0,0,0.45)`,
+              letterSpacing: px(-1),
+              color: IOS.color.label,
               opacity: qIn * qOut,
               transform: `translateY(${keyframes(qIn, [0, 1], [px(30), 0])}px)`,
             }}
@@ -212,18 +209,17 @@ export const StateHook: React.FC<{ frame: number }> = ({ frame: f }) => {
 
         {f >= P.lockupAt ? (
           <>
-            <StateTitleLockup frame={f - P.lockupAt} scale={LAYOUT.lockupScale} />
+            <StateTitleLockup frame={f - P.lockupAt} scale={LAYOUT.lockupScale} accent={LEVELS[0].accent} />
             {f >= P.rulesAt ? (
               <div
                 style={{
-                  ...glass(px(34)),
+                  ...iosSurface(px(IOS.radius.xl), 0.6),
                   marginTop: px(26),
                   padding: `${px(10)}px ${px(36)}px`,
-                  fontFamily: FONTS.body,
-                  fontWeight: 800,
-                  fontSize: px(32),
-                  letterSpacing: px(4),
-                  color: COLORS.yellowSoft,
+                  fontFamily: IOS.font,
+                  fontWeight: IOS.weight.medium,
+                  fontSize: px(30),
+                  color: IOS.color.secondary,
                   whiteSpace: 'nowrap',
                   opacity: rulesIn,
                   transform: `translateY(${keyframes(rulesIn, [0, 1], [px(24), 0])}px)`,
