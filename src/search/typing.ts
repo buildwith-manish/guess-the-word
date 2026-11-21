@@ -51,6 +51,29 @@ export const charTick = (start: number, text: string, k: number, typeTicks: numb
   return start + cum[j] * typeTicks;
 };
 
+/** Closest two typing ticks may be, in design ticks (0.1 s). A nearer pair (a one-letter word typed fast) sounds like a double tick. */
+const MIN_TICK_GAP = 3;
+
+/** The 1-based character numbers that start a word (first non-space character, or after a space). */
+const wordStarts = (text: string): number[] => {
+  const out: number[] = [];
+  for (let k = 1; k <= text.length; k++) {
+    if (text[k - 1] !== ' ' && (k === 1 || text[k - 2] === ' ')) out.push(k);
+  }
+  return out;
+};
+
+/** Ticks at which the typing sound plays for `text` typed from `start`: one per word, on the tick its first character
+ *  appears, at least MIN_TICK_GAP apart. Per character would be 10 to 15 sounds a second at normal speed, a buzz. */
+export const typingTickFrames = (start: number, text: string, typeTicks: number): number[] => {
+  const out: number[] = [];
+  for (const k of wordStarts(text)) {
+    const f = Math.round(charTick(start, text, k, typeTicks));
+    if (out.length === 0 || f - out[out.length - 1] >= MIN_TICK_GAP) out.push(f);
+  }
+  return out;
+};
+
 /** How many characters of `text` are visible at `frame`. */
 export const typedChars = (frame: number, start: number, text: string, typeTicks: number): number => {
   if (frame < start) return 0;

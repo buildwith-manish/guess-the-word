@@ -3,12 +3,11 @@ import { px } from '../../style';
 import { IOS, iosSurface, spring, easeOut, IosBackground } from '../../ios';
 import { prog, clamp01 } from '../../anim';
 import type { Cue } from '../../sound';
-import { makeRandom } from '../../util';
 import cfg from '../search-settings.json';
 import { ROUNDS } from '../search-data';
 import { LEVELS, TIMELINE, themeForRound } from '../search-timing';
 import { HOLD_CHARS, SLIDE_CHARS, SearchBar, slideEnd } from '../components/SearchBar';
-import { charTick } from '../typing';
+import { typingTickFrames } from '../typing';
 import { SearchTitleLockup } from '../components/SearchTitleLockup';
 import '../../fonts';
 
@@ -59,11 +58,6 @@ const BEAT_TICKS = 16;
 const GLITCH_HIT_TICKS = BEAT_TICKS;
 /** The headline fades in over these ticks, so it is clear from the first frames. Motion constant. */
 const HEADLINE_ENTER_TICKS = 2;
-/** Key-click pitch: playbackRate varies by +/- this fraction per click (same value as searchRoundCues.ts). */
-const CLICK_JITTER = 0.12;
-/** Seed of the hook's click stream. The rounds use 1..N, so 1000 keeps the streams apart. */
-const CLICK_SEED = 1000;
-
 const RULE_CHIP_STAGGER_TICKS = 4;
 const RULE_CHIP_FADE_TICKS = 10;
 
@@ -97,16 +91,13 @@ export const hookPlan = (duration: number = defaultDuration()) => {
 export const searchHookCues = (duration: number = defaultDuration()): Cue[] => {
   const p = hookPlan(duration);
   const cues: Cue[] = [];
-  const rand = makeRandom(CLICK_SEED); // one stream, drawn in click order, so every render is identical
   const add = (frame: number, sfx: Cue['sfx'], extra: Partial<Cue> = {}) =>
     cues.push({ frame: Math.round(frame), sfx, ...extra });
 
   p.searches.forEach((text, i) => {
-    for (let k = 2; k <= text.length; k += 2) {
-      add(charTick(p.starts[i], text, k, p.typeTicks), 'key-click', { rate: 1 + (rand() * 2 - 1) * CLICK_JITTER });
-    }
-    // Soft "send" when the search has landed in the list ('send' has its gain baked in, task 7d).
-    add(slideEnd(p.starts[i], text.length, p.typeTicks), 'send');
+    // Same sounds as a round: a quiet tick as each word starts, a soft pop when the search lands in the list.
+    typingTickFrames(p.starts[i], text, p.typeTicks).forEach((f) => add(f, 'ios-tick'));
+    add(slideEnd(p.starts[i], text.length, p.typeTicks), 'ios-pop');
   });
   add(p.lockupAt, 'title');
   add(p.rulesAt, 'rule-sweep');

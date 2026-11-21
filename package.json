@@ -23,6 +23,7 @@
     "thumbs": "remotion still src/index.ts ThumbZero out/thumbs/zero-wrong.png && remotion still src/index.ts ThumbLadder out/thumbs/46-of-46.png && remotion still src/index.ts ThumbEasy out/thumbs/too-easy.png",
     "data": "node scripts/build-questions.js",
     "sounds": "node scripts/generate-audio.js",
+    "search:sounds": "node scripts/search-sound-sync.js",
     "images": "node scripts/fetch-images.js",
     "images:resize": "node scripts/resize-images.js",
     "images:refetch": "node scripts/refetch-broken.js",

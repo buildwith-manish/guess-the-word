@@ -1,0 +1,14 @@
+{
+  "ios-tick": {
+    "present": true,
+    "seconds": 0.09
+  },
+  "ios-pop": {
+    "present": true,
+    "seconds": 0.16
+  },
+  "ios-chime": {
+    "present": true,
+    "seconds": 1.05
+  }
+}

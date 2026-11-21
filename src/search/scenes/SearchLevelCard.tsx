@@ -8,6 +8,7 @@ import cfg from '../search-settings.json';
 import { ROUNDS } from '../search-data';
 import { LEVELS, TIMELINE } from '../search-timing';
 import { SearchBar } from '../components/SearchBar';
+import { typingTickFrames } from '../typing';
 import '../../fonts';
 
 /**
@@ -64,10 +65,8 @@ export const levelCardPlan = (levelIndex: number, duration: number = defaultDura
 export const searchLevelCardCues = (levelIndex: number, duration?: number): Cue[] => {
   const p = levelCardPlan(levelIndex, duration);
   const cues: Cue[] = [{ frame: p.nameAt, sfx: 'stamp' }]; // the level name slams in
-  for (let k = 2; k <= p.sample.length; k += 2) {
-    // TODO(6b): 'tick' stands in for a key-click; task 6b creates the real sound.
-    cues.push({ frame: Math.round(p.demoAt + (k - 1) * p.typeTicks), sfx: 'tick', volume: 0.6, rate: 1.6 });
-  }
+  // The demo bar types the sample line: the same quiet tick per word as a round.
+  typingTickFrames(p.demoAt, p.sample, p.typeTicks).forEach((f) => cues.push({ frame: f, sfx: 'ios-tick' }));
   return cues.sort((a, b) => a.frame - b.frame);
 };
 

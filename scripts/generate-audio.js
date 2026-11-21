@@ -285,6 +285,29 @@ const TONES = {
 
 const SECONDS = (list) => Math.max(...list.map((v) => v.at + v.d)) + 0.05;
 
+/**
+ * iOS-style clips for the search video (src/search/search-sound.ts). Soft sine voices with a 5 ms attack ('note'
+ * envelope), no square or sawtooth edge. Unlike the clips above they are peak-normalised to IOS_PEAK instead of
+ * carrying MASTER * SFX_GAIN, so the volume set on a cue is the real level: 0.12 means 12 % of full scale.
+ * The cue volumes live in SOFT_GAIN in src/search/search-sound.ts.
+ *   ios-tick   typed word: a short high tick over a small low "tock"
+ *   ios-pop    a recent row lands in the list: round, falling sine
+ *   ios-chime  answer reveal: one E6 bell with a faint inharmonic glint, ~1 s decay
+ */
+const IOS_PEAK = 0.8;
+const N = (at, f, d, v, f2) => ({ at, f, f2, d, type: 'sine', v, env: 'note' });
+const IOS_TONES = {
+  'ios-tick': [N(0, 1900, 0.03, 0.6), N(0, 760, 0.04, 0.45, 520)],
+  'ios-pop': [N(0, 660, 0.11, 0.6, 420), N(0, 1320, 0.06, 0.15, 840)],
+  'ios-chime': [N(0, 1318.5, 1.0, 0.5), N(0, 659.3, 0.8, 0.2), N(0, 3634, 0.3, 0.07)],
+};
+const peakTo = (b, peak) => {
+  let m = 0;
+  for (let i = 0; i < b.length; i++) m = Math.max(m, Math.abs(b[i]));
+  if (m > 0) for (let i = 0; i < b.length; i++) b[i] *= peak / m;
+  return b;
+};
+
 /* -------------------------------------------------------------------- MUSIC */
 
 const BPM = 112.5; // HTML uses 112; 112.5 makes the 4-bar loop exactly 256 frames at 30 fps
@@ -327,6 +350,12 @@ const main = () => {
     const out = buf(SECONDS(list));
     list.forEach((v) => voice(out, v));
     report.push([name, writeWav(name, finish(out, MASTER * SFX_GAIN))]);
+  }
+
+  for (const [name, list] of Object.entries(IOS_TONES)) {
+    const out = buf(SECONDS(list));
+    list.forEach((v) => voice(out, v));
+    report.push([name, writeWav(name, peakTo(out, IOS_PEAK))]);
   }
 
   {

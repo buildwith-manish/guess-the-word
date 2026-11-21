@@ -8,41 +8,33 @@
  *  SearchBar helpers, so they follow the scene exactly. */
 import type { Cue } from '../../sound';
 import { FPS } from '../../timing';
-import { makeRandom } from '../../util';
 import { getRound } from '../search-data';
 import { buildRoundPlan } from '../search-timing';
 import { slideEnd } from '../components/SearchBar';
-import { charTick } from '../typing';
-
-/** Key-click pitch: playbackRate varies by +/- this fraction per click (seeded, so every render is identical). */
-const CLICK_JITTER = 0.12;
+import { typingTickFrames } from '../typing';
 
 export const searchRoundCues = (index: number): Cue[] => {
   const plan = buildRoundPlan(index);
   const round = getRound(index);
   const cues: Cue[] = [];
-  const rand = makeRandom(index + 1); // one stream per round, drawn in click order
   const add = (frame: number, sfx: Cue['sfx'], extra: Partial<Cue> = {}) =>
     cues.push({ frame: Math.round(frame), sfx, ...extra });
 
   round.searches.forEach((text, i) => {
     const start = plan.searchAt[i];
     const typeTicks = plan.typeTicks[i]; // this search's own speed, same value the scene uses
-    // Key-click on every second typed character, at the tick that character appears (typing.ts: uneven, human rhythm).
-    for (let k = 2; k <= text.length; k += 2) {
-      add(charTick(start, text, k, typeTicks), 'key-click', { rate: 1 + (rand() * 2 - 1) * CLICK_JITTER });
-    }
-    // Soft "send" sound when the search has landed in the history list.
-    // 'send' has its gain baked in (task 7d, quieter than 'pop'), so no extra volume here.
-    add(slideEnd(start, text.length, typeTicks), 'send');
+    // A quiet tick as each word starts (typing.ts: on the tick its first character appears, uneven human rhythm).
+    typingTickFrames(start, text, typeTicks).forEach((f) => add(f, 'ios-tick'));
+    // Soft pop when the search lands in the recent list. Levels are set in SOFT_GAIN (search-sound.ts).
+    add(slideEnd(start, text.length, typeTicks), 'ios-pop');
   });
 
   // Hint: one ping when the first emoji pops in.
   add(plan.hintAt, 'ping-hi');
 
-  // Reveal: stamp sound when the answer card starts to stamp in.
-  // Check by ear: the card's stamp takes a few ticks to land (STAMP_SECONDS in AnswerCard); move this later if the hit is early.
-  add(plan.revealAt, 'stamp');
+  // Reveal: one gentle chime as the answer lands.
+  // Check by ear: the card's stamp takes a few ticks to land (STAMP_SECONDS in AnswerCard); move this later if the chime is early.
+  add(plan.revealAt, 'ios-chime');
 
   // Timer: one tick per second of the clock; the last second uses tick-low.
   const seconds = Math.round(plan.clockFrames / FPS);

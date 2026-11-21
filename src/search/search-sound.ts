@@ -15,6 +15,7 @@
  *  A level card switches the layers for its level; the music stops when the scoreboard starts. */
 import rootSettings from '../../settings.json';
 import manifest from '../sound-manifest.json';
+import iosFiles from './search-sound-files.json';
 import type { Cue, Sfx, Voice } from '../sound';
 import { FPS, TIMELINE, TIME_SCALE, buildBonusPlan, voiceLevel, voiceIntro, voiceBonus, voiceClue } from './search-timing';
 import { buildBonusCues } from './scenes/searchBonusCues';
@@ -33,16 +34,30 @@ export const VOICE_DIR = rootSettings.voiceover.dir;
 /** Music loop = exactly 256 ticks (scripts/generate-audio.js). */
 export const MUSIC_LOOP_FRAMES = 256;
 
+/** The iOS clips (public/sounds/ios-*.wav). search-sound-files.json says which of them exist and how long they are
+ *  (written by `npm run search:sounds`). A clip that is missing is never referenced: soften() plays IOS_FALLBACK
+ *  instead, so a missing file cannot fail a render. */
+type IosSfx = keyof typeof iosFiles;
+const isIos = (sfx: Sfx): sfx is IosSfx => sfx in iosFiles;
+const IOS_FALLBACK: Record<IosSfx, { sfx: Sfx; volume: number }> = {
+  'ios-tick': { sfx: 'key-click', volume: 1 }, // the old typing click; its gain is baked in (quiet)
+  'ios-pop': { sfx: 'send', volume: 1 }, // the old row-landed blip, also baked quiet
+  'ios-chime': { sfx: 'ding', volume: 0.5 },
+};
+
 /** Clip length in ticks (rounded up, +1 so a clip is never cut). */
-export const clipFrames = (sfx: Sfx, rate = 1) => Math.ceil((manifest[sfx] * FPS) / rate) + 1;
+export const clipFrames = (sfx: Sfx, rate = 1) => {
+  const seconds = isIos(sfx) && iosFiles[sfx].present ? iosFiles[sfx].seconds : manifest[sfx];
+  return Math.ceil((seconds * FPS) / rate) + 1;
+};
 
 // ---- sound design constants (not content, not timing from the settings files)
 /** level card stinger: heartbeat, then a two-note jingle, one step higher for each level */
 const STINGER_THUMP_AT = 3;
 const STINGER_JINGLE_AT = 8;
 const STINGER_RATE_STEP = 0.12;
-/** cues that never duck the music (they repeat every few ticks while typing) */
-const NO_DUCK: ReadonlySet<Sfx> = new Set<Sfx>(['key-click']);
+/** cues that never duck the music (typing ticks and row pops are too small to pump it) */
+const NO_DUCK: ReadonlySet<Sfx> = new Set<Sfx>(['key-click', 'ios-tick', 'ios-pop']);
 const DUCK_FLOOR = 0.44; // as GTW: music bus .5 -> .22 under a sound
 const MUSIC_RAMP = 10; // ticks for a layer to fade in or out
 const MAX_LAYER = 2;
@@ -76,9 +91,14 @@ const SOFT_GAIN: Partial<Record<Sfx, number>> = {
   'rule-sweep': 0.6,
   remind: 0.6,
   row: 0.7,
+  // iOS clips are peak-normalised to 0.8 (scripts/generate-audio.js), so these are the real levels:
+  // typed-word tick 12 %, row pop 25 %, answer chime 30 %. Change them here.
+  'ios-tick': 0.12,
+  'ios-pop': 0.25,
+  'ios-chime': 0.3,
 };
 const soften = (c: Cue): Cue => {
-  const swap = SOFT_SWAP[c.sfx];
+  const swap = SOFT_SWAP[c.sfx] ?? (isIos(c.sfx) && !iosFiles[c.sfx].present ? IOS_FALLBACK[c.sfx] : undefined);
   const sfx = swap ? swap.sfx : c.sfx;
   const gain = (swap?.volume ?? SOFT_GAIN[c.sfx] ?? 1) * (c.volume ?? 1);
   return { ...c, sfx, volume: gain };
