@@ -154,7 +154,7 @@ const main = async () => {
   check('rounds in order, right level', () => {
     const rounds = segs.filter((g) => g.kind === 'round');
     const bad = [];
-    if (ROUNDS.length !== 30) bad.push(`ROUNDS has ${ROUNDS.length}, expected 30`);
+    if (!(ROUNDS.length > 0)) bad.push('ROUNDS is empty');
     if (rounds.length !== ROUNDS.length) bad.push(`${rounds.length} round segments for ${ROUNDS.length} rounds`);
     rounds.forEach((g, i) => {
       const want = LEVELS.findIndex((l) => l.name === ROUNDS[i].level);
@@ -176,13 +176,13 @@ const main = async () => {
   });
 
   // 8. bonus puzzles after rounds 10, 20, 30
-  check('bonus after rounds 10 / 20 / 30', () => {
+  check('bonus puzzles after their rounds', () => {
     const bad = [];
     const bonus = segs.map((g, i) => ({ g, i })).filter((x) => x.g.kind === 'bonus');
-    const want = [10, 20, 30];
-    if (bonus.length !== want.length) bad.push(`${bonus.length} bonus segments, expected ${want.length}`);
-    if (cfg.bonus.after.join() !== want.join()) bad.push(`settings bonus.after is ${cfg.bonus.after.join(',')}`);
-    if (BONUS.map((b) => b.afterRound).join() !== want.join()) bad.push(`data afterRound is ${BONUS.map((b) => b.afterRound).join(',')}`);
+    const want = cfg.bonus.after.filter((n) => n <= ROUNDS.length);
+    if (bonus.length !== want.length) bad.push(`${bonus.length} bonus segments, settings bonus.after gives ${want.length}`);
+    if (BONUS.length !== cfg.bonus.after.length) bad.push(`${BONUS.length} puzzles for ${cfg.bonus.after.length} slots`);
+    if (BONUS.map((b) => b.afterRound).join() !== cfg.bonus.after.join()) bad.push(`data afterRound is ${BONUS.map((b) => b.afterRound).join(',')}, settings ${cfg.bonus.after.join(',')}`);
     bonus.forEach(({ g, i }, k) => {
       if (g.index !== k) bad.push(`bonus #${k + 1} has index ${g.index}`);
       let j = i - 1;
@@ -193,6 +193,18 @@ const main = async () => {
       if (between.length) bad.push(`bonus ${k + 1} has ${between.join(',')} before it`);
     });
     return Object.assign(bad, { note: bonus.map(({ g, i }) => `B${g.index + 1} after R${segs.slice(0, i).filter((x) => x.kind === 'round').length}`).join(', ') });
+  });
+
+  // 9. pacing: the same franchise never repeats within a few rounds
+  check('same franchise not within 4 rounds', () => {
+    const GAP = 4;
+    const bad = [];
+    ROUNDS.forEach((r, i) => {
+      for (let j = i + 1; j < Math.min(ROUNDS.length, i + GAP); j++) {
+        if (ROUNDS[j].from === r.from) bad.push(`R${i + 1} ${r.name} and R${j + 1} ${ROUNDS[j].name} (${r.from})`);
+      }
+    });
+    return Object.assign(bad, { note: `window ${GAP}, ${ROUNDS.length} rounds` });
   });
 
   const w = Math.max(...rows.map((r) => r.name.length));

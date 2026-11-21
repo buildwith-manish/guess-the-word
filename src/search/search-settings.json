@@ -17,7 +17,7 @@
     "badgeText": "BONUS: WHO SEARCHED THIS?",
     "theme": ["#FF8A3D", "#2B1204"]
   },
-  "reminder": { "after": [8, 22], "ticks": 51 },
+  "reminder": { "after": [8, 22, 36], "ticks": 51 },
   "levelCardFrames": 72,
   "ranks": [
     { "name": "LEGEND", "min": 45, "accent": "#FFC93C" },

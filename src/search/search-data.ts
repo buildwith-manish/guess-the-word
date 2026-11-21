@@ -300,15 +300,15 @@ export const ROUNDS: Round[] = [
   },
   {
     id: 22,
-    name: "Lightning McQueen",
-    from: "Cars",
+    name: "Sonic",
+    from: "Sonic the Hedgehog",
     level: "MEDIUM",
-    hint: ["🏎️", "🏁"],
+    hint: ["💨", "🔵"],
     searches: [
-      "how to explain a fast car to a small town",
-      "best tires for racing",
-      "number 95 stickers",
-      "what is a Piston Cup",
+      "fastest shoes for a hedgehog",
+      "how to collect gold rings without stopping",
+      "blue hair gel recommendations",
+      "how fast is too fast for a speeding ticket",
     ],
   },
   {
@@ -326,15 +326,15 @@ export const ROUNDS: Round[] = [
   },
   {
     id: 24,
-    name: "Sonic",
-    from: "Sonic the Hedgehog",
+    name: "Lightning McQueen",
+    from: "Cars",
     level: "MEDIUM",
-    hint: ["💨", "🔵"],
+    hint: ["🏎️", "🏁"],
     searches: [
-      "fastest shoes for a hedgehog",
-      "how to collect gold rings without stopping",
-      "blue hair gel recommendations",
-      "how fast is too fast for a speeding ticket",
+      "how to explain a fast car to a small town",
+      "best tires for racing",
+      "number 95 stickers",
+      "what is a Piston Cup",
     ],
   },
   {
@@ -378,19 +378,6 @@ export const ROUNDS: Round[] = [
   },
   {
     id: 28,
-    name: "Groot",
-    from: "Guardians of the Galaxy",
-    level: "MEDIUM",
-    hint: ["🌳", "🚀"],
-    searches: [
-      "how to explain myself using only the same three words",
-      "best fertilizer for a walking tree",
-      "can a potted plant join a team of space misfits",
-      "my best friend is a raccoon with a big gun",
-    ],
-  },
-  {
-    id: 29,
     name: "Jack Sparrow",
     from: "Pirates of the Caribbean",
     level: "MEDIUM",
@@ -403,7 +390,7 @@ export const ROUNDS: Round[] = [
     ],
   },
   {
-    id: 30,
+    id: 29,
     name: "Toothless",
     from: "How to Train Your Dragon",
     level: "MEDIUM",
@@ -416,7 +403,7 @@ export const ROUNDS: Round[] = [
     ],
   },
   {
-    id: 31,
+    id: 30,
     name: "Optimus Prime",
     from: "Transformers",
     level: "MEDIUM",
@@ -426,6 +413,19 @@ export const ROUNDS: Round[] = [
       "my whole family turns into cars sometimes",
       "how to lead a team of robots through a long war",
       "best way to fold myself from a robot into a truck",
+    ],
+  },
+  {
+    id: 31,
+    name: "Groot",
+    from: "Guardians of the Galaxy",
+    level: "MEDIUM",
+    hint: ["🌳", "🚀"],
+    searches: [
+      "how to explain myself using only the same three words",
+      "best fertilizer for a walking tree",
+      "can a potted plant join a team of space misfits",
+      "my best friend is a raccoon with a big gun",
     ],
   },
   {
@@ -458,6 +458,19 @@ export const ROUNDS: Round[] = [
   // HARD
   {
     id: 34,
+    name: "Scooby-Doo",
+    from: "Scooby-Doo",
+    level: "HARD",
+    hint: ["🐶", "🔍"],
+    searches: [
+      "how to make a sandwich bigger than my head",
+      "best dog snacks for solving mysteries",
+      "how to scare away haunted-house caretakers",
+      "van insurance for four teenagers and a dog",
+    ],
+  },
+  {
+    id: 35,
     name: "Gollum",
     from: "The Lord of the Rings",
     level: "HARD",
@@ -470,7 +483,7 @@ export const ROUNDS: Round[] = [
     ],
   },
   {
-    id: 35,
+    id: 36,
     name: "WALL-E",
     from: "WALL-E",
     level: "HARD",
@@ -483,7 +496,7 @@ export const ROUNDS: Round[] = [
     ],
   },
   {
-    id: 36,
+    id: 37,
     name: "Yoda",
     from: "Star Wars",
     level: "HARD",
@@ -493,19 +506,6 @@ export const ROUNDS: Round[] = [
       "how to train young students in a swamp",
       "why do I put words in a different order",
       "how to hide pointy green ears",
-    ],
-  },
-  {
-    id: 37,
-    name: "Scooby-Doo",
-    from: "Scooby-Doo",
-    level: "HARD",
-    hint: ["🐶", "🔍"],
-    searches: [
-      "how to make a sandwich bigger than my head",
-      "best dog snacks for solving mysteries",
-      "how to scare away haunted-house caretakers",
-      "van insurance for four teenagers and a dog",
     ],
   },
   {
