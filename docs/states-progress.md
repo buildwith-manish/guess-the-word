@@ -22,7 +22,7 @@
 - [x] 3d StateHook (silence, ten drops, map snap, question, lockup, rules) + StateTitleLockup + stateHookCues; no composition registered; TIMELINE hook segment still 8 s (not rendered or viewed)
 - [x] 3e StateLevelCard (rule demos), StateReminder (subscribe pop-up), StateIris (circle/sweep/curtain + pixel-dissolve for EXPERT), each with cues; not wired into Main, not rendered or viewed
 - [x] 4a src/states/bonus-engine.ts (4 seeded puzzle makers), real bonus durations in state-timing.ts, puzzle checks in check-states (not rendered or viewed)
-- [ ] 4b (label to fill from docs/states-prompts-split.md)
+- [x] 4b BonusMissing + BonusBorders (+ shared bonus parts and cues in BonusMissing.tsx; not wired into Main, not rendered or viewed)
 - [ ] 4c (label to fill from docs/states-prompts-split.md)
 - [ ] 5a (label to fill from docs/states-prompts-split.md)
 - [ ] 5b (label to fill from docs/states-prompts-split.md)
@@ -43,3 +43,4 @@
 - 3e: tsc reports no errors in src/states; 4 older errors remain elsewhere (src/fontshare/load-fonts.ts x2 missing @remotion/google-fonts modules, src/pixel/pixel-timing.ts:67 and src/timing.ts:45 manifest casts). Not touched.
 - 3e: Main.tsx is still the word quiz. Wiring for a later task: levelCard -> StateLevelCard(frame, levelIndex, duration=seg.duration); reminder -> StateReminder; iris -> StateIris, and overlay the next StateRound with frame = local - stateIrisOverlap(seg, next).startsAt, lead = .lead. Cue builders: stateLevelCardCues, stateReminderCues, stateIrisCues(seg); ticks from segment start.
 - 4a: bonus segment = root bonus.preRollFrames + buildFrames + clock + root bonus.revealHoldFrames; the clock is the clock of the level the bonus follows (5/7/8/10 s), so bonus lengths are 11.3 / 13.3 / 14.3 / 16.3 s. Total runtime now 12:14 before any voiceover (was 11:59 with 300-tick placeholders), outside the 9-11 min target: if the bonus clock should be shorter, change bonusClockFrames in state-timing.ts. The check script is scripts/check-states.js (not .ts); `npm run states:check` passes 13 checks.
+- 4b: shared bonus pieces (BonusStage, BonusBanner, BonusBadge, BonusPrompt, BonusMap, BonusOptions, BonusTimer, BonusEraseChip, bonusTimes, bonusCommonCues) are exported from src/states/scenes/bonus/BonusMissing.tsx for the capital / nickname scenes. Scene props: { frame, puzzle: BonusPuzzle, duration? } with puzzle = BONUS_PUZZLES[seg.index]. Cue builders: bonusMissingCues(puzzle), bonusBordersCues(puzzle), ticks from segment start. Bonus voiceover placement is not part of these cues.
