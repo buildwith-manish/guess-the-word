@@ -9,7 +9,7 @@ import { SearchBar } from '../components/SearchBar';
 import { TimerBar } from '../components/TimerBar';
 import { HintClue } from '../components/HintClue';
 import { AnswerCard, answerCardHeight } from '../components/AnswerCard';
-import { AnswerPicture } from '../components/AnswerPicture';
+import { AnswerPicture, answerPictureHeightShare } from '../components/AnswerPicture';
 import settings from '../search-settings.json';
 import { ProgressDots } from '../components/ProgressDots';
 import { Flash } from '../../Fx';
@@ -42,10 +42,11 @@ const DIM_SECONDS = 0.25;
 /** The hint pair is about 2.3 emoji wide (HintEmoji spaces them 0.3 apart): size so the pair fits the slot width. */
 const HINT_PAIR_WIDTHS = 2.6;
 
-/** The reveal picture is 3:2 landscape: as wide as the slot height allows, but not wider than PICTURE_MAX_WIDTH
+/** The reveal picture is 3:2 landscape, sized to fit the slot height, but not wider than PICTURE_MAX_WIDTH
  *  (reference units, 1280 wide frame). Layout constants. */
-const PICTURE_ASPECT = 3 / 2;
-const PICTURE_MAX_WIDTH = 1100;
+const PICTURE_MAX_WIDTH = 740;
+/** Share of the answer slot height the picture block (card + answer box) may use. */
+const PICTURE_FILL = 0.82;
 
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
@@ -149,7 +150,10 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
         ),
       }}
       answer={{
-        children: (rect) => (
+        children: (rect) => {
+          const pictureW = Math.min((rect.h * PICTURE_FILL) / answerPictureHeightShare(settings.reveal.showName), PICTURE_MAX_WIDTH);
+          const pictureH = pictureW * answerPictureHeightShare(settings.reveal.showName);
+          return (
           <>
             <Flash frame={frame} start={revealAt} />
             {answerImage ? (
@@ -160,8 +164,8 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
                 at={revealAt}
                 frame={frame}
                 accent={level.accent}
-                place={{ x: rect.x, y: rect.y }}
-                size={Math.min(rect.h * PICTURE_ASPECT, PICTURE_MAX_WIDTH)}
+                place={{ x: rect.x, y: rect.y + (rect.h - pictureH) / 2 }}
+                size={pictureW}
                 showName={settings.reveal.showName}
               />
             ) : (
@@ -177,7 +181,8 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
               />
             )}
           </>
-        ),
+          );
+        },
       }}
       dots={{
         children: (rect) => (

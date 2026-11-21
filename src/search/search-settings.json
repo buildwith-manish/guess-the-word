@@ -8,7 +8,7 @@
   "hintAt": 0.82,
   "recent": { "visible": 2 },
   "voiceClue": { "typeShare": 0.88, "pauseTicks": 6, "thinkSeconds": 2.5 },
-  "reveal": { "minHoldSeconds": 2.5, "showName": false },
+  "reveal": { "minHoldSeconds": 2.5, "showName": true },
   "bonus": {
     "after": [10, 20, 30],
     "clockSeconds": 9,
