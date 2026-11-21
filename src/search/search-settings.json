@@ -26,6 +26,7 @@
     { "name": "BEGINNER", "min": 15, "accent": "#FBBF24" },
     { "name": "KEEP GOING", "min": 0, "accent": "#FB7185" }
   ],
-  "typing": { "ticksPerChar": 2, "minTicks": 12 },
+  "typing": { "ticksPerChar": 2, "minTicks": 12,
+    "fastestTicksPerChar": 0.75 },
   "nextVideo": { "title": "", "linkText": "" }
 }

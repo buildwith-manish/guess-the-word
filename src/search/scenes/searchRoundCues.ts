@@ -9,7 +9,6 @@
 import type { Cue } from '../../sound';
 import { FPS } from '../../timing';
 import { makeRandom } from '../../util';
-import cfg from '../search-settings.json';
 import { getRound } from '../search-data';
 import { buildRoundPlan } from '../search-timing';
 import { slideEnd } from '../components/SearchBar';
@@ -17,14 +16,9 @@ import { slideEnd } from '../components/SearchBar';
 /** Key-click pitch: playbackRate varies by +/- this fraction per click (seeded, so every render is identical). */
 const CLICK_JITTER = 0.12;
 
-/** Ticks per typed character: the settings value, raised so even a short search takes at least minTicks. */
-export const typeTicksFor = (searches: readonly string[], typing: { ticksPerChar: number; minTicks: number }): number =>
-  Math.max(typing.ticksPerChar, typing.minTicks / Math.max(1, Math.min(...searches.map((s) => s.length))));
-
 export const searchRoundCues = (index: number): Cue[] => {
   const plan = buildRoundPlan(index);
   const round = getRound(index);
-  const typeTicks = typeTicksFor(round.searches, cfg.typing);
   const cues: Cue[] = [];
   const rand = makeRandom(index + 1); // one stream per round, drawn in click order
   const add = (frame: number, sfx: Cue['sfx'], extra: Partial<Cue> = {}) =>
@@ -32,6 +26,7 @@ export const searchRoundCues = (index: number): Cue[] => {
 
   round.searches.forEach((text, i) => {
     const start = plan.searchAt[i];
+    const typeTicks = plan.typeTicks[i]; // this search's own speed, same value the scene uses
     // Key-click on every second typed character. Character k (1-based) appears at start + (k - 1) * typeTicks.
     for (let k = 2; k <= text.length; k += 2) {
       add(start + (k - 1) * typeTicks, 'key-click', { rate: 1 + (rand() * 2 - 1) * CLICK_JITTER });

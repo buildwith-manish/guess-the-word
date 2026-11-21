@@ -42,13 +42,18 @@ const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 const easeOut = (t: number) => 1 - Math.pow(1 - clamp01(t), 3);
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
+/** Ticks per character of search `i`: a single number applies to every search, an array is one value per search
+ *  (a short array repeats its last value). */
+export const typeTicksOf = (typeTicks: number | readonly number[], i: number): number =>
+  typeof typeTicks === 'number' ? typeTicks : typeTicks[Math.min(i, typeTicks.length - 1)];
+
 export type SearchBarProps = {
   /** The searches, in the order they are typed. */
   searches: string[];
   /** Start tick of each search (same length as `searches`). */
   starts: number[];
-  /** Ticks per typed character. */
-  typeTicks: number;
+  /** Ticks per typed character: one number for all searches, or one value per search. */
+  typeTicks: number | readonly number[];
   /** Accent colour (caret, magnifier, bar glow). */
   accent: string;
   /** Bar width in 1280x720 reference units (passed through px()). */
@@ -102,19 +107,20 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   const panelH = headH + n * rowH + barH * 0.2;
 
   // Eased slide progress per search.
+  const tt = (i: number) => typeTicksOf(typeTicks, i);
   const e = searches.map((s, i) =>
-    easeOut((frame - slideStart(starts[i], s.length, typeTicks)) / (SLIDE_CHARS * typeTicks)),
+    easeOut((frame - slideStart(starts[i], s.length, tt(i))) / (SLIDE_CHARS * tt(i))),
   );
 
   // Current search in the bar: the last one that has started and not yet slid away.
   let cur = -1;
   for (let i = 0; i < n; i++) if (frame >= starts[i]) cur = i;
   const barText =
-    cur >= 0 && e[cur] <= 0 ? searches[cur].slice(0, typedCount(frame, starts[cur], searches[cur].length, typeTicks)) : '';
+    cur >= 0 && e[cur] <= 0 ? searches[cur].slice(0, typedCount(frame, starts[cur], searches[cur].length, tt(cur))) : '';
 
   // Caret: solid while typing, blinking otherwise.
-  const typing = cur >= 0 && e[cur] <= 0 && typedCount(frame, starts[cur], searches[cur].length, typeTicks) < searches[cur].length;
-  const blinkOn = Math.floor(frame / (BLINK_CHARS * typeTicks)) % 2 === 0;
+  const typing = cur >= 0 && e[cur] <= 0 && typedCount(frame, starts[cur], searches[cur].length, tt(cur)) < searches[cur].length;
+  const blinkOn = Math.floor(frame / (BLINK_CHARS * tt(Math.max(0, cur)))) % 2 === 0;
   const caretOn = typing || blinkOn;
 
   const barTextX = barPad + icon + gap;

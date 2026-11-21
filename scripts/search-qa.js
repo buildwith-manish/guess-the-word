@@ -59,6 +59,7 @@ const main = async () => {
   const t = await load('src/search/search-timing.ts');
   const d = await load('src/search/search-data.ts');
   const s = await load('src/search/search-sound.ts');
+  const bar = await load('src/search/components/SearchBar.tsx');
   const { TIMELINE, LEVELS, TIME_SCALE, RENDER_TOTAL_FRAMES, locate, buildRoundPlan } = t;
   const { ROUNDS, BONUS } = d;
   const segs = TIMELINE.segments;
@@ -205,6 +206,45 @@ const main = async () => {
       }
     });
     return Object.assign(bad, { note: `window ${GAP}, ${ROUNDS.length} rounds` });
+  });
+
+  // 10. every search finishes typing, holds and slides inside its own slot (task 7a). Slot = gap to the next search's
+  //     start; the last search's slot ends a small margin before the reveal. A clue that does not fit even at
+  //     typing.fastestTicksPerChar FAILS here; the clue text and searchAt are not touched, only reported.
+  check('searches finish typing inside their slot', () => {
+    const fastest = cfg.typing.fastestTicksPerChar;
+    const { searchSlots, searchUnits } = t;
+    const tooLong = [];
+    const eps = 1e-9;
+    let worst = 0;
+    ROUNDS.forEach((r, i) => {
+      const plan = buildRoundPlan(i);
+      const slots = searchSlots(i);
+      r.searches.forEach((text, k) => {
+        const need = searchUnits(text.length) * plan.typeTicks[k]; // ticks used at the speed the plan chose
+        worst = Math.max(worst, need / slots[k]);
+        if (need > slots[k] + eps) {
+          tooLong.push({ id: r.id, clue: k + 1, len: text.length, slot: slots[k], over: need - slots[k], maxLen: Math.floor(slots[k] / fastest) - (searchUnits(0)) });
+        }
+        // typing, hold and slide, from the plan's own start tick, must end before the next start (or the reveal)
+        const end = plan.searchAt[k] + need;
+        const limit = k + 1 < plan.searchAt.length ? plan.searchAt[k + 1] : plan.revealAt;
+        if (end > limit + eps && !tooLong.some((b) => b.id === r.id && b.clue === k + 1)) tooLong.push({ id: r.id, clue: k + 1, len: text.length, slot: slots[k], over: end - limit, maxLen: -1 });
+      });
+    });
+    const problems = [];
+    if (tooLong.length) {
+      problems.push(`${tooLong.length} clues too long at ${fastest} ticks/char: ` + tooLong.map((b) => `R${b.id} clue ${b.clue} (${b.len} chars, slot ${b.slot} ticks, max ${b.maxLen} chars)`).join(', '));
+    }
+    return Object.assign(problems, { note: `${ROUNDS.length * 4} clues, slowest fit ${(worst * 100).toFixed(0)}% of its slot, fastest ${fastest} ticks/char` });
+  });
+
+  // 11. search-timing.ts mirrors the SearchBar constants it cannot import (the component loads fonts)
+  check('timing HOLD/SLIDE match SearchBar', () => {
+    const p = [];
+    if (t.HOLD_CHARS !== bar.HOLD_CHARS) p.push(`HOLD_CHARS timing ${t.HOLD_CHARS} vs SearchBar ${bar.HOLD_CHARS}`);
+    if (t.SLIDE_CHARS !== bar.SLIDE_CHARS) p.push(`SLIDE_CHARS timing ${t.SLIDE_CHARS} vs SearchBar ${bar.SLIDE_CHARS}`);
+    return Object.assign(p, { note: `hold ${bar.HOLD_CHARS}, slide ${bar.SLIDE_CHARS}` });
   });
 
   const w = Math.max(...rows.map((r) => r.name.length));

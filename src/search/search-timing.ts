@@ -76,6 +76,35 @@ const wipeFor = (levelIndex: number): IrisVariant =>
 
 // -------------------------------------------------------------------- plans
 
+/** Hold after a typed search, in characters' worth of ticks. Mirror of HOLD_CHARS in components/SearchBar.tsx
+ *  (taken from settings, which check-search.js ties to HOLD_CHARS). This file must not import the component:
+ *  it pulls in the font loader, and the node scripts bundle this file without it. */
+export const HOLD_CHARS = cfg.bonus.searchHoldChars;
+/** Slide-into-the-list length, in characters' worth of ticks. Mirror of SLIDE_CHARS in components/SearchBar.tsx
+ *  (search-qa.js checks that the two agree). */
+export const SLIDE_CHARS = 8;
+/** Ticks kept free between the end of the last search's slot and the reveal. Existing constant: the beat between timer end and answer flip. */
+const LAST_SLOT_MARGIN = T.answerFlipsAfterTimer;
+
+/** Typed-character units one search needs: its characters, the hold, and the slide. */
+export const searchUnits = (length: number) => length + HOLD_CHARS + SLIDE_CHARS;
+
+/** Ticks per character for a search of `length` characters in a slot of `slot` ticks: the settings speed,
+ *  sped up to fit the slot, never faster than typing.fastestTicksPerChar. The result may still not fit
+ *  (searchUnits(length) * result > slot); search-qa.js reports those. */
+export const fitTypeTicks = (length: number, slot: number) =>
+  Math.max(cfg.typing.fastestTicksPerChar, Math.min(cfg.typing.ticksPerChar, slot / searchUnits(length)));
+
+/** Slot of each search of round `index`, in ticks: the gap to the next search's start; for the last search,
+ *  the gap to the reveal minus LAST_SLOT_MARGIN. */
+export const searchSlots = (index: number): number[] => {
+  const clockStart = T.titleInFrames;
+  const clockFrames = toTicks(LEVELS[levelIndexOfRound(index)].time);
+  const starts = cfg.searchAt.map((f) => clockStart + Math.round(f * clockFrames));
+  const end = clockStart + clockFrames - LAST_SLOT_MARGIN;
+  return ROUNDS[index].searches.map((_, i) => (i + 1 < starts.length ? starts[i + 1] : end) - starts[i]);
+};
+
 /** All offsets are design frames from the start of the round scene (lead frames not removed). */
 export type RoundPlan = {
   index: number;
@@ -87,6 +116,8 @@ export type RoundPlan = {
   clockFrames: number;
   /** start frame of each of the 4 searches (clue 1 hardest ... clue 4 easiest) */
   searchAt: [number, number, number, number];
+  /** ticks per typed character of each search (same order as searchAt), sped up to fit the search's slot */
+  typeTicks: number[];
   hintAt: number;
   /** the answer is revealed (= clockStart + clockFrames) */
   revealAt: number;
@@ -107,6 +138,7 @@ export const buildRoundPlan = (index: number): RoundPlan => {
   const clip = voiceReveal(ROUNDS[index].id);
   const holdFrames = Math.max(toTicks(cfg.reveal.minHoldSeconds), needFor(clip));
   const exitFrames = T.revealExit;
+  const slots = searchSlots(index);
   return {
     index,
     level,
@@ -114,6 +146,7 @@ export const buildRoundPlan = (index: number): RoundPlan => {
     clockStart,
     clockFrames,
     searchAt: cfg.searchAt.map(at) as RoundPlan['searchAt'],
+    typeTicks: ROUNDS[index].searches.map((t, i) => fitTypeTicks(t.length, slots[i])),
     hintAt: at(cfg.hintAt),
     revealAt: clockStart + clockFrames,
     holdFrames,

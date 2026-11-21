@@ -1,7 +1,6 @@
 import React from 'react';
 import { px } from '../../style';
 import { FPS, TIME_SCALE } from '../../timing';
-import cfg from '../search-settings.json';
 import { ROUNDS, getRound } from '../search-data';
 import { LEVELS, buildRoundPlan } from '../search-timing';
 import { SearchStage } from '../components/SearchStage';
@@ -12,7 +11,6 @@ import { AnswerCard } from '../components/AnswerCard';
 import { ProgressDots } from '../components/ProgressDots';
 import { Flash } from '../../Fx';
 import { useDesignFrame } from '../../clock';
-import { typeTicksFor } from './searchRoundCues';
 
 /**
  * One search round (task 3a, skeleton).
@@ -58,7 +56,7 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
   };
 
   const shift = (tick: number) => tick - lead; // plan tick -> scene-local tick
-  const typeTicks = typeTicksFor(round.searches, cfg.typing);
+  const typeTicks = plan.typeTicks; // one value per search, fitted to its slot
   const starts = plan.searchAt.map(shift);
 
   // Stage-in: the bar slides in over the title-in window, plan tick 0 .. plan.clockStart.
