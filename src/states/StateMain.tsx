@@ -13,7 +13,7 @@
  *   endScreen  StateEndScreen       (camera rig)
  *
  * Motion blur and the card camera come from root settings.json (motionBlur, camera.cards), like the word quiz.
- * NO AUDIO here: the cue builders (stateRoundCues, stateBonusCues, ...) are for the soundtrack task.
+ * Audio: StateSoundtrack (task 6b) is mounted next to the scenes; the plan is src/states/state-sound.ts.
  * Time: `useDesignFrame()` = design ticks (30 per second); the composition is RENDER_FPS (60).
  * Not rendered or viewed.
  */
@@ -23,7 +23,6 @@ import { CameraMotionBlur } from '@remotion/motion-blur';
 import { useDesignFrame } from '../clock';
 import { CameraRig } from '../CameraRig';
 import rootSettings from '../../settings.json';
-import settings from './states-settings.json';
 import { BONUS_PUZZLES, TIMELINE, locate } from './state-timing';
 import { StateHook } from './scenes/StateHook';
 import { StateLevelCard } from './scenes/StateLevelCard';
@@ -33,13 +32,8 @@ import { StateReminder } from './scenes/StateReminder';
 import { StateIris, stateIrisOverlap } from './scenes/StateIris';
 import { StateScoreboard } from './scenes/StateScoreboard';
 import { StateEndScreen } from './scenes/StateEndScreen';
-
-/**
- * Whether question `index` (0-based) plays with the title lockup: the first question and the question right after a
- * bonus (state-timing's buildTimeline: `withTitle` starts true and is set again after each bonus). StateRound must be
- * given the same value the timeline used for buildQuestionPlan.
- */
-const questionHasTitle = (index: number): boolean => index === 0 || (settings.bonus.after as number[]).includes(index);
+import { StateSoundtrack } from './StateSoundtrack';
+import { questionHasTitle } from './state-sound';
 
 const Scenes: React.FC = () => {
   const frame = useDesignFrame();
@@ -113,5 +107,10 @@ const Scenes: React.FC = () => {
   }
 };
 
-/** Video 4 composition: scenes only (no audio yet). */
-export const StateMain: React.FC = () => <Scenes />;
+/** Video 4 composition: scenes + the audio plan (src/states/state-sound.ts). */
+export const StateMain: React.FC = () => (
+  <>
+    <Scenes />
+    <StateSoundtrack />
+  </>
+);

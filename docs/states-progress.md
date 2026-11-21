@@ -27,7 +27,7 @@
 - [x] 5a StateScoreboard (map lit, rank table from settings, closing line, voice plan; not wired into Main, not rendered or viewed)
 - [x] 5b StateEndScreen (comment prompt, subscribe prompt, nextVideo line, YouTube slot guides; not wired into Main, not rendered or viewed)
 - [x] 6a StateMain + GuessTheState composition + states:dev / states:still scripts (no audio; not rendered or viewed)
-- [ ] 6b (label to fill from docs/states-prompts-split.md)
+- [x] 6b state-sound.ts + StateSoundtrack.tsx, mounted in StateMain (not listened to)
 - [ ] 6c (label to fill from docs/states-prompts-split.md)
 - [ ] 7a (label to fill from docs/states-prompts-split.md)
 - [ ] 7b (label to fill from docs/states-prompts-split.md)
@@ -48,3 +48,4 @@
 - 5a: StateScoreboard props { frame } (ticks from segment start). Exports stateScoreboardCues(), scoreboardVoicePlan() (clips intro, legend, expert, good, beginner, keepgoing from the manifest, start ticks from segment start), legendLandsAt(), SB. Segment length is still set by state-timing scoreboardFrames() (168 ticks with no clips; rows at 46 + 22k matches it). tsc: no errors in src/states.
 - 5b: StateEndScreen props { frame }. Exports stateEndScreenCues(), endScreenVoice() (outro clip + start tick = root voiceover.offsetFrames), END_SLOTS (YouTube element rects, bottom half, 1280x720 reference px), EB. Segment is root endScreen.frames = 340 ticks (11.3 s), shorter than YouTube's 20 s maximum; it stretches only for the outro clip (state-timing, untouched). nextVideo.title is empty now, so the pointer line is hidden. tsc: no errors in src/states.
 - 6a: src/states/StateMain.tsx switches on locate(TIMELINE.segments, frame). Composition GuessTheState uses RENDER_TOTAL_FRAMES (design ticks x TIME_SCALE = 44038 frames at 60 fps), not TIMELINE.totalFrames (22019 ticks), which would cut the video in half. A question has the title lockup when index is 0 or follows a bonus (settings.bonus.after contains the index), as in buildTimeline. states:timeline unchanged (12:14), states:check 13 pass, tsc: no errors in src/states.
+- 6b: audio plan in src/states/state-sound.ts (STATE_CUES, STATE_VOICE, STATE_MUSIC_ENVELOPES, MUSIC_END, questionHasTitle now exported from there and used by StateMain). Beds by level index: EASY base, MEDIUM base+l1, HARD base+l1+l2 at 0.6, EXPERT all full; bonus all full; music ends at the scoreboard. Added: chime-arp stinger on level cards (rate +0.12 per level), riser on the last second of every clock with a music hush, boom with the stamp. Voice: bonus question clip at offsetFrames into the bonus, answer clip offsetFrames after the clock (word-quiz placement); no timing changed. Manifest is empty, so no voice clip has been exercised. tsc: no errors in src/states.
