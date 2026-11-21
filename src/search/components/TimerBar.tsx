@@ -14,10 +14,10 @@ import '../../fonts';
 
 /** Share of a second the tick pulse lasts, and its strength as a fraction of scale. Motion constants. */
 const PULSE_SHARE = 0.5;
-const PULSE_GAIN = 0.12;
+const PULSE_GAIN = 0;
 /** Last second: one slow breath (scale and glow rise and fall once), gentler than the per-second tick. */
-const LAST_BREATH_SCALE = 0.07;
-const LAST_BREATH_GLOW = 0.9;
+const LAST_BREATH_SCALE = 0;
+const LAST_BREATH_GLOW = 0;
 
 export type TimerBarProps = {
   /** Tick the clock starts. */
@@ -52,10 +52,9 @@ export const TimerBar: React.FC<TimerBarProps> = ({ from, duration, accent, size
   const breathing = running && lastSecond;
   const breath = breathing ? 0.5 - 0.5 * Math.cos(2 * Math.PI * clamp01(1 - left / FPS)) : 0;
   const scale = breathing ? 1 + LAST_BREATH_SCALE * breath : 1 + PULSE_GAIN * pulse;
-  const glow = 1 + LAST_BREATH_GLOW * breath;
 
   const W = px(size);
-  const barH = W * 0.028;
+  const barH = W * 0.016;
   const numW = W * 0.09;
   const gap = W * 0.025;
   const trackW = W - numW - gap;
@@ -71,7 +70,8 @@ export const TimerBar: React.FC<TimerBarProps> = ({ from, duration, accent, size
         display: 'flex',
         alignItems: 'center',
         gap,
-        fontFamily: FONTS.mono,
+        fontFamily: FONTS.body,
+        fontVariantNumeric: 'tabular-nums',
       }}
     >
       <div
@@ -85,7 +85,6 @@ export const TimerBar: React.FC<TimerBarProps> = ({ from, duration, accent, size
           overflow: 'hidden',
           transform: `scaleY(${scale})`,
           // the fill's own glow is clipped by the track, so the last-second breath glows from the track itself
-          boxShadow: breathing ? `0 0 ${barH * 1.6 * breath}px ${color}` : 'none',
         }}
       >
         <div
@@ -94,7 +93,6 @@ export const TimerBar: React.FC<TimerBarProps> = ({ from, duration, accent, size
             height: '100%',
             borderRadius: barH / 2,
             background: color,
-            boxShadow: `0 0 ${barH * 1.2 * glow}px ${color}`,
           }}
         />
       </div>
@@ -103,7 +101,7 @@ export const TimerBar: React.FC<TimerBarProps> = ({ from, duration, accent, size
           width: numW,
           textAlign: 'right',
           fontSize: W * 0.06,
-          fontWeight: 700,
+          fontWeight: 600,
           lineHeight: 1,
           color,
           transform: `scale(${scale})`,

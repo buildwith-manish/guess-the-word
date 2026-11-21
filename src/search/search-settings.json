@@ -7,6 +7,14 @@
   "searchAt": [0.04, 0.26, 0.48, 0.7],
   "hintAt": 0.82,
   "recent": { "visible": 2 },
+  "ui": {
+    "caret": "#0A84FF",
+    "surface": "rgba(255,255,255,0.10)",
+    "surfaceEdge": "rgba(255,255,255,0.16)",
+    "hairline": "rgba(255,255,255,0.12)",
+    "blurPx": 22,
+    "fontWeight": 600
+  },
   "voiceClue": { "typeShare": 0.88, "pauseTicks": 6, "thinkSeconds": 2.5 },
   "reveal": { "minHoldSeconds": 2.5, "showName": true },
   "bonus": {

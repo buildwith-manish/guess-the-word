@@ -2,6 +2,7 @@ import React from 'react';
 import { COLORS, FONTS, glass, px } from '../../style';
 import { useDesignFrame } from '../../clock';
 import { charTick, typedChars } from '../typing';
+import settings from '../search-settings.json';
 import '../../fonts';
 
 /**
@@ -96,15 +97,16 @@ const LABEL = 15; // 30 px
 const HEAD = 14; // 28 px
 const CLUE_LINE_HEIGHT = 1.25;
 /** Typed character: ticks to fade up, ticks the newest character keeps its glow, rise in em. Motion constants. */
-const POP_TICKS = 4;
-const GLOW_TICKS = 9;
-const POP_RISE = 0.22;
+const POP_TICKS = 3;
+const POP_RISE = 0.07; // a small, calm rise; no glow on the newest character
 /** Bar glow when a new search starts: length in ticks and strength. Motion constants. */
 const FOCUS_TICKS = 9;
-const FOCUS_GLOW = 0.22;
+const FOCUS_GLOW = 0; // iOS-style: the bar does not flash when a search starts
 /** Part of the slide in which the big clue crossfades into its small list row. */
 const XFADE_FROM = 0.25;
 const XFADE_SPAN = 0.5;
+
+const UI = settings.ui;
 
 const smooth = (t: number) => {
   const k = clamp01(t);
@@ -131,7 +133,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
   const rowsTop = listTop + headH;
   const n = searches.length;
   const shown = Math.max(1, Math.min(n, recentCount ?? n)); // rows the list can hold
-  const radius = barH * 0.32;
+  const radius = barH * 0.36;
 
   const barTextX = barPad + icon + gap;
   const rowTextX = barPad + rowIcon + gap;
@@ -179,7 +181,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
           width: barFont * 0.09,
           height: '100%',
           borderRadius: barFont * 0.05,
-          background: COLORS.ink,
+          background: UI.caret,
           opacity: caretOpacity,
         }}
       />
@@ -193,7 +195,6 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
       for (let c = 0; c < word.length; c++, idx++) {
         const age = frame - charTick(starts[cur], curText, idx + 1, tt(cur));
         const pop = idx < typed ? easeOut(age / POP_TICKS) : 0;
-        const glow = idx < typed ? 1 - clamp01(age / GLOW_TICKS) : 0;
         if (caretBefore === idx) chars.push(<React.Fragment key={`c${idx}`}>{caretEl}</React.Fragment>);
         chars.push(
           <span
@@ -202,7 +203,6 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
               display: 'inline-block',
               opacity: pop,
               transform: `translateY(${(1 - pop) * POP_RISE * barFont}px)`,
-              textShadow: glow > 0.01 ? `0 0 ${barFont * 0.45 * glow}px rgba(255,255,255,${0.7 * glow})` : undefined,
             }}
           >
             {word[c]}
@@ -224,10 +224,11 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
 
   // Glass surface: frosted, dark-tinted so light text stays readable over the moving background.
   const surface = (r: number, shadowY: number, shadowBlur: number): React.CSSProperties => ({
-    ...(glass(r, 0.09) as React.CSSProperties),
-    background: 'linear-gradient(160deg, rgba(34,40,86,0.62), rgba(10,12,32,0.58))',
-    border: `${px(1.5)}px solid ${COLORS.stroke}`,
-    boxShadow: `0 ${shadowY}px ${shadowBlur}px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2)`,
+    background: UI.surface,
+    borderRadius: r,
+    backdropFilter: `blur(${px(UI.blurPx)}px) saturate(1.4)`,
+    border: `${px(1)}px solid ${UI.surfaceEdge}`,
+    boxShadow: `0 ${shadowY}px ${shadowBlur}px rgba(0,0,0,0.28)`,
     boxSizing: 'border-box',
   });
 
@@ -239,6 +240,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
         top: px(at.y),
         width: W,
         fontFamily: FONTS.body,
+        fontWeight: UI.fontWeight,
         color: COLORS.ink,
       }}
     >
@@ -247,8 +249,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
         style={{
           position: 'relative',
           height: barH,
-          ...surface(radius, 24 * u, 64 * u),
-          boxShadow: `0 ${24 * u}px ${64 * u}px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2), 0 0 ${40 * u * focus}px rgba(255,255,255,${FOCUS_GLOW * focus})`,
+          ...surface(radius, 12 * u, 40 * u),
+          boxShadow: `0 ${12 * u}px ${40 * u}px rgba(0,0,0,0.28), 0 0 ${40 * u * focus}px rgba(255,255,255,${FOCUS_GLOW * focus})`,
         }}
       >
         <div style={{ position: 'absolute', left: barPad, top: (barH - icon) / 2, display: 'flex' }}>
@@ -288,7 +290,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
           width: W,
           height: panelH,
           opacity: panelIn,
-          ...surface(radius * 0.8, 16 * u, 44 * u),
+          ...surface(radius * 0.8, 10 * u, 32 * u),
         }}
       >
         <div
@@ -300,9 +302,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
             display: 'flex',
             alignItems: 'center',
             fontSize: headFont,
+            fontWeight: UI.fontWeight,
             color: COLORS.muted,
-            letterSpacing: headFont * 0.08,
-            textTransform: 'uppercase',
+            letterSpacing: headFont * 0.02,
           }}
         >
           {heading}
@@ -334,6 +336,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
               opacity: clamp01(shown - slot),
             }}
           >
+            {slot > 0 ? (
+              <div style={{ position: 'absolute', left: rowTextX, right: barPad, top: 0, height: px(1), background: UI.hairline, opacity: clamp01(slot) * settled }} />
+            ) : null}
             <div style={{ position: 'absolute', left: barPad, top: (h - rowIcon) / 2, display: 'flex', opacity: settled }}>
               <Clock s={rowIcon} color={COLORS.muted} />
             </div>

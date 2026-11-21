@@ -17,8 +17,6 @@ import { FPS } from '../../timing';
  */
 
 /** Pulse period in seconds and its strength. Motion constants. */
-const PULSE_SECONDS = 1;
-const PULSE_GAIN = 0.35;
 
 /** Layout (reference units). From this many dots up the row is grouped and gets a counter. */
 const GROUP_MIN_TOTAL = 20;
@@ -61,7 +59,6 @@ const groupsOf = (total: number, levelOf: (i: number) => string): Group[] => {
 export const ProgressDots: React.FC<ProgressDotsProps> = ({ index, total, levelOf, at, size }) => {
   const frame = useDesignFrame();
   const W = px(size);
-  const wave = 0.5 + 0.5 * Math.sin((frame / (PULSE_SECONDS * FPS)) * Math.PI * 2);
   const grouped = total >= GROUP_MIN_TOTAL;
 
   const dot = (i: number, d: number) => {
@@ -75,9 +72,8 @@ export const ProgressDots: React.FC<ProgressDotsProps> = ({ index, total, levelO
           height: d,
           borderRadius: '50%',
           background: done || current ? color : COLORS.stroke,
-          opacity: current ? 0.65 + 0.35 * wave : done ? 1 : 0.6,
-          transform: current ? `scale(${1 + PULSE_GAIN * wave})` : undefined,
-          boxShadow: current ? `0 0 ${d * (0.6 + wave)}px ${color}` : undefined,
+          opacity: current || done ? 1 : 0.6,
+          transform: current ? 'scale(1.35)' : undefined,
         }}
       />
     );
@@ -148,7 +144,7 @@ export const ProgressDots: React.FC<ProgressDotsProps> = ({ index, total, levelO
           textAlign: 'right',
           whiteSpace: 'nowrap',
           fontFamily: FONTS.body,
-          fontWeight: 800,
+          fontWeight: 600,
           fontSize: px(COUNTER_FONT),
           fontVariantNumeric: 'tabular-nums',
           letterSpacing: px(1),
