@@ -7,6 +7,7 @@
 import React, { useMemo } from 'react';
 import { useDesignFrame } from '../../clock';
 import { COLORS } from '../../style';
+import { IOS } from '../../ios';
 import { ms } from '../../anim';
 import settingsJson from '../states-settings.json';
 import { STATES, getState } from '../states-data';
@@ -61,7 +62,7 @@ const LOOK = {
   currentStroke: 2.6,
   /** pulse period in ms, and how much stroke width / halo swing */
   pulseMs: 900,
-  pulseSwing: 0.45,
+  pulseSwing: 0,
   halo: [
     { k: 7, a: 0.07 },
     { k: 4, a: 0.12 },
@@ -93,19 +94,19 @@ export const MiniMap: React.FC<MiniMapProps> = ({ answered = [], current, highli
 
       {glowing.map((p) =>
         LOOK.halo.map((h, i) => (
-          <path key={`g-${p.key}-${i}`} d={p.d} fill="none" stroke={COLORS.cyan} strokeOpacity={h.a} strokeWidth={LOOK.edge * h.k} strokeLinejoin="round" strokeLinecap="round" />
+          <path key={`g-${p.key}-${i}`} d={p.d} fill="none" stroke={IOS.color.blue} strokeOpacity={h.a} strokeWidth={LOOK.edge * h.k} strokeLinejoin="round" strokeLinecap="round" />
         )),
       )}
 
       {cur && (
         <>
           {LOOK.halo.map((h, i) => (
-            <path key={`c-${i}`} d={cur.d} fill="none" stroke={COLORS.yellow} strokeOpacity={h.a * (1 + pulse)} strokeWidth={LOOK.edge * h.k} strokeLinejoin="round" strokeLinecap="round" />
+            <path key={`c-${i}`} d={cur.d} fill="none" stroke={IOS.color.label} strokeOpacity={h.a * (1 + pulse)} strokeWidth={LOOK.edge * h.k} strokeLinejoin="round" strokeLinecap="round" />
           ))}
           <path
             d={cur.d}
             fill="none"
-            stroke={COLORS.yellow}
+            stroke={IOS.color.label}
             strokeOpacity={1 - LOOK.pulseSwing * (1 - pulse)}
             strokeWidth={LOOK.currentStroke * (1 + LOOK.pulseSwing * pulse)}
             strokeLinejoin="round"

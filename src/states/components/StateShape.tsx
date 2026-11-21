@@ -37,7 +37,7 @@ const LOOK = {
   /** soft glow: one wide stroke, Gaussian-blurred (width x core, blur sigma x core, opacity) */
   glowWidth: 3,
   glowBlur: 3.2,
-  glowAlpha: 0.7,
+  glowAlpha: 0.28,
   /** gradient: opacity at the top and bottom of the silhouette */
   gradTop: 1,
   gradBottom: 0.35,

@@ -33,8 +33,8 @@ import React from 'react';
 import { AbsoluteFill, Audio, Sequence, staticFile } from 'remotion';
 import { useDesignFrame } from '../../clock';
 import { prog, mix, cssEaseInOut, cssEaseOut } from '../../anim';
-import { COLORS, FONTS, S, SAFE_X, SAFE_Y, glass, px } from '../../style';
-import { Flash } from '../../Fx';
+import { S, SAFE_X, SAFE_Y, px } from '../../style';
+import { IOS, iosSurface, spring } from '../../ios';
 import { Watermark } from '../../Watermark';
 import { HEIGHT, WIDTH, TIME_SCALE, buildQuestionPlan, LEVELS, QUESTIONS } from '../state-timing';
 import type { StateQuestionPlan } from '../state-timing';
@@ -65,29 +65,25 @@ const fill: React.CSSProperties = { position: 'absolute', left: 0, top: 0, right
 const StreakBanner: React.FC<{ f: number; plan: StateQuestionPlan }> = ({ f, plan }) => {
   const at = streakAt(plan);
   if (f < at) return null;
-  const t = prog(f, at, plan.stamp - plan.revealStart, cssEaseOut);
+  const t = spring((f - at) / Math.max(1, plan.stamp - plan.revealStart));
   return (
     <div
       style={{
-        ...glass(px(36)),
+        ...iosSurface(px(30)),
         position: 'absolute',
         left: S.hudLeft,
         bottom: SAFE_Y,
         padding: `${px(14)}px ${px(36)}px`,
-        border: `${px(2)}px solid ${COLORS.yellow}`,
-        opacity: t,
-        transform: `translateY(${(1 - t) * px(40)}px)`,
+        fontFamily: IOS.font,
+        opacity: Math.min(1, t * 1.4),
+        transform: `translateY(${(1 - t) * px(24)}px)`,
       }}
     >
       <div style={{ display: 'flex', alignItems: 'baseline', gap: px(20) }}>
-        <span style={{ fontFamily: FONTS.display, fontSize: px(110), lineHeight: 1, color: COLORS.yellow }}>{plan.id}</span>
-        <span style={{ fontFamily: FONTS.body, fontWeight: 800, fontSize: px(38), letterSpacing: px(4), color: COLORS.ink }}>
-          {settings.streak.label}
-        </span>
+        <span style={{ fontWeight: IOS.weight.bold, fontSize: px(84), lineHeight: 1, color: IOS.color.label }}>{plan.id}</span>
+        <span style={{ fontWeight: IOS.weight.semibold, fontSize: px(34), color: IOS.color.label }}>{settings.streak.label}</span>
       </div>
-      <div style={{ fontFamily: FONTS.body, fontWeight: 800, fontSize: px(28), letterSpacing: px(3), color: COLORS.yellowSoft }}>
-        {settings.streak.cta}
-      </div>
+      <div style={{ fontWeight: IOS.weight.medium, fontSize: px(26), color: IOS.color.secondary }}>{settings.streak.cta}</div>
     </div>
   );
 };
@@ -96,14 +92,12 @@ const StreakBanner: React.FC<{ f: number; plan: StateQuestionPlan }> = ({ f, pla
 const FastBadge: React.FC = () => (
   <div
     style={{
-      ...glass(px(40)),
+      ...iosSurface(px(40), 0.6),
       padding: `${px(10)}px ${px(34)}px`,
-      border: `${px(2)}px solid ${COLORS.yellow}`,
-      fontFamily: FONTS.body,
-      fontWeight: 800,
-      fontSize: px(30),
-      letterSpacing: px(5),
-      color: COLORS.yellow,
+      fontFamily: IOS.font,
+      fontWeight: IOS.weight.semibold,
+      fontSize: px(28),
+      color: IOS.color.label,
       whiteSpace: 'nowrap',
     }}
   >
@@ -259,7 +253,6 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
                   />
                 </div>
               ) : null}
-              <Flash frame={f} start={plan.stamp} />
               {isStreakMilestone(plan.id) ? <StreakBanner f={f} plan={plan} /> : null}
             </>
           ),
