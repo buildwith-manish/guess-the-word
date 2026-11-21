@@ -7,12 +7,14 @@ import { PixelMain } from './pixel/PixelMain';
 import { PIXEL_TOTAL_FRAMES } from './pixel/pixel-timing';
 import { ThumbEasy, ThumbLadder, ThumbZero } from './thumbnails/Thumbnails';
 import { ComponentsSheet } from './states/ComponentsSheet';
+import { StateMain } from './states/StateMain';
 import { StateRoundPreview } from './states/scenes/StateRound';
 import type { StateRoundPreviewProps } from './states/scenes/StateRound';
 import {
   buildQuestionPlan,
   HEIGHT as ST_HEIGHT,
   RENDER_FPS as ST_FPS,
+  RENDER_TOTAL_FRAMES as ST_TOTAL_FRAMES,
   TIME_SCALE as ST_TIME_SCALE,
   WIDTH as ST_WIDTH,
 } from './states/state-timing';
@@ -44,6 +46,8 @@ export const RemotionRoot: React.FC = () => {
         width={WIDTH}
         height={HEIGHT}
       />
+      {/* Video 4 (states): the full video, src/states/StateMain.tsx. Length = TIMELINE.totalFrames design ticks x TIME_SCALE (RENDER_TOTAL_FRAMES). No audio yet */}
+      <Composition id="GuessTheState" component={StateMain} durationInFrames={ST_TOTAL_FRAMES} fps={ST_FPS} width={ST_WIDTH} height={ST_HEIGHT} />
       {/* Video 4 (states): one-frame sheet of every component, real data for four states (src/states/ComponentsSheet.tsx) */}
       <Still id="ST-Components" component={ComponentsSheet} width={WIDTH} height={HEIGHT} />
       {/* Video 4 (states): one round with its sound cues. Prop `index` = 0-based question index (video order); the length follows the plan for that index */}

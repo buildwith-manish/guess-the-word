@@ -32,7 +32,9 @@
     "pixel:draft": "node scripts/voiceover-scan.js && remotion render PixelGuess out/pixel-guess-draft.mp4 --scale=0.5 --concurrency=4",
     "states:geo": "node scripts/build-states-geo.js",
     "states:check": "node scripts/check-states.js",
-    "states:timeline": "node scripts/states-timeline.js"
+    "states:timeline": "node scripts/states-timeline.js",
+    "states:dev": "remotion studio",
+    "states:still": "remotion still GuessTheState out/states-still.png --frame=1000"
   },
   "dependencies": {
     "@react-three/fiber": "^9.3.0",

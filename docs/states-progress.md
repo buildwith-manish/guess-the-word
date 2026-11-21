@@ -26,7 +26,7 @@
 - [x] 4c BonusCapital + BonusNickname (shared scene in BonusCapital.tsx) + StateBonus picker and stateBonusCues (not wired into Main, not rendered or viewed)
 - [x] 5a StateScoreboard (map lit, rank table from settings, closing line, voice plan; not wired into Main, not rendered or viewed)
 - [x] 5b StateEndScreen (comment prompt, subscribe prompt, nextVideo line, YouTube slot guides; not wired into Main, not rendered or viewed)
-- [ ] 6a (label to fill from docs/states-prompts-split.md)
+- [x] 6a StateMain + GuessTheState composition + states:dev / states:still scripts (no audio; not rendered or viewed)
 - [ ] 6b (label to fill from docs/states-prompts-split.md)
 - [ ] 6c (label to fill from docs/states-prompts-split.md)
 - [ ] 7a (label to fill from docs/states-prompts-split.md)
@@ -47,3 +47,4 @@
 - 4c: scene props { frame, puzzle, duration? }; cue builders bonusCapitalCues, bonusNicknameCues, stateBonusCues(puzzle) (ticks from segment start). Shared: BonusShapeScene, shapeBonusTimes, shapeBonusCues in BonusCapital.tsx. tsc: no errors in src/states (same 4 older errors elsewhere). The code commit could not be pushed: the git proxy said the repo is not in this session's authorized set, so 4c is committed locally only.
 - 5a: StateScoreboard props { frame } (ticks from segment start). Exports stateScoreboardCues(), scoreboardVoicePlan() (clips intro, legend, expert, good, beginner, keepgoing from the manifest, start ticks from segment start), legendLandsAt(), SB. Segment length is still set by state-timing scoreboardFrames() (168 ticks with no clips; rows at 46 + 22k matches it). tsc: no errors in src/states.
 - 5b: StateEndScreen props { frame }. Exports stateEndScreenCues(), endScreenVoice() (outro clip + start tick = root voiceover.offsetFrames), END_SLOTS (YouTube element rects, bottom half, 1280x720 reference px), EB. Segment is root endScreen.frames = 340 ticks (11.3 s), shorter than YouTube's 20 s maximum; it stretches only for the outro clip (state-timing, untouched). nextVideo.title is empty now, so the pointer line is hidden. tsc: no errors in src/states.
+- 6a: src/states/StateMain.tsx switches on locate(TIMELINE.segments, frame). Composition GuessTheState uses RENDER_TOTAL_FRAMES (design ticks x TIME_SCALE = 44038 frames at 60 fps), not TIMELINE.totalFrames (22019 ticks), which would cut the video in half. A question has the title lockup when index is 0 or follows a bonus (settings.bonus.after contains the index), as in buildTimeline. states:timeline unchanged (12:14), states:check 13 pass, tsc: no errors in src/states.
