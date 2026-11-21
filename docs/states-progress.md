@@ -25,7 +25,7 @@
 - [x] 4b BonusMissing + BonusBorders (+ shared bonus parts and cues in BonusMissing.tsx; not wired into Main, not rendered or viewed)
 - [x] 4c BonusCapital + BonusNickname (shared scene in BonusCapital.tsx) + StateBonus picker and stateBonusCues (not wired into Main, not rendered or viewed)
 - [x] 5a StateScoreboard (map lit, rank table from settings, closing line, voice plan; not wired into Main, not rendered or viewed)
-- [ ] 5b (label to fill from docs/states-prompts-split.md)
+- [x] 5b StateEndScreen (comment prompt, subscribe prompt, nextVideo line, YouTube slot guides; not wired into Main, not rendered or viewed)
 - [ ] 6a (label to fill from docs/states-prompts-split.md)
 - [ ] 6b (label to fill from docs/states-prompts-split.md)
 - [ ] 6c (label to fill from docs/states-prompts-split.md)
@@ -46,3 +46,4 @@
 - 4b: shared bonus pieces (BonusStage, BonusBanner, BonusBadge, BonusPrompt, BonusMap, BonusOptions, BonusTimer, BonusEraseChip, bonusTimes, bonusCommonCues) are exported from src/states/scenes/bonus/BonusMissing.tsx for the capital / nickname scenes. Scene props: { frame, puzzle: BonusPuzzle, duration? } with puzzle = BONUS_PUZZLES[seg.index]. Cue builders: bonusMissingCues(puzzle), bonusBordersCues(puzzle), ticks from segment start. Bonus voiceover placement is not part of these cues.
 - 4c: scene props { frame, puzzle, duration? }; cue builders bonusCapitalCues, bonusNicknameCues, stateBonusCues(puzzle) (ticks from segment start). Shared: BonusShapeScene, shapeBonusTimes, shapeBonusCues in BonusCapital.tsx. tsc: no errors in src/states (same 4 older errors elsewhere). The code commit could not be pushed: the git proxy said the repo is not in this session's authorized set, so 4c is committed locally only.
 - 5a: StateScoreboard props { frame } (ticks from segment start). Exports stateScoreboardCues(), scoreboardVoicePlan() (clips intro, legend, expert, good, beginner, keepgoing from the manifest, start ticks from segment start), legendLandsAt(), SB. Segment length is still set by state-timing scoreboardFrames() (168 ticks with no clips; rows at 46 + 22k matches it). tsc: no errors in src/states.
+- 5b: StateEndScreen props { frame }. Exports stateEndScreenCues(), endScreenVoice() (outro clip + start tick = root voiceover.offsetFrames), END_SLOTS (YouTube element rects, bottom half, 1280x720 reference px), EB. Segment is root endScreen.frames = 340 ticks (11.3 s), shorter than YouTube's 20 s maximum; it stretches only for the outro clip (state-timing, untouched). nextVideo.title is empty now, so the pointer line is hidden. tsc: no errors in src/states.
