@@ -22,10 +22,10 @@ import { FPS } from '../../timing';
 /** Layout (reference units). From this many dots up the row is grouped and gets a counter. */
 const GROUP_MIN_TOTAL = 20;
 /** Gap between two level groups (reference units). */
-const GROUP_GAP = 14;
+const GROUP_GAP = 30;
 /** Counter text size, gap between the dots and the counter, and its width per character. */
 const COUNTER_FONT = 18;
-const COUNTER_GAP = 16;
+const COUNTER_GAP = 28;
 const COUNTER_CHAR_W = 0.62; // of the font size, tabular figures
 /** Dot diameter as a share of the pitch: plain row, and grouped row (a little larger, dots are tiny at 50). */
 const DOT_SHARE = 0.42;

@@ -56,9 +56,9 @@ const rowY = (f: number) => Y0 + SH * f;
  *  Reveal phase: the answer slot is the whole middle; the other slots fade out. */
 export const SLOTS = {
   hud: { x: X0, y: Y0, w: SW * 0.2, h: SH * 0.07 } as Rect, // x here is the LEFT edge
-  search: { x: colX(0.5), y: rowY(0.1), w: SW * 0.52, h: SH * 0.5 } as Rect,
-  timer: { x: colX(0.5), y: rowY(0.83), w: SW * 0.52, h: SH * 0.07 } as Rect,
-  hint: { x: colX(0.5), y: rowY(0.58), w: SW * 0.34, h: SH * 0.2 } as Rect,
+  search: { x: colX(0.5), y: rowY(0.12), w: SW * 0.52, h: SH * 0.5 } as Rect,
+  timer: { x: colX(0.5), y: rowY(0.87), w: SW * 0.52, h: SH * 0.07 } as Rect,
+  hint: { x: colX(0.5), y: rowY(0.62), w: SW * 0.4, h: SH * 0.24 } as Rect,
   answer: { x: colX(0.5), y: rowY(0.07), w: SW * 0.4, h: SH * 0.84 } as Rect,
   dots: { x: colX(0.5), y: rowY(0.97), w: SW, h: SH * 0.04 } as Rect, // y here is the CENTRE
 };

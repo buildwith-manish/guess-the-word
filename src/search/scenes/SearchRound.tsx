@@ -40,7 +40,7 @@ const SLIDE_IN_DISTANCE = 60;
  *  The answer card is not drawn at all before the reveal. Motion constant. */
 const DIM_SECONDS = 0.25;
 /** The hint pair is about 2.3 emoji wide (HintEmoji spaces them 0.3 apart): size so the pair fits the slot width. */
-const HINT_PAIR_WIDTHS = 2.6;
+const HINT_PAIR_WIDTHS = 2.3;
 
 /** The reveal picture is 3:2 landscape, sized to fit the slot height, but not wider than PICTURE_MAX_WIDTH
  *  (reference units, 1280 wide frame). Layout constants. */
@@ -143,7 +143,7 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
               emoji={round.hint}
               from={shift(plan.hintAt)}
               at={{ x: rect.x, y: rect.y + rect.h / 2 }}
-              size={Math.min(rect.w / HINT_PAIR_WIDTHS, rect.h * 0.9)}
+              size={Math.min(rect.w / HINT_PAIR_WIDTHS, rect.h * 0.92)}
               accent={level.accent}
             />
           </div>

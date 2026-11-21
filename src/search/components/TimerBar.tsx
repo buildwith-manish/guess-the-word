@@ -16,6 +16,8 @@ import '../../fonts';
 /** Share of a second the tick pulse lasts, and its strength as a fraction of scale. Motion constants. */
 const PULSE_SHARE = 0.5;
 const PULSE_GAIN = 0;
+/** The bar and number turn red for this many seconds at the end. */
+const URGENT_SECONDS = 3;
 /** Last second: one slow breath (scale and glow rise and fall once), gentler than the per-second tick. */
 const LAST_BREATH_SCALE = 0;
 const LAST_BREATH_GLOW = 0;
@@ -44,7 +46,10 @@ export const TimerBar: React.FC<TimerBarProps> = ({ from, duration, accent, size
   const progress = duration > 0 ? clamp01(left / duration) : 0;
   const seconds = Math.ceil(left / FPS - 1e-9);
   const lastSecond = left <= FPS;
-  const color = lastSecond ? IOS.color.red : accent;
+  // Quiet by default: level-coloured bar, grey number. Only the last three seconds turn red.
+  const urgent = left <= URGENT_SECONDS * FPS;
+  const color = urgent ? IOS.color.red : accent;
+  const numberColor = urgent ? IOS.color.red : IOS.color.secondary;
 
   // Pulse on every whole second of elapsed time (including the start), until the clock ends.
   const phase = (elapsed % FPS) / FPS;
@@ -55,7 +60,7 @@ export const TimerBar: React.FC<TimerBarProps> = ({ from, duration, accent, size
   const scale = breathing ? 1 + LAST_BREATH_SCALE * breath : 1 + PULSE_GAIN * pulse;
 
   const W = px(size);
-  const barH = W * 0.016;
+  const barH = W * 0.022;
   const numW = W * 0.09;
   const gap = W * 0.025;
   const trackW = W - numW - gap;
@@ -80,7 +85,7 @@ export const TimerBar: React.FC<TimerBarProps> = ({ from, duration, accent, size
           width: trackW,
           height: barH,
           borderRadius: barH / 2,
-          background: IOS.color.fill,
+          background: IOS.color.fillStrong,
           boxSizing: 'border-box',
           overflow: 'hidden',
           transform: `scaleY(${scale})`,
@@ -100,10 +105,10 @@ export const TimerBar: React.FC<TimerBarProps> = ({ from, duration, accent, size
         style={{
           width: numW,
           textAlign: 'right',
-          fontSize: W * 0.06,
+          fontSize: W * 0.05,
           fontWeight: IOS.weight.semibold,
           lineHeight: 1,
-          color,
+          color: numberColor,
           transform: `scale(${scale})`,
           transformOrigin: 'right center',
         }}

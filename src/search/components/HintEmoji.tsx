@@ -61,6 +61,7 @@ export const HintEmoji: React.FC<HintEmojiProps> = ({ emoji, from, at, size }) =
             key={i}
             style={{
               ...iosSurface(S * 0.24, 0.8),
+              background: IOS.color.fillStrong,
               width: S,
               height: S,
               display: 'flex',

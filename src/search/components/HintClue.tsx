@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Img, staticFile } from 'remotion';
 import { px } from '../../style';
-import { iosSurface, spring } from '../../ios';
+import { IOS, iosSurface, spring } from '../../ios';
 import { useDesignFrame } from '../../clock';
 import { FPS } from '../../timing';
 import hintImages from '../hint-images.json';
@@ -97,6 +97,7 @@ export const HintClue: React.FC<HintClueProps> = ({ roundId, emoji, from, at, si
             key={i}
             style={{
               ...iosSurface(radius, 0.8),
+              background: IOS.color.fillStrong, // a touch lighter than the default surface so dark pictures read
               position: 'relative',
               width: S,
               height: S,
