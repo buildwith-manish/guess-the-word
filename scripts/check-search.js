@@ -15,6 +15,7 @@ const mod = { exports: {} };
 new Function("module", "exports", out.outputFiles[0].text)(mod, mod.exports);
 const { ROUNDS, BONUS } = mod.exports;
 
+const EXPECT = { rounds: 50, levels: { EASY: 16, MEDIUM: 17, HARD: 17 }, bonus: 5, after: [10, 20, 30, 40, 50] };
 const results = []; // { name, ok, detail }
 const check = (name, problems) =>
   results.push({ name, ok: problems.length === 0, detail: problems.join("; ") });
@@ -30,7 +31,7 @@ const isOneEmoji = (s) => {
 // 1. rounds count, unique ids and names
 {
   const p = [];
-  if (ROUNDS.length !== 30) p.push(`${ROUNDS.length} rounds, expected 30`);
+  if (ROUNDS.length !== EXPECT.rounds) p.push(`${ROUNDS.length} rounds, expected ${EXPECT.rounds}`);
   const ids = ROUNDS.map((r) => r.id);
   if (new Set(ids).size !== ids.length) p.push("duplicate ids");
   ROUNDS.forEach((r, i) => {
@@ -38,7 +39,7 @@ const isOneEmoji = (s) => {
   });
   const names = ROUNDS.map((r) => r.name.toLowerCase());
   if (new Set(names).size !== names.length) p.push("duplicate names");
-  check("30 rounds, unique ids (1-30 in order) and names", p);
+  check(`${EXPECT.rounds} rounds, unique ids (1-${EXPECT.rounds} in order) and names`, p);
 }
 
 // 2. level counts
@@ -49,8 +50,8 @@ const isOneEmoji = (s) => {
     if (r.level in c) c[r.level]++;
     else p.push(`round ${r.id}: bad level ${r.level}`);
   });
-  for (const k of Object.keys(c)) if (c[k] !== 10) p.push(`${k} = ${c[k]}, expected 10`);
-  check("level counts 10 / 10 / 10", p);
+  for (const k of Object.keys(c)) if (c[k] !== EXPECT.levels[k]) p.push(`${k} = ${c[k]}, expected ${EXPECT.levels[k]}`);
+  check(`level counts ${Object.values(EXPECT.levels).join(" / ")}`, p);
 }
 
 // 3. four searches + 2-emoji hint
@@ -101,7 +102,7 @@ const isOneEmoji = (s) => {
 // 6. bonus puzzles
 {
   const p = [];
-  if (BONUS.length !== 3) p.push(`${BONUS.length} bonus puzzles, expected 3`);
+  if (BONUS.length !== EXPECT.bonus) p.push(`${BONUS.length} bonus puzzles, expected ${EXPECT.bonus}`);
   BONUS.forEach((b, i) => {
     const t = `bonus ${i + 1}`;
     if (!Array.isArray(b.searches) || b.searches.length !== 3) p.push(`${t}: not 3 searches`);
@@ -112,8 +113,8 @@ const isOneEmoji = (s) => {
       p.push(`${t}: options[correctIndex] is not the answer`);
   });
   const after = BONUS.map((b) => b.afterRound).join(",");
-  if (after !== "10,20,30") p.push(`afterRound is ${after}, expected 10,20,30`);
-  check("3 bonus puzzles: 3 searches, 4 unique options, correctIndex = answer", p);
+  if (after !== EXPECT.after.join(",")) p.push(`afterRound is ${after}, expected ${EXPECT.after.join(",")}`);
+  check(`${EXPECT.bonus} bonus puzzles: 3 searches, 4 unique options, correctIndex = answer`, p);
 }
 
 // 7. bonus answer not a round name

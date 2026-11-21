@@ -8,7 +8,7 @@
   "hintAt": 0.82,
   "reveal": { "minHoldSeconds": 2.5 },
   "bonus": {
-    "after": [10, 20, 30],
+    "after": [10, 20, 30, 40, 50],
     "clockSeconds": 9,
     "answerHoldTicks": 75,
     "searchHoldChars": 6,
@@ -20,10 +20,10 @@
   "reminder": { "after": [8, 22], "ticks": 51 },
   "levelCardFrames": 72,
   "ranks": [
-    { "name": "LEGEND", "min": 27, "accent": "#FFC93C" },
-    { "name": "EXPERT", "min": 21, "accent": "#38E1FF" },
-    { "name": "GOOD", "min": 15, "accent": "#34D399" },
-    { "name": "BEGINNER", "min": 9, "accent": "#FBBF24" },
+    { "name": "LEGEND", "min": 45, "accent": "#FFC93C" },
+    { "name": "EXPERT", "min": 35, "accent": "#38E1FF" },
+    { "name": "GOOD", "min": 25, "accent": "#34D399" },
+    { "name": "BEGINNER", "min": 15, "accent": "#FBBF24" },
     { "name": "KEEP GOING", "min": 0, "accent": "#FB7185" }
   ],
   "typing": { "ticksPerChar": 2, "minTicks": 12 },
