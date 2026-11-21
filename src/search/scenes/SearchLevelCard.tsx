@@ -1,9 +1,9 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { FONTS, px } from '../../style';
+import { FONTS, SAFE_X, px } from '../../style';
 import { Background } from '../../Background';
 import { prog, slamIn, revealIn } from '../../anim';
-import { backOut, linear } from '../../gsap-helpers';
+import { expoOut, power2InOut } from '../../gsap-helpers';
 import type { Cue } from '../../sound';
 import cfg from '../search-settings.json';
 import { ROUNDS } from '../search-data';
@@ -21,22 +21,32 @@ import '../../fonts';
  * to a voiceover clip). The card leaves over its last EXIT_TICKS.
  */
 
-/** Motion constants (ticks unless noted). */
-const EXIT_TICKS = 12;
-const EYEBROW_AT = 2;
-const NAME_AT = 12;
-const META_AT = 30;
-const DEMO_AT = 24;
+/**
+ * Motion, shared with the other search overlays (reminder, end screen): entrances ease with expoOut,
+ * exits with power2InOut, and only the hero text (the level name) uses slamIn. Ticks unless noted.
+ * Order of reading inside the card's fixed length: name by about 0.7 s, facts by about 1.1 s,
+ * sample line typed by about 1.9 s, then it leaves over the last EXIT_TICKS.
+ */
+const ENTER_TICKS = 14;
+const EXIT_TICKS = 9;
+const EXIT_SCALE = 0.06;
+const EYEBROW_AT = 0;
+const NAME_AT = 6;
+const META_AT = 20;
+const DEMO_AT = 22;
 /** Leave this many ticks between the end of the typing and the exit. */
 const DEMO_SETTLE_TICKS = 6;
-/** Layout, 1280x720 reference units. */
-const EYEBROW_Y = 70;
-const NAME_Y = 100;
+/** Layout, 1280x720 reference units. One stack, centred a little above the middle; sides keep SAFE_X. */
+const STACK_TOP = 150;
+const EYEBROW_Y = STACK_TOP;
+const NAME_Y = STACK_TOP + 30;
 const NAME_FONT = 150;
-const META_Y = 275;
-const RULE_Y = 335;
+const META_Y = STACK_TOP + 205;
+const RULE_Y = STACK_TOP + 265;
 const DEMO_W = 300;
-const DEMO_TOP = 365;
+const DEMO_TOP = STACK_TOP + 295;
+/** Quiet text on the card: labels sit below the numbers they describe. */
+const LABEL_OPACITY = 0.7;
 
 const defaultDuration = (levelIndex: number) =>
   TIMELINE.segments.find((s) => s.kind === 'levelCard' && s.levelIndex === levelIndex)?.duration ?? cfg.levelCardFrames;
@@ -69,20 +79,20 @@ export const SearchLevelCard: React.FC<{ frame: number; levelIndex: number; dura
 }) => {
   const p = levelCardPlan(levelIndex, duration);
   const { level } = p;
-  const exitP = prog(frame, p.duration - EXIT_TICKS, EXIT_TICKS, linear);
+  const exitP = prog(frame, p.duration - EXIT_TICKS, EXIT_TICKS, power2InOut);
 
-  const eyebrow = revealIn(frame, EYEBROW_AT, 14, 18);
-  const title = slamIn(frame, NAME_AT, 16);
-  const meta = revealIn(frame, META_AT, 16, 22);
-  const pop = prog(frame, 10, 18, backOut);
-  const demoIn = prog(frame, p.demoAt - 8, 8, linear);
+  const eyebrow = revealIn(frame, EYEBROW_AT, ENTER_TICKS, 18);
+  const title = slamIn(frame, NAME_AT, ENTER_TICKS + 2);
+  const meta = revealIn(frame, META_AT, ENTER_TICKS, 22);
+  const pop = prog(frame, NAME_AT + 4, ENTER_TICKS + 4, expoOut);
+  const demoIn = prog(frame, p.demoAt - 8, 8, expoOut);
 
-  const abs = (top: number): React.CSSProperties => ({ position: 'absolute', left: 0, width: '100%', top: px(top), textAlign: 'center' });
+  const abs = (top: number): React.CSSProperties => ({ position: 'absolute', left: SAFE_X, right: SAFE_X, top: px(top), textAlign: 'center' });
 
   return (
     <AbsoluteFill>
       <Background frame={frame} theme={level.theme} energy={0} />
-      <AbsoluteFill style={{ opacity: 1 - exitP, transform: `scale(${1 - 0.06 * exitP})` }}>
+      <AbsoluteFill style={{ opacity: 1 - exitP, transform: `scale(${1 - EXIT_SCALE * exitP})` }}>
         <div
           style={{
             ...abs(EYEBROW_Y),
@@ -107,7 +117,7 @@ export const SearchLevelCard: React.FC<{ frame: number; levelIndex: number; dura
             color: level.accent,
             opacity: title.opacity,
             transform: title.transform,
-            filter: `${title.filter} drop-shadow(0 ${px(10)}px ${px(40)}px ${level.accent}66)`,
+            filter: `${title.filter} drop-shadow(0 ${px(10)}px ${px(40)}px ${level.accent}40)`,
           }}
         >
           {level.name}
@@ -119,12 +129,15 @@ export const SearchLevelCard: React.FC<{ frame: number; levelIndex: number; dura
             fontSize: px(46),
             letterSpacing: px(3),
             color: '#fff',
+            whiteSpace: 'pre',
             opacity: meta.opacity,
             transform: meta.transform,
           }}
         >
-          <b style={{ color: level.accent, fontWeight: 400 }}>{p.count}</b> CHARACTERS ·{' '}
-          <b style={{ color: level.accent, fontWeight: 400 }}>{level.time}</b> SECONDS EACH
+          <span>{p.count}</span>
+          <span style={{ opacity: LABEL_OPACITY }}> CHARACTERS · </span>
+          <span>{level.time}</span>
+          <span style={{ opacity: LABEL_OPACITY }}> SECONDS EACH</span>
         </div>
         <div
           style={{
@@ -135,7 +148,7 @@ export const SearchLevelCard: React.FC<{ frame: number; levelIndex: number; dura
             height: px(4),
             width: px(560) * pop,
             borderRadius: px(4),
-            background: `linear-gradient(90deg, transparent, ${level.accent}, transparent)`,
+            background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent)',
           }}
         />
         <div style={{ position: 'absolute', inset: 0, opacity: demoIn }}>

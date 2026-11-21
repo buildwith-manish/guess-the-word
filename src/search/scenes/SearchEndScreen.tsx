@@ -1,8 +1,8 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { COLORS, FONTS, px, glass, K } from '../../style';
+import { COLORS, FONTS, SAFE_X, SAFE_Y, SCALE, px, glass, K } from '../../style';
 import { prog, slamIn, revealIn } from '../../anim';
-import { elasticOut } from '../../gsap-helpers';
+import { expoOut } from '../../gsap-helpers';
 import { Background } from '../../Background';
 import { Confetti } from '../../Fx';
 import rootSettings from '../../../settings.json';
@@ -37,13 +37,21 @@ const hasPointer = NEXT.title.trim() !== '' || NEXT.linkText.trim() !== '';
 const ACCENT = RANKS[0].accent;
 const THEME = BONUS_THEME;
 
-/** Layout of the top-half copy, 1280x720 reference units (top edge of each block). */
-const LINE1_TOP = 60;
-const LINE2_TOP = 168;
-const SUBSCRIBE_TOP = 244;
+/**
+ * Layout of the top-half copy, 1280x720 reference units. One column that keeps SAFE_X at the sides and
+ * starts SAFE_Y + 24 from the top; the gaps are the same as before (24 and 30). It ends above y 300, well
+ * clear of the pointer (y 336) and the slot frames (y 400).
+ * Hierarchy: score line (largest, white) > character line (white, quieter) > subscribe pill (the one accent fill).
+ * The accent is used for the pill and the slot frames only.
+ */
+const COPY_TOP = SAFE_Y / SCALE + 24; // 60 reference units
+const GAP_LINE1_LINE2 = 24;
+const GAP_LINE2_SUBSCRIBE = 30;
 const POINTER_TOP = 336;
-/** Confetti seed, piece count and origin. Motion constants. */
-const CONFETTI = { seed: 2024, count: 30, origin: { x: 640, y: 150 } };
+/** Motion: entrances use expoOut (the same family as the level card and the reminder). */
+const SLOT_TICKS = 18;
+/** Confetti seed, piece count and origin. Fewer pieces than before so the copy stays clear. */
+const CONFETTI = { seed: 2024, count: 18, origin: { x: 640, y: 150 } };
 
 const box = (r: SlotRect): React.CSSProperties => ({
   position: 'absolute',
@@ -55,17 +63,17 @@ const box = (r: SlotRect): React.CSSProperties => ({
 
 export const SearchEndScreen: React.FC<{ frame: number }> = ({ frame }) => {
   const l1 = slamIn(frame, LINE1_AT, 16);
-  const l2 = revealIn(frame, LINE2_AT, 15, 24);
-  const sub = revealIn(frame, SUBSCRIBE_AT, 15, 24);
-  const slots = prog(frame, SLOTS_AT, 22, elasticOut);
-  const pointer = revealIn(frame, POINTER_AT, 14, 18);
+  const l2 = revealIn(frame, LINE2_AT, 14, 24);
+  const sub = revealIn(frame, SUBSCRIBE_AT, 14, 24);
+  const slots = prog(frame, SLOTS_AT, SLOT_TICKS, expoOut);
+  const pointer = revealIn(frame, POINTER_AT, 14, 24);
   const pulse = 0.5 + 0.5 * Math.sin((frame - SLOTS_AT) / 12);
 
   const slotStyle = (r: SlotRect, radius: number): React.CSSProperties => ({
     ...box(r),
     ...glass(radius, 0.06),
     border: `${px(3)}px solid ${ACCENT}`,
-    boxShadow: `0 0 ${px(40 + 30 * pulse)}px ${ACCENT}77`,
+    boxShadow: `0 0 ${px(28 + 14 * pulse)}px ${ACCENT}55`,
     opacity: Math.min(1, slots * 1.2),
     transform: `translateY(${(1 - slots) * 60 * K}px) scale(${0.7 + 0.3 * slots})`,
   });
@@ -74,49 +82,53 @@ export const SearchEndScreen: React.FC<{ frame: number }> = ({ frame }) => {
     <AbsoluteFill>
       <Background frame={frame} theme={THEME} />
 
-      {/* comment prompt */}
+      {/* top copy: one centred column inside the safe margins */}
       <div
         style={{
           position: 'absolute',
-          left: 0,
-          right: 0,
-          top: px(LINE1_TOP),
+          left: SAFE_X,
+          right: SAFE_X,
+          top: px(COPY_TOP),
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
           textAlign: 'center',
-          fontFamily: FONTS.display,
-          fontSize: px(80),
-          lineHeight: 1.05,
-          letterSpacing: px(3),
-          color: COLORS.ink,
-          opacity: l1.opacity,
-          transform: l1.transform,
-          filter: l1.filter,
         }}
       >
-        {SCORE_LINE}
-      </div>
-      <div
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          top: px(LINE2_TOP),
-          textAlign: 'center',
-          fontFamily: FONTS.body,
-          fontWeight: 800,
-          fontSize: px(38),
-          letterSpacing: px(2),
-          color: ACCENT,
-          opacity: l2.opacity,
-          transform: l2.transform,
-        }}
-      >
-        {CHARACTER_LINE}
-      </div>
-
-      {/* subscribe prompt */}
-      <div style={{ position: 'absolute', left: 0, right: 0, top: px(SUBSCRIBE_TOP), display: 'flex', justifyContent: 'center' }}>
+        {/* comment prompt */}
         <div
           style={{
+            fontFamily: FONTS.display,
+            fontSize: px(80),
+            lineHeight: 1.05,
+            letterSpacing: px(3),
+            color: COLORS.ink,
+            opacity: l1.opacity,
+            transform: l1.transform,
+            filter: l1.filter,
+          }}
+        >
+          {SCORE_LINE}
+        </div>
+        <div
+          style={{
+            marginTop: px(GAP_LINE1_LINE2),
+            fontFamily: FONTS.body,
+            fontWeight: 800,
+            fontSize: px(38),
+            letterSpacing: px(2),
+            color: 'rgba(255,255,255,0.88)',
+            opacity: l2.opacity,
+            transform: l2.transform,
+          }}
+        >
+          {CHARACTER_LINE}
+        </div>
+
+        {/* subscribe prompt: the one accent fill */}
+        <div
+          style={{
+            marginTop: px(GAP_LINE2_SUBSCRIBE),
             padding: `${px(12)}px ${px(30)}px`,
             borderRadius: px(40),
             background: ACCENT,
@@ -146,7 +158,7 @@ export const SearchEndScreen: React.FC<{ frame: number }> = ({ frame }) => {
             transform: pointer.transform,
           }}
         >
-          <div style={{ fontFamily: FONTS.display, fontSize: px(28), letterSpacing: px(6), color: ACCENT }}>{E.nextLabel}</div>
+          <div style={{ fontFamily: FONTS.display, fontSize: px(28), letterSpacing: px(6), color: COLORS.ink }}>{E.nextLabel}</div>
           {NEXT.title.trim() !== '' ? (
             <div style={{ fontFamily: FONTS.body, fontWeight: 800, fontSize: px(20), letterSpacing: px(2), color: COLORS.ink, marginTop: px(4) }}>{NEXT.title}</div>
           ) : null}

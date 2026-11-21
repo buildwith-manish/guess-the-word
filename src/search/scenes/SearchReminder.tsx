@@ -1,8 +1,8 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { COLORS, FONTS, K, glass, px } from '../../style';
-import { prog, htmlEase, mix } from '../../anim';
-import { linear } from '../../gsap-helpers';
+import { COLORS, FONTS, K, SAFE_X, glass, px } from '../../style';
+import { prog, mix } from '../../anim';
+import { expoOut, power2InOut } from '../../gsap-helpers';
 import { FPS } from '../../timing';
 import type { Cue } from '../../sound';
 import type { Segment } from '../types';
@@ -20,7 +20,9 @@ type ReminderSegment = Extract<Segment, { kind: 'reminder' }>;
  * The pill text is a constant here: search-settings.json has no key for it, and it names no brand.
  */
 const TEXT = '🔔 Enjoying this? Subscribe';
-const IN_SECONDS = 0.35;
+/** Same entrance and exit as the level card: expoOut in over ENTER_TICKS, power2InOut out over OUT_SECONDS. */
+const ENTER_TICKS = 14;
+const EXIT_SCALE = 0.06;
 const OUT_SECONDS = 0.3;
 const OUT_REST_SECONDS = 0.3;
 /** Pill geometry in reference units (GTW's). */
@@ -34,8 +36,8 @@ const outStart = (duration: number) => duration - (OUT_SECONDS + OUT_REST_SECOND
 export const searchReminderCues = (): Cue[] => [{ frame: 0, sfx: 'remind' }];
 
 export const SearchReminder: React.FC<{ frame: number; seg: ReminderSegment }> = ({ frame, seg }) => {
-  const inP = prog(frame, 0, Math.round(IN_SECONDS * FPS), htmlEase);
-  const outP = prog(frame, outStart(seg.duration), Math.round(OUT_SECONDS * FPS), linear);
+  const inP = prog(frame, 0, ENTER_TICKS, expoOut);
+  const outP = prog(frame, outStart(seg.duration), Math.round(OUT_SECONDS * FPS), power2InOut);
   const opacity = inP * (1 - outP);
   const accent = LEVELS.find((l) => l.name === seg.hud.label)?.accent ?? COLORS.red;
 
@@ -48,6 +50,8 @@ export const SearchReminder: React.FC<{ frame: number; seg: ReminderSegment }> =
           left: '50%',
           top: px(PILL_TOP),
           width: px(PILL_W),
+          maxWidth: `calc(100% - ${2 * SAFE_X}px)`,
+          transformOrigin: '50% 50%',
           marginLeft: -px(PILL_W / 2),
           textAlign: 'center',
           padding: `${px(16)}px 0`,
@@ -59,9 +63,9 @@ export const SearchReminder: React.FC<{ frame: number; seg: ReminderSegment }> =
           letterSpacing: px(2),
           color: COLORS.ink,
           whiteSpace: 'nowrap',
-          boxShadow: `0 ${px(14)}px ${px(40)}px rgba(0,0,0,0.55), 0 0 ${px(40)}px ${accent}59`,
+          boxShadow: `0 ${px(14)}px ${px(40)}px rgba(0,0,0,0.55), 0 0 ${px(40)}px ${accent}40`,
           opacity,
-          transform: `translate3d(0, ${mix(20 * K, 0, inP)}px, 0) scale(${mix(0.9, 1, inP)})`,
+          transform: `translate3d(0, ${mix(20 * K, 0, inP)}px, 0) scale(${mix(0.9, 1, inP) * (1 - EXIT_SCALE * outP)})`,
         }}
       >
         {TEXT}

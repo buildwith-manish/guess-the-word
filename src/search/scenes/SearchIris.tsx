@@ -78,30 +78,28 @@ export const SearchIris: React.FC<{ frame: number; seg: IrisSegment; next?: { in
 
       {/* HUD pill, same look and place as SearchStage's. It shows the OLD round; the incoming round's
           own pill covers it as the wipe reaches it. */}
-      {(
-        <div
-          style={{
-            position: 'absolute',
-            left: px(pill.x),
-            top: px(pill.y),
-            height: H,
-            padding: `0 ${H * 0.5}px`,
-            display: 'flex',
-            alignItems: 'center',
-            gap: H * 0.3,
-            fontFamily: FONTS.display,
-            fontSize: H * 0.55,
-            letterSpacing: H * 0.05,
-            whiteSpace: 'pre',
-            ...glass(H / 2),
-          }}
-        >
-          <span style={{ color: accent }}>{seg.hud.label}</span>
-          <span style={{ color: COLORS.ink }}>
-            {seg.hud.number}/{seg.hud.total}
-          </span>
-        </div>
-      )}
+      <div
+        style={{
+          position: 'absolute',
+          left: px(pill.x),
+          top: px(pill.y),
+          height: H,
+          padding: `0 ${H * 0.5}px`,
+          display: 'flex',
+          alignItems: 'center',
+          gap: H * 0.3,
+          fontFamily: FONTS.display,
+          fontSize: H * 0.55,
+          letterSpacing: H * 0.05,
+          whiteSpace: 'pre',
+          ...glass(H / 2),
+        }}
+      >
+        <span style={{ color: accent }}>{seg.hud.label}</span>
+        <span style={{ color: COLORS.ink }}>
+          {seg.hud.number}/{seg.hud.total}
+        </span>
+      </div>
 
       {next && planTick >= 0 ? (
         <AbsoluteFill style={{ clipPath: wipeClip(seg.variant ?? 'circle', p) }}>
