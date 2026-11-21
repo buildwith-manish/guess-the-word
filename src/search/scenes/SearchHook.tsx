@@ -2,7 +2,9 @@ import React from 'react';
 import { COLORS, FONTS, glass, px } from '../../style';
 import { prog, htmlEase, clamp01 } from '../../anim';
 import { Background } from '../../Background';
+import { Flash } from '../../Fx';
 import type { Cue } from '../../sound';
+import { makeRandom } from '../../util';
 import cfg from '../search-settings.json';
 import { ROUNDS } from '../search-data';
 import { LEVELS, TIMELINE, themeForRound } from '../search-timing';
@@ -11,9 +13,10 @@ import { SearchTitleLockup } from '../components/SearchTitleLockup';
 import '../../fonts';
 
 /**
- * Hook of the search video (task 3c): a short silence, a sample search bar types the first three
- * searches of round 1, the headline glitches in, then the title lockup and a rules line.
- * Round 1's answer is never read here.
+ * Hook of the search video (task 3c, polished in 7f): the headline and the sample search bar are on
+ * screen from the first tick and typing starts at once (round 1's first three searches). The headline
+ * takes a glitch hit on a music beat (tick GLITCH_HIT_TICKS), then settles and stays clear while the
+ * bar keeps typing. Then the title lockup and a rules line. Round 1's answer is never read here.
  *
  * Length: the scene lasts `duration` ticks (default: the hook segment of the timeline, which
  * search-timing.ts already stretches to a voiceover intro clip). Every phase is a share of it,
@@ -31,7 +34,7 @@ const TEXT = {
 };
 
 /** Phase shares of the scene length (they sum to 1; the rules line sits inside the lockup share). Motion constants. */
-const SHARE = { silence: 0.05, typing: 0.45, glitch: 0.13, lockup: 0.37 };
+const SHARE = { typing: 0.5, settle: 0.13, lockup: 0.37 };
 /** Where inside the lockup share the rules line starts. */
 const RULES_IN_LOCKUP = 0.7;
 /** How many of round 1's searches the sample bar types. */
@@ -39,16 +42,32 @@ const SAMPLE_SEARCHES = 3;
 
 /** Layout, 1280x720 reference units. Motion constants. */
 const BAR_SIZE = 560;
-const BAR_TOP = 110;
-const HEADLINE_Y = 330;
+const BAR_TOP = 150;
+const HEADLINE_Y = 40;
 const HEADLINE_FONT = 58;
 const LOCKUP_TOP = 215;
 const LOCKUP_SCALE = 1.6;
 const RULES_Y = 450;
-const BAR_DIM_TO = 0.18;
-const BAR_DIM_SECONDS = 0.3;
 const FADE_OUT_SECONDS = 0.3;
-const FADE_IN_SECONDS = 0.3;
+
+/**
+ * The glitch hit lands on a music beat. The music loop is 256 ticks = 16 beats (112.5 BPM, see
+ * scripts/generate-audio.js), so one beat is 16 ticks (0.53 s). This assumes the hook starts on the
+ * music's first beat, which was not checked against the soundtrack. Motion constant.
+ */
+const BEAT_TICKS = 16;
+const GLITCH_HIT_TICKS = BEAT_TICKS;
+/** The headline fades in over these ticks, so it is clear from the first frames. Motion constant. */
+const HEADLINE_ENTER_TICKS = 2;
+/** On the hit the headline punches in (scale 1 + KICK, back to 1) and a soft flash fires. Motion constants. */
+const HIT_KICK = 0.05;
+const HIT_KICK_TICKS = 6;
+const HIT_FLASH_MS = 360;
+const HIT_FLASH_PEAK = 0.3;
+/** Key-click pitch: playbackRate varies by +/- this fraction per click (same value as searchRoundCues.ts). */
+const CLICK_JITTER = 0.12;
+/** Seed of the hook's click stream. The rounds use 1..N, so 1000 keeps the streams apart. */
+const CLICK_SEED = 1000;
 
 /** Glitch burst. Motion constants. */
 const GLITCH_BURST_SECONDS = 0.45;
@@ -69,7 +88,7 @@ const defaultDuration = () => TIMELINE.segments.find((s) => s.kind === 'hook')?.
 /** All phase ticks of the hook, scene-local. Shared by the scene and its cues. */
 export const hookPlan = (duration: number = defaultDuration()) => {
   const searches = ROUNDS[0].searches.slice(0, SAMPLE_SEARCHES);
-  const typeStart = duration * SHARE.silence;
+  const typeStart = 0; // typing is visible from the first tick
   const window = duration * SHARE.typing;
   const units = searches.reduce((n, s) => n + s.length + HOLD_CHARS, 0) + SLIDE_CHARS;
   const typeTicks = Math.min(cfg.typing.ticksPerChar, window / units);
@@ -80,8 +99,8 @@ export const hookPlan = (duration: number = defaultDuration()) => {
     starts.push(at);
     at += (s.length + HOLD_CHARS) * typeTicks;
   });
-  const glitchAt = typeStart + units * typeTicks;
-  const lockupAt = duration * (SHARE.silence + SHARE.typing + SHARE.glitch);
+  const lockupAt = duration * (SHARE.typing + SHARE.settle);
+  const glitchAt = Math.min(GLITCH_HIT_TICKS, lockupAt); // on the first beat, while the bar is still typing
   const rulesAt = lockupAt + duration * SHARE.lockup * RULES_IN_LOCKUP;
   return { duration, searches, typeStart, typeTicks, starts, glitchAt, lockupAt, rulesAt };
 };
@@ -90,13 +109,13 @@ export const hookPlan = (duration: number = defaultDuration()) => {
 export const searchHookCues = (duration: number = defaultDuration()): Cue[] => {
   const p = hookPlan(duration);
   const cues: Cue[] = [];
+  const rand = makeRandom(CLICK_SEED); // one stream, drawn in click order, so every render is identical
   const add = (frame: number, sfx: Cue['sfx'], extra: Partial<Cue> = {}) =>
     cues.push({ frame: Math.round(frame), sfx, ...extra });
 
   p.searches.forEach((text, i) => {
     for (let k = 2; k <= text.length; k += 2) {
-      // TODO(6b): 'tick' stands in for a key-click; task 6b creates the real sound.
-      add(p.starts[i] + (k - 1) * p.typeTicks, 'tick', { volume: 0.6, rate: 1.6 });
+      add(p.starts[i] + (k - 1) * p.typeTicks, 'key-click', { rate: 1 + (rand() * 2 - 1) * CLICK_JITTER });
     }
     // TODO(6b): 'pop' stands in for the soft "send".
     add(slideEnd(p.starts[i], text.length, p.typeTicks), 'pop', { volume: 0.7 });
@@ -110,19 +129,21 @@ export const searchHookCues = (duration: number = defaultDuration()): Cue[] => {
 
 // ------------------------------------------------------------------ glitch
 
-const GlitchHeadline: React.FC<{ frame: number; from: number; text: string; accent: string }> = ({
+const GlitchHeadline: React.FC<{ frame: number; hitAt: number; text: string; accent: string }> = ({
   frame,
-  from,
+  hitAt,
   text,
   accent,
 }) => {
-  const f = frame - from;
-  if (f < 0) return null;
-  const burst = clamp01(f / (GLITCH_BURST_SECONDS * FPS_DESIGN)); // 0..1 over the burst
-  const step = Math.floor(f / GLITCH_STEP_TICKS);
-  const amp = px(GLITCH_SHIFT) * (1 - burst);
-  const flicker = burst < 1 && hash(step * 5.3) < 0.28 * (1 - burst) * 2 ? 0.15 : 1;
-  const jitter = burst < 1 ? (hash(step * 2.1) - 0.5) * 2 * amp * 0.4 : 0;
+  // Clear from the first ticks; the glitch is a burst that starts at hitAt and settles back to the clean text.
+  const t = frame - hitAt;
+  const burst = clamp01(t / (GLITCH_BURST_SECONDS * FPS_DESIGN)); // 0..1 over the burst
+  const active = t >= 0 && burst < 1;
+  const step = Math.floor(Math.max(0, t) / GLITCH_STEP_TICKS);
+  const amp = active ? px(GLITCH_SHIFT) * (1 - burst) : 0;
+  const flicker = active && hash(step * 5.3) < 0.28 * (1 - burst) * 2 ? 0.15 : 1;
+  const jitter = active ? (hash(step * 2.1) - 0.5) * 2 * amp * 0.4 : 0;
+  const kick = t >= 0 ? 1 - prog(frame, hitAt, HIT_KICK_TICKS, htmlEase) : 0;
   const band = (seed: number) => {
     const top = hash(seed) * (1 - GLITCH_BAND);
     return `inset(${top * 100}% 0 ${(1 - top - GLITCH_BAND) * 100}% 0)`;
@@ -133,7 +154,7 @@ const GlitchHeadline: React.FC<{ frame: number; from: number; text: string; acce
     color,
     transform: `translateX(${sign * amp * (0.4 + hash(seed))}px)`,
     clipPath: band(seed + 1),
-    opacity: burst < 1 ? 0.9 : 0,
+    opacity: active ? 0.9 : 0,
   });
   const style: React.CSSProperties = {
     fontFamily: FONTS.display,
@@ -143,7 +164,7 @@ const GlitchHeadline: React.FC<{ frame: number; from: number; text: string; acce
     whiteSpace: 'pre',
     lineHeight: 1.1,
   };
-  const enter = prog(f, 0, 3, htmlEase);
+  const enter = prog(frame, 0, HEADLINE_ENTER_TICKS, htmlEase);
 
   return (
     <div
@@ -157,7 +178,7 @@ const GlitchHeadline: React.FC<{ frame: number; from: number; text: string; acce
         opacity: enter,
       }}
     >
-      <div style={{ position: 'relative', opacity: flicker, transform: `translateX(${jitter}px)` }}>
+      <div style={{ position: 'relative', opacity: flicker, transform: `translateX(${jitter}px) scale(${1 + HIT_KICK * kick})` }}>
         <div style={{ ...style, color: COLORS.ink, textShadow: `0 0 ${px(24)}px ${accent}` }}>{text}</div>
         <div style={{ ...style, ...layer(accent, step * 3.7, -1) }}>{text}</div>
         <div style={{ ...style, ...layer(COLORS.red, step * 7.9, 1) }}>{text}</div>
@@ -173,12 +194,9 @@ export const SearchHook: React.FC<{ frame: number; duration?: number }> = ({ fra
   const round = ROUNDS[0];
   const level = LEVELS.find((l) => l.name === round.level) ?? LEVELS[0];
 
-  // The bar fades in during the silence, dims under the headline, then everything old leaves for the lockup.
-  const barIn = prog(frame, 0, p.typeStart || 1, htmlEase);
-  const dim = prog(frame, p.glitchAt, FADE_IN_SECONDS * FPS_DESIGN, htmlEase);
+  // The headline and the bar are there from tick 0; both leave together when the lockup starts.
   const gone = prog(frame, p.lockupAt, FADE_OUT_SECONDS * FPS_DESIGN);
-  const oldOpacity = (1 - gone) ;
-  const barOpacity = barIn * (1 - (1 - BAR_DIM_TO) * dim) * oldOpacity;
+  const oldOpacity = 1 - gone;
 
   const rules = [
     { n: round.searches.length, label: TEXT.searchesLabel },
@@ -190,7 +208,7 @@ export const SearchHook: React.FC<{ frame: number; duration?: number }> = ({ fra
     <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
       <Background frame={frame} theme={themeForRound(0)} />
 
-      <div style={{ position: 'absolute', inset: 0, opacity: barOpacity }}>
+      <div style={{ position: 'absolute', inset: 0, opacity: oldOpacity }}>
         <SearchBar
           searches={[...p.searches]}
           starts={p.starts}
@@ -202,8 +220,10 @@ export const SearchHook: React.FC<{ frame: number; duration?: number }> = ({ fra
       </div>
 
       <div style={{ position: 'absolute', inset: 0, opacity: oldOpacity }}>
-        <GlitchHeadline frame={frame} from={p.glitchAt} text={TEXT.headline} accent={level.accent} />
+        <GlitchHeadline frame={frame} hitAt={p.glitchAt} text={TEXT.headline} accent={level.accent} />
       </div>
+
+      <Flash frame={frame} start={p.glitchAt} ms={HIT_FLASH_MS} peak={HIT_FLASH_PEAK} />
 
       <SearchTitleLockup frame={frame} from={p.lockupAt} title={TEXT.title} subtitle={TEXT.subtitle} top={LOCKUP_TOP} scale={LOCKUP_SCALE} />
 
