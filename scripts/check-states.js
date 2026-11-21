@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * scripts/check-states.js  (npm run states:check)
- * Validates src/states/states-data.ts against src/states/states-geo.json.
+ * Validates src/states/states-data.ts against src/states/states-geo.json, and the bonus puzzles
+ * built by src/states/bonus-engine.ts against the same data.
  * Prints a table, exits 1 on any failure. Never edits data.
  */
 const fs = require('fs');
@@ -21,6 +22,12 @@ const MAX_FACT_WORDS = 8;
     bundle: true, format: 'cjs', platform: 'node', outfile: out, logLevel: 'error',
   });
   const { STATES } = require(out);
+  const bonusOut = path.join(tmp, 'bonus-engine.cjs');
+  await build({
+    entryPoints: [path.join(ROOT, 'src/states/bonus-engine.ts')],
+    bundle: true, format: 'cjs', platform: 'node', outfile: bonusOut, logLevel: 'error',
+  });
+  const { buildBonusPuzzles } = require(bonusOut);
   fs.rmSync(tmp, { recursive: true, force: true });
 
   const geo = JSON.parse(fs.readFileSync(path.join(ROOT, 'src/states/states-geo.json'), 'utf8'));
@@ -80,6 +87,43 @@ const MAX_FACT_WORDS = 8;
     }
   }
   add('borders resolve to a state', borderProblems, `${borderTotal} names`);
+
+  // ---- bonus puzzles: 4 options, no duplicates, exactly one correct option (judged from the data, not from correctIndex)
+  const settings = JSON.parse(fs.readFileSync(path.join(ROOT, 'src/states/states-settings.json'), 'utf8'));
+  const puzzles = buildBonusPuzzles();
+  const byKey = new Map(STATES.map((s) => [s.key, s]));
+  const norm = (t) => String(t).trim().toLowerCase();
+  const neighbourNames = (key) => (geoByName.get(byKey.get(key).name) || { borders: [] }).borders;
+  const truth = (p, i) => {
+    const subject = byKey.get(p.subject);
+    const opt = p.options[i];
+    if (p.kind === 'missing') return opt === subject.name;
+    if (p.kind === 'borders') return neighbourNames(p.subject).includes(opt);
+    if (p.kind === 'capital') return opt === subject.capital;
+    if (p.kind === 'nickname') return opt === subject.nickname;
+    return false;
+  };
+  const bonusProblems = [];
+  const wantSlots = settings.bonus.after.length;
+  if (puzzles.length !== wantSlots) bonusProblems.push(`${puzzles.length} puzzles, want ${wantSlots}`);
+  puzzles.forEach((p, slot) => {
+    const tag = `slot ${slot + 1} (${p.kind})`;
+    if (p.kind !== settings.bonus.kinds[slot]) bonusProblems.push(`${tag}: kind should be ${settings.bonus.kinds[slot]}`);
+    if (p.options.length !== 4) bonusProblems.push(`${tag}: ${p.options.length} options`);
+    const seen = p.options.map(norm);
+    if (new Set(seen).size !== seen.length) bonusProblems.push(`${tag}: duplicate options`);
+    if (!(p.correctIndex >= 0 && p.correctIndex < p.options.length)) bonusProblems.push(`${tag}: correctIndex out of range`);
+    const correct = p.options.map((_, i) => i).filter((i) => truth(p, i));
+    if (correct.length !== 1) bonusProblems.push(`${tag}: ${correct.length} correct options by the data`);
+    else if (correct[0] !== p.correctIndex) bonusProblems.push(`${tag}: correctIndex ${p.correctIndex} but the data says ${correct[0]}`);
+    if (p.optionKeys.some((k) => !byKey.has(k)) || !byKey.has(p.subject)) bonusProblems.push(`${tag}: unknown state key`);
+    const followed = STATES[settings.bonus.after[slot] - 1];
+    if (followed && byKey.get(p.subject).level !== followed.level) bonusProblems.push(`${tag}: subject not from level ${followed.level}`);
+    if (p.kind === 'borders' && p.optionKeys.some((k) => k === p.subject)) bonusProblems.push(`${tag}: subject listed as an option`);
+  });
+  add('bonus puzzles: 4 options, 1 correct, no duplicates', bonusProblems, `${puzzles.length} puzzles (${puzzles.map((p) => p.kind).join(', ')})`);
+  const again = JSON.stringify(buildBonusPuzzles());
+  add('bonus puzzles are deterministic', again === JSON.stringify(puzzles) ? [] : ['two builds differ'], 'same output twice');
 
   const w = Math.max(...checks.map((c) => c.name.length));
   console.log(`${'CHECK'.padEnd(w)}  RESULT  DETAIL`);

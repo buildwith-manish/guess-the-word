@@ -8,6 +8,8 @@ import rootSettings from '../../settings.json';
 import settingsJson from './states-settings.json';
 import voManifestJson from './states-voiceover-manifest.json';
 import { STATES } from './states-data';
+import { buildBonusPuzzles } from './bonus-engine';
+import type { BonusPuzzle } from './bonus-engine';
 import type { BonusKind, Hud, IrisVariant, LevelCfg, Segment, StateQuestion, StatesSettings, Timeline } from './types';
 
 const settings: StatesSettings = settingsJson;
@@ -53,8 +55,25 @@ export const PHASE = {
   revealBuild: 24,
 };
 
-/** Bonus segment length until task 4a replaces it. */
-export const BONUS_PLACEHOLDER_FRAMES = 300;
+/**
+ * Bonus rounds (task 4a). The puzzles come from bonus-engine.ts (seeded, from the data); a bonus segment is
+ *   preRoll (banner) + build (options appear) + clock + answer hold,
+ * with preRoll, build and the answer hold from the root settings.json `bonus` block (shared with the word quiz)
+ * and the clock = `seconds` of the puzzle = the clock of the level the bonus follows (states-settings levels[].time).
+ * The clock starts after preRoll + build. Voiceover clips can still stretch the segment (fitClip below).
+ */
+export const BONUS_PUZZLES: BonusPuzzle[] = buildBonusPuzzles();
+export const BONUS_PHASE = {
+  preRoll: root.bonus.preRollFrames,
+  build: root.bonus.buildFrames,
+  answerHold: root.bonus.revealHoldFrames,
+};
+/** tick (from the start of the bonus segment) the clock starts */
+export const BONUS_CLOCK_START = BONUS_PHASE.preRoll + BONUS_PHASE.build;
+/** length of the clock of bonus slot `slot` (0-based), in ticks */
+export const bonusClockFrames = (slot: number): number => BONUS_PUZZLES[slot].seconds * FPS;
+/** segment length of bonus slot `slot` (0-based) before any voiceover stretch, in ticks */
+export const bonusBaseFrames = (slot: number): number => BONUS_CLOCK_START + bonusClockFrames(slot) + BONUS_PHASE.answerHold;
 
 // ---------------------------------------------------------------- voiceover
 const VO = root.voiceover;
@@ -231,7 +250,7 @@ const buildTimeline = (): Timeline => {
     if (slot >= 0) {
       pushIris(themeForQuestion(i), BONUS_THEME, qHud, true);
       const bonusFrames = fitClip(
-        BONUS_PLACEHOLDER_FRAMES,
+        bonusBaseFrames(slot),
         voiceBonus(slot + 1) && voiceBonusQuestion(slot + 1)
           ? { file: '', frames: voiceBonus(slot + 1)!.frames + voiceBonusQuestion(slot + 1)!.frames }
           : voiceBonus(slot + 1) ?? voiceBonusQuestion(slot + 1),
