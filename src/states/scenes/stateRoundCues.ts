@@ -1,5 +1,5 @@
 /**
- * stateRoundCues: the sound cue list of one state round (task 3a: stage-in and clock only).
+ * stateRoundCues: the sound cue list of one state round (tasks 3a-3c).
  *
  * Same shape as the word quiz cue list (`Cue = { frame, sfx, rate?, volume? }`), but all `frame`s are
  * design ticks (30 per second) counted from PLAN TICK 0 of the question, i.e. from
@@ -8,11 +8,11 @@
  * Nothing here knows about the video clock: any frame range renders in any order.
  *
  * All timings come from buildQuestionPlan (state-timing.ts); sound names are files in public/sounds.
- *
- * TODO(3c): answer cues (stamp / boom at plan.stamp, reveal build from plan.revealStart).
  */
 import soundManifest from '../../sound-manifest.json';
+import settings from '../states-settings.json';
 import { FPS, buildQuestionPlan } from '../state-timing';
+import type { StateQuestionPlan } from '../state-timing';
 
 /** A sound effect name: a key of src/sound-manifest.json (a file in public/sounds), minus the music loops. */
 export type StateSfx = Exclude<keyof typeof soundManifest, `music-${string}`>;
@@ -25,6 +25,12 @@ export type StateCue = {
   volume?: number;
 };
 
+/** Question ids (1-50) that get the streak banner (settings.streak.milestones). */
+export const isStreakMilestone = (id: number): boolean => (settings.streak.milestones as number[]).includes(id);
+
+/** Tick the streak banner (and its sound) starts: one reveal-build after the stamp, so it does not fight the stamp. */
+export const streakAt = (plan: StateQuestionPlan): number => plan.stamp + (plan.stamp - plan.revealStart);
+
 /**
  * Cues of question `index` (0-based).
  * `withTitle` must match what the timeline used for that question (buildQuestionPlan's second argument).
@@ -34,6 +40,9 @@ export type StateCue = {
  * - tick-low instead of tick for every second boundary that falls inside the last second
  *   (the last FPS ticks of the clock, where the ring turns red)
  * - ping-hi when the emoji hint appears, ding-hi when the region glow appears
+ * - stamp when the answer lands (the flash is on the same tick)
+ * - chime-arp when the streak banner pops in (milestone questions only)
+ * - whoosh when the shape flies into the mini map (the end of the hold)
  */
 export const stateRoundCues = (index: number, withTitle = false): StateCue[] => {
   const plan = buildQuestionPlan(index, withTitle);
@@ -53,7 +62,12 @@ export const stateRoundCues = (index: number, withTitle = false): StateCue[] => 
   add(plan.hintAt[0], 'ping-hi');
   add(plan.hintAt[1], 'ding-hi');
 
-  // TODO(3c): answer  -> plan.revealStart, plan.stamp
+  // answer
+  add(plan.stamp, 'stamp');
+  if (isStreakMilestone(plan.id)) add(streakAt(plan), 'chime-arp');
+
+  // fly-in to the mini map
+  add(plan.exit, 'whoosh');
 
   return cues.sort((a, b) => a.frame - b.frame);
 };

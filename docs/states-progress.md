@@ -18,7 +18,7 @@
 - [x] 2f StateStage + ST-Components Still + final docs D (not rendered or viewed)
 - [x] 3a StateRound skeleton + stateRoundCues (stage-in, clock, answer hold; TODO slots for 3b hints and 3c reveal; not rendered or viewed)
 - [x] 3b tiers (CropMask, rotation, PixelReveal), emoji hint, region hint, answered MiniMap in StateRound (not rendered or viewed)
-- [ ] 3c (label to fill from docs/states-prompts-split.md)
+- [x] 3c reveal, hold, FlyIn, streak banner, FASTEST GUESS badge in StateRound; ST-Round composition in Root.tsx (prop index is 0-based; not rendered or viewed)
 - [ ] 3d (label to fill from docs/states-prompts-split.md)
 - [ ] 3e (label to fill from docs/states-prompts-split.md)
 - [ ] 4a (label to fill from docs/states-prompts-split.md)
