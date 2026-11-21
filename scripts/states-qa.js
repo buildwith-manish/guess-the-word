@@ -21,8 +21,8 @@
  *                           public/<voiceover dir> (an empty manifest passes with 0 clips)
  *   8 capital row fits      for all 50 states, at every card width the reveal uses (WIDTH x REVEAL.cardW and S.resultW,
  *                           both capped to the safe area), the capital row after capital-fit.ts has scaled / stacked it
- *                           is re-measured with the real Poppins files (fontkit) and must be <= innerW (card width minus
- *                           2 x padX); the state name (Anton) and the key chip + voice bars are checked the same way;
+ *                           is re-measured with the real Inter files (fontkit) and must be <= innerW (card width minus
+ *                           2 x padX); the state name (Inter bold) and the key chip + voice bars are checked the same way;
  *                           prints the tightest state and its scale factor
  *   7 question order        the 50 question segments are indices 0..49 in order, ids 1..50, level = states-data level,
  *                           levels never go back, and a level card comes right before each level's first question
@@ -43,7 +43,7 @@ const load = async () => {
     await esbuild.build({
       stdin: {
         contents:
-          "export * as T from './src/states/state-timing.ts'; export * as S from './src/states/state-sound.ts'; export * as D from './src/states/states-data.ts'; export * as C from './src/states/capital-fit.ts'; export * as ST from './src/style.ts';",
+          "export * as T from './src/states/state-timing.ts'; export * as S from './src/states/state-sound.ts'; export * as D from './src/states/states-data.ts'; export * as C from './src/states/capital-fit.ts'; export * as ST from './src/style.ts'; export * as IOSM from './src/ios/tokens.ts';",
         resolveDir: ROOT,
         loader: 'ts',
       },
@@ -73,7 +73,7 @@ const check = (name, fn) => {
 };
 
 (async () => {
-  const { T, S, D, C, ST } = await load();
+  const { T, S, D, C, ST, IOSM } = await load();
   const segs = T.TIMELINE.segments;
   const total = T.TIMELINE.totalFrames;
   const soundDir = path.join(ROOT, 'public', 'sounds');
@@ -262,22 +262,20 @@ const check = (name, fn) => {
   check('8 capital row fits the card (all 50 states)', () => {
     const problems = [];
     const fontkit = require('fontkit');
-    const fontFile = { 'Poppins-600': 'Poppins-SemiBold.woff2', 'Poppins-800': 'Poppins-ExtraBold.woff2', 'Anton-400': 'Anton-Regular.woff2' };
+    // the card is set in Inter (src/ios): one font file per weight
     const fonts = {};
-    const font = (family, weight) => {
-      const k = `${family}-${weight}`;
-      if (!fonts[k]) fonts[k] = fontkit.openSync(path.join(ROOT, 'public', 'fonts', fontFile[k]));
-      return fonts[k];
+    const font = (weight) => {
+      if (!fonts[weight]) fonts[weight] = fontkit.openSync(path.join(ROOT, 'public', 'fonts', 'ios', `Inter-${weight}.woff2`));
+      return fonts[weight];
     };
     // same signature as the render's measureText: width of `text` in px (kerning on, letter-spacing added per glyph)
     const measure = (text, o) => {
-      const fam = o.fontFamily.includes('Anton') ? 'Anton' : 'Poppins';
-      const f = font(fam, fam === 'Anton' ? 400 : o.fontWeight);
+      const f = font(o.fontWeight);
       const run = f.layout(text);
       return (run.advanceWidth * o.fontSize) / f.unitsPerEm + o.letterSpacing * [...text].length;
     };
-    const body = ST.FONTS.body;
-    const display = ST.FONTS.display;
+    const body = IOSM.IOS.font;
+    const display = IOSM.IOS.font;
     // layout constants read from the card source so the check follows the card
     const src = fs.readFileSync(path.join(ROOT, 'src', 'states', 'components', 'AnswerCard.tsx'), 'utf8');
     const num = (k) => Number(new RegExp(`${k}:\\s*([0-9.]+)`).exec(src.split('const LOOK')[1])[1]);
@@ -311,15 +309,15 @@ const check = (name, fn) => {
         if (fit.height <= 0 || !Number.isFinite(fit.height)) problems.push(`${st.key}: bad reserved height ${fit.height}`);
         const ratio = painted / innerW;
         if (!tight || ratio > tight.ratio) tight = { ratio, st, fit, cfg: cfg.label, painted, innerW };
-        // state name (Anton): sized by fitNameSize; re-measured at its flash peak (scale 1 + NAME_LOOK.flash) it must still fit
+        // state name (Inter bold): sized by fitNameSize; re-measured at its flash peak (scale 1 + NAME_LOOK.flash) it must still fit
         const name = st.name.toUpperCase();
-        const nameSize = C.fitNameSize(name, innerW, display, measure).size;
-        const nameW = measure(name, { fontFamily: display, fontWeight: 400, fontSize: nameSize, letterSpacing: 0 }) * (1 + C.NAME_LOOK.flash);
+        const nameSize = C.fitNameSize(name, innerW, display, measure, IOSM.IOS.weight.bold).size;
+        const nameW = measure(name, { fontFamily: display, fontWeight: IOSM.IOS.weight.bold, fontSize: nameSize, letterSpacing: 0 }) * (1 + C.NAME_LOOK.flash);
         if (nameW > innerW + 0.01) problems.push(`${st.key} name ${st.name} @ ${cfg.label}: ${nameW.toFixed(1)}px > innerW ${innerW.toFixed(1)}px`);
       });
       // key chip vs voice bars: chip is centred, bars sit in the right inset; they must not touch for any key
       D.STATES.forEach((st) => {
-        const chipW = measure(st.key, { fontFamily: body, fontWeight: 800, fontSize: ST.px(LOOK.chipFont), letterSpacing: ST.px(LOOK.chipSpacing) }) + 2 * ST.px(LOOK.chipPadX);
+        const chipW = measure(st.key, { fontFamily: body, fontWeight: IOSM.IOS.weight.semibold, fontSize: ST.px(LOOK.chipFont), letterSpacing: ST.px(LOOK.chipSpacing) }) + 2 * ST.px(LOOK.chipPadX);
         const b = C.fitVoiceBars(cardW, chipW, ST.px(LOOK.padX * 0.6), ST.px(LOOK.barsW), ST.px(LOOK.barsGap));
         const barsLeft = cardW - ST.px(LOOK.padX * 0.6) - b.width;
         const chipRight = cardW / 2 + chipW / 2;
