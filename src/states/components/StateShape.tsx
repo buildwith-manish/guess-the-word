@@ -33,14 +33,11 @@ export interface StateShapeProps {
 /** Layout proportions, in shape-box units (box = SHAPE_BOX). */
 const LOOK = {
   /** crisp core stroke width, as a fraction of the box */
-  core: 0.008,
-  /** halo layers: stroke width (x core) and base opacity, widest first */
-  halo: [
-    { k: 9, a: 0.06 },
-    { k: 6, a: 0.1 },
-    { k: 3.6, a: 0.16 },
-    { k: 2, a: 0.28 },
-  ],
+  core: 0.006,
+  /** soft glow: one wide stroke, Gaussian-blurred (width x core, blur sigma x core, opacity) */
+  glowWidth: 3,
+  glowBlur: 3.2,
+  glowAlpha: 0.7,
   /** gradient: opacity at the top and bottom of the silhouette */
   gradTop: 1,
   gradBottom: 0.35,
@@ -84,6 +81,7 @@ export const StateShape: React.FC<StateShapeProps> = ({
 }) => {
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const gradId = `ss-grad-${uid}`;
+  const glowId = `ss-glow-${uid}`;
   const geo = getShape(stateKey);
 
   // Per-subpath lengths are computed once per state.
@@ -99,7 +97,8 @@ export const StateShape: React.FC<StateShapeProps> = ({
 
   const strokeParts = (width: number, opacity: number, key: string, drawn = p) =>
     parts.map((part, i) => {
-      const ev = evolvePath(drawn, part.d);
+      // a finished outline gets no dash pattern: no gaps on tiny islands (Florida Keys)
+      const ev = drawn >= 1 ? { strokeDasharray: undefined, strokeDashoffset: undefined } : evolvePath(drawn, part.d);
       return (
         <path
           key={`${key}-${i}`}
@@ -135,6 +134,9 @@ export const StateShape: React.FC<StateShapeProps> = ({
           <stop offset="0" stopColor={accent} stopOpacity={LOOK.gradTop} />
           <stop offset="1" stopColor={accent} stopOpacity={LOOK.gradBottom} />
         </linearGradient>
+        <filter id={glowId} x="-30%" y="-30%" width="160%" height="160%" colorInterpolationFilters="sRGB">
+          <feGaussianBlur stdDeviation={core * LOOK.glowBlur} />
+        </filter>
       </defs>
 
       {silhouetteOpacity > 0 && (
@@ -143,14 +145,22 @@ export const StateShape: React.FC<StateShapeProps> = ({
 
       {mode === 'outline' && (
         <>
-          {g > 0 && LOOK.halo.map((h, i) => strokeParts(core * h.k, h.a * g, `halo${i}`))}
+          {g > 0 && (
+            <g filter={`url(#${glowId})`} opacity={g}>
+              {strokeParts(core * LOOK.glowWidth, LOOK.glowAlpha, 'glow')}
+            </g>
+          )}
           {p > 0 && strokeParts(core, 1, 'core')}
         </>
       )}
 
       {mode === 'filled' && (
         <>
-          {g > 0 && LOOK.halo.map((h, i) => strokeParts(core * h.k, h.a * g, `halo${i}`, 1))}
+          {g > 0 && (
+            <g filter={`url(#${glowId})`} opacity={g}>
+              {strokeParts(core * LOOK.glowWidth, LOOK.glowAlpha, 'glow', 1)}
+            </g>
+          )}
           {strokeParts(core * LOOK.edge, 1, 'edge', 1)}
         </>
       )}

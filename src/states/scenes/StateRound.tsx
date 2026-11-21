@@ -42,6 +42,7 @@ import { STATES, getState } from '../states-data';
 import settings from '../states-settings.json';
 import { STAGE_LAYOUT, StateStage } from '../components/StateStage';
 import { StateShape } from '../components/StateShape';
+import { StateTitleLockup } from '../components/StateTitleLockup';
 import { TimerRing } from '../components/TimerRing';
 import { MiniMap, miniMapHeight } from '../components/MiniMap';
 import { AnswerCard } from '../components/AnswerCard';
@@ -194,8 +195,8 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
       number={plan.id}
       frame={f}
       slots={{
-        // fast questions: the badge is up from stage-in, so the viewer knows the clock is short
-        title: plan.fast ? { at: plan.drawStart, children: <FastBadge /> } : undefined,
+        // the GUESS THE STATE title stays on screen through the whole question (static, as in the wipes)
+        title: { fade: false, children: <StateTitleLockup frame={f} animate={false} /> },
         // the stage shape fades out as the answer map takes over
         shape: {
           children:
@@ -214,6 +215,21 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
           children: (
             <>
               <Watermark />
+              {plan.fast ? (
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: L.title.x,
+                    width: L.title.w,
+                    top: L.title.y + L.title.h + px(24),
+                    display: 'flex',
+                    justifyContent: 'center',
+                    opacity: prog(f, plan.drawStart, 10, cssEaseOut),
+                  }}
+                >
+                  <FastBadge />
+                </div>
+              ) : null}
               {f >= plan.revealStart ? (
                 <div style={{ position: 'absolute', left: answerMap.x, top: answerMap.y }}>
                   <MiniMap

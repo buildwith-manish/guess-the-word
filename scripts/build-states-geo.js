@@ -15,6 +15,8 @@ const BOX = 1000;
 const MINI_W = 975;
 const MINI_H = 610;
 const RESOLUTIONS = [12, 24, 48];
+// Coastline smoothing: share of the finest points kept (topojson-simplify quantile). 1 = no simplification.
+const KEEP = Number(process.env.GEO_KEEP || 0.7);
 const SHAPE_DIGITS = 1;
 const MINI_DIGITS = 1;
 // Alaska: 'lonlat' = per-state conic fitted from lon/lat, 'albers' = inset geometry.
@@ -29,8 +31,14 @@ const round = (n, d = 1) => Math.round(n * 10 ** d) / 10 ** d;
   const d3geo = await import('d3-geo');
   const { polygonContains } = await import('d3-polygon');
 
-  const topo = JSON.parse(fs.readFileSync(require.resolve('us-atlas/states-10m.json'), 'utf8'));
-  const albers = JSON.parse(fs.readFileSync(require.resolve('us-atlas/states-albers-10m.json'), 'utf8'));
+  const { presimplify, simplify, quantile } = require('topojson-simplify');
+  const smooth = (t) => {
+    if (KEEP >= 1) return t;
+    const pre = presimplify(t);
+    return simplify(pre, quantile(pre, KEEP));
+  };
+  const topo = smooth(JSON.parse(fs.readFileSync(require.resolve('us-atlas/states-10m.json'), 'utf8')));
+  const albers = smooth(JSON.parse(fs.readFileSync(require.resolve('us-atlas/states-albers-10m.json'), 'utf8')));
 
   const geoms = topo.objects.states.geometries;
   const albersGeoms = albers.objects.states.geometries;
