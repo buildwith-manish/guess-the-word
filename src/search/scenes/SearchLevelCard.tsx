@@ -1,9 +1,9 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { FONTS, SAFE_X, px } from '../../style';
-import { Background } from '../../Background';
-import { prog, slamIn, revealIn } from '../../anim';
-import { expoOut, power2InOut } from '../../gsap-helpers';
+import { SAFE_X, px } from '../../style';
+import { prog } from '../../anim';
+import { power2InOut } from '../../gsap-helpers';
+import { IOS, IosBackground, spring } from '../../ios';
 import type { Cue } from '../../sound';
 import cfg from '../search-settings.json';
 import { ROUNDS } from '../search-data';
@@ -81,76 +81,65 @@ export const SearchLevelCard: React.FC<{ frame: number; levelIndex: number; dura
   const { level } = p;
   const exitP = prog(frame, p.duration - EXIT_TICKS, EXIT_TICKS, power2InOut);
 
-  const eyebrow = revealIn(frame, EYEBROW_AT, ENTER_TICKS, 18);
-  const title = slamIn(frame, NAME_AT, ENTER_TICKS + 2);
-  const meta = revealIn(frame, META_AT, ENTER_TICKS, 22);
-  const pop = prog(frame, NAME_AT + 4, ENTER_TICKS + 4, expoOut);
-  const demoIn = prog(frame, p.demoAt - 8, 8, expoOut);
+  // Everything rises in on the shared spring (ticks of ENTER_TICKS), a little apart; the demo bar fades in with it.
+  const rise = (at: number, dist: number) => {
+    const k = spring((frame - at) / ENTER_TICKS);
+    return { opacity: Math.min(1, k * 1.4), transform: `translateY(${(1 - k) * px(dist)}px)` };
+  };
+  const eyebrow = rise(EYEBROW_AT, 14);
+  const title = rise(NAME_AT, 22);
+  const meta = rise(META_AT, 16);
+  const demoIn = Math.min(1, spring((frame - (p.demoAt - 8)) / 8) * 1.4);
 
   const abs = (top: number): React.CSSProperties => ({ position: 'absolute', left: SAFE_X, right: SAFE_X, top: px(top), textAlign: 'center' });
 
   return (
     <AbsoluteFill>
-      <Background frame={frame} theme={level.theme} energy={0} />
-      <AbsoluteFill style={{ opacity: 1 - exitP, transform: `scale(${1 - EXIT_SCALE * exitP})` }}>
+      <IosBackground accent={level.accent} />
+      <AbsoluteFill style={{ opacity: 1 - exitP, transform: `scale(${1 - EXIT_SCALE * exitP})`, fontFamily: IOS.font }}>
         <div
           style={{
             ...abs(EYEBROW_Y),
-            fontFamily: FONTS.body,
-            fontWeight: 800,
+            fontWeight: IOS.weight.semibold,
             fontSize: px(24),
-            letterSpacing: px(10),
-            color: 'rgba(255,255,255,0.87)',
+            letterSpacing: px(24) * 0.02,
+            color: IOS.color.secondary,
             opacity: eyebrow.opacity,
             transform: eyebrow.transform,
           }}
         >
-          LEVEL {levelIndex + 1} / {LEVELS.length}
+          Level {levelIndex + 1} of {LEVELS.length}
         </div>
         <div
           style={{
             ...abs(NAME_Y),
-            fontFamily: FONTS.display,
-            fontSize: px(NAME_FONT),
+            fontWeight: IOS.weight.bold,
+            fontSize: px(NAME_FONT * 0.8),
             lineHeight: 1.2,
-            letterSpacing: px(6),
+            letterSpacing: -px(NAME_FONT * 0.8) * 0.03,
             color: level.accent,
             opacity: title.opacity,
             transform: title.transform,
-            filter: `${title.filter} drop-shadow(0 ${px(10)}px ${px(40)}px ${level.accent}40)`,
           }}
         >
-          {level.name}
+          {level.name.charAt(0) + level.name.slice(1).toLowerCase()}
         </div>
         <div
           style={{
-            ...abs(META_Y),
-            fontFamily: FONTS.display,
-            fontSize: px(46),
-            letterSpacing: px(3),
-            color: '#fff',
+            ...abs(META_Y - 20),
+            fontWeight: IOS.weight.medium,
+            fontSize: px(32),
+            color: IOS.color.secondary,
             whiteSpace: 'pre',
             opacity: meta.opacity,
             transform: meta.transform,
           }}
         >
-          <span>{p.count}</span>
-          <span style={{ opacity: LABEL_OPACITY }}> CHARACTERS · </span>
-          <span>{level.time}</span>
-          <span style={{ opacity: LABEL_OPACITY }}> SECONDS EACH</span>
+          <span style={{ color: IOS.color.label, fontWeight: IOS.weight.semibold }}>{p.count}</span>
+          <span> characters · </span>
+          <span style={{ color: IOS.color.label, fontWeight: IOS.weight.semibold }}>{level.time}</span>
+          <span> seconds each</span>
         </div>
-        <div
-          style={{
-            position: 'absolute',
-            left: '50%',
-            top: px(RULE_Y),
-            marginLeft: -px(280) * pop,
-            height: px(4),
-            width: px(560) * pop,
-            borderRadius: px(4),
-            background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent)',
-          }}
-        />
         <div style={{ position: 'absolute', inset: 0, opacity: demoIn }}>
           <SearchBar
             searches={[p.sample]}
@@ -158,7 +147,7 @@ export const SearchLevelCard: React.FC<{ frame: number; levelIndex: number; dura
             typeTicks={p.typeTicks}
             accent={level.accent}
             size={DEMO_W}
-            at={{ x: 640, y: DEMO_TOP }}
+            at={{ x: 640, y: DEMO_TOP - 20 }}
           />
         </div>
       </AbsoluteFill>
