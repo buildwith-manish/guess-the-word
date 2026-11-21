@@ -164,4 +164,9 @@ Slot = `{ at?: number; children: ReactNode | ((rect: Rect) => ReactNode) }`. `at
 
 Exports: `SLOTS` (rects in reference units: `x` = centre-x, `y` = top, `w`, `h`; exceptions: `hud.x` is the left edge and `dots.y` is the centre line), `Rect` type, `SlotProps`, `SearchStageProps`. Layout: search and timer in the left-centre column; hint (top) and answer card (below it) in the right column; dots along the bottom of the safe box. Slot heights are budgets: SearchBar is about 0.72 x its width tall, so `search.w` is a good `size`.
 
+### AnswerCard (src/search/components/AnswerCard.tsx)
+Reveal card: character name very large (one line, shrunk to fit long names), smaller "from" line under it. Stamp-in (scales down from large with a fast ease), then a short damped shake and a flash on impact. No image. Built new: src/states does not exist on this branch, so there was no AnswerCard to reuse.
+
+Props `AnswerCardProps`: `name: string`, `from: string`, `at: number` stamp tick (design ticks, scene-local; nothing before it), `accent: string` border and glow, plus `place: {x, y}` centre-x and top-y and `size: number` card width (reference units), which I added so it can sit in `SLOTS.answer` (use `place = {x: rect.x, y: rect.y}`, `size = rect.w`). Card height is 0.42 x its width.
+
 ## E Scenes
