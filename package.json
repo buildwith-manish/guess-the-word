@@ -33,6 +33,7 @@
     "states:geo": "node scripts/build-states-geo.js",
     "states:check": "node scripts/check-states.js",
     "states:timeline": "node scripts/states-timeline.js",
+    "states:qa": "node scripts/states-qa.js",
     "states:dev": "remotion studio",
     "states:still": "remotion still GuessTheState out/states-still.png --frame=1000"
   },
