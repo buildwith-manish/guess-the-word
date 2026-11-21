@@ -1,17 +1,17 @@
 import React from 'react';
 import { Img, staticFile } from 'remotion';
 import { px } from '../../style';
-import { IOS, iosSurface, spring } from '../../ios';
+import { IOS, iosSurface, spring, easeOut } from '../../ios';
 import { useDesignFrame } from '../../clock';
 import { FPS } from '../../timing';
 
 /**
- * Reveal: the answer's picture on a rounded card with an accent border, and under it a rounded answer box with the name
+ * Reveal: the answer's picture on a rounded card with a hairline edge, and under it a frosted answer box with the name
  * and where they are from (`showName`, from settings reveal.showName; without it the picture stands alone).
  * Behind it a soft spotlight in the level accent.
  *
- * `at` is the tick the picture appears (design ticks, local to the scene). The picture card pops in from a larger size
- * with a little overshoot, then floats slowly; the answer box rises in just after it. The picture card is `size` wide
+ * `at` is the tick the picture appears (design ticks, local to the scene). The picture card settles in from slightly
+ * smaller on the shared spring (no stamp, no overshoot, no float); the answer box rises in just after it. The picture card is `size` wide
  * and size / ASPECT tall (3:2 landscape pictures); the answer box sits under it, BOX_GAP and BOX_HEIGHT as shares of `size`.
  *
  * `image` is a file name in public/search/answers (listed in src/search/answer-images.json).
@@ -67,11 +67,11 @@ export const AnswerPicture: React.FC<AnswerPictureProps> = ({ image, name, from,
   const boxTop = H + S * BOX_GAP;
   const boxH = S * BOX_HEIGHT;
   const t = clamp01((frame - at) / (POP_SECONDS * FPS));
-  const scale = POP_FROM + (1 - POP_FROM) * spring(t);
-  const opacity = clamp01((frame - at) / (FADE_SECONDS * FPS));
-  const spot = clamp01((frame - at) / (SPOTLIGHT_SECONDS * FPS));
+  const scale = POP_FROM + (1 - POP_FROM) * Math.min(1, spring(t));
+  const opacity = easeOut((frame - at) / (FADE_SECONDS * FPS));
+  const spot = easeOut((frame - at) / (SPOTLIGHT_SECONDS * FPS));
   const boxT = clamp01((frame - at - BOX_DELAY_SECONDS * FPS) / (BOX_RISE_SECONDS * FPS));
-  const boxK = spring(boxT);
+  const boxK = Math.min(1, spring(boxT));
   const nameFont = boxH * NAME_SIZE * Math.min(1, NAME_FULL_CHARS / Math.max(1, name.length));
   const border = px(BORDER_PX);
 
@@ -101,7 +101,7 @@ export const AnswerPicture: React.FC<AnswerPictureProps> = ({ image, name, from,
           overflow: 'hidden',
           boxSizing: 'border-box',
           border: `${border}px solid ${IOS.color.fillStrong}`,
-          boxShadow: `0 ${H * 0.04}px ${H * 0.1}px rgba(0,0,0,0.5)`,
+          boxShadow: `0 ${px(8)}px ${px(28)}px rgba(0,0,0,0.30)`, // same soft shadow as iosSurface
           transform: `scale(${scale})`,
           transformOrigin: 'center center',
           background: IOS.color.bgRaised,

@@ -24,17 +24,17 @@ export type AnswerCardProps = {
   name: string;
   /** Where they are from (smaller line under the name). */
   from: string;
-  /** Stamp tick. */
+  /** Tick the card starts to settle in. */
   at: number;
   /** Scene-local tick that `at` is measured on. Omit only when `at` is on the global timeline. */
   frame?: number;
-  /** Border and glow colour. */
+  /** Kept for API compatibility; the card is neutral. */
   accent: string;
   /** Centre-x and top-y of the card, reference units. */
   place: { x: number; y: number };
   /** Card width, reference units. */
   size: number;
-  /** Draw the empty glowing outline just before the stamp. Default true. */
+  /** Kept for API compatibility; there is no outline or anticipation. */
   anticipate?: boolean;
 };
 
@@ -72,7 +72,7 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ name, from, at, place, s
 
   const t = clamp01((frame - at) / (SETTLE_SECONDS * FPS));
   const k = spring(t);
-  const scale = START_SCALE + (1 - START_SCALE) * k;
+  const scale = START_SCALE + (1 - START_SCALE) * Math.min(1, k); // settles on 1, never past it
   const opacity = Math.min(1, k * 1.4);
 
   const nameBase = Math.min(H * 0.46, (W - 2 * pad) / (Math.max(1, name.length) * GLYPH_WIDTH));
@@ -104,7 +104,7 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ name, from, at, place, s
         ref={nameFit.ref}
         style={{
           fontSize: nameFont,
-          fontWeight: IOS.weight.bold,
+          fontWeight: IOS.weight.semibold,
           lineHeight: 1,
           letterSpacing: -nameFont * 0.02,
           color: IOS.color.label,
