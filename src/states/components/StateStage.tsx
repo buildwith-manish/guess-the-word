@@ -4,13 +4,13 @@
  * full-frame card layer and a full-frame overlay layer (for FlyIn). Every slot takes children and an `at` tick:
  * before `at` it is not drawn, after it it fades in over a few ticks. Children can be a function of the slot's
  * rect. STAGE_LAYOUT exposes the rects so scenes can size components and compute FlyIn's rects.
- * The HUD is a small own pill: src/Hud.tsx is word-quiz specific (HudPlan, GTW bonus plan), so it is not reused.
+ * iOS look: calm IosBackground (level accent), frosted HUD pill. The HUD is a small own pill: src/Hud.tsx is word-quiz specific (HudPlan, GTW bonus plan), so it is not reused.
  * Time from useDesignFrame() unless `frame` is passed.
  */
 import React from 'react';
 import { useDesignFrame } from '../../clock';
-import { Background } from '../../Background';
-import { COLORS, FONTS, S, SAFE_X, SAFE_Y, glass, px } from '../../style';
+import { IOS, IosBackground, iosSurface } from '../../ios';
+import { S, SAFE_X, SAFE_Y, px } from '../../style';
 import { prog, cssEaseOut } from '../../anim';
 import { HEIGHT, LEVELS, TOTAL, WIDTH } from '../state-timing';
 import type { Level } from '../states-data';
@@ -66,7 +66,6 @@ const LAYOUT = {
   titleH: 80,
   /** HUD pill ref px */
   hudFont: 30,
-  hudRadius: 40,
   /** slot fade length in ticks */
   fade: 10,
 };
@@ -130,7 +129,7 @@ export const StateStage: React.FC<StateStageProps> = ({ level, number, total = T
 
   return (
     <div style={{ position: 'absolute', left: 0, top: 0, width: WIDTH, height: HEIGHT, overflow: 'hidden' }}>
-      <Background frame={f} theme={cfg.theme} energy={energy} />
+      <IosBackground accent={cfg.accent} />
 
       <SlotBox rect={L.ring} slot={slots.ring} frame={f} />
       <SlotBox rect={L.shape} slot={slots.shape} frame={f} />
@@ -138,7 +137,7 @@ export const StateStage: React.FC<StateStageProps> = ({ level, number, total = T
 
       <div
         style={{
-          ...glass(px(LAYOUT.hudRadius)),
+          ...iosSurface(px(40), 0.6),
           position: 'absolute',
           left: S.hudLeft,
           top: S.hudTop,
@@ -146,13 +145,14 @@ export const StateStage: React.FC<StateStageProps> = ({ level, number, total = T
           display: 'flex',
           alignItems: 'baseline',
           gap: px(14),
-          fontFamily: FONTS.body,
+          fontFamily: IOS.font,
+          fontWeight: IOS.weight.semibold,
           fontSize: px(LAYOUT.hudFont),
-          border: `${px(2)}px solid ${cfg.accent}`,
+          whiteSpace: 'pre',
         }}
       >
-        <span style={{ fontWeight: 800, letterSpacing: px(3), color: cfg.accent }}>{cfg.name}</span>
-        <span style={{ fontWeight: 800, color: COLORS.ink }}>{`${number} / ${total}`}</span>
+        <span style={{ color: IOS.color.secondary }}>{cfg.name}</span>
+        <span style={{ color: IOS.color.label }}>{`${number} / ${total}`}</span>
       </div>
 
       <SlotBox rect={L.miniMap} slot={slots.miniMap} frame={f} />
