@@ -1,8 +1,7 @@
 import React from 'react';
-import { COLORS, FONTS, glass, px } from '../../style';
+import { px } from '../../style';
+import { IOS, iosSurface, spring } from '../../ios';
 import { useDesignFrame } from '../../clock';
-import { Flash, Ring } from '../../Fx';
-import { backOut } from '../../gsap-helpers';
 import cfg from '../search-settings.json';
 import { BONUS_THEME, FPS, TIME_SCALE, buildBonusPlan } from '../search-timing';
 import { BONUS } from '../search-data';
@@ -44,12 +43,12 @@ const INTRO_SCRIM = 0.5;
 const INTRO_FONT = 76; // reference units
 const INTRO_SUB_FONT = 28;
 const INTRO_SUB_DELAY_TICKS = 4;
-const INTRO_START_SCALE = 2.2;
+const INTRO_START_SCALE = 1.06;
 const INTRO_RING = 560;
 const INTRO_FLASH_MS = 420;
 const INTRO_FLASH_PEAK = 0.28;
 /** The badge pops from this scale up to 1 (with overshoot). Motion constant. */
-const BADGE_START_SCALE = 0.6;
+const BADGE_START_SCALE = 0.96;
 /** Reveal effects on the answer card. Motion constants. */
 const REVEAL_RING_OF_CARD = 0.9; // ring size as a share of the answer card width
 const REVEAL_FLASH_MS = 400;
@@ -59,7 +58,7 @@ const CHIPS_TO_ANSWER_GAP = 14;
 const CHIP_GAP = 10;
 
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
-const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+const easeOutCubic = (t: number) => spring(t); // every move here uses the shared spring
 const letterOf = (i: number) => String.fromCharCode(65 + i); // A to D
 
 export type SearchBonusProps = { frame: number; index: number };
@@ -83,21 +82,20 @@ export const SearchBonus: React.FC<SearchBonusProps> = ({ frame, index }) => {
   // Badge (top right, level with the HUD pill) and chips (right column, above the answer card).
   const col = SLOTS.hint; // right column: x = centre, w = width
   const badgeIn = easeOutCubic(clamp01(frame / (BADGE_SECONDS * FPS)));
-  const badgePop = backOut(clamp01(frame / (BADGE_SECONDS * FPS)));
+  const badgePop = 1;
   const chipsTop = col.y;
   const chipsBottom = SLOTS.answer.y - CHIPS_TO_ANSWER_GAP;
   const chipH = (chipsBottom - chipsTop - CHIP_GAP * (plan.options.length - 1)) / plan.options.length;
 
   // Intro slam: slams in, holds, fades out. Gone (null) once it has faded.
   const introEnd = (INTRO_HOLD_SECONDS + INTRO_OUT_SECONDS) * FPS;
-  const slamK = backOut(clamp01(frame / (INTRO_SLAM_SECONDS * FPS)));
+  const slamK = spring(frame / (INTRO_SLAM_SECONDS * FPS));
   const introLife = 1 - easeOutCubic(clamp01((frame - INTRO_HOLD_SECONDS * FPS) / (INTRO_OUT_SECONDS * FPS)));
   const subK = easeOutCubic(clamp01((frame - INTRO_SUB_DELAY_TICKS) / (INTRO_SLAM_SECONDS * FPS)));
   const intro =
     frame < introEnd ? (
       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
         <div style={{ position: 'absolute', inset: 0, background: `rgba(0,0,0,${INTRO_SCRIM * introLife})` }} />
-        <Ring frame={frame} start={0} size={INTRO_RING} style={{ border: `${px(3)}px solid ${accent}` }} />
         <div
           style={{
             position: 'absolute',
@@ -114,11 +112,11 @@ export const SearchBonus: React.FC<SearchBonusProps> = ({ frame, index }) => {
         >
           <div
             style={{
-              fontFamily: FONTS.display,
+              fontFamily: IOS.font,
+              fontWeight: IOS.weight.bold,
               fontSize: px(INTRO_FONT),
-              letterSpacing: px(3),
-              color: COLORS.ink,
-              textShadow: `0 0 ${px(30)}px ${accent}`,
+              letterSpacing: -px(INTRO_FONT) * 0.03,
+              color: IOS.color.label,
               whiteSpace: 'nowrap',
               transform: `scale(${INTRO_START_SCALE - (INTRO_START_SCALE - 1) * slamK})`,
             }}
@@ -128,11 +126,10 @@ export const SearchBonus: React.FC<SearchBonusProps> = ({ frame, index }) => {
           {bonusSub ? (
             <div
               style={{
-                fontFamily: FONTS.body,
-                fontWeight: 800,
+                fontFamily: IOS.font,
+                fontWeight: IOS.weight.medium,
                 fontSize: px(INTRO_SUB_FONT),
-                letterSpacing: px(1.5),
-                color: accent,
+                color: IOS.color.secondary,
                 whiteSpace: 'nowrap',
                 opacity: subK,
                 transform: `translate3d(0, ${px(RISE) * (1 - subK)}px, 0)`,
@@ -142,26 +139,10 @@ export const SearchBonus: React.FC<SearchBonusProps> = ({ frame, index }) => {
             </div>
           ) : null}
         </div>
-        <Flash frame={frame} start={0} ms={INTRO_FLASH_MS} peak={INTRO_FLASH_PEAK} />
       </div>
     ) : null;
 
   // Reveal: a ring leaves the answer card and a soft flash fires as the right chip lights.
-  const answerCentre = { x: SLOTS.answer.x, y: SLOTS.answer.y + SLOTS.answer.h / 2 };
-  const revealFx = (
-    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-      <div style={{ position: 'absolute', left: px(answerCentre.x), top: px(answerCentre.y), width: 0, height: 0 }}>
-        <Ring
-          frame={frame}
-          start={plan.revealAt}
-          size={SLOTS.answer.w * REVEAL_RING_OF_CARD}
-          style={{ border: `${px(3)}px solid ${accent}` }}
-        />
-      </div>
-      <Flash frame={frame} start={plan.revealAt} ms={REVEAL_FLASH_MS} peak={REVEAL_FLASH_PEAK} />
-    </div>
-  );
-
   return (
     <div style={{ position: 'absolute', inset: 0 }}>
       <SearchStage
@@ -208,13 +189,13 @@ export const SearchBonus: React.FC<SearchBonusProps> = ({ frame, index }) => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  ...glass(px(SLOTS.hud.h / 2)),
+                  ...iosSurface(px(SLOTS.hud.h / 2), 0.6),
                   opacity: badgeIn,
                   transform: `translate3d(0, ${px(RISE) * (1 - badgeIn)}px, 0) scale(${BADGE_START_SCALE + (1 - BADGE_START_SCALE) * badgePop})`,
-                  fontFamily: FONTS.display,
-                  fontSize: px(SLOTS.hud.h * 0.46),
-                  letterSpacing: px(1.5),
-                  color: accent,
+                  fontFamily: IOS.font,
+                  fontWeight: IOS.weight.semibold,
+                  fontSize: px(SLOTS.hud.h * 0.44),
+                  color: IOS.color.label,
                   whiteSpace: 'nowrap',
                 }}
               >
@@ -240,10 +221,9 @@ export const SearchBonus: React.FC<SearchBonusProps> = ({ frame, index }) => {
                       alignItems: 'center',
                       gap: px(chipH * 0.28),
                       padding: `0 ${px(chipH * 0.3)}px`,
-                      ...glass(px(chipH / 2)),
-                      border: `${px(1.5)}px solid ${lit && litK > 0 ? accent : 'rgba(255,255,255,0.16)'}`,
-                      background: lit && litK > 0 ? `${accent}${Math.round(litK * 0x40).toString(16).padStart(2, '0')}` : undefined,
-                      boxShadow: lit && litK > 0 ? `0 0 ${px(26 * litK)}px ${accent}88` : undefined,
+                      ...iosSurface(px(chipH * 0.34), 0.5),
+                      border: `${px(1)}px solid ${lit && litK > 0 ? IOS.color.green : IOS.color.fillStrong}`,
+                      background: lit && litK > 0 ? `color-mix(in srgb, ${IOS.color.green} ${Math.round(litK * 22)}%, ${IOS.color.fill})` : IOS.color.fill,
                       opacity: inK * dim,
                       transform: `translate3d(0, ${px(RISE) * (1 - inK)}px, 0)`,
                     }}
@@ -257,11 +237,11 @@ export const SearchBonus: React.FC<SearchBonusProps> = ({ frame, index }) => {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontFamily: FONTS.display,
-                        fontSize: px(badge * 0.62),
-                        background: lit && litK > 0 ? accent : COLORS.glass,
-                        color: lit && litK > 0 ? COLORS.inkDark : COLORS.muted,
-                        border: `${px(1.5)}px solid ${lit && litK > 0 ? accent : COLORS.stroke}`,
+                        fontFamily: IOS.font,
+                        fontWeight: IOS.weight.semibold,
+                        fontSize: px(badge * 0.5),
+                        background: lit && litK > 0 ? IOS.color.green : IOS.color.fillStrong,
+                        color: lit && litK > 0 ? IOS.color.bg : IOS.color.secondary,
                       }}
                     >
                       {letterOf(i)}
@@ -270,10 +250,10 @@ export const SearchBonus: React.FC<SearchBonusProps> = ({ frame, index }) => {
                       style={{
                         minWidth: 0,
                         flex: 1,
-                        fontFamily: FONTS.body,
-                        fontWeight: 600,
+                        fontFamily: IOS.font,
+                        fontWeight: IOS.weight.medium,
                         fontSize: px(chipH * 0.36),
-                        color: COLORS.ink,
+                        color: IOS.color.label,
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
@@ -300,7 +280,6 @@ export const SearchBonus: React.FC<SearchBonusProps> = ({ frame, index }) => {
           ),
         }}
       />
-      {revealFx}
       {intro}
     </div>
   );
