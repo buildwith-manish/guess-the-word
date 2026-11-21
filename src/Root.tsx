@@ -5,6 +5,7 @@ import { Main } from './Main';
 import { HEIGHT, RENDER_FPS, RENDER_TOTAL_FRAMES, WIDTH } from './timing';
 import { PixelMain } from './pixel/PixelMain';
 import { PIXEL_TOTAL_FRAMES } from './pixel/pixel-timing';
+import { SHComponents } from './search/SHComponents';
 import { ThumbEasy, ThumbLadder, ThumbZero } from './thumbnails/Thumbnails';
 
 /**
@@ -36,6 +37,8 @@ export const RemotionRoot: React.FC = () => {
       <Still id="ThumbZero" component={ThumbZero} width={1280} height={720} />
       <Still id="ThumbLadder" component={ThumbLadder} width={1280} height={720} />
       <Still id="ThumbEasy" component={ThumbEasy} width={1280} height={720} />
+      {/* Search History: component sheet (one frame, rounds 1 / 11 / 21). Render: npx remotion still src/index.ts SH-Components out/sh-components.png */}
+      <Still id="SH-Components" component={SHComponents} width={WIDTH} height={HEIGHT} />
     </>
   );
 };

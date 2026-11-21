@@ -119,54 +119,159 @@ Values the task did not give, chosen by task 1c and easy to change: bonus `clock
 - `Timeline` = `{ segments, totalFrames }`
 - The Round and Bonus data types are owned by `search-data.ts` (task 1a). In `types.ts` the names are `RoundSegment` and `BonusSegment` so they do not clash with them.
 
-## D Components
+## D Components (final pack)
 
-### SearchBar (src/search/components/SearchBar.tsx)
-Generic dark search UI, no images. Bar with SVG magnifier, typewriter, blinking caret; below it a "Recent searches" panel with an SVG clock per row. A finished search holds, slides into the top row, and the bar clears. Newest row on top. All motion via `useDesignFrame` (ticks, local to the mounting scene).
+All components live in `src/search/components/`. Units: "ticks" are 30 fps design frames, sampled at 60 fps through `useDesignFrame()` (src/clock.ts); every tick below is scene-local (what `useDesignFrame()` returns inside the scene's Sequence). Positions and sizes are 1280x720 reference units; each component applies `px()` itself. Components take plain props (no import of search-data.ts); the scene supplies content from `search-data.ts`, timings from `search-timing.ts` and `search-settings.json`. No images anywhere. All components import `../../fonts` (side effect, loads Anton, Poppins, JetBrains Mono, Noto Color Emoji).
 
-Props `SearchBarProps`:
-- `searches: string[]` the searches in typing order (4)
-- `starts: number[]` start tick of each search (same length)
-- `typeTicks: number` ticks per character (from settings)
-- `accent: string` caret, magnifier, bar glow
-- `size: number` bar width in 1280x720 reference units (px() applied inside)
-- `at: { x: number; y: number }` bar centre-x and top-y, reference units
-- `heading?: string` list label, default "Recent searches"
+### File layout
+```
+src/search/
+  search-data.ts            ROUNDS, BONUS (content)
+  search-settings.json      levels, searchAt, hintAt, typing, ...
+  search-timing.ts          buildRoundPlan(index), TIMELINE, locate, LEVELS, FPS, TIME_SCALE, WIDTH, HEIGHT
+  types.ts                  Hud, LevelCfg, Segment types
+  SHComponents.tsx          the one-frame component sheet (composition SH-Components)
+  components/
+    SearchBar.tsx           typewriter bar + Recent searches list
+    TimerBar.tsx            draining clock bar
+    HintEmoji.tsx           two emoji, ping + bounce
+    ProgressDots.tsx        row of round dots
+    AnswerCard.tsx          name + from, stamp, shake, flash
+    SearchStage.tsx         layout frame: Background, HUD pill, five slots (SLOTS)
+src/Root.tsx                registers Still "SH-Components" (shared file, 3 lines added)
+```
+Shared GTW files used and never edited: `style.ts` (COLORS, FONTS, px, glass, SCALE, SAFE_X, SAFE_Y), `clock.ts`, `timing.ts` (FPS), `fonts.ts`, `Background.tsx`.
 
-Exports:
-- `typedCount(frame, start, length, typeTicks = 1)` visible characters. Character k (1-based) appears at `start + (k - 1) * typeTicks`. For a key-click on every second character, cue the even k at that tick. Pass `typeTicks` (the default 1 only matches one char per tick).
-- `slideStart(start, length, typeTicks)` and `slideEnd(...)` ticks when a search starts and finishes sliding into the list.
-- `HOLD_CHARS` (6) and `SLIDE_CHARS` (8): hold and slide lengths, as multiples of `typeTicks`.
+### SearchBar
+Generic dark search UI: rounded bar, SVG magnifier, typewriter with blinking caret, "Recent searches" list with SVG clock rows. A finished search holds, slides into the top row, the bar clears.
+Props: `searches: string[]`, `starts: number[]` (start tick of each), `typeTicks: number` (ticks per character), `accent: string`, `size: number` (bar width), `at: {x, y}` (centre-x, top-y), `heading?: string` (default "Recent searches").
+Exports: `typedCount(frame, start, length, typeTicks = 1)` (character k, 1-based, appears at `start + (k - 1) * typeTicks`), `slideStart(start, length, typeTicks)`, `slideEnd(...)`, `HOLD_CHARS` (6), `SLIDE_CHARS` (8), both multiples of `typeTicks`. A search needs `length * typeTicks + HOLD_CHARS * typeTicks` ticks before the next one starts (see "Known issue" below). Height is about 0.72 x `size`.
 
-Timing note: leave at least `slideStart` between one search's start and the next search's start (typed length + hold), or the bar clears mid-typing.
+### TimerBar
+Slim bar draining over the clock, remaining whole seconds at its right, pulse once a second, `accent` colour, red in the last second. Nothing before `from`; stays empty after the end.
+Props: `from: number` (start tick), `duration: number` (ticks), `accent: string`, `size: number` (width incl. number), `at: {x, y}` (centre-x, top-y).
 
-### TimerBar (src/search/components/TimerBar.tsx)
-Slim bar that drains over the clock, remaining whole seconds at its right, pulse once per second. Accent colour, red in the last second. Nothing before `from`; stays empty after the end. No src/states TimerRing exists, so it is a bar. Ticks are design ticks (30/s) local to the scene.
+### HintEmoji
+Two large emoji, each with a ping ring and a spring scale-bounce, the second slightly later. Glyphs use `FONTS.emoji` (Noto Color Emoji).
+Props: `emoji: [string, string]`, `from: number` (hint tick), `at: {x, y}` (centre of the pair), `size: number` (emoji size), `accent?: string` (ping colour, default COLORS.yellow).
 
-Props `TimerBarProps`: `from: number` start tick, `duration: number` ticks, `accent: string`, `size: number` bar width incl. number (reference units), `at: {x, y}` centre-x and top-y (reference units).
+### ProgressDots
+Dots: future dim, current pulsing with glow, finished filled in their level colour.
+Props: `index: number` (0-based current), `total: number`, `levelOf: (i: number) => string`, `at: {x, y}` (centre-x, centre-y), `size: number` (row width).
 
-### HintEmoji (src/search/components/HintEmoji.tsx)
-Two large emoji, each with a ping ring and a spring scale-bounce, second one staggered. Glyphs use `FONTS.emoji` (Noto Color Emoji, loaded by src/fonts.ts).
+### AnswerCard
+Reveal card: name very large on one line (shrunk for long names), "from" line smaller under it; stamp-in, short damped shake, flash. Built new (no src/states on this branch).
+Props: `name: string`, `from: string`, `at: number` (stamp tick), `accent: string`, `place: {x, y}` (centre-x, top-y), `size: number` (card width). Height is 0.42 x `size`.
 
-Props `HintEmojiProps`: `emoji: [string, string]`, `from: number` hint tick, `at: {x, y}` centre of the pair (reference units), `size: number` emoji size (reference units), `accent?: string` ping colour (default COLORS.yellow).
+### SearchStage
+Round layout: `Background`, a HUD pill top left (own glass pill; GTW `Hud` is bonus/streak-coupled), and five slots, all inside the safe margin from style.ts.
+Props: `theme: [string, string]`, `accent: string`, `hud: Hud` (`{label, number, total}` from types.ts), `energy?: number`, slots `search?`, `timer?`, `hint?`, `answer?`, `dots?`.
+Slot = `{ at?: number; children: ReactNode | ((rect: Rect) => ReactNode) }`. `at` is the scene tick the slot fades in (omit = always shown; nothing rendered before). A function child receives the slot rect.
+Exports: `SLOTS` (rects `{x, y, w, h}` in reference units; `x` is centre-x, `y` is top, except `hud.x` = left edge and `dots.y` = centre line), `Rect`, `SlotProps`, `SearchStageProps`. Layout: search and timer in the left-centre column; hint above answer in the right column; dots along the bottom.
+Placement rules: pass `at={{x: r.x, y: r.y}}` and `size={r.w}` for SearchBar, TimerBar; for HintEmoji use `at={{x: r.x, y: r.y + r.h / 2}}`; for AnswerCard use `place={{x: r.x, y: r.y}}`, `size={r.w}`; for ProgressDots `at={{x: r.x, y: r.y}}`, `size={r.w}`.
 
-### ProgressDots (src/search/components/ProgressDots.tsx)
-Row of small dots: future dim, current pulsing (with glow), finished filled in its level colour. Design ticks, sampled at 60 fps.
+### Composition SH-Components
+`Still` in `src/Root.tsx`, 2560x1440, one frame: rounds 1 (EASY), 11 (MEDIUM), 21 (HARD) side by side, each a full stage scaled to a third. Every component sits in a `Sequence` with a negative `from`, so each is frozen at its own best tick (SearchBar mid-typing in search 3, TimerBar mid-clock, red in the HARD panel, hint and answer one second after they land). Render: `npx remotion still src/index.ts SH-Components out/sh-components.png`.
 
-Props `ProgressDotsProps`: `index: number` 0-based current round, `total: number` dot count, `levelOf: (i: number) => string` colour per round, `at: {x, y}` centre-x and centre-y (reference units), `size: number` row width (reference units).
+### Complete example scene
+`RoundScene` (a whole round) and `buildRoundCues` (its sound cues). Both type-checked. Mount the scene in a Sequence at the round's `from`; `buildRoundCues(index, f0)` takes the same `from` as `f0`.
+```tsx
+import React from 'react';
+import type { Cue } from '../sound';
+import { buildRoundPlan, FPS, LEVELS } from './search-timing';
+import { ROUNDS } from './search-data';
+import cfg from './search-settings.json';
+import { SearchStage } from './components/SearchStage';
+import { SearchBar } from './components/SearchBar';
+import { TimerBar } from './components/TimerBar';
+import { HintEmoji } from './components/HintEmoji';
+import { AnswerCard } from './components/AnswerCard';
+import { ProgressDots } from './components/ProgressDots';
 
-### SearchStage (src/search/components/SearchStage.tsx)
-Round layout frame: `Background` (imported, not edited), HUD pill top left (own glass pill; GTW `Hud` is coupled to bonus/streak, so it was not reused), and five slots. Everything sits inside the safe margin from style.ts (SAFE_X/SAFE_Y, converted to reference units).
+/** One round scene. `index` is the 0-based round; the scene is mounted in a Sequence, so
+ *  every tick below is scene-local (what useDesignFrame() returns inside it). */
+export const RoundScene: React.FC<{ index: number }> = ({ index }) => {
+  const round = ROUNDS[index];
+  const plan = buildRoundPlan(index);
+  const { accent, theme } = plan.level;
+  const typeTicks = cfg.typing.ticksPerChar;
+  const sameLevel = ROUNDS.filter((r) => r.level === round.level);
+  const levelOf = (i: number) => LEVELS.find((l) => l.name === ROUNDS[i].level)!.accent;
 
-Props `SearchStageProps`: `theme: [string, string]`, `accent: string`, `hud: Hud` (`{label, number, total}` from search/types.ts, text comes from settings via the caller), `energy?: number`, and slots `search?`, `timer?`, `hint?`, `answer?`, `dots?`.
+  return (
+    <SearchStage
+      theme={theme}
+      accent={accent}
+      hud={{ label: round.level, number: sameLevel.indexOf(round) + 1, total: sameLevel.length }}
+      search={{
+        at: 0, // the bar fades in at scene tick 0
+        children: (r) => (
+          <SearchBar
+            searches={round.searches}
+            starts={plan.searchAt}
+            typeTicks={typeTicks}
+            accent={accent}
+            size={r.w}
+            at={{ x: r.x, y: r.y }}
+          />
+        ),
+      }}
+      timer={{
+        at: plan.clockStart,
+        children: (r) => (
+          <TimerBar from={plan.clockStart} duration={plan.clockFrames} accent={accent} size={r.w} at={{ x: r.x, y: r.y }} />
+        ),
+      }}
+      hint={{
+        children: (r) => (
+          <HintEmoji emoji={round.hint} from={plan.hintAt} at={{ x: r.x, y: r.y + r.h / 2 }} size={r.w * 0.4} accent={accent} />
+        ),
+      }}
+      answer={{
+        children: (r) => (
+          <AnswerCard name={round.name} from={round.from} at={plan.revealAt} accent={accent} place={{ x: r.x, y: r.y }} size={r.w} />
+        ),
+      }}
+      dots={{
+        children: (r) => <ProgressDots index={index} total={ROUNDS.length} levelOf={levelOf} at={{ x: r.x, y: r.y }} size={r.w} />,
+      }}
+    />
+  );
+};
 
-Slot = `{ at?: number; children: ReactNode | ((rect: Rect) => ReactNode) }`. `at` is the scene-local tick the slot fades in (omit = always shown; nothing rendered before it). Children get the slot rect when given as a function. Each slot layer fills the frame, so children position themselves with their own reference-unit `at` (as SearchBar, TimerBar, HintEmoji do).
+/** Cue list for one round, same pattern as buildCues() in src/sound.ts: an absolute design
+ *  frame per cue (scene start `f0` + scene-local tick), rounded, pushed by a local add(). */
+export const buildRoundCues = (index: number, f0: number): Cue[] => {
+  const round = ROUNDS[index];
+  const plan = buildRoundPlan(index);
+  const typeTicks = cfg.typing.ticksPerChar;
+  const cues: Cue[] = [];
+  const add = (frame: number, sfx: Cue['sfx'], extra: Partial<Cue> = {}) =>
+    cues.push({ frame: Math.round(frame), sfx, ...extra });
 
-Exports: `SLOTS` (rects in reference units: `x` = centre-x, `y` = top, `w`, `h`; exceptions: `hud.x` is the left edge and `dots.y` is the centre line), `Rect` type, `SlotProps`, `SearchStageProps`. Layout: search and timer in the left-centre column; hint (top) and answer card (below it) in the right column; dots along the bottom of the safe box. Slot heights are budgets: SearchBar is about 0.72 x its width tall, so `search.w` is a good `size`.
+  // Key-click on every second character of every search (character k lands at start + (k - 1) * typeTicks).
+  round.searches.forEach((text, i) => {
+    for (let k = 2; k <= text.length; k += 2) add(f0 + plan.searchAt[i] + (k - 1) * typeTicks, 'tick-low');
+  });
+  // Clock: one tick per second, a thump in the last three.
+  for (let k = 0; k * FPS < plan.clockFrames; k++) {
+    const left = Math.ceil((plan.clockFrames - k * FPS) / FPS);
+    add(f0 + plan.clockStart + k * FPS, left <= 3 ? 'thump' : 'tick');
+  }
+  add(f0 + plan.hintAt, 'pop'); // hint emoji
+  add(f0 + plan.revealAt, 'stamp'); // answer card stamps
+  return cues;
+};
+```
 
-### AnswerCard (src/search/components/AnswerCard.tsx)
-Reveal card: character name very large (one line, shrunk to fit long names), smaller "from" line under it. Stamp-in (scales down from large with a fast ease), then a short damped shake and a flash on impact. No image. Built new: src/states does not exist on this branch, so there was no AnswerCard to reuse.
+### Cue-list pattern (from section B)
+- `Cue = { frame, sfx, rate?, volume? }` (src/sound.ts). `frame` is an absolute design frame: segment `from` plus scene-local tick, rounded. One local `add(frame, sfx, extra)` rounds and pushes (as in `buildCues()` there).
+- Key-click: for each search, every second character k (even k): `add(f0 + starts[i] + (k - 1) * typeTicks, 'tick-low')`. This matches `typedCount`, which shows character k at that tick.
+- Clock: one `tick` per second from `clockStart`, `thump` in the last three seconds. Hint: `pop` at `hintAt`. Answer: `stamp` at `revealAt`.
+- Sound names must exist in `src/sound-manifest.json` (existing list in section B). New sounds mean editing shared files (generate-audio.js, manifest, public/sounds), which is still undecided.
+- The search video needs its own cue builder over its own timeline (`CUES` in src/sound.ts is built from GTW's `TIMELINE`) and its own Soundtrack wiring.
 
-Props `AnswerCardProps`: `name: string`, `from: string`, `at: number` stamp tick (design ticks, scene-local; nothing before it), `accent: string` border and glow, plus `place: {x, y}` centre-x and top-y and `size: number` card width (reference units), which I added so it can sit in `SLOTS.answer` (use `place = {x: rect.x, y: rect.y}`, `size = rect.w`). Card height is 0.42 x its width.
+### Known issue (found while writing 2e, not fixed)
+The search clue spacing and the typing speed do not fit together. `searchAt` puts the next search 0.22 of the clock after the last (46 ticks EASY, 53 MEDIUM, 59 HARD). At `typing.ticksPerChar` = 2, a search needs `length * 2 + 12` ticks to type and hold: 48 to 118 ticks, 82 on average (searches are 18 to 53 characters). So the next search usually starts before the previous one has finished typing, and the bar clears mid-sentence. Options: slower `searchAt` spacing or a shorter clue text (data/settings), or a per-search `typeTicks` (a SearchBar change). Needs a decision before the round scene is built.
 
 ## E Scenes
