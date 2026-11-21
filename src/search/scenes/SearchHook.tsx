@@ -122,8 +122,6 @@ export const searchHookCues = (duration: number = defaultDuration()): Cue[] => {
     // Soft "send" when the search has landed in the list ('send' has its gain baked in, task 7d).
     add(slideEnd(p.starts[i], text.length, p.typeTicks), 'send');
   });
-  add(p.glitchAt, 'thump'); // glitch hit
-  add(p.glitchAt + GLITCH_BURST_SECONDS * FPS_DESIGN, 'blip'); // glitch settles
   add(p.lockupAt, 'title');
   add(p.rulesAt, 'rule-sweep');
   return cues.sort((a, b) => a.frame - b.frame);

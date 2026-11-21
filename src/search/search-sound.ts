@@ -58,6 +58,32 @@ const VOICE_LIST: Voice[] = [];
 const HUSH_LEAD = 9; // ticks of silence before the reveal (the same lead GTW uses)
 const HUSHES: { from: number; to: number }[] = [];
 
+/** iOS-style sound: loud effects are swapped for the soft clips we already have (tick, pop, send) and the rest are
+ *  turned down. Applied to every cue in one place, so the scenes' own cue lists stay unchanged. */
+const SOFT_SWAP: Partial<Record<Sfx, { sfx: Sfx; volume?: number }>> = {
+  stamp: { sfx: 'pop', volume: 0.55 }, // was a hard stamp
+  whoosh: { sfx: 'send' }, // 'send' has its gain baked in (quiet)
+  boom: { sfx: 'pop', volume: 0.6 },
+  thump: { sfx: 'tick-low' },
+};
+const SOFT_GAIN: Partial<Record<Sfx, number>> = {
+  riser: 0.5,
+  'jingle-rules': 0.5,
+  'jingle-cta': 0.5,
+  ding: 0.6,
+  'ding-hi': 0.6,
+  title: 0.6,
+  'rule-sweep': 0.6,
+  remind: 0.6,
+  row: 0.7,
+};
+const soften = (c: Cue): Cue => {
+  const swap = SOFT_SWAP[c.sfx];
+  const sfx = swap ? swap.sfx : c.sfx;
+  const gain = (swap?.volume ?? SOFT_GAIN[c.sfx] ?? 1) * (c.volume ?? 1);
+  return { ...c, sfx, volume: gain };
+};
+
 const buildCues = (): Cue[] => {
   const cues: Cue[] = [];
   const add = (frame: number, sfx: Sfx, extra: Partial<Cue> = {}) =>
@@ -77,7 +103,7 @@ const buildCues = (): Cue[] => {
         voice(f0 + VO_AT, voiceIntro());
         break;
       case 'levelCard':
-        add(f0 + STINGER_THUMP_AT, 'thump');
+        add(f0 + STINGER_THUMP_AT, 'pop');
         add(f0 + STINGER_JINGLE_AT, 'jingle-rules', { rate: 1 + seg.levelIndex * STINGER_RATE_STEP });
         voice(f0 + VO_AT, voiceLevel(seg.levelIndex));
         break;
@@ -117,7 +143,7 @@ const buildCues = (): Cue[] => {
         break;
     }
   });
-  return cues.sort((a, b) => a.frame - b.frame);
+  return cues.map(soften).sort((a, b) => a.frame - b.frame);
 };
 
 export const CUES: Cue[] = buildCues();
