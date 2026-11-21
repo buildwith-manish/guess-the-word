@@ -9,17 +9,18 @@
  *   stamp      plan.stamp                       flash + AnswerCard + stamp sound
  *   hold       plan.stamp .. plan.exit          minimum hold from settings (reveal.minHoldSeconds), stretched by a
  *                                               reveal voiceover clip in the manifest (both already inside the plan)
- *   fly-in     plan.exit .. plan.duration       the shape flies into the MiniMap, the card fades out
+ *   map-out    plan.exit .. plan.duration       the answer map shrinks back to the corner, the card fades out
  * Sound for these phases is in ./stateRoundCues.ts (same plan ticks).
  *
  * Tier by level (states-data.ts / state-timing QUESTIONS carry the per-state values):
  *   EASY    plain neon outline (StateShape)
  *   MEDIUM  the outline traces itself over the clock (settings.tiers.trace), closing during the reveal
- *   HARD    StateShape and EmojiFill rotated by the state's rotation (FlyIn un-rotates it)
+ *   HARD    StateShape and EmojiFill rotated by the state's rotation 
  *   EXPERT  blurred solid silhouette sharpening over the clock (settings.tiers.blur), cross-fade to the outline in the reveal
  * Hint (every tier): Census-region glow on the MiniMap at plan.hintAt[1].
- * The MiniMap shows the states answered so far (video order before `index`). It deliberately gets no
- * `current` state: that pulsing outline would mark the answer. The current state joins the map by FlyIn.
+ * The corner MiniMap shows the states answered so far (video order before `index`) until the reveal; then the
+ * answer map (same MiniMap, grown to the right column next to the card) takes over, adds the current state
+ * at the stamp and shrinks back to the corner at the exit.
  *
  * Extras: streak banner (label + call to action from settings.streak) on the milestone questions,
  * "FASTEST GUESS" badge (settings.fastest.label) on the fast questions.
@@ -31,20 +32,19 @@
 import React from 'react';
 import { AbsoluteFill, Audio, Sequence, staticFile } from 'remotion';
 import { useDesignFrame } from '../../clock';
-import { prog, cssEaseInOut, cssEaseOut } from '../../anim';
+import { prog, mix, cssEaseInOut, cssEaseOut } from '../../anim';
 import { COLORS, FONTS, S, SAFE_X, SAFE_Y, glass, px } from '../../style';
 import { Flash } from '../../Fx';
 import { Watermark } from '../../Watermark';
-import { HEIGHT, TIME_SCALE, buildQuestionPlan, LEVELS, QUESTIONS } from '../state-timing';
+import { HEIGHT, WIDTH, TIME_SCALE, buildQuestionPlan, LEVELS, QUESTIONS } from '../state-timing';
 import type { StateQuestionPlan } from '../state-timing';
 import { STATES, getState } from '../states-data';
 import settings from '../states-settings.json';
 import { STAGE_LAYOUT, StateStage } from '../components/StateStage';
 import { StateShape } from '../components/StateShape';
 import { TimerRing } from '../components/TimerRing';
-import { MiniMap } from '../components/MiniMap';
+import { MiniMap, miniMapHeight } from '../components/MiniMap';
 import { AnswerCard } from '../components/AnswerCard';
-import { FlyIn } from '../components/FlyIn';
 import { isStreakMilestone, stateRoundCues, streakAt } from './stateRoundCues';
 
 export interface StateRoundProps {
@@ -110,6 +110,9 @@ const FastBadge: React.FC = () => (
   </div>
 );
 
+/** answer screen: the card sits in the left column, the map grows into the right one (fractions of the frame width) */
+const REVEAL = { cardW: 0.38, mapW: 0.5 };
+
 /** left-side clock: diameter in px (1280x720 reference, doubled by px()) */
 const TIMER_SIZE = px(190);
 
@@ -131,6 +134,14 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
   // fly-in: starts when the hold ends, lasts until the end of the round
   const flyAt = plan.exit;
   const flyDur = plan.duration - plan.exit;
+
+  // answer map: grows from the corner map to the right column at the reveal, shrinks back to the corner at flyAt
+  const bigW = WIDTH * REVEAL.mapW;
+  const big = { x: WIDTH - SAFE_X - bigW, y: L.shape.y + L.shape.h / 2 - miniMapHeight(bigW) / 2, w: bigW };
+  const mapIn = prog(f, plan.revealStart, plan.stamp - plan.revealStart, cssEaseInOut);
+  const mapOut = prog(f, flyAt, flyDur, cssEaseInOut);
+  const mapK = mapIn * (1 - mapOut);
+  const answerMap = { x: mix(L.miniMap.x, big.x, mapK), y: mix(L.miniMap.y, big.y, mapK), w: mix(L.miniMap.w, big.w, mapK) };
 
   if (q.level === 'HARD' && q.rotation === undefined) throw new Error(`${q.key}: HARD state without rotation`);
   const rotation = q.level === 'HARD' ? (q.rotation as number) : 0;
@@ -185,23 +196,34 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
       slots={{
         // fast questions: the badge is up from stage-in, so the viewer knows the clock is short
         title: plan.fast ? { at: plan.drawStart, children: <FastBadge /> } : undefined,
-        // the stage shape hands over to FlyIn at flyAt
-        shape: { children: f < flyAt ? shapeSlot : null },
+        // the stage shape fades out as the answer map takes over
+        shape: {
+          children:
+            f < plan.stamp ? (
+              <div style={{ opacity: 1 - prog(f, plan.revealStart, (plan.stamp - plan.revealStart) * 0.5, cssEaseOut) }}>{shapeSlot}</div>
+            ) : null,
+        },
         miniMap: {
-          children: (rect) => (
-            <MiniMap
-              answered={STATES.slice(0, index).map((s) => s.key)}
-              highlightRegion={region}
-              size={rect.w}
-              frame={f}
-            />
-          ),
+          children: (rect) =>
+            f < plan.revealStart ? (
+              <MiniMap answered={STATES.slice(0, index).map((s) => s.key)} highlightRegion={region} size={rect.w} frame={f} />
+            ) : null,
         },
         overlay: {
           fade: false,
           children: (
             <>
               <Watermark />
+              {f >= plan.revealStart ? (
+                <div style={{ position: 'absolute', left: answerMap.x, top: answerMap.y }}>
+                  <MiniMap
+                    answered={STATES.slice(0, f >= plan.stamp ? index + 1 : index).map((s) => s.key)}
+                    current={f >= plan.stamp && f < flyAt ? plan.key : undefined}
+                    size={answerMap.w}
+                    frame={f}
+                  />
+                </div>
+              ) : null}
               {f >= plan.timerStart && f < plan.revealStart ? (
                 <div
                   style={{
@@ -215,25 +237,12 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
                 </div>
               ) : null}
               <Flash frame={f} start={plan.stamp} />
-              {f >= flyAt ? (
-                <FlyIn
-                  stateKey={plan.key}
-                  from={L.shape}
-                  to={L.miniMap}
-                  at={flyAt}
-                  dur={flyDur}
-                  accent={level.accent}
-                  rotation={rotation}
-                  mode="outline"
-                  frame={f}
-                />
-              ) : null}
               {isStreakMilestone(plan.id) ? <StreakBanner f={f} plan={plan} /> : null}
             </>
           ),
         },
         card: {
-          children: <AnswerCard stateKey={plan.key} at={plan.stamp} accent={level.accent} exit={plan.exit} frame={f} />,
+          children: <AnswerCard stateKey={plan.key} at={plan.stamp} accent={level.accent} box={{ x: SAFE_X, w: WIDTH * REVEAL.cardW }} exit={plan.exit} frame={f} />,
         },
       }}
     />

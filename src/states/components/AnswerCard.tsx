@@ -1,6 +1,7 @@
 /**
- * AnswerCard: the reveal card. State name very large, two-letter chip, capital, nickname and a fact line
- * (hidden when the fact is empty or withFact is false). Stamp-in = anim.ts slamIn (scale-down slam), then a
+ * AnswerCard: the reveal card. State name very large, two-letter chip and the capital (nickname and fact
+ * lines were removed on request; the map beside the card is the extra). With `box` it sits in a left/width
+ * column, vertically centred, instead of the centred default. Stamp-in = anim.ts slamIn (scale-down slam), then a
  * short decaying shake once it lands. 2D card (see docs): Card3D is word + clue-image specific, and RevealStyle
  * wraps children but brings its own reveal styles and needs `exit` / `questionId`, so neither fits this prop set.
  * Kept inside the 5% safe margin (SAFE_X / SAFE_Y). Time from useDesignFrame() unless `frame` is passed.
@@ -19,8 +20,8 @@ export interface AnswerCardProps {
   at: number;
   /** level accent colour */
   accent: string;
-  /** show the fact line (still hidden when the state's fact is empty); default true */
-  withFact?: boolean;
+  /** optional column (px) the card fills: left edge and width; default centred, S.resultW wide */
+  box?: { x: number; w: number };
   /** optional tick the card fades out (e.g. the plan's `exit`) */
   exit?: number;
   /** optional ticks from the parent; default useDesignFrame() */
@@ -41,8 +42,6 @@ const LOOK = {
   antonWidth: 0.5,
   chipFont: 30,
   capitalFont: 44,
-  nicknameFont: 40,
-  factFont: 32,
   stampMs: 520,
   shakeMs: 380,
   shakeCycles: 3,
@@ -51,7 +50,7 @@ const LOOK = {
   exitMs: 380,
 };
 
-export const AnswerCard: React.FC<AnswerCardProps> = ({ stateKey, at, accent, withFact = true, exit, frame }) => {
+export const AnswerCard: React.FC<AnswerCardProps> = ({ stateKey, at, accent, box, exit, frame }) => {
   const designFrame = useDesignFrame();
   const f = frame ?? designFrame;
   const info = getState(stateKey);
@@ -72,19 +71,18 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ stateKey, at, accent, wi
   // fit inside the safe area
   const maxW = WIDTH - 2 * SAFE_X;
   const maxH = HEIGHT - 2 * SAFE_Y;
-  const cardW = Math.min(S.resultW, maxW);
+  const cardW = Math.min(box ? box.w : S.resultW, maxW);
   const innerW = cardW - 2 * px(LOOK.padX);
   const name = info.name.toUpperCase();
   const nameSize = Math.min(px(LOOK.nameMax), innerW / (name.length * LOOK.antonWidth));
-  const showFact = withFact && info.fact.trim().length > 0;
 
   return (
     <div
       style={{
         position: 'absolute',
-        left: SAFE_X,
+        left: box ? box.x : SAFE_X,
         top: SAFE_Y,
-        width: maxW,
+        width: box ? box.w : maxW,
         height: maxH,
         display: 'flex',
         alignItems: 'center',
@@ -143,16 +141,6 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ stateKey, at, accent, wi
           <span style={{ fontWeight: 600, color: COLORS.muted, letterSpacing: px(3), marginRight: px(14) }}>{LABELS.capital}</span>
           <span style={{ fontWeight: 800 }}>{info.capital}</span>
         </div>
-
-        <div style={{ fontFamily: FONTS.body, fontWeight: 600, fontStyle: 'italic', fontSize: px(LOOK.nicknameFont), color: accent }}>
-          {`\u201C${info.nickname}\u201D`}
-        </div>
-
-        {showFact && (
-          <div style={{ fontFamily: FONTS.body, fontWeight: 600, fontSize: px(LOOK.factFont), color: COLORS.muted, maxWidth: innerW }}>
-            {info.fact}
-          </div>
-        )}
       </div>
     </div>
   );
