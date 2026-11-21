@@ -206,6 +206,24 @@ const check = (name, fn) => {
     return { problems, info: `${withQ} question clips gate the clock, ${withR} reveal clips start after the stamp and fit in the hold, ${T.BONUS_PUZZLES.length} bonuses checked` };
   });
 
+  check('6c visuals follow the voice: outline = question clip, name / capital when spoken', () => {
+    const problems = [];
+    let n = 0;
+    T.QUESTIONS.forEach((q, i) => {
+      const p = T.buildQuestionPlan(i, false);
+      if (p.questionVo) {
+        n++;
+        if (p.readyStart < p.questionVo.start + p.questionVo.frames) problems.push(`Q${q.id}: outline ends (${p.readyStart}) before the question clip does`);
+        if (p.timerStart <= p.readyStart) problems.push(`Q${q.id}: no get-ready beat before the clock`);
+      }
+      if (p.vo) {
+        if (p.nameAt < p.stamp || p.nameAt > p.vo.start + p.vo.frames) problems.push(`Q${q.id}: name at ${p.nameAt} outside the reveal clip`);
+        if (p.capitalAt < p.nameAt || p.capitalAt > p.vo.start + p.vo.frames) problems.push(`Q${q.id}: capital at ${p.capitalAt} outside the reveal clip`);
+      }
+    });
+    return { problems, info: `${n} outlines end with their question clip, name / capital land inside the reveal clips` };
+  });
+
   check('7 questions in video order', () => {
     const problems = [];
     const qs = segs.filter((s) => s.kind === 'question');

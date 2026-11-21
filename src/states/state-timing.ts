@@ -7,6 +7,7 @@
 import rootSettings from '../../settings.json';
 import settingsJson from './states-settings.json';
 import voManifestJson from './states-voiceover-manifest.json';
+import voAnalysisJson from './states-voice-analysis.json';
 import { STATES } from './states-data';
 import { buildBonusPuzzles } from './bonus-engine';
 import type { BonusPuzzle } from './bonus-engine';
@@ -49,8 +50,8 @@ export const BONUS_THEME = root.bonus.theme as [string, string];
 export const PHASE = {
   /** outline draw (StateShape progress 0 -> 1) */
   draw: 36,
-  /** pause between the finished outline and the clock starting */
-  beatBeforeClock: 10,
+  /** the "get ready" beat between the finished outline and the clock starting (the timer ring pops in and flashes) */
+  beatBeforeClock: 14,
   /** fill + name build before the answer lands */
   revealBuild: 36,
 };
@@ -118,6 +119,18 @@ const clipOf = (e: VoEntry): VoClip | undefined => {
 export const voiceIntro = () => clipOf(manifest.intro);
 export const voiceOutro = () => clipOf(manifest.outro);
 export const voiceLevel = (levelName: string) => clipOf(manifest.level[levelName]);
+/** Analysis of a clip (scripts/states-voiceover-scan.js): voice level per tick, speech start / end, reveal split. */
+export type VoAnalysis = { env: number[]; start: number; end: number; split?: number };
+const analysisOf = (file: string): VoAnalysis | undefined => (voAnalysisJson as unknown as Record<string, VoAnalysis>)[file];
+/** voice level 0..1 of clip `file` at tick `t` (since the clip started), 0 outside it or without analysis */
+export const voiceLevelAt = (file: string, t: number): number => {
+  const env = analysisOf(file)?.env;
+  if (!env || t < 0 || t >= env.length) return 0;
+  const i = Math.floor(t);
+  const a = env[i] ?? 0;
+  const b = env[Math.min(env.length - 1, i + 1)] ?? a;
+  return (a + (b - a) * (t - i)) / 100;
+};
 export const voiceQuestion = (questionId: number) => clipOf(manifest.question?.[String(questionId)]);
 export const voiceReveal = (questionId: number) => clipOf(manifest.reveal[String(questionId)]);
 export const voiceBonus = (slot: number) => clipOf(manifest.bonus[String(slot)]);
@@ -142,6 +155,8 @@ export type StateQuestionPlan = {
   /** outline starts drawing */
   drawStart: number;
   drawFrames: number;
+  /** the outline is finished and the "get ready" beat starts (the clock starts at timerStart) */
+  readyStart: number;
   timerStart: number;
   timerFrames: number;
   /** tick of each hint (1/3 and 2/3 of the clock) */
@@ -154,6 +169,10 @@ export type StateQuestionPlan = {
   hold: number;
   exit: number;
   duration: number;
+  /** tick the state name is shown on the answer card (when it is spoken; the stamp without a clip) */
+  nameAt: number;
+  /** tick the capital is shown on the answer card (when it is spoken; the stamp without a clip) */
+  capitalAt: number;
   /** reveal clip: starts offsetFrames after the stamp (reveal first, then voice) */
   vo?: { file: string; start: number; frames: number };
   /** question clip: starts offsetFrames after the outline starts drawing; the clock starts after it */
@@ -170,11 +189,13 @@ export const buildQuestionPlan = (index: number, withTitle = false): StateQuesti
 
   const titleFrames = withTitle ? t.titleInFrames : 0;
   const drawStart = titleFrames + t.questionAfterTitle;
-  // the question clip plays first (as the outline draws); the clock starts only after it has finished
+  // the question clip plays first and the outline draws for exactly as long as it is heard (never shorter than
+  // PHASE.draw); then the "get ready" beat, then the clock
   const qClip = voiceQuestion(q.id);
   const questionVoStart = drawStart + VO.offsetFrames;
-  const defaultTimerStart = drawStart + PHASE.draw + PHASE.beatBeforeClock;
-  const timerStart = qClip ? Math.max(defaultTimerStart, questionVoStart + qClip.frames + VO.tailFrames) : defaultTimerStart;
+  const drawFrames = qClip ? Math.max(PHASE.draw, VO.offsetFrames + qClip.frames) : PHASE.draw;
+  const readyStart = drawStart + drawFrames;
+  const timerStart = readyStart + Math.max(PHASE.beatBeforeClock, qClip ? VO.tailFrames : 0);
   const hintAt = settings.hints.fractions.map((f) => timerStart + timerFrames * f);
 
   const revealStart = timerStart + timerFrames + t.answerFlipsAfterTimer;
@@ -184,6 +205,11 @@ export const buildQuestionPlan = (index: number, withTitle = false): StateQuesti
   const minHold = Math.round(settings.reveal.minHoldSeconds * FPS);
   const clip = voiceReveal(q.id);
   const voHold = clip ? VO.offsetFrames + clip.frames + VO.tailFrames : 0;
+  // the answer card shows the name when it is spoken and the capital when it is spoken (both at the stamp without a clip)
+  const an = clip ? analysisOf(clip.file) : undefined;
+  const voiceAt = (tick: number | undefined) => stamp + VO.offsetFrames + Math.max(0, tick ?? 0);
+  const nameAt = clip ? Math.max(stamp, voiceAt(an?.start)) : stamp;
+  const capitalAt = clip ? Math.min(stamp + Math.max(minHold, voHold) - 1, Math.max(nameAt, voiceAt(an?.split ?? an?.start))) : stamp;
   const hold = Math.max(minHold, voHold);
 
   const exit = stamp + hold;
@@ -197,12 +223,15 @@ export const buildQuestionPlan = (index: number, withTitle = false): StateQuesti
     fast,
     titleFrames,
     drawStart,
-    drawFrames: PHASE.draw,
+    drawFrames,
+    readyStart,
     timerStart,
     timerFrames,
     hintAt,
     revealStart,
     stamp,
+    nameAt,
+    capitalAt,
     hold,
     exit,
     duration: exit + t.revealExit,

@@ -43,7 +43,7 @@ import settings from '../states-settings.json';
 import { STAGE_LAYOUT, StateStage } from '../components/StateStage';
 import { StateShape } from '../components/StateShape';
 import { StateTitleLockup } from '../components/StateTitleLockup';
-import { TimerRing } from '../components/TimerRing';
+import { TimerLead, timerLeadStart } from '../components/TimerLead';
 import { MiniMap, miniMapHeight } from '../components/MiniMap';
 import { AnswerCard } from '../components/AnswerCard';
 import { isStreakMilestone, stateRoundCues, streakAt } from './stateRoundCues';
@@ -240,16 +240,23 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
                   />
                 </div>
               ) : null}
-              {f >= plan.timerStart && f < plan.revealStart ? (
+              {f >= timerLeadStart(plan.questionVo, plan.readyStart) && f < plan.revealStart ? (
                 <div
                   style={{
                     position: 'absolute',
                     left: SAFE_X,
                     top: (HEIGHT - TIMER_SIZE) / 2,
-                    opacity: prog(f, plan.timerStart, 8, cssEaseOut),
                   }}
                 >
-                  <TimerRing from={plan.timerStart} duration={plan.timerFrames} accent={level.accent} size={TIMER_SIZE} frame={f} />
+                  <TimerLead
+                    frame={f}
+                    voice={plan.questionVo}
+                    readyStart={plan.readyStart}
+                    timerStart={plan.timerStart}
+                    timerFrames={plan.timerFrames}
+                    accent={level.accent}
+                    size={TIMER_SIZE}
+                  />
                 </div>
               ) : null}
               <Flash frame={f} start={plan.stamp} />
@@ -258,7 +265,7 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
           ),
         },
         card: {
-          children: <AnswerCard stateKey={plan.key} at={plan.stamp} accent={level.accent} box={{ x: SAFE_X, w: WIDTH * REVEAL.cardW }} exit={plan.exit} frame={f} />,
+          children: <AnswerCard stateKey={plan.key} at={plan.stamp} nameAt={plan.nameAt} capitalAt={plan.capitalAt} voice={plan.vo} accent={level.accent} box={{ x: SAFE_X, w: WIDTH * REVEAL.cardW }} exit={plan.exit} frame={f} />,
         },
       }}
     />

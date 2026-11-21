@@ -36,6 +36,7 @@ export const streakAt = (plan: StateQuestionPlan): number => plan.stamp + (plan.
  * `withTitle` must match what the timeline used for that question (buildQuestionPlan's second argument).
  *
  * - whoosh at the moment the outline starts drawing (stage-in)
+ * - pop when the clock ring pops in (the "get ready" beat after the question read-out)
  * - tick on every whole second the clock has run (the same instants the TimerRing pulses on)
  * - tick-low instead of tick for every second boundary that falls inside the last second
  *   (the last FPS ticks of the clock, where the ring turns red)
@@ -51,6 +52,9 @@ export const stateRoundCues = (index: number, withTitle = false): StateCue[] => 
 
   // stage-in
   add(plan.drawStart, 'whoosh');
+
+  // get ready: the clock ring pops in
+  add(plan.readyStart, 'pop', { volume: 0.8 });
 
   // clock: a boundary at 1 s, 2 s, ... strictly before the clock ends
   const lastSecondFrom = plan.timerFrames - FPS;
