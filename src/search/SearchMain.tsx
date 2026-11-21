@@ -7,13 +7,16 @@ import rootSettings from '../../settings.json';
 import { locate, LEVELS, TIMELINE } from './search-timing';
 import { SearchRound } from './scenes/SearchRound';
 import { SearchScoreboard } from './scenes/SearchScoreboard';
+import { SearchBonus } from './scenes/SearchBonus';
+import { SearchEndScreen } from './scenes/SearchEndScreen';
+import { SearchHook } from './scenes/SearchHook';
 
 /**
  * Search History composition root. Like src/Main.tsx it only decides WHICH scene is on
  * screen; each scene owns its motion and reads its scene-local tick, so any frame range
  * can be rendered in any order. No audio here (a later task).
  *
- * Scenes that do not exist yet (hook, levelCard, bonus, reminder, iris, endScreen) render
+ * Scenes that do not exist yet (levelCard, reminder, iris wipe) render
  * <Pending/>: a plain gradient from the segment's own theme, so the timeline can be
  * scrubbed end to end. Replace each case with its scene when that task lands.
  */
@@ -49,11 +52,9 @@ const Scenes: React.FC = () => {
       <>{children}</>
     );
 
-  const firstTheme = LEVELS[0].theme;
-
   switch (seg.kind) {
     case 'hook':
-      return <AbsoluteFill>{rig(<Pending theme={firstTheme} />)}</AbsoluteFill>;
+      return <AbsoluteFill>{rig(<SearchHook frame={local} duration={seg.duration} />)}</AbsoluteFill>;
     case 'levelCard':
       return <AbsoluteFill>{rig(<Pending theme={LEVELS[seg.levelIndex].theme} />)}</AbsoluteFill>;
     case 'round':
@@ -67,7 +68,7 @@ const Scenes: React.FC = () => {
     case 'bonus':
       return (
         <AbsoluteFill>
-          <BlurWrap>{rig(<Pending theme={LEVELS[LEVELS.length - 1].theme} />)}</BlurWrap>
+          <BlurWrap>{rig(<SearchBonus frame={local} index={seg.index} />)}</BlurWrap>
         </AbsoluteFill>
       );
     case 'reminder':
@@ -89,7 +90,7 @@ const Scenes: React.FC = () => {
     case 'scoreboard':
       return <AbsoluteFill>{rig(<SearchScoreboard frame={local} />)}</AbsoluteFill>;
     case 'endScreen':
-      return <AbsoluteFill>{rig(<Pending theme={LEVELS[LEVELS.length - 1].theme} />)}</AbsoluteFill>;
+      return <AbsoluteFill>{rig(<SearchEndScreen frame={local} />)}</AbsoluteFill>;
     default:
       return <AbsoluteFill style={{ background: '#000' }} />;
   }
