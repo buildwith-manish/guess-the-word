@@ -26,10 +26,10 @@ export const CAPITAL_LOOK = {
   /** smallest scale of the inline row before it stacks */
   minScale: 0.6,
   /** label style (at normal size) */
-  labelSpacing: 3,
+  labelSpacing: 1,
   labelMargin: 14,
-  labelWeight: 600,
-  valueWeight: 800,
+  labelWeight: 500,
+  valueWeight: 600,
   /** stacked: label size as a fraction of the normal size, gap between the two lines as a fraction of the value size */
   stackLabelScale: 0.56,
   stackGap: 0.12,
@@ -130,17 +130,17 @@ export const fitVoiceBars = (cardW: number, chipW: number, rightInset: number, w
   return { width: Math.max(0, width), show: width >= wantW * 0.4 };
 };
 
-/** State-name fitting: the name is Anton, sized from its real measured width instead of an average glyph width. */
+/** State-name fitting: the name is set in Inter bold, sized from its real measured width instead of an average glyph width. */
 export const NAME_LOOK = {
   /** largest size, ref px */
-  max: 190,
+  max: 120,
   /** the name briefly scales up by this fraction during its glow flash, so it is fitted with that headroom */
-  flash: 0.06,
+  flash: 0,
 };
 
-export const fitNameSize = (name: string, innerW: number, fontFamily: string, measure: MeasureFn): { size: number; width: number } => {
+export const fitNameSize = (name: string, innerW: number, fontFamily: string, measure: MeasureFn, fontWeight = 400): { size: number; width: number } => {
   const max = px(NAME_LOOK.max);
-  const w1 = measure(name, { fontFamily, fontWeight: 400, fontSize: max, letterSpacing: 0 });
+  const w1 = measure(name, { fontFamily, fontWeight, fontSize: max, letterSpacing: 0 });
   const size = Math.min(max, (max * innerW * CAPITAL_LOOK.safety) / (w1 * (1 + NAME_LOOK.flash)));
-  return { size, width: measure(name, { fontFamily, fontWeight: 400, fontSize: size, letterSpacing: 0 }) };
+  return { size, width: measure(name, { fontFamily, fontWeight, fontSize: size, letterSpacing: 0 }) };
 };

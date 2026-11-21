@@ -1,8 +1,7 @@
 /**
  * AnswerCard: the reveal card. State name very large, two-letter chip and the capital (nickname and fact
  * lines were removed on request; the map beside the card is the extra). With `box` it sits in a left/width
- * column, vertically centred, instead of the centred default. Stamp-in = anim.ts slamIn (scale-down slam), then a
- * short decaying shake once it lands. 2D card (see docs): Card3D is word + clue-image specific, and RevealStyle
+ * column, vertically centred, instead of the centred default. iOS look: the card settles in on the shared spring (no slam, no shake, no glow), frosted with a hairline edge. 2D card (see docs): Card3D is word + clue-image specific, and RevealStyle
  * wraps children but brings its own reveal styles and needs `exit` / `questionId`, so neither fits this prop set.
  * Voiceover timing (optional): the card slams in at `at` with the state key chip; the NAME appears at `nameAt` and the
  * CAPITAL at `capitalAt` (the ticks they are spoken, from the plan), and a small VoiceBars indicator follows the reveal
@@ -16,8 +15,9 @@ import React, { useEffect, useState } from 'react';
 import { continueRender, delayRender } from 'remotion';
 import { measureText } from '@remotion/layout-utils';
 import { useDesignFrame } from '../../clock';
-import { COLORS, FONTS, SAFE_X, SAFE_Y, S, glass, px } from '../../style';
-import { ms, slamIn, prog, cssEaseIn, cssEaseOut } from '../../anim';
+import { SAFE_X, SAFE_Y, S, px } from '../../style';
+import { IOS, iosSurface, spring } from '../../ios';
+import { ms, prog, cssEaseIn, cssEaseOut } from '../../anim';
 import { VoiceBars } from './VoiceBars';
 import { WIDTH, HEIGHT } from '../state-timing';
 import { getState } from '../states-data';
@@ -46,29 +46,24 @@ export interface AnswerCardProps {
 }
 
 /** UI words on the card. */
-const LABELS = { capital: 'CAPITAL' };
+const LABELS = { capital: 'Capital' };
 
 /** Layout proportions (1280x720 reference units go through px()) and stamp timing. */
 const LOOK = {
-  radius: 28,
+  radius: 30,
   padX: 56,
   padY: 44,
   gap: 20,
   chipFont: 30,
-  chipSpacing: 4,
+  chipSpacing: 1,
   chipPadX: 22,
   chipPadY: 4,
   /** gap kept between the voice bars and the key chip */
   barsGap: 16,
-  stampMs: 520,
-  shakeMs: 380,
-  shakeCycles: 3,
-  /** shake amplitude, ref px */
-  shake: 9,
+  stampMs: 420,
   exitMs: 380,
   /** a spoken line fades / rises in over this long, the name's glow flash lasts flashMs */
   lineMs: 280,
-  flashMs: 520,
   /** voice indicator box, ref px */
   barsW: 74,
   barsH: 36,
@@ -78,20 +73,20 @@ const LOOK = {
 const measure_chip = (ready: boolean, key: string): number => {
   const sz = px(LOOK.chipFont);
   const ls = px(LOOK.chipSpacing);
-  const w = ready ? measure(key, { fontFamily: FONTS.body, fontWeight: 800, fontSize: sz, letterSpacing: ls }) : key.length * sz * 0.8 + key.length * ls;
+  const w = ready ? measure(key, { fontFamily: IOS.font, fontWeight: IOS.weight.semibold, fontSize: sz, letterSpacing: ls }) : key.length * sz * 0.8 + key.length * ls;
   return w + 2 * px(LOOK.chipPadX);
 };
 
 const measure: MeasureFn = (text, o) =>
   measureText({ text, fontFamily: o.fontFamily, fontWeight: String(o.fontWeight), fontSize: o.fontSize, letterSpacing: `${o.letterSpacing}px`, validateFontIsLoaded: false }).width;
 
-/** Poppins / Anton are loaded in fonts.ts; hold the frame until the browser has them so nothing is measured with a fallback face. */
+/** Inter is loaded in src/ios/fonts.ts; hold the frame until the browser has them so nothing is measured with a fallback face. */
 const useFontsReady = (): boolean => {
   const [ready, setReady] = useState(false);
   const [handle] = useState(() => delayRender('AnswerCard fonts'));
   useEffect(() => {
     let live = true;
-    Promise.all(['600 20px Poppins', '800 20px Poppins', '20px Anton'].map((f) => document.fonts.load(f)))
+    Promise.all(['500 20px Inter', '600 20px Inter', '700 20px Inter'].map((f) => document.fonts.load(f)))
       .catch(() => undefined)
       .then(() => {
         if (!live) return;
@@ -112,20 +107,12 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ stateKey, at, accent, bo
   const fontsReady = useFontsReady();
 
   const stampTicks = ms(LOOK.stampMs);
-  const slam = slamIn(f, at, stampTicks);
+  const k = spring((f - at) / stampTicks);
+  const settle = { opacity: Math.min(1, k * 1.4), transform: `scale(${0.94 + 0.06 * k})` };
 
-  // shake after landing, decaying
-  const landed = at + stampTicks;
-  const sp = prog(f, landed, ms(LOOK.shakeMs));
-  const amp = f >= landed && sp < 1 ? px(LOOK.shake) * Math.pow(1 - sp, 2) : 0;
-  const phase = 2 * Math.PI * LOOK.shakeCycles * sp;
-  const dx = amp * Math.sin(phase);
-  const dy = amp * 0.6 * Math.cos(phase * 1.3);
-
-  // name and capital come in when they are spoken (a short rise + fade, the name with a glow flash)
+  // name and capital come in when they are spoken (a short rise + fade)
   const nameP = prog(f, nameAt ?? at, ms(LOOK.lineMs), cssEaseOut);
   const capP = prog(f, capitalAt ?? at, ms(LOOK.lineMs), cssEaseOut);
-  const nameFlash = Math.max(0, 1 - prog(f, nameAt ?? at, ms(LOOK.flashMs), cssEaseOut));
   const speaking = voice ? prog(f, voice.start - 3, 5, cssEaseOut) * (1 - prog(f, voice.start + voice.frames, 6, cssEaseOut)) : 0;
 
   const exitOpacity = exit === undefined ? 1 : 1 - prog(f, exit, ms(LOOK.exitMs), cssEaseIn);
@@ -135,18 +122,18 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ stateKey, at, accent, bo
   const maxH = HEIGHT - 2 * SAFE_Y;
   const cardW = Math.min(box ? box.w : S.resultW, maxW);
   const innerW = cardW - 2 * px(LOOK.padX);
-  const name = info.name.toUpperCase();
+  const name = info.name;
   const fallback: MeasureFn = (t, o) => t.length * o.fontSize * 0.8 + t.length * o.letterSpacing; // only until the fonts are ready
   const m: MeasureFn = fontsReady ? measure : fallback;
   // name: sized from its real width (max NAME_LOOK.max, with headroom for the glow-flash scale)
-  const nameSize = fitNameSize(name, innerW, FONTS.display, m).size;
+  const nameSize = fitNameSize(name, innerW, IOS.font, m, IOS.weight.bold).size;
 
   // capital row: measured, scaled or stacked so it always sits inside innerW
   const cap = fitCapitalRow({
     label: LABELS.capital,
     capital: info.capital,
     innerW,
-    fontFamily: FONTS.body,
+    fontFamily: IOS.font,
     measure: m,
   });
 
@@ -169,12 +156,12 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ stateKey, at, accent, bo
         alignItems: 'center',
         justifyContent: 'center',
         pointerEvents: 'none',
-        opacity: slam.opacity * exitOpacity,
+        opacity: settle.opacity * exitOpacity,
       }}
     >
       <div
         style={{
-          ...glass(px(LOOK.radius), 0.1),
+          ...iosSurface(px(LOOK.radius)),
           width: cardW,
           maxHeight: maxH,
           position: 'relative',
@@ -185,22 +172,19 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ stateKey, at, accent, bo
           alignItems: 'center',
           textAlign: 'center',
           gap: px(LOOK.gap),
-          border: `${px(3)}px solid ${accent}`,
-          boxShadow: `0 0 ${px(40)}px ${accent}55, 0 ${px(14)}px ${px(40)}px rgba(0,0,0,0.45)`,
-          transform: `translate(${dx}px, ${dy}px) ${slam.transform}`,
-          filter: slam.filter,
+          transform: settle.transform,
         }}
       >
         <div
           style={{
-            fontFamily: FONTS.body,
-            fontWeight: 800,
+            fontFamily: IOS.font,
+            fontWeight: IOS.weight.semibold,
             fontSize: px(LOOK.chipFont),
             letterSpacing: px(LOOK.chipSpacing),
             lineHeight: 1.2,
             whiteSpace: 'nowrap',
-            color: COLORS.inkDark,
-            background: accent,
+            color: accent,
+            background: IOS.color.fillStrong,
             borderRadius: px(LOOK.chipFont),
             padding: `${px(LOOK.chipPadY)}px ${px(LOOK.chipPadX)}px`,
           }}
@@ -216,14 +200,15 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ stateKey, at, accent, bo
 
         <div
           style={{
-            fontFamily: FONTS.display,
+            fontFamily: IOS.font,
+            fontWeight: IOS.weight.bold,
+            letterSpacing: -nameSize * 0.02,
             fontSize: nameSize,
             lineHeight: 1,
             whiteSpace: 'nowrap',
-            color: COLORS.ink,
-            textShadow: `0 0 ${px(28 + 40 * nameFlash)}px ${accent}`,
+            color: IOS.color.label,
             opacity: nameP,
-            transform: `translateY(${px(18) * (1 - nameP)}px) scale(${1 + 0.06 * nameFlash})`,
+            transform: `translateY(${px(18) * (1 - nameP)}px)`,
           }}
         >
           {name}
@@ -232,8 +217,8 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ stateKey, at, accent, bo
         {/* capital: the row's space (cap.height) is reserved from the first frame, so the card never jumps while it fades in */}
         <div
           style={{
-            fontFamily: FONTS.body,
-            color: COLORS.ink,
+            fontFamily: IOS.font,
+            color: IOS.color.label,
             width: '100%',
             height: cap.height,
             display: 'flex',
@@ -248,12 +233,12 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ stateKey, at, accent, bo
         >
           {cap.mode === 'inline' ? (
             <div style={{ fontSize: cap.valueSize, whiteSpace: 'nowrap' }}>
-              <span style={{ fontWeight: CAPITAL_LOOK.labelWeight, color: COLORS.muted, letterSpacing: cap.labelSpacing, marginRight: cap.labelMargin }}>{LABELS.capital}</span>
+              <span style={{ fontWeight: CAPITAL_LOOK.labelWeight, color: IOS.color.secondary, letterSpacing: cap.labelSpacing, marginRight: cap.labelMargin }}>{LABELS.capital}</span>
               <span style={{ fontWeight: CAPITAL_LOOK.valueWeight, whiteSpace: 'nowrap' }}>{info.capital}</span>
             </div>
           ) : (
             <>
-              <div style={{ fontSize: cap.labelSize, fontWeight: CAPITAL_LOOK.labelWeight, color: COLORS.muted, letterSpacing: cap.labelSpacing, whiteSpace: 'nowrap' }}>{LABELS.capital}</div>
+              <div style={{ fontSize: cap.labelSize, fontWeight: CAPITAL_LOOK.labelWeight, color: IOS.color.secondary, letterSpacing: cap.labelSpacing, whiteSpace: 'nowrap' }}>{LABELS.capital}</div>
               <div style={{ fontSize: cap.valueSize, fontWeight: CAPITAL_LOOK.valueWeight, marginTop: cap.stackGap, whiteSpace: 'nowrap' }}>{info.capital}</div>
             </>
           )}
