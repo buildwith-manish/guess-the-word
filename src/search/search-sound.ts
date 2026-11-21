@@ -52,6 +52,11 @@ const layerForLevel = (levelIndex: number) => Math.min(MAX_LAYER, Math.max(0, le
 
 const VOICE_LIST: Voice[] = [];
 
+/** Music hush windows (ticks): from a few ticks before every reveal until it lands, so the riser ends on silence.
+ *  Same idea as HUSHES in src/sound.ts (ramp and floor from settings.sound.panic). */
+const HUSH_LEAD = 9; // ticks of silence before the reveal (the same lead GTW uses)
+const HUSHES: { from: number; to: number }[] = [];
+
 const buildCues = (): Cue[] => {
   const cues: Cue[] = [];
   const add = (frame: number, sfx: Sfx, extra: Partial<Cue> = {}) =>
@@ -81,6 +86,7 @@ const buildCues = (): Cue[] => {
         place(base, searchRoundCues(seg.index));
         // riser into the answer: the last second of the clock
         add(base + Math.max(plan.clockStart, plan.revealAt - riserFrames), 'riser');
+        HUSHES.push({ from: Math.round(base + plan.revealAt - HUSH_LEAD), to: Math.round(base + plan.revealAt) });
         voice(base + plan.revealAt + VO_AT, plan.vo);
         break;
       }
@@ -88,6 +94,7 @@ const buildCues = (): Cue[] => {
         const plan = buildBonusPlan(seg.index);
         place(0, buildBonusCues(seg.index, f0));
         add(f0 + Math.max(plan.clockStart, plan.clockStart + plan.clockFrames - riserFrames), 'riser');
+        HUSHES.push({ from: Math.round(f0 + plan.revealAt - HUSH_LEAD), to: Math.round(f0 + plan.revealAt) });
         voice(f0 + plan.revealAt + VO_AT, voiceBonus(seg.index + 1));
         break;
       }
@@ -143,6 +150,15 @@ const buildMusicEnvelopes = (): Float32Array[] => {
     for (let f = Math.max(0, c.frame); f < Math.min(n, c.frame + duckFrames + recover * 4); f++) {
       const dt = f - c.frame;
       const v = dt < duckFrames ? DUCK_FLOOR : 1 - (1 - DUCK_FLOOR) * Math.exp(-(dt - duckFrames) / recover);
+      if (v < duck[f]) duck[f] = v;
+    }
+  }
+
+  // hush windows: ramp down just before, hold at the floor, snap back when the answer lands
+  const panic = rootSettings.sound.panic;
+  for (const h of HUSHES) {
+    for (let f = Math.max(0, h.from - panic.hushRamp); f < Math.min(n, h.to); f++) {
+      const v = f < h.from ? 1 - (1 - panic.hushFloor) * ((f - (h.from - panic.hushRamp) + 1) / (panic.hushRamp + 1)) : panic.hushFloor;
       if (v < duck[f]) duck[f] = v;
     }
   }

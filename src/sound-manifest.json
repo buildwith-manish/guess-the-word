@@ -4,6 +4,7 @@
   "tick": 0.14,
   "tick-low": 0.14,
   "key-click": 0.08,
+  "send": 0.19,
   "flip": 0.3,
   "flare": 0.55,
   "letter": 0.23,
