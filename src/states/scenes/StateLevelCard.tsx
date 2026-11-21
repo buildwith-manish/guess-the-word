@@ -4,9 +4,9 @@
  * tiny demo of the level's rule, drawn with the real components on ONE sample state of that level
  * (the first state of the level in states-data.ts):
  *   outline  StateShape draws          (no tier rule)
- *   crop     CropMask over StateShape  (the state's `cropSide` half hidden, then slid open)
+ *   crop     StateShape traced in      (outline draws itself)
  *   rotate   StateShape rotated        (the state's `rotation`, spun in, then a slight sway)
- *   pixel    PixelReveal               (coarse blocks -> fine, then the smooth outline)
+ *   pixel    blurred silhouette        (sharpens, then the neon outline)
  * The tier is read off the sample state (rotation / cropSide) and the last level (pixel), not typed per level.
  * Counts, seconds, colours: LEVELS / QUESTIONS from state-timing (states-settings.json, states-data.ts).
  *
@@ -27,8 +27,6 @@ import { LEVELS, QUESTIONS, voiceLevel } from '../state-timing';
 import { STATES } from '../states-data';
 import type { StateInfo } from '../states-data';
 import { StateShape } from '../components/StateShape';
-import { CropMask } from '../components/CropMask';
-import { PixelReveal } from '../components/PixelReveal';
 import type { StateCue } from './stateRoundCues';
 
 /** Beats in ticks from the start of the card. */
@@ -38,9 +36,9 @@ export const LEVEL_BEATS = { thump: 3, nameAt: 12, boom: 15, demoAt: 22, exit: 1
 export type Tier = 'outline' | 'crop' | 'rotate' | 'pixel';
 const TIER_LABEL: Record<Tier, string> = {
   outline: 'FULL OUTLINE',
-  crop: 'HALF HIDDEN',
+  crop: 'TRACED IN',
   rotate: 'ROTATED',
-  pixel: 'PIXELATED',
+  pixel: 'BLURRED',
 };
 
 /** Demo timing in ticks counted from the demo's own start (LEVEL_BEATS.demoAt). */
@@ -79,16 +77,25 @@ const RuleDemo: React.FC<{ t: number; levelIndex: number; size: number; accent: 
   const draw = prog(t, 0, DEMO.draw, cssEaseInOut);
 
   if (tier === 'pixel') {
-    const progress = prog(t, 0, DEMO.pixelDur, linear);
-    return <PixelReveal stateKey={s.key} size={size} progress={progress} accent={accent} at={DEMO.fadeAt} dur={DEMO.fadeDur} frame={Math.max(0, t)} />;
-  }
-  if (tier === 'crop' && s.cropSide) {
-    const reveal = prog(t, DEMO.cropAt, DEMO.cropDur, cssEaseInOut);
+    // blurred silhouette sharpening, then the outline
+    const p = prog(t, 0, DEMO.pixelDur, linear);
+    const fade = prog(t, DEMO.fadeAt, DEMO.fadeDur, cssEaseInOut);
+    const blur = size * (settings.tiers.blur.start + (settings.tiers.blur.end - settings.tiers.blur.start) * p);
     return (
-      <CropMask side={s.cropSide} reveal={reveal} size={size}>
-        <StateShape stateKey={s.key} size={size} progress={draw} glow={draw} accent={accent} />
-      </CropMask>
+      <div style={{ position: 'relative', width: size, height: size }}>
+        <div style={{ position: 'absolute', inset: 0, opacity: 1 - fade, filter: `blur(${blur}px)` }}>
+          <StateShape stateKey={s.key} size={size} progress={1} fill={1} glow={0} mode="filled" accent={accent} />
+        </div>
+        <div style={{ position: 'absolute', inset: 0, opacity: fade }}>
+          <StateShape stateKey={s.key} size={size} progress={1} glow={1} accent={accent} />
+        </div>
+      </div>
     );
+  }
+  if (tier === 'crop') {
+    // outline traces itself
+    const trace = prog(t, 0, DEMO.cropAt + DEMO.cropDur, cssEaseInOut);
+    return <StateShape stateKey={s.key} size={size} progress={trace} glow={draw} accent={accent} />;
   }
   if (tier === 'rotate') {
     const spin = prog(t, 0, DEMO.spin, cssEaseInOut);

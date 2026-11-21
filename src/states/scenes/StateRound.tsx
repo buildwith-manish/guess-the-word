@@ -14,10 +14,10 @@
  *
  * Tier by level (states-data.ts / state-timing QUESTIONS carry the per-state values):
  *   EASY    plain neon outline (StateShape)
- *   MEDIUM  the same, inside a CropMask hiding the half named by the state's cropSide (reveal slides it open)
+ *   MEDIUM  the outline traces itself over the clock (settings.tiers.trace), closing during the reveal
  *   HARD    StateShape and EmojiFill rotated by the state's rotation (FlyIn un-rotates it)
- *   EXPERT  PixelReveal: 12 -> 24 -> 48 cells with the clock, cross-fade to the outline at plan.revealStart
- * Hints (every tier): emoji grid (EmojiFill) at plan.hintAt[0]; Census-region glow on the MiniMap at plan.hintAt[1].
+ *   EXPERT  blurred solid silhouette sharpening over the clock (settings.tiers.blur), cross-fade to the outline in the reveal
+ * Hint (every tier): Census-region glow on the MiniMap at plan.hintAt[1].
  * The MiniMap shows the states answered so far (video order before `index`). It deliberately gets no
  * `current` state: that pulsing outline would mark the answer. The current state joins the map by FlyIn.
  *
@@ -42,8 +42,6 @@ import settings from '../states-settings.json';
 import { STAGE_LAYOUT, StateStage } from '../components/StateStage';
 import { StateShape } from '../components/StateShape';
 import { TimerRing } from '../components/TimerRing';
-import { CropMask } from '../components/CropMask';
-import { PixelReveal } from '../components/PixelReveal';
 import { MiniMap } from '../components/MiniMap';
 import { AnswerCard } from '../components/AnswerCard';
 import { FlyIn } from '../components/FlyIn';
@@ -134,54 +132,49 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
   const flyAt = plan.exit;
   const flyDur = plan.duration - plan.exit;
 
-  if (q.level === 'MEDIUM' && q.cropSide === undefined) throw new Error(`${q.key}: MEDIUM state without cropSide`);
   if (q.level === 'HARD' && q.rotation === undefined) throw new Error(`${q.key}: HARD state without rotation`);
   const rotation = q.level === 'HARD' ? (q.rotation as number) : 0;
 
   // hints: emoji at hintAt[0], region glow at hintAt[1]
   const region = f >= plan.hintAt[1] ? info.region : undefined;
 
+  const tiers = settings.tiers;
+  // MEDIUM: the outline traces itself over the clock, then closes during the reveal
+  const trace = f < plan.revealStart
+    ? tiers.trace.from + (tiers.trace.to - tiers.trace.from) * clock
+    : tiers.trace.to + (1 - tiers.trace.to) * reveal;
+  const shapeProgress = q.level === 'MEDIUM' ? (f < plan.timerStart ? draw * tiers.trace.from : trace) : draw;
+
   let shapeSlot: React.ReactNode;
   if (q.level === 'EXPERT') {
+    // EXPERT: a blurred solid silhouette sharpens over the clock, then cross-fades to the neon outline
+    const blur = size * (tiers.blur.start + (tiers.blur.end - tiers.blur.start) * clock);
     shapeSlot = (
       <div style={{ position: 'relative', width: size, height: size }}>
-        <div style={{ ...fill, opacity: draw }}>
-          <PixelReveal
-            stateKey={plan.key}
-            size={size}
-            progress={clock}
-            accent={level.accent}
-            at={plan.revealStart}
-            dur={plan.stamp - plan.revealStart}
-            frame={f}
-          />
+        <div style={{ ...fill, opacity: draw * (1 - reveal), filter: `blur(${blur}px)` }}>
+          <StateShape stateKey={plan.key} size={size} progress={1} fill={1} glow={0} mode="filled" accent={level.accent} />
+        </div>
+        <div style={{ ...fill, opacity: reveal }}>
+          <StateShape stateKey={plan.key} size={size} progress={1} fill={reveal} glow={reveal} accent={level.accent} />
         </div>
       </div>
     );
   } else {
-    const layers = (
-      <>
+    shapeSlot = (
+      <div style={{ position: 'relative', width: size, height: size }}>
         <div style={fill}>
           <StateShape
             stateKey={plan.key}
             size={size}
-            progress={draw}
+            progress={shapeProgress}
             fill={reveal}
             glow={draw}
             rotation={rotation}
             accent={level.accent}
           />
         </div>
-      </>
+      </div>
     );
-    shapeSlot =
-      q.level === 'MEDIUM' ? (
-        <CropMask side={q.cropSide as NonNullable<typeof q.cropSide>} reveal={reveal} size={size}>
-          {layers}
-        </CropMask>
-      ) : (
-        <div style={{ position: 'relative', width: size, height: size }}>{layers}</div>
-      );
   }
 
   return (
