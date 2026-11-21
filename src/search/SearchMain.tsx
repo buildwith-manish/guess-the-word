@@ -4,12 +4,16 @@ import { CameraMotionBlur } from '@remotion/motion-blur';
 import { useDesignFrame } from '../clock';
 import { CameraRig } from '../CameraRig';
 import rootSettings from '../../settings.json';
-import { locate, LEVELS, TIMELINE } from './search-timing';
+import searchSettings from './search-settings.json';
+import { locate, TIMELINE } from './search-timing';
 import { SearchRound } from './scenes/SearchRound';
 import { SearchScoreboard } from './scenes/SearchScoreboard';
 import { SearchBonus } from './scenes/SearchBonus';
 import { SearchEndScreen } from './scenes/SearchEndScreen';
 import { SearchHook } from './scenes/SearchHook';
+import { SearchLevelCard } from './scenes/SearchLevelCard';
+import { SearchReminder } from './scenes/SearchReminder';
+import { SearchIris } from './scenes/SearchIris';
 import { SearchSoundtrack } from './SearchSoundtrack';
 
 /**
@@ -17,14 +21,9 @@ import { SearchSoundtrack } from './SearchSoundtrack';
  * screen; each scene owns its motion and reads its scene-local tick, so any frame range
  * can be rendered in any order. Audio: <SearchSoundtrack/>.
  *
- * Scenes that do not exist yet (levelCard, reminder, iris wipe) render
- * <Pending/>: a plain gradient from the segment's own theme, so the timeline can be
- * scrubbed end to end. Replace each case with its scene when that task lands.
+ * Camera: the iOS look is calm, so by default there is no breathing camera and no motion blur.
+ * search-settings.json "camera" turns either back on (cards: CameraRig on card scenes; motionBlur: root settings).
  */
-
-const Pending: React.FC<{ theme: [string, string] }> = ({ theme }) => (
-  <AbsoluteFill style={{ background: `linear-gradient(135deg, ${theme[0]}, ${theme[1]})` }} />
-);
 
 const Scenes: React.FC = () => {
   const frame = useDesignFrame();
@@ -33,7 +32,7 @@ const Scenes: React.FC = () => {
 
   // card scenes get the shared slow breathing camera; rounds have their own camera
   const rig = (children: React.ReactNode) =>
-    rootSettings.camera.cards ? (
+    rootSettings.camera.cards && searchSettings.camera.cards ? (
       <CameraRig frame={local} duration={seg.duration}>
         {children}
       </CameraRig>
@@ -43,7 +42,7 @@ const Scenes: React.FC = () => {
 
   // motion blur settings come from root settings.json (same as Main.tsx)
   const mb = rootSettings.motionBlur || { mode: 'off', shutterAngle: 360, samples: 4 };
-  const blurOn = mb.mode === 'always' || mb.mode === 'windows';
+  const blurOn = searchSettings.camera.motionBlur && (mb.mode === 'always' || mb.mode === 'windows');
   const BlurWrap = ({ children }: { children: React.ReactNode }) =>
     blurOn ? (
       <CameraMotionBlur shutterAngle={mb.shutterAngle} samples={mb.samples}>
@@ -57,7 +56,7 @@ const Scenes: React.FC = () => {
     case 'hook':
       return <AbsoluteFill>{rig(<SearchHook frame={local} duration={seg.duration} />)}</AbsoluteFill>;
     case 'levelCard':
-      return <AbsoluteFill>{rig(<Pending theme={LEVELS[seg.levelIndex].theme} />)}</AbsoluteFill>;
+      return <AbsoluteFill>{rig(<SearchLevelCard frame={local} levelIndex={seg.levelIndex} duration={seg.duration} />)}</AbsoluteFill>;
     case 'round':
       return (
         <AbsoluteFill>
@@ -73,18 +72,14 @@ const Scenes: React.FC = () => {
         </AbsoluteFill>
       );
     case 'reminder':
-      return <AbsoluteFill>{rig(<Pending theme={seg.theme} />)}</AbsoluteFill>;
+      return <AbsoluteFill>{rig(<SearchReminder frame={local} seg={seg} />)}</AbsoluteFill>;
     case 'iris': {
-      // overlap: the next round's content plays inside the last `lead` ticks of the wipe
+      // overlap: the next round's content plays inside the last `lead` ticks of the transition
       const next = TIMELINE.segments[index + 1];
-      const lead = next && next.kind === 'round' ? (next.lead ?? 0) : 0;
-      const rf = local - (seg.duration - lead);
+      const nextRound = next && next.kind === 'round' ? { index: next.index, lead: next.lead ?? 0 } : undefined;
       return (
         <AbsoluteFill>
-          <Pending theme={seg.toTheme} />
-          {next && next.kind === 'round' && lead > 0 && rf >= 0 ? (
-            <SearchRound frame={rf} index={next.index} lead={lead} />
-          ) : null}
+          <SearchIris frame={local} seg={seg} next={nextRound} />
         </AbsoluteFill>
       );
     }

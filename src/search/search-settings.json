@@ -30,5 +30,6 @@
   ],
   "typing": { "ticksPerChar": 2, "minTicks": 12,
     "fastestTicksPerChar": 0.75 },
-  "nextVideo": { "title": "", "linkText": "" }
+  "nextVideo": { "title": "", "linkText": "" },
+  "camera": { "cards": false, "motionBlur": false }
 }
