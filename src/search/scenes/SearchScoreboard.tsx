@@ -1,10 +1,7 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { COLORS, FONTS, S, px, glass, K } from '../../style';
-import { prog, revealIn } from '../../anim';
-import { backOut } from '../../gsap-helpers';
-import { Background } from '../../Background';
-import { Confetti } from '../../Fx';
+import { S, px } from '../../style';
+import { IOS, IosBackground, iosSurface, spring } from '../../ios';
 import { ROUNDS } from '../search-data';
 import { LEVELS } from '../search-timing';
 import { ProgressDots } from '../components/ProgressDots';
@@ -51,13 +48,17 @@ const levelColor = (i: number) => LEVELS.find((l) => l.name === ROUNDS[i].level)
 export const SearchScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
   const total = ROUNDS.length;
   const litCount = Math.max(0, Math.min(total, Math.floor(((frame - DOTS_AT) / DOTS_SPAN) * total) + 1));
-  const strip = revealIn(frame, 0, 14, 20);
-  const line = revealIn(frame, lineAt(), 16, 26);
+  const rise = (at: number, ticks: number, dist: number) => {
+    const k = spring((frame - at) / ticks);
+    return { opacity: Math.min(1, k * 1.4), transform: `translateY(${(1 - k) * px(dist)}px)` };
+  };
+  const strip = rise(0, 14, 14);
+  const line = rise(lineAt(), 16, 16);
   const glowAt = legendAt();
 
   return (
     <AbsoluteFill>
-      <Background frame={frame} theme={THEME} />
+      <IosBackground accent={LEVELS[LEVELS.length - 1].accent} />
 
       {/* recap strip: every round, lit one by one */}
       <AbsoluteFill style={{ opacity: strip.opacity, transform: strip.transform }}>
@@ -80,7 +81,8 @@ export const SearchScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
       >
         {RANKS.map((r, i) => {
           const at = rowStart(i);
-          const p = prog(frame, at, 20, backOut);
+          const p = Math.min(1, spring((frame - at) / 20) * 1.4);
+          const k = spring((frame - at) / 20);
           const isTop = i === 0;
           const [lo, hi] = rankRange(i);
           return (
@@ -93,38 +95,32 @@ export const SearchScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
                 width: S.scoreboardRowW,
                 height: S.scoreboardRowH,
                 padding: `0 ${px(28)}px`,
-                ...glass(px(18), isTop ? 0.16 : 0.08),
-                background: isTop
-                  ? `linear-gradient(90deg, ${r.accent}47, ${r.accent}14)`
-                  : undefined,
-                borderLeft: `${px(10)}px solid ${r.accent}`,
+                ...iosSurface(px(IOS.radius.lg), 0.6),
+                background: isTop ? IOS.color.fillStrong : IOS.color.fill,
                 opacity: p,
-                transform: `translate3d(${(1 - p) * -160 * K}px, 0, 0) scale(${0.92 + 0.08 * p})`,
-                boxShadow:
-                  isTop && frame >= glowAt
-                    ? `0 0 ${px(20 + 44 * (0.5 + 0.5 * Math.sin((frame - glowAt) / 9)))}px ${r.accent}99`
-                    : (glass(px(18)).boxShadow as string),
+                transform: `translateY(${(1 - k) * px(16)}px)`,
               }}
             >
+              <span style={{ width: px(14), height: px(14), borderRadius: '50%', background: r.accent, flex: 'none' }} />
               <span
                 style={{
-                  fontFamily: FONTS.display,
-                  fontSize: px(38),
-                  letterSpacing: px(2),
+                  fontFamily: IOS.font,
+                  fontWeight: IOS.weight.semibold,
+                  fontSize: px(34),
                   flex: 1,
                   textAlign: 'left',
-                  color: COLORS.ink,
+                  color: IOS.color.label,
                 }}
               >
                 {r.name}
               </span>
               <span
                 style={{
-                  fontFamily: FONTS.body,
-                  fontWeight: 800,
-                  fontSize: px(24),
-                  letterSpacing: px(2),
-                  color: r.accent,
+                  fontFamily: IOS.font,
+                  fontWeight: IOS.weight.medium,
+                  fontVariantNumeric: 'tabular-nums',
+                  fontSize: px(26),
+                  color: IOS.color.secondary,
                 }}
               >
                 {lo}–{hi}
@@ -142,11 +138,10 @@ export const SearchScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
           right: 0,
           top: px(LINE_TOP),
           textAlign: 'center',
-          fontFamily: FONTS.body,
-          fontWeight: 800,
-          fontSize: px(26),
-          letterSpacing: px(2),
-          color: COLORS.ink,
+          fontFamily: IOS.font,
+          fontWeight: IOS.weight.medium,
+          fontSize: px(28),
+          color: IOS.color.secondary,
           opacity: line.opacity,
           transform: line.transform,
         }}
@@ -154,7 +149,6 @@ export const SearchScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
         {CLOSING_LINE}
       </div>
 
-      <Confetti frame={frame} start={glowAt} count={CONFETTI.count} seed={CONFETTI.seed} origin={CONFETTI.origin} />
     </AbsoluteFill>
   );
 };
