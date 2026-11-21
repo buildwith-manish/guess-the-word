@@ -52,7 +52,7 @@ export const PHASE = {
   /** pause between the finished outline and the clock starting */
   beatBeforeClock: 10,
   /** fill + name build before the answer lands */
-  revealBuild: 24,
+  revealBuild: 36,
 };
 
 /**

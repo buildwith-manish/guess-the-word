@@ -1,10 +1,10 @@
 /**
- * StateTitleLockup: "GUESS THE STATE" in the tile style of the word quiz title (src/TitleLockup.tsx,
- * copied and adapted: that file hard-codes GUESS / THE / WORD and positions itself at the top).
+ * StateTitleLockup: "GUESS THE STATE" as plain display type (no tiles or boxes); the old keycap-tile look
+ * was replaced on request. Same props, same lockupTimes() so sound cues are unchanged.
  *
- *   1. every letter flips up in 3D, one tile per LOOK.flipEveryMs
- *   2. GUESS / THE land as solid white keycap tiles
- *   3. STATE then "solves" itself last: its tiles ignite to glossy gold one after another, each with a pop
+ *   1. every letter rises and fades in, one per LOOK.flipEveryMs
+ *   2. GUESS / THE stay white
+ *   3. STATE then "solves" itself last: its letters ignite to gold one after another, each with a pop
  *      and a travelling shine
  *   4. the gold hairline draws in underneath
  *
@@ -24,10 +24,7 @@ const WORDS = [
 
 /** Tile look and motion, in the units of the GTW title (ms for motion, 1280x720 reference px for size). */
 const LOOK = {
-  tileW: 38,
-  tileH: 46,
-  tileFont: 32,
-  radius: 11,
+  textFont: 62,
   flipEveryMs: 40,
   flipMs: 600,
   /** wait after the last tile has landed before STATE starts to ignite */
@@ -67,10 +64,7 @@ export interface StateTitleLockupProps {
 
 export const StateTitleLockup: React.FC<StateTitleLockupProps> = ({ frame, animate = true, scale = 1 }) => {
   const u = (v: number) => px(v) * scale;
-  const tileW = u(LOOK.tileW);
-  const tileH = u(LOOK.tileH);
-  const tileFont = u(LOOK.tileFont);
-  const radius = u(LOOK.radius);
+  const font = u(LOOK.textFont);
 
   const ruleP = animate ? prog(frame, ms(LOOK.ruleDelayMs), ms(LOOK.ruleMs), htmlEase) : 1;
   const igniteBase = lockupTimes().igniteAt;
@@ -79,22 +73,21 @@ export const StateTitleLockup: React.FC<StateTitleLockupProps> = ({ frame, anima
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <div style={{ display: 'flex', gap: u(26), perspective: u(700), paddingBottom: u(6) }}>
+      <div style={{ display: 'flex', gap: u(30), paddingBottom: u(6) }}>
         {WORDS.map((w, wi) => (
-          <div key={wi} style={{ display: 'flex', gap: u(6) }}>
+          <div key={wi} style={{ display: 'flex', gap: u(2) }}>
             {Array.from(w.text).map((ch, ci) => {
               running += 1;
               if (w.accent) accentIdx += 1;
 
-              // 3D flip-in
+              // plain letters rise and fade in, one after another (no tiles, no boxes)
               const p = animate ? htmlEase(clamp01((frame - ms(running * LOOK.flipEveryMs)) / ms(LOOK.flipMs))) : 1;
-              const flip = `rotateX(${keyframes(p, [0, 0.7, 1], [-80, 0, 0])}deg) scale(${keyframes(p, [0, 0.7, 1], [0.85, 1.12, 1])})`;
-              const landed = animate ? clamp01(p * 6) : 1;
+              const rise = (1 - p) * u(26);
 
-              // STATE ignites to gold, tile by tile
+              // STATE ignites to gold, letter by letter
               const at = igniteBase + (w.accent ? accentIdx * ms(LOOK.igniteStepMs) : 0);
               const g = !w.accent ? 0 : animate ? clamp01((frame - at) / ms(LOOK.igniteMs)) : 1;
-              const pop = w.accent && animate ? keyframes(clamp01((frame - at) / ms(LOOK.popMs)), [0, 0.45, 1], [1, 1.16, 1]) : 1;
+              const pop = w.accent && animate ? keyframes(clamp01((frame - at) / ms(LOOK.popMs)), [0, 0.45, 1], [1, 1.14, 1]) : 1;
               const shineT = w.accent && animate ? (frame - (at + ms(LOOK.shineDelayMs))) / ms(LOOK.shineMs) : -1;
 
               return (
@@ -102,69 +95,47 @@ export const StateTitleLockup: React.FC<StateTitleLockupProps> = ({ frame, anima
                   key={ci}
                   style={{
                     position: 'relative',
-                    width: tileW,
-                    height: tileH,
-                    opacity: landed,
-                    transform: `${flip} scale(${pop})`,
+                    opacity: p,
+                    transform: `translateY(${rise}px) scale(${pop})`,
+                    fontFamily: FONTS.display,
+                    fontSize: font,
+                    lineHeight: 1,
+                    letterSpacing: u(2),
+                    color: '#FFFFFF',
+                    textShadow: `0 ${u(4)}px ${u(18)}px rgba(0,0,0,0.55)`,
                   }}
                 >
-                  {/* solid keycap tile: opaque white, dark letter, firm bottom edge */}
-                  <div
-                    style={{
-                      position: 'absolute',
-                      inset: 0,
-                      borderRadius: radius,
-                      background: 'linear-gradient(180deg, #FFFFFF 0%, #EEF0FB 58%, #D3D8F0 100%)',
-                      border: `${u(1.5)}px solid #FFFFFF`,
-                      boxShadow: `0 ${u(5)}px 0 #7F89BD, 0 ${u(12)}px ${u(18)}px rgba(0,0,0,0.45), inset 0 ${u(2)}px 0 rgba(255,255,255,0.9)`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontFamily: FONTS.display,
-                      fontSize: tileFont,
-                      lineHeight: 1,
-                      color: '#1A1538',
-                    }}
-                  >
-                    {ch}
-                  </div>
-
-                  {/* gold tile: the "solved" look */}
+                  {ch}
                   {g > 0 ? (
                     <div
                       style={{
                         position: 'absolute',
                         inset: 0,
-                        borderRadius: radius,
-                        overflow: 'hidden',
-                        background: `linear-gradient(180deg, ${COLORS.yellowSoft}, ${COLORS.yellow} 55%, ${COLORS.yellowDeep})`,
-                        border: `${u(1.5)}px solid rgba(255,255,255,0.75)`,
-                        boxShadow: `0 0 ${u(26)}px rgba(255,201,60,${0.55 * g}), 0 ${u(5)}px 0 #C27A00, 0 ${u(12)}px ${u(18)}px rgba(0,0,0,0.45), inset 0 ${u(2)}px 0 rgba(255,255,255,0.7)`,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontFamily: FONTS.display,
-                        fontSize: tileFont,
-                        lineHeight: 1,
-                        color: COLORS.inkDark,
                         opacity: g,
+                        backgroundImage: `linear-gradient(180deg, ${COLORS.yellowSoft}, ${COLORS.yellow} 55%, ${COLORS.yellowDeep})`,
+                        WebkitBackgroundClip: 'text',
+                        backgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        color: 'transparent',
+                        filter: `drop-shadow(0 0 ${u(16 * g)}px rgba(255,201,60,0.6))`,
                       }}
                     >
                       {ch}
-                      {shineT > 0 && shineT < 1 ? (
-                        <div
-                          style={{
-                            position: 'absolute',
-                            top: '-10%',
-                            height: '120%',
-                            width: '55%',
-                            left: `${-70 + 190 * cssEaseInOut(shineT)}%`,
-                            transform: 'skewX(-18deg)',
-                            background: 'linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.8), rgba(255,255,255,0))',
-                          }}
-                        />
-                      ) : null}
                     </div>
+                  ) : null}
+                  {shineT > 0 && shineT < 1 ? (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '-10%',
+                        height: '120%',
+                        width: '55%',
+                        left: `${-70 + 190 * cssEaseInOut(shineT)}%`,
+                        transform: 'skewX(-18deg)',
+                        mixBlendMode: 'overlay',
+                        background: 'linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.8), rgba(255,255,255,0))',
+                      }}
+                    />
                   ) : null}
                 </div>
               );

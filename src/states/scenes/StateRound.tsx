@@ -32,16 +32,16 @@ import React from 'react';
 import { AbsoluteFill, Audio, Sequence, staticFile } from 'remotion';
 import { useDesignFrame } from '../../clock';
 import { prog, cssEaseInOut, cssEaseOut } from '../../anim';
-import { COLORS, FONTS, S, SAFE_Y, glass, px } from '../../style';
+import { COLORS, FONTS, S, SAFE_X, SAFE_Y, glass, px } from '../../style';
 import { Flash } from '../../Fx';
-import { TIME_SCALE, buildQuestionPlan, LEVELS, QUESTIONS } from '../state-timing';
+import { Watermark } from '../../Watermark';
+import { HEIGHT, TIME_SCALE, buildQuestionPlan, LEVELS, QUESTIONS } from '../state-timing';
 import type { StateQuestionPlan } from '../state-timing';
 import { STATES, getState } from '../states-data';
 import settings from '../states-settings.json';
 import { STAGE_LAYOUT, StateStage } from '../components/StateStage';
 import { StateShape } from '../components/StateShape';
 import { TimerRing } from '../components/TimerRing';
-import { EmojiFill } from '../components/EmojiFill';
 import { CropMask } from '../components/CropMask';
 import { PixelReveal } from '../components/PixelReveal';
 import { MiniMap } from '../components/MiniMap';
@@ -112,6 +112,9 @@ const FastBadge: React.FC = () => (
   </div>
 );
 
+/** left-side clock: diameter in px (1280x720 reference, doubled by px()) */
+const TIMER_SIZE = px(190);
+
 export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, withTitle = false }) => {
   const plan = buildQuestionPlan(index, withTitle);
   const level = LEVELS[plan.levelIndex];
@@ -137,11 +140,6 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
 
   // hints: emoji at hintAt[0], region glow at hintAt[1]
   const region = f >= plan.hintAt[1] ? info.region : undefined;
-  const emoji = (
-    <div style={fill}>
-      <EmojiFill stateKey={plan.key} size={size} at={plan.hintAt[0]} rotation={rotation} opacity={1 - reveal} frame={f} />
-    </div>
-  );
 
   let shapeSlot: React.ReactNode;
   if (q.level === 'EXPERT') {
@@ -158,7 +156,6 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
             frame={f}
           />
         </div>
-        {emoji}
       </div>
     );
   } else {
@@ -175,7 +172,6 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
             accent={level.accent}
           />
         </div>
-        {emoji}
       </>
     );
     shapeSlot =
@@ -198,20 +194,6 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
         title: plan.fast ? { at: plan.drawStart, children: <FastBadge /> } : undefined,
         // the stage shape hands over to FlyIn at flyAt
         shape: { children: f < flyAt ? shapeSlot : null },
-        // the ring goes when the clock has run out
-        ring: {
-          at: plan.timerStart,
-          children:
-            f < plan.revealStart ? (
-              <TimerRing
-                from={plan.timerStart}
-                duration={plan.timerFrames}
-                accent={level.accent}
-                size={L.ring.w}
-                frame={f}
-              />
-            ) : null,
-        },
         miniMap: {
           children: (rect) => (
             <MiniMap
@@ -226,6 +208,19 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
           fade: false,
           children: (
             <>
+              <Watermark />
+              {f >= plan.timerStart && f < plan.revealStart ? (
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: SAFE_X,
+                    top: (HEIGHT - TIMER_SIZE) / 2,
+                    opacity: prog(f, plan.timerStart, 8, cssEaseOut),
+                  }}
+                >
+                  <TimerRing from={plan.timerStart} duration={plan.timerFrames} accent={level.accent} size={TIMER_SIZE} frame={f} />
+                </div>
+              ) : null}
               <Flash frame={f} start={plan.stamp} />
               {f >= flyAt ? (
                 <FlyIn

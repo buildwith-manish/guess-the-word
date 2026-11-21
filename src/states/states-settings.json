@@ -28,7 +28,7 @@
     "fractions": [0.3333, 0.6667]
   },
   "reveal": {
-    "minHoldSeconds": 2.5
+    "minHoldSeconds": 4
   },
   "levelCardFrames": 72,
   "ranks": [
