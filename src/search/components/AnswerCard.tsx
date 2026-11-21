@@ -2,16 +2,28 @@ import React from 'react';
 import { COLORS, FONTS, glass, px } from '../../style';
 import { useDesignFrame } from '../../clock';
 import { FPS } from '../../timing';
+import { Flash, Ring } from '../../Fx';
 import '../../fonts';
 
 /**
  * Reveal card: the character name very large, a smaller "from" line under it.
- * The card stamps in (big and fast down to full size), then shakes briefly and flashes on impact.
+ *
+ * The moment, in order:
+ *   1. anticipation: from ANTICIPATION_SECONDS before `at` the card's edge glow builds (an empty outline)
+ *   2. stamp-in at `at`: big and fast down to full size (it LANDS at at + STAMP_SECONDS, unchanged)
+ *   3. on landing: a damped shake, one Flash (Fx), a Ring (Fx) and a small burst of confetti in `accent`
  * No image. Built here because src/states does not exist on this branch.
- * `at` is the stamp tick (design ticks, local to the scene). Nothing is drawn before it.
+ *
+ * `at` is the stamp tick (design ticks, local to the scene). Only the anticipation outline is drawn before it.
+ * The 'stamp' sound is cued on `at`; the landing tick, at + STAMP_SECONDS * FPS, is the same as before this change.
+ * Names and "from" lines are measured and shrunk until they fit inside the card.
+ *
+ * The confetti is a small local burst, not Fx's Confetti: that one has a fixed palette and no colour prop,
+ * and it falls 560 units, which is far more than a small burst.
  */
 
 /** Motion constants. Times in seconds, scales and gains as proportions. */
+const ANTICIPATION_SECONDS = 0.25;
 const STAMP_SECONDS = 0.18;
 const STAMP_FROM_SCALE = 2.4;
 const SHAKE_SECONDS = 0.35;
@@ -19,7 +31,17 @@ const SHAKE_GAIN = 0.014; // peak shake as a share of card width
 const SHAKE_WAVES = 3;
 const FLASH_SECONDS = 0.25;
 const FLASH_PEAK = 0.6;
-/** Rough average glyph width of the display face, as a share of font size (used to fit the name). */
+const FLASH_PEAK_AT = 0.05; // share of the flash at which it peaks (fast rise)
+const GLOW_FLARE = 1.2; // extra edge glow right after landing, as a multiple of the resting glow
+const GLOW_FLARE_SECONDS = 0.4;
+const RING_SHARE = 0.45; // Ring base size as a share of the card width (it grows to 2.3 x that)
+/** Confetti burst. */
+const BURST_COUNT = 18;
+const BURST_SECONDS = 0.7;
+const BURST_REACH = 0.6; // furthest distance as a share of the card width
+const BURST_FALL = 0.12; // gravity drop as a share of the card width
+const BURST_SIZE = 0.016; // piece width as a share of the card width
+/** Rough average glyph width of the display face, as a share of font size (first guess; measured fit corrects it). */
 const GLYPH_WIDTH = 0.5;
 
 export type AnswerCardProps = {
@@ -38,20 +60,46 @@ export type AnswerCardProps = {
 };
 
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
+const hash = (n: number) => {
+  const x = Math.sin(n * 127.1 + 311.7) * 43758.5453;
+  return x - Math.floor(x);
+};
+
+/** Shrinks a one-line text until its measured width fits `avail` (px). Self-corrects when the font loads. */
+const useFit = (avail: number) => {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [fit, setFit] = React.useState(1);
+  React.useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el || avail <= 0) return;
+    const w = el.offsetWidth; // layout width: not affected by the card's scale transform
+    if (w <= 0) return;
+    const next = Math.min(1, (fit * avail) / w);
+    if (Math.abs(next - fit) > 0.002) setFit(next);
+  });
+  return { ref, fit };
+};
 
 export const AnswerCard: React.FC<AnswerCardProps> = ({ name, from, at, accent, place, size }) => {
   const frame = useDesignFrame();
-  if (frame < at) return null;
 
   const W = px(size);
   const H = W * 0.42;
   const pad = W * 0.06;
+  const nameFit = useFit(W - 2 * pad);
+  const fromFit = useFit(W - 2 * pad);
+
+  const anticipation = ANTICIPATION_SECONDS * FPS;
+  if (frame < at - anticipation) return null;
 
   const stampTicks = STAMP_SECONDS * FPS;
-  const t = clamp01((frame - at) / stampTicks);
   const land = at + stampTicks;
+  const t = clamp01((frame - at) / stampTicks);
   const scale = 1 + (STAMP_FROM_SCALE - 1) * Math.pow(1 - t, 2);
   const opacity = clamp01(t * 3);
+
+  // Anticipation: the edge glow builds before the stamp (accelerating).
+  const build = Math.pow(clamp01((frame - (at - anticipation)) / anticipation), 2);
 
   // Shake after landing: damped, x and y out of phase.
   const s = clamp01((frame - land) / (SHAKE_SECONDS * FPS));
@@ -59,78 +107,128 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ name, from, at, accent, 
   const dx = amp * Math.sin(s * Math.PI * 2 * SHAKE_WAVES);
   const dy = amp * Math.cos(s * Math.PI * 2 * SHAKE_WAVES) * 0.6;
 
-  // Flash on impact.
-  const f = clamp01((frame - land) / (FLASH_SECONDS * FPS));
-  const flash = frame >= land ? FLASH_PEAK * Math.pow(1 - f, 2) : 0;
+  // Edge glow: full at rest, flares right after landing.
+  const flare = frame >= land ? GLOW_FLARE * Math.pow(1 - clamp01((frame - land) / (GLOW_FLARE_SECONDS * FPS)), 2) : 0;
+  const glow = px(36) * (1 + flare);
 
-  // Fit the name on one line: as big as the card height allows, shrunk for long names.
-  const nameFont = Math.min(H * 0.5, (W - 2 * pad) / (Math.max(1, name.length) * GLYPH_WIDTH));
-  const fromFont = Math.min(H * 0.16, nameFont * 0.4);
+  // Fit the name on one line: as big as the card height allows, shrunk for long names, then measured.
+  const nameBase = Math.min(H * 0.5, (W - 2 * pad) / (Math.max(1, name.length) * GLYPH_WIDTH));
+  const nameFont = nameBase * nameFit.fit;
+  const fromFont = Math.min(H * 0.16, nameBase * 0.4) * fromFit.fit;
+  const radius = H * 0.18;
+
+  const box: React.CSSProperties = { position: 'absolute', left: px(place.x) - W / 2, top: px(place.y), width: W, height: H };
 
   return (
-    <div
-      style={{
-        position: 'absolute',
-        left: px(place.x) - W / 2,
-        top: px(place.y),
-        width: W,
-        height: H,
-        transform: `translate(${dx}px, ${dy}px) scale(${scale})`,
-        transformOrigin: 'center center',
-        opacity,
-      }}
-    >
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          boxSizing: 'border-box',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: H * 0.06,
-          padding: `0 ${pad}px`,
-          ...glass(H * 0.18, 0.1),
-          border: `${px(3)}px solid ${accent}`,
-          boxShadow: `0 ${px(14)}px ${px(40)}px rgba(0,0,0,0.5), 0 0 ${px(36)}px ${accent}88`,
-          background: COLORS.glassStrong,
-        }}
-      >
+    <>
+      {/* anticipation: an empty outline whose glow builds; the card takes over at the same place when it lands */}
+      {frame < land ? (
         <div
           style={{
-            fontFamily: FONTS.display,
-            fontSize: nameFont,
-            lineHeight: 1,
-            color: COLORS.ink,
-            whiteSpace: 'nowrap',
-            textTransform: 'uppercase',
-            textShadow: `0 0 ${nameFont * 0.25}px ${accent}`,
+            ...box,
+            boxSizing: 'border-box',
+            borderRadius: radius,
+            border: `${px(3)}px solid ${accent}`,
+            boxShadow: `0 0 ${px(36) * (0.3 + 1.2 * build)}px ${accent}`,
+            opacity: build,
+            pointerEvents: 'none',
           }}
-        >
-          {name}
-        </div>
+        />
+      ) : null}
+
+      {frame >= at ? (
         <div
           style={{
-            fontFamily: FONTS.body,
-            fontSize: fromFont,
-            color: COLORS.muted,
-            whiteSpace: 'nowrap',
+            ...box,
+            transform: `translate(${dx}px, ${dy}px) scale(${scale})`,
+            transformOrigin: 'center center',
+            opacity,
           }}
         >
-          {from}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              boxSizing: 'border-box',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: H * 0.06,
+              padding: `0 ${pad}px`,
+              ...glass(radius, 0.1),
+              border: `${px(3)}px solid ${accent}`,
+              boxShadow: `0 ${px(14)}px ${px(40)}px rgba(0,0,0,0.5), 0 0 ${glow}px ${accent}88`,
+              background: COLORS.glassStrong,
+            }}
+          >
+            <div
+              ref={nameFit.ref}
+              style={{
+                fontFamily: FONTS.display,
+                fontSize: nameFont,
+                lineHeight: 1,
+                color: COLORS.ink,
+                whiteSpace: 'nowrap',
+                textTransform: 'uppercase',
+                textShadow: `0 0 ${nameFont * 0.25}px ${accent}`,
+              }}
+            >
+              {name}
+            </div>
+            <div
+              ref={fromFit.ref}
+              style={{
+                fontFamily: FONTS.body,
+                fontSize: fromFont,
+                color: COLORS.muted,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {from}
+            </div>
+          </div>
+
+          {/* one Flash on impact, clipped to the rounded card */}
+          <div style={{ position: 'absolute', inset: 0, borderRadius: radius, overflow: 'hidden', pointerEvents: 'none' }}>
+            <Flash frame={frame} start={land} ms={FLASH_SECONDS * 1000} peak={FLASH_PEAK} at={FLASH_PEAK_AT} />
+          </div>
+
+          {/* one Ring from the card centre, in the accent */}
+          <Ring frame={frame} start={land} size={size * RING_SHARE} style={{ border: `${px(2.5)}px solid ${accent}` }} />
+
+          {/* small confetti burst in the accent */}
+          {Array.from({ length: BURST_COUNT }, (_, i) => {
+            const bt = (frame - land) / (BURST_SECONDS * FPS);
+            if (bt < 0 || bt >= 1) return null;
+            const angle = ((i + hash(i * 3.1)) / BURST_COUNT) * Math.PI * 2;
+            const reach = W * BURST_REACH * (0.55 + 0.45 * hash(i * 7.7));
+            const ease = 1 - Math.pow(1 - bt, 3);
+            const x = Math.cos(angle) * reach * ease;
+            const y = Math.sin(angle) * reach * ease * 0.6 + W * BURST_FALL * bt * bt;
+            const w = W * BURST_SIZE * (0.7 + 0.6 * hash(i * 1.9));
+            return (
+              <div
+                key={i}
+                style={{
+                  position: 'absolute',
+                  left: '50%',
+                  top: '50%',
+                  width: w,
+                  height: w * 1.6,
+                  marginLeft: -w / 2,
+                  marginTop: -w * 0.8,
+                  background: accent,
+                  borderRadius: hash(i * 5.3) > 0.5 ? '50%' : '2%',
+                  opacity: 1 - bt * bt,
+                  transform: `translate(${x}px, ${y}px) rotate(${bt * 540 * (hash(i * 2.3) - 0.5) * 2}deg)`,
+                  pointerEvents: 'none',
+                }}
+              />
+            );
+          })}
         </div>
-      </div>
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          borderRadius: H * 0.18,
-          background: COLORS.ink,
-          opacity: flash,
-          pointerEvents: 'none',
-        }}
-      />
-    </div>
+      ) : null}
+    </>
   );
 };
