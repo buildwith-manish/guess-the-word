@@ -34,6 +34,7 @@
     "states:check": "node scripts/check-states.js",
     "states:timeline": "node scripts/states-timeline.js",
     "states:qa": "node scripts/states-qa.js",
+    "states:voiceover:script": "node scripts/states-voiceover-script.js",
     "states:dev": "remotion studio",
     "states:still": "remotion still GuessTheState out/states-still.png --frame=1000"
   },
