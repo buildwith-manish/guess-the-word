@@ -1,0 +1,163 @@
+/**
+ * StateStage: the layout frame of one question. Background (reused from src/Background.tsx), HUD pill top left
+ * (level + number), title slot top centre, ring area + shape area in the centre, mini map bottom right, a
+ * full-frame card layer and a full-frame overlay layer (for FlyIn). Every slot takes children and an `at` tick:
+ * before `at` it is not drawn, after it it fades in over a few ticks. Children can be a function of the slot's
+ * rect. STAGE_LAYOUT exposes the rects so scenes can size components and compute FlyIn's rects.
+ * The HUD is a small own pill: src/Hud.tsx is word-quiz specific (HudPlan, GTW bonus plan), so it is not reused.
+ * Time from useDesignFrame() unless `frame` is passed.
+ */
+import React from 'react';
+import { useDesignFrame } from '../../clock';
+import { Background } from '../../Background';
+import { COLORS, FONTS, S, SAFE_X, SAFE_Y, glass, px } from '../../style';
+import { prog, cssEaseOut } from '../../anim';
+import { HEIGHT, LEVELS, TOTAL, WIDTH } from '../state-timing';
+import type { Level } from '../states-data';
+import type { Rect } from './MiniMap';
+import { miniMapHeight } from './MiniMap';
+
+export interface StageSlot {
+  /** tick the slot appears (omit = always) */
+  at?: number;
+  /** fade in over a few ticks once `at` is reached (default true; AnswerCard slot defaults to false) */
+  fade?: boolean;
+  children: React.ReactNode | ((rect: Rect) => React.ReactNode);
+}
+
+export interface StateStageProps {
+  /** level of the question (picks theme and accent from states-settings.json) */
+  level: Level;
+  /** question number 1-50 shown in the HUD pill */
+  number: number;
+  /** total shown in the pill (default TOTAL) */
+  total?: number;
+  slots?: {
+    title?: StageSlot;
+    /** square box for StateShape / PixelReveal / CropMask / EmojiFill (same `size`) */
+    shape?: StageSlot;
+    /** square box for TimerRing (same `size`) */
+    ring?: StageSlot;
+    /** MiniMap box (same `size` = rect.w) */
+    miniMap?: StageSlot;
+    /** full-frame layer for AnswerCard */
+    card?: StageSlot;
+    /** full-frame layer above the rest but below the card, for FlyIn */
+    overlay?: StageSlot;
+  };
+  /** background phase 0 (calm) .. 1 (reveal); omit for the full look */
+  energy?: number;
+  /** optional ticks from the parent; default useDesignFrame() */
+  frame?: number;
+}
+
+/** Layout proportions of the 2560x1440 frame. */
+const LAYOUT = {
+  /** vertical centre of the stage, as a fraction of the height */
+  centerY: 0.54,
+  /** ring diameter as a fraction of the height */
+  ring: 0.72,
+  /** shape box as a fraction of the ring */
+  shapeInRing: 0.8,
+  /** mini map width as a fraction of the width */
+  mini: 0.22,
+  /** title slot size, fractions of width / ref px */
+  titleW: 0.4,
+  titleH: 80,
+  /** HUD pill ref px */
+  hudFont: 30,
+  hudRadius: 40,
+  /** slot fade length in ticks */
+  fade: 10,
+};
+
+const square = (cx: number, cy: number, side: number): Rect => ({ x: cx - side / 2, y: cy - side / 2, w: side, h: side });
+
+const computeLayout = () => {
+  const cx = WIDTH / 2;
+  const cy = HEIGHT * LAYOUT.centerY;
+  const ringD = HEIGHT * LAYOUT.ring;
+  const miniW = WIDTH * LAYOUT.mini;
+  const miniH = miniMapHeight(miniW);
+  const titleW = WIDTH * LAYOUT.titleW;
+  return {
+    frame: { x: 0, y: 0, w: WIDTH, h: HEIGHT } as Rect,
+    /** inside the 5% safe margin */
+    safe: { x: SAFE_X, y: SAFE_Y, w: WIDTH - 2 * SAFE_X, h: HEIGHT - 2 * SAFE_Y } as Rect,
+    title: { x: (WIDTH - titleW) / 2, y: SAFE_Y, w: titleW, h: px(LAYOUT.titleH) } as Rect,
+    ring: square(cx, cy, ringD),
+    shape: square(cx, cy, ringD * LAYOUT.shapeInRing),
+    miniMap: { x: WIDTH - SAFE_X - miniW, y: HEIGHT - SAFE_Y - miniH, w: miniW, h: miniH } as Rect,
+  };
+};
+
+export const STAGE_LAYOUT = computeLayout();
+
+const SlotBox: React.FC<{ rect: Rect; slot?: StageSlot; frame: number; fadeDefault?: boolean; centre?: boolean }> = ({
+  rect,
+  slot,
+  frame,
+  fadeDefault = true,
+  centre = false,
+}) => {
+  if (!slot) return null;
+  if (slot.at !== undefined && frame < slot.at) return null;
+  const fade = slot.fade ?? fadeDefault;
+  const opacity = fade && slot.at !== undefined ? prog(frame, slot.at, LAYOUT.fade, cssEaseOut) : 1;
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        left: rect.x,
+        top: rect.y,
+        width: rect.w,
+        height: rect.h,
+        opacity,
+        ...(centre ? { display: 'flex', alignItems: 'center', justifyContent: 'center' } : {}),
+      }}
+    >
+      {typeof slot.children === 'function' ? slot.children(rect) : slot.children}
+    </div>
+  );
+};
+
+export const StateStage: React.FC<StateStageProps> = ({ level, number, total = TOTAL, slots = {}, energy, frame }) => {
+  const designFrame = useDesignFrame();
+  const f = frame ?? designFrame;
+  const cfg = LEVELS.find((l) => l.name === level);
+  if (!cfg) throw new Error(`Unknown level ${level}`);
+  const L = STAGE_LAYOUT;
+
+  return (
+    <div style={{ position: 'absolute', left: 0, top: 0, width: WIDTH, height: HEIGHT, overflow: 'hidden' }}>
+      <Background frame={f} theme={cfg.theme} energy={energy} />
+
+      <SlotBox rect={L.ring} slot={slots.ring} frame={f} />
+      <SlotBox rect={L.shape} slot={slots.shape} frame={f} />
+      <SlotBox rect={L.title} slot={slots.title} frame={f} centre />
+
+      <div
+        style={{
+          ...glass(px(LAYOUT.hudRadius)),
+          position: 'absolute',
+          left: S.hudLeft,
+          top: S.hudTop,
+          padding: `${px(8)}px ${px(26)}px`,
+          display: 'flex',
+          alignItems: 'baseline',
+          gap: px(14),
+          fontFamily: FONTS.body,
+          fontSize: px(LAYOUT.hudFont),
+          border: `${px(2)}px solid ${cfg.accent}`,
+        }}
+      >
+        <span style={{ fontWeight: 800, letterSpacing: px(3), color: cfg.accent }}>{cfg.name}</span>
+        <span style={{ fontWeight: 800, color: COLORS.ink }}>{`${number} / ${total}`}</span>
+      </div>
+
+      <SlotBox rect={L.miniMap} slot={slots.miniMap} frame={f} />
+      <SlotBox rect={L.frame} slot={slots.overlay} frame={f} />
+      <SlotBox rect={L.frame} slot={slots.card} frame={f} fadeDefault={false} />
+    </div>
+  );
+};

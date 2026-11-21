@@ -15,7 +15,7 @@
 - [x] 2c MiniMap + FlyIn (not rendered or viewed)
 - [x] 2d PixelReveal + CropMask (not rendered or viewed)
 - [x] 2e AnswerCard (2D, not rendered or viewed)
-- [ ] 2f (label to fill from docs/states-prompts-split.md)
+- [x] 2f StateStage + ST-Components Still + final docs D (not rendered or viewed)
 - [ ] 3a (label to fill from docs/states-prompts-split.md)
 - [ ] 3b (label to fill from docs/states-prompts-split.md)
 - [ ] 3c (label to fill from docs/states-prompts-split.md)

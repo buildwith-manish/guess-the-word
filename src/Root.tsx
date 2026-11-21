@@ -6,6 +6,7 @@ import { HEIGHT, RENDER_FPS, RENDER_TOTAL_FRAMES, WIDTH } from './timing';
 import { PixelMain } from './pixel/PixelMain';
 import { PIXEL_TOTAL_FRAMES } from './pixel/pixel-timing';
 import { ThumbEasy, ThumbLadder, ThumbZero } from './thumbnails/Thumbnails';
+import { ComponentsSheet } from './states/ComponentsSheet';
 
 /**
  * One composition. Its duration comes from the timeline (settings.json +
@@ -32,6 +33,8 @@ export const RemotionRoot: React.FC = () => {
         width={WIDTH}
         height={HEIGHT}
       />
+      {/* Video 4 (states): one-frame sheet of every component, real data for four states (src/states/ComponentsSheet.tsx) */}
+      <Still id="ST-Components" component={ComponentsSheet} width={WIDTH} height={HEIGHT} />
       {/* YouTube thumbnails (1280x720). Render: npx remotion still src/index.ts ThumbZero out/thumb-zero.png */}
       <Still id="ThumbZero" component={ThumbZero} width={1280} height={720} />
       <Still id="ThumbLadder" component={ThumbLadder} width={1280} height={720} />

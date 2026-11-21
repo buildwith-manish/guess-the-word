@@ -92,7 +92,50 @@ fps, width, height, motionBlur, camera, voiceover, transitions, fastest, streak,
 
 `types.ts` exports `StatesSettings` (typed from the JSON), `LevelCfg`, `StateQuestion`, `Hud`, `IrisVariant`, `BonusKind`, the `Segment` union (hook, levelCard, question, bonus, reminder, iris, scoreboard, endScreen) and `Timeline`.
 
-## D Components
+## D Components (final pack)
+
+All components live in `src/states/components/`. They are 2D SVG/HTML, prop-driven, and take time from `useDesignFrame()` (design ticks, 30 per second, local to the enclosing Sequence) unless a `frame` prop is passed. Sizes are px (use `px()` from style.ts). Colours: level accents only come from `states-settings.json` (via `LEVELS` in state-timing or `levelAccent(key)`). Nothing here has been rendered or viewed: look at the Studio still `ST-Components` first.
+
+### File layout
+
+```
+scripts/build-states-geo.js        npm run states:geo       -> src/states/states-geo.json
+scripts/check-states.js            npm run states:check     (11 checks on data + geo)
+scripts/states-timeline.js         npm run states:timeline  (runtime, segments, chapters)
+src/states/
+  states-data.ts                   STATES (50, video order), getState(key)   facts, tiers, hints
+  states-geo.json                  shape / mini / cells / borders per state  (generated)
+  geo.ts                           getShape(key), SHAPE_BOX, MINI_BOX
+  states-settings.json             levels (accent, bg, theme, time), fastest, streak, reminder, bonus, hints, ranks...
+  states-voiceover-manifest.json   { intro, level, reveal, bonus, bonusq, scoreboard, outro } (empty)
+  state-timing.ts                  TIMELINE, locate, buildQuestionPlan, LEVELS, PHASE, WIDTH/HEIGHT/RENDER_FPS, FPS
+  types.ts                         StateQuestion, LevelCfg, Hud, IrisVariant, BonusKind, Segment, Timeline
+  ComponentsSheet.tsx              the "ST-Components" Still (registered in src/Root.tsx)
+  components/
+    StateShape  TimerRing  EmojiFill  MiniMap  FlyIn  PixelReveal  CropMask  AnswerCard  StateStage
+```
+
+Tiers (from `states-data.ts`): EASY plain outline; MEDIUM `cropSide` (CropMask); HARD `rotation` (StateShape + EmojiFill `rotation`); EXPERT PixelReveal.
+
+### StateStage (src/states/components/StateStage.tsx)
+
+Layout frame of one question. Background reused from `src/Background.tsx` (theme = the level's `theme` pair). HUD is a small own pill (level + `n / total`): `src/Hud.tsx` is word-quiz specific (HudPlan, GTW bonus plan) so it is not reused. Slots take children and an `at` tick: before `at` the slot is not drawn, after it it fades in over a few ticks (`fade: false` to skip; the card slot defaults to no fade). `children` may be a function of the slot's rect. `STAGE_LAYOUT` (exported) holds the rects: `frame`, `safe`, `title`, `ring`, `shape`, `miniMap`. Use `STAGE_LAYOUT.shape` as FlyIn `from` and `STAGE_LAYOUT.miniMap` as FlyIn `to`.
+
+| Prop | Type | Default | Meaning |
+|---|---|---|---|
+| `level` | "EASY" \| "MEDIUM" \| "HARD" \| "EXPERT" | required | picks theme and accent |
+| `number` | 1..50 | required | shown in the HUD pill |
+| `total` | number | TOTAL (50) | shown in the pill |
+| `slots.title` | StageSlot | none | top centre, `STAGE_LAYOUT.title` |
+| `slots.shape` | StageSlot | none | square box `STAGE_LAYOUT.shape`: StateShape / PixelReveal / CropMask / EmojiFill with `size = rect.w` |
+| `slots.ring` | StageSlot | none | square box `STAGE_LAYOUT.ring`: TimerRing with `size = rect.w` |
+| `slots.miniMap` | StageSlot | none | bottom right, `STAGE_LAYOUT.miniMap`: MiniMap with `size = rect.w` |
+| `slots.overlay` | StageSlot | none | full frame, above the rest, below the card: FlyIn |
+| `slots.card` | StageSlot | none | full frame: AnswerCard |
+| `energy` | 0..1 | full look | Background phase (0 calm .. 1 reveal) |
+| `frame` | ticks | useDesignFrame() | optional override |
+
+`StageSlot = { at?: number; fade?: boolean; children: ReactNode | ((rect: Rect) => ReactNode) }`.
 
 ### StateShape (src/states/components/StateShape.tsx)
 
@@ -209,5 +252,67 @@ The reveal card: state name very large (Anton, uppercase, shrunk to fit long nam
 | `withFact` | boolean | true | show the fact line (empty fact stays hidden) |
 | `exit` | ticks | none | tick the card starts fading out (e.g. the plan's `exit`) |
 | `frame` | ticks | useDesignFrame() | optional override |
+
+### Example scene (compiled by tsc when it was written)
+
+A question: the outline draws, then the clock ring appears and runs. Mount it inside a `<Sequence>` for the question segment (so `useDesignFrame()` is local to it).
+
+```tsx
+import React from 'react';
+import { useDesignFrame } from '../clock';
+import { prog, cssEaseInOut } from '../anim';
+import { LEVELS, buildQuestionPlan } from './state-timing';
+import { STATES } from './states-data';
+import { STAGE_LAYOUT, StateStage } from './components/StateStage';
+import { StateShape } from './components/StateShape';
+import { TimerRing } from './components/TimerRing';
+
+/** Question `index` (0-based): outline draws, then the clock runs. Mount inside a <Sequence> for the question segment. */
+export const ExampleQuestion: React.FC<{ index: number }> = ({ index }) => {
+  const f = useDesignFrame(); // local design ticks (30 per second)
+  const plan = buildQuestionPlan(index);
+  const level = LEVELS[plan.levelIndex];
+  const L = STAGE_LAYOUT;
+  const draw = prog(f, plan.drawStart, plan.drawFrames, cssEaseInOut);
+
+  return (
+    <StateStage
+      level={level.name}
+      number={plan.id}
+      slots={{
+        shape: {
+          children: <StateShape stateKey={STATES[index].key} size={L.shape.w} progress={draw} glow={draw} accent={level.accent} />,
+        },
+        ring: {
+          at: plan.timerStart,
+          children: <TimerRing from={plan.timerStart} duration={plan.timerFrames} accent={level.accent} size={L.ring.w} />,
+        },
+      }}
+    />
+  );
+};
+```
+
+For the reveal, add `slots.card: { children: <AnswerCard stateKey={key} at={plan.stamp} accent={level.accent} exit={plan.exit} /> }`; for the fly-in to the mini map add `slots.overlay: { children: <FlyIn stateKey={key} from={STAGE_LAYOUT.shape} to={STAGE_LAYOUT.miniMap} at={plan.stamp + plan.hold} dur={...} accent={level.accent} /> }` and hide the stage shape from `at` on.
+
+### Cue-list pattern (from section B)
+
+Sound is a flat list of cues built once by walking `TIMELINE.segments`, never by a running clock. In the word quiz (`src/sound.ts`): `Cue = { frame, sfx, rate?, volume? }`, `frame` an absolute design tick, entries added with a local `add(frame, sfx, extra)`; `Soundtrack.tsx` renders each as `<Sequence from={frame * TIME_SCALE}><Audio .../></Sequence>`, so any frame range renders in any order. A states version follows the same shape, using the question plan for offsets (sketch, not compiled; sfx names are the word quiz's from `sound-manifest.json`):
+
+```ts
+const cues: Cue[] = [];
+const add = (frame: number, sfx: string, extra: Partial<Cue> = {}) => cues.push({ frame, sfx, ...extra });
+for (const seg of TIMELINE.segments) {
+  if (seg.kind !== 'question') continue;
+  const plan = buildQuestionPlan(seg.index);
+  const base = seg.from - (seg.lead ?? 0); // plan tick 0; check against how sound.ts treats `lead`
+  add(base + plan.drawStart, 'thump');
+  plan.hintAt.forEach((t) => add(base + t, 'thump'));
+  add(base + plan.stamp, 'boom');
+}
+```
+
+Voiceover clips follow the same rule as the word quiz: a clip starts `offsetFrames` into its segment and the segment stretches to hold it (`states-voiceover-manifest.json` keys: `level` by level name, `reveal` by question id, `bonus` / `bonusq` by slot 1-4, `scoreboard` by lowercase rank id).
+
 
 ## E Scenes
