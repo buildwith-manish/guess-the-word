@@ -172,4 +172,29 @@ Moves the stage shape to its slot on the mini map on an eased arc (cssEaseInOut;
 - `to` = the MiniMap's box: `{ x, y, w: mapSize, h: miniMapHeight(mapSize) }`, with x, y the top-left of the MiniMap and `mapSize` its `size` prop.
 - FlyIn does the rest: it takes the state's `miniBBox` (`getMiniRect(key, to)`), centres the shape on it and scales it with `min(slot.w / fittedW, slot.h / fittedH)`, so the shape lands inside its bbox (the stage conic projection and the Albers map differ a little, so the fit is approximate).
 
+### PixelReveal (src/states/components/PixelReveal.tsx)
+
+EXPERT tier. Draws the state from the `cells` bit masks of states-geo.json as square blocks (one SVG path per grid, horizontal runs merged; no canvas, not PixelCanvas). `progress` picks the grid, coarsest first (the grids are the keys of `cells`: 12, 24, 48), then it cross-fades to a smooth `StateShape` outline over `[at, at + dur]`. Time from `useDesignFrame()` unless `frame` is passed.
+
+| Prop | Type | Default | Meaning |
+|---|---|---|---|
+| `stateKey` | string | required | two-letter key |
+| `size` | px | required | shape box side, same as StateShape `size` |
+| `progress` | 0..1 | required | clock progress: 0..1/3 = 12, 1/3..2/3 = 24, 2/3..1 = 48 |
+| `accent` | CSS colour | COLORS.cyan | level accent |
+| `at` | ticks | required | cross-fade start (the reveal) |
+| `dur` | ticks | required | cross-fade length |
+| `frame` | ticks | useDesignFrame() | optional override |
+
+### CropMask (src/states/components/CropMask.tsx)
+
+MEDIUM tier wrapper. Hides one half of its children (StateShape, EmojiFill or both) with a soft edge (6% of the box); `reveal` slides the edge across the hidden half until all shows. Implemented as a CSS `mask-image` linear-gradient (also `-webkit-`), on a square wrapper. The mask is limited to the square box, so anything drawn outside it (StateShape glow, rotation overflow) is clipped.
+
+| Prop | Type | Default | Meaning |
+|---|---|---|---|
+| `side` | "left" \| "right" \| "top" \| "bottom" | required | hidden half (the state's `cropSide`) |
+| `reveal` | 0..1 | required | 0 = half hidden, 1 = all shown; ease it in the parent |
+| `size` | px | required | shape box side, same as StateShape `size` |
+| `children` | node | required | what to crop |
+
 ## E Scenes
