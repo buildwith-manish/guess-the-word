@@ -58,7 +58,14 @@ def split_components(a):
         for r, it in enumerate(pair): out.append((c, r, it[0]))
     return out
 
-def remove_bg(rgb):
+# Cells where white INSIDE the outline is really a hole or trapped sticker rim, not part of the object.
+# value = minimum size of an enclosed pale region (fraction of the object's bbox) that is made transparent.
+HOLE_CELLS = {'hint-01-2': 0.002,  # spider web gaps
+              'hint-25-1': 0.03,   # donut hole
+              'hint-33-2': 0.01,   # microphone: sticker rim trapped in the cable loop
+              'hint-35-1': 0.03}   # gold ring hole
+
+def remove_bg(rgb, hole_frac=0):
     """Flood fill white from the border only; return RGBA + fraction of bbox area lost to leaks."""
     a = rgb.astype(int)
     # background = white OR the pale, colourless sticker border/shadow Gemini adds (light + low saturation)
@@ -66,6 +73,12 @@ def remove_bg(rgb):
     lab, _ = ndi.label(near)
     edge = set(lab[0, :]) | set(lab[-1, :]) | set(lab[:, 0]) | set(lab[:, -1]); edge.discard(0)
     bg = np.isin(lab, list(edge))
+    if hole_frac:
+        ys0, xs0 = np.where(~bg)
+        bb0 = (xs0.max() - xs0.min() + 1) * (ys0.max() - ys0.min() + 1)
+        l2, n2 = ndi.label(near & ~bg)
+        for i in range(1, n2 + 1):
+            if (l2 == i).sum() >= hole_frac * bb0: bg |= (l2 == i)
     alpha = np.where(bg, 0.0, 1.0)
     alpha = ndi.gaussian_filter(alpha, 0.8)               # 1-2 px feather
     alpha[bg & (alpha < 0.02)] = 0
@@ -118,7 +131,8 @@ def main():
             pad = 6
             crop = a[max(0, y0 - pad):y1 + pad, max(0, x0 - pad):x1 + pad]
             crop = np.pad(crop, ((4, 4), (4, 4), (0, 0)), constant_values=255)  # guarantee white border for flood fill
-            rgba, lost = remove_bg(crop)
+            name = f'hint-{rid:02d}-{r+1}'
+            rgba, lost = remove_bg(crop, HOLE_CELLS.get(name, 0))
             if lost > LEAK_LIMIT: report['flags'].append({'file': f'hint-{rid:02d}-{r+1}.png', 'why': f'leak {lost:.0%}'})
             finish(rgba).save(os.path.join(A.out, f'hint-{rid:02d}-{r+1}.png'))
     man = {}
