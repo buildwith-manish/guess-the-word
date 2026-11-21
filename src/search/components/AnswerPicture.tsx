@@ -1,9 +1,9 @@
 import React from 'react';
 import { Img, staticFile } from 'remotion';
-import { COLORS, FONTS, px } from '../../style';
+import { px } from '../../style';
+import { IOS, iosSurface, spring } from '../../ios';
 import { useDesignFrame } from '../../clock';
 import { FPS } from '../../timing';
-import '../../fonts';
 
 /**
  * Reveal: the answer's picture on a rounded card with an accent border, and under it a rounded answer box with the name
@@ -19,12 +19,10 @@ import '../../fonts';
 
 /** Motion constants. Times in seconds, scales and gains as proportions. */
 const FADE_SECONDS = 0.12;
-const POP_SECONDS = 0.38;
-const POP_FROM = 1.3;
-const FLOAT = 0.006; // share of the block size
-const FLOAT_SECONDS = 3;
+const POP_SECONDS = 0.45;
+const POP_FROM = 0.94; // the card settles from slightly smaller, on the shared spring
 const SPOTLIGHT_SECONDS = 0.5;
-const SPOTLIGHT_PERCENT = 34; // strength of the accent spotlight
+const SPOTLIGHT_PERCENT = 14; // strength of the soft accent light behind the card
 /** Width / height of the picture block. The pictures are 3:2 landscape. */
 const ASPECT = 3 / 2;
 /** Layout, as shares of the picture width. */
@@ -32,9 +30,9 @@ const RADIUS = 0.05; // corner radius of the picture card
 const BOX_GAP = 0.035;
 const BOX_HEIGHT = 0.15;
 const BOX_RADIUS = 0.04;
-const BORDER_PX = 3; // reference units
+const BORDER_PX = 1; // reference units: a hairline
 /** Name size as a share of the box height, and the longest name that keeps that size before it shrinks. */
-const NAME_SIZE = 0.5;
+const NAME_SIZE = 0.46;
 const NAME_FULL_CHARS = 14;
 /** The answer box starts this long after the picture, and rises over BOX_RISE_SECONDS. */
 const BOX_DELAY_SECONDS = 0.18;
@@ -69,13 +67,11 @@ export const AnswerPicture: React.FC<AnswerPictureProps> = ({ image, name, from,
   const boxTop = H + S * BOX_GAP;
   const boxH = S * BOX_HEIGHT;
   const t = clamp01((frame - at) / (POP_SECONDS * FPS));
-  const back = 1 + 2.70158 * Math.pow(t - 1, 3) + 1.70158 * Math.pow(t - 1, 2);
-  const scale = POP_FROM + (1 - POP_FROM) * back;
+  const scale = POP_FROM + (1 - POP_FROM) * spring(t);
   const opacity = clamp01((frame - at) / (FADE_SECONDS * FPS));
-  const float = Math.sin(((frame - at) / (FLOAT_SECONDS * FPS)) * Math.PI * 2) * H * FLOAT;
   const spot = clamp01((frame - at) / (SPOTLIGHT_SECONDS * FPS));
   const boxT = clamp01((frame - at - BOX_DELAY_SECONDS * FPS) / (BOX_RISE_SECONDS * FPS));
-  const boxK = 1 - Math.pow(1 - boxT, 3);
+  const boxK = spring(boxT);
   const nameFont = boxH * NAME_SIZE * Math.min(1, NAME_FULL_CHARS / Math.max(1, name.length));
   const border = px(BORDER_PX);
 
@@ -104,11 +100,11 @@ export const AnswerPicture: React.FC<AnswerPictureProps> = ({ image, name, from,
           borderRadius: S * RADIUS,
           overflow: 'hidden',
           boxSizing: 'border-box',
-          border: `${border}px solid ${accent}`,
-          boxShadow: `0 ${H * 0.03}px ${H * 0.07}px rgba(0,0,0,0.55), 0 0 ${H * 0.08}px color-mix(in srgb, ${accent} 45%, transparent)`,
-          transform: `translateY(${float}px) scale(${scale})`,
+          border: `${border}px solid ${IOS.color.fillStrong}`,
+          boxShadow: `0 ${H * 0.04}px ${H * 0.1}px rgba(0,0,0,0.5)`,
+          transform: `scale(${scale})`,
           transformOrigin: 'center center',
-          background: COLORS.ink,
+          background: IOS.color.bgRaised,
         }}
       >
         <Img
@@ -127,10 +123,7 @@ export const AnswerPicture: React.FC<AnswerPictureProps> = ({ image, name, from,
             height: boxH,
             opacity: boxK,
             boxSizing: 'border-box',
-            borderRadius: S * BOX_RADIUS,
-            border: `${border}px solid ${accent}`,
-            background: 'rgba(8, 8, 28, 0.82)',
-            boxShadow: `0 0 ${boxH * 0.35}px color-mix(in srgb, ${accent} 40%, transparent)`,
+            ...iosSurface(S * BOX_RADIUS),
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -140,18 +133,18 @@ export const AnswerPicture: React.FC<AnswerPictureProps> = ({ image, name, from,
         >
           <div
             style={{
-              fontFamily: FONTS.display,
+              fontFamily: IOS.font,
+              fontWeight: IOS.weight.semibold,
               fontSize: nameFont,
               lineHeight: 1,
-              color: COLORS.ink,
-              textTransform: 'uppercase',
+              color: IOS.color.label,
               whiteSpace: 'nowrap',
-              textShadow: `0 0 ${nameFont * 0.3}px ${accent}`,
+              letterSpacing: -nameFont * 0.01,
             }}
           >
             {name}
           </div>
-          <div style={{ fontFamily: FONTS.body, fontSize: nameFont * 0.5, color: COLORS.muted, whiteSpace: 'nowrap' }}>{from}</div>
+          <div style={{ fontFamily: IOS.font, fontWeight: IOS.weight.medium, fontSize: nameFont * 0.55, color: IOS.color.secondary, whiteSpace: 'nowrap' }}>{from}</div>
         </div>
       ) : null}
     </div>

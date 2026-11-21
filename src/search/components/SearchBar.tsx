@@ -2,7 +2,7 @@ import React from 'react';
 import { COLORS, FONTS, glass, px } from '../../style';
 import { useDesignFrame } from '../../clock';
 import { charTick, typedChars } from '../typing';
-import settings from '../search-settings.json';
+import { IOS, iosSurface, spring } from '../../ios';
 import '../../fonts';
 
 /**
@@ -106,8 +106,6 @@ const FOCUS_GLOW = 0; // iOS-style: the bar does not flash when a search starts
 const XFADE_FROM = 0.25;
 const XFADE_SPAN = 0.5;
 
-const UI = settings.ui;
-
 const smooth = (t: number) => {
   const k = clamp01(t);
   return k * k * (3 - 2 * k);
@@ -143,7 +141,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
   // Eased slide progress per search.
   const tt = (i: number) => typeTicksOf(typeTicks, i);
   const e = searches.map((s, i) =>
-    easeOut((frame - slideStart(starts[i], s.length, tt(i))) / (SLIDE_CHARS * tt(i))),
+    spring((frame - slideStart(starts[i], s.length, tt(i))) / (SLIDE_CHARS * tt(i))),
   );
 
   // Current search in the bar: the last one that has started and not yet slid away.
@@ -181,7 +179,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
           width: barFont * 0.09,
           height: '100%',
           borderRadius: barFont * 0.05,
-          background: UI.caret,
+          background: IOS.color.blue,
           opacity: caretOpacity,
         }}
       />
@@ -224,12 +222,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
 
   // Glass surface: frosted, dark-tinted so light text stays readable over the moving background.
   const surface = (r: number, shadowY: number, shadowBlur: number): React.CSSProperties => ({
-    background: UI.surface,
-    borderRadius: r,
-    backdropFilter: `blur(${px(UI.blurPx)}px) saturate(1.4)`,
-    border: `${px(1)}px solid ${UI.surfaceEdge}`,
+    ...iosSurface(r),
     boxShadow: `0 ${shadowY}px ${shadowBlur}px rgba(0,0,0,0.28)`,
-    boxSizing: 'border-box',
   });
 
   return (
@@ -239,9 +233,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
         left: px(at.x) - W / 2,
         top: px(at.y),
         width: W,
-        fontFamily: FONTS.body,
-        fontWeight: UI.fontWeight,
-        color: COLORS.ink,
+        fontFamily: IOS.font,
+        fontWeight: IOS.weight.medium,
+        color: IOS.color.label,
       }}
     >
       {/* Bar: the hero. Up to two lines of clue, vertically centred. */}
@@ -254,7 +248,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
         }}
       >
         <div style={{ position: 'absolute', left: barPad, top: (barH - icon) / 2, display: 'flex' }}>
-          <Magnifier s={icon} color={COLORS.ink} />
+          <Magnifier s={icon} color={IOS.color.secondary} />
         </div>
         <div
           style={{
@@ -302,8 +296,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
             display: 'flex',
             alignItems: 'center',
             fontSize: headFont,
-            fontWeight: UI.fontWeight,
-            color: COLORS.muted,
+            fontWeight: IOS.weight.semibold,
+            color: IOS.color.secondary,
             letterSpacing: headFont * 0.02,
           }}
         >
@@ -337,10 +331,10 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
             }}
           >
             {slot > 0 ? (
-              <div style={{ position: 'absolute', left: rowTextX, right: barPad, top: 0, height: px(1), background: UI.hairline, opacity: clamp01(slot) * settled }} />
+              <div style={{ position: 'absolute', left: rowTextX, right: barPad, top: 0, height: px(1), background: IOS.color.hairline, opacity: clamp01(slot) * settled }} />
             ) : null}
             <div style={{ position: 'absolute', left: barPad, top: (h - rowIcon) / 2, display: 'flex', opacity: settled }}>
-              <Clock s={rowIcon} color={COLORS.muted} />
+              <Clock s={rowIcon} color={IOS.color.tertiary} />
             </div>
             {/* ghost: the big clue, scaled down */}
             <div
@@ -383,7 +377,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
                 lineHeight: 1.25,
                 whiteSpace: 'pre-wrap',
                 overflowWrap: 'break-word',
-                color: COLORS.ink,
+                color: IOS.color.label,
                 opacity: f,
               }}
             >

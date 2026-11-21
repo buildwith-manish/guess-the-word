@@ -1,3 +1,4 @@
+import { IOS } from '../../ios';
 import React from 'react';
 import { COLORS, FONTS, px } from '../../style';
 import { useDesignFrame } from '../../clock';
@@ -71,7 +72,7 @@ export const ProgressDots: React.FC<ProgressDotsProps> = ({ index, total, levelO
           width: d,
           height: d,
           borderRadius: '50%',
-          background: done || current ? color : COLORS.stroke,
+          background: done || current ? color : IOS.color.fillStrong,
           opacity: current || done ? 1 : 0.6,
           transform: current ? 'scale(1.35)' : undefined,
         }}
@@ -143,15 +144,15 @@ export const ProgressDots: React.FC<ProgressDotsProps> = ({ index, total, levelO
           marginLeft: px(COUNTER_GAP),
           textAlign: 'right',
           whiteSpace: 'nowrap',
-          fontFamily: FONTS.body,
-          fontWeight: 600,
+          fontFamily: IOS.font,
+          fontWeight: IOS.weight.semibold,
           fontSize: px(COUNTER_FONT),
           fontVariantNumeric: 'tabular-nums',
           letterSpacing: px(1),
-          color: COLORS.muted,
+          color: IOS.color.secondary,
         }}
       >
-        <span style={{ color: COLORS.ink }}>{shown}</span> / {total}
+        <span style={{ color: IOS.color.label }}>{shown}</span> / {total}
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import React from 'react';
-import { COLORS, FONTS, px } from '../../style';
+import { px } from '../../style';
+import { IOS } from '../../ios';
 import { useDesignFrame } from '../../clock';
 import { FPS } from '../../timing';
 import '../../fonts';
@@ -43,7 +44,7 @@ export const TimerBar: React.FC<TimerBarProps> = ({ from, duration, accent, size
   const progress = duration > 0 ? clamp01(left / duration) : 0;
   const seconds = Math.ceil(left / FPS - 1e-9);
   const lastSecond = left <= FPS;
-  const color = lastSecond ? COLORS.red : accent;
+  const color = lastSecond ? IOS.color.red : accent;
 
   // Pulse on every whole second of elapsed time (including the start), until the clock ends.
   const phase = (elapsed % FPS) / FPS;
@@ -70,7 +71,7 @@ export const TimerBar: React.FC<TimerBarProps> = ({ from, duration, accent, size
         display: 'flex',
         alignItems: 'center',
         gap,
-        fontFamily: FONTS.body,
+        fontFamily: IOS.font,
         fontVariantNumeric: 'tabular-nums',
       }}
     >
@@ -79,8 +80,7 @@ export const TimerBar: React.FC<TimerBarProps> = ({ from, duration, accent, size
           width: trackW,
           height: barH,
           borderRadius: barH / 2,
-          background: COLORS.glass,
-          border: `${px(1)}px solid ${COLORS.stroke}`,
+          background: IOS.color.fill,
           boxSizing: 'border-box',
           overflow: 'hidden',
           transform: `scaleY(${scale})`,
@@ -101,7 +101,7 @@ export const TimerBar: React.FC<TimerBarProps> = ({ from, duration, accent, size
           width: numW,
           textAlign: 'right',
           fontSize: W * 0.06,
-          fontWeight: 600,
+          fontWeight: IOS.weight.semibold,
           lineHeight: 1,
           color,
           transform: `scale(${scale})`,

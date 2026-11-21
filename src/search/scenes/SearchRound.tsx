@@ -155,7 +155,6 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
           const pictureH = pictureW * answerPictureHeightShare(settings.reveal.showName);
           return (
           <>
-            <Flash frame={frame} start={revealAt} />
             {answerImage ? (
               <AnswerPicture
                 image={answerImage}

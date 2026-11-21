@@ -1,5 +1,5 @@
 import React from 'react';
-import { Background } from '../../Background';
+import { IOS, IosBackground, iosSurface } from '../../ios';
 import { COLORS, FONTS, SCALE, SAFE_X, SAFE_Y, glass, px } from '../../style';
 import { useDesignFrame } from '../../clock';
 import { FPS } from '../../timing';
@@ -114,42 +114,7 @@ export const SearchStage: React.FC<SearchStageProps> = ({ theme, accent, hud, en
 
   return (
     <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-      <Background frame={frame} theme={theme} energy={energy} />
-
-      {/* Subtle drift: one very soft light that wanders behind the content (about 40 s per loop). */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          pointerEvents: 'none',
-          background: `radial-gradient(ellipse ${DRIFT_W}% ${DRIFT_H}% at ${driftX}% ${driftY}%, rgba(255,255,255,${DRIFT_ALPHA}), rgba(255,255,255,0) 70%)`,
-        }}
-      />
-
-      {/* Atmosphere: two slow lights in the level accent, behind everything. */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          pointerEvents: 'none',
-          background: [
-            `radial-gradient(ellipse ${AMBIENT_SIZE}% ${AMBIENT_SIZE}% at ${72 + 16 * Math.sin(amb[0])}% ${28 + 14 * Math.cos(amb[0])}%, ${mixAlpha(accent, AMBIENT_PERCENT)}, transparent 70%)`,
-            `radial-gradient(ellipse ${AMBIENT_SIZE}% ${AMBIENT_SIZE}% at ${24 + 14 * Math.cos(amb[1])}% ${72 + 12 * Math.sin(amb[1])}%, ${mixAlpha(accent, AMBIENT_PERCENT)}, transparent 70%)`,
-          ].join(', '),
-        }}
-      />
-
-      {/* Tension: accent vignette that builds as the clock runs down (harder levels pass a higher value). */}
-      {vignette > 0.001 && (
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            pointerEvents: 'none',
-            background: `radial-gradient(ellipse at 50% 50%, transparent ${VIGNETTE_INNER}%, ${mixAlpha(accent, VIGNETTE_PERCENT * vignette)} 100%)`,
-          }}
-        />
-      )}
+      <IosBackground accent={accent} />
 
       {/* HUD pill, top left */}
       <div
@@ -162,17 +127,16 @@ export const SearchStage: React.FC<SearchStageProps> = ({ theme, accent, hud, en
           display: 'flex',
           alignItems: 'center',
           gap: H * 0.3,
-          fontFamily: FONTS.body,
-          fontWeight: 600,
+          fontFamily: IOS.font,
+          fontWeight: IOS.weight.semibold,
           fontSize: H * 0.5,
-          letterSpacing: H * 0.01,
           whiteSpace: 'pre',
           opacity: hudOpacity,
-          ...glass(H / 2),
+          ...iosSurface(H / 2, 0.6),
         }}
       >
-        <span style={{ color: COLORS.muted }}>{hud.label}</span>
-        <span style={{ color: COLORS.ink }}>
+        <span style={{ color: IOS.color.secondary }}>{hud.label}</span>
+        <span style={{ color: IOS.color.label }}>
           {hud.number}/{hud.total}
         </span>
       </div>
