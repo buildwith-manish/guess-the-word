@@ -1,10 +1,7 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { COLORS, FONTS, SAFE_X, SAFE_Y, SCALE, px, glass, K } from '../../style';
-import { prog, slamIn, revealIn } from '../../anim';
-import { expoOut } from '../../gsap-helpers';
-import { Background } from '../../Background';
-import { Confetti } from '../../Fx';
+import { SAFE_X, SAFE_Y, SCALE, px } from '../../style';
+import { IOS, IosBackground, iosSurface, spring } from '../../ios';
 import rootSettings from '../../../settings.json';
 import cfg from '../search-settings.json';
 import { BONUS_THEME } from '../search-timing';
@@ -62,25 +59,26 @@ const box = (r: SlotRect): React.CSSProperties => ({
 });
 
 export const SearchEndScreen: React.FC<{ frame: number }> = ({ frame }) => {
-  const l1 = slamIn(frame, LINE1_AT, 16);
-  const l2 = revealIn(frame, LINE2_AT, 14, 24);
-  const sub = revealIn(frame, SUBSCRIBE_AT, 14, 24);
-  const slots = prog(frame, SLOTS_AT, SLOT_TICKS, expoOut);
-  const pointer = revealIn(frame, POINTER_AT, 14, 24);
-  const pulse = 0.5 + 0.5 * Math.sin((frame - SLOTS_AT) / 12);
+  const rise = (at: number, ticks: number, dist: number) => {
+    const k = spring((frame - at) / ticks);
+    return { opacity: Math.min(1, k * 1.4), transform: `translateY(${(1 - k) * px(dist)}px)` };
+  };
+  const l1 = rise(LINE1_AT, 16, 18);
+  const l2 = rise(LINE2_AT, 14, 14);
+  const sub = rise(SUBSCRIBE_AT, 14, 14);
+  const slots = spring((frame - SLOTS_AT) / SLOT_TICKS);
+  const pointer = rise(POINTER_AT, 14, 14);
 
   const slotStyle = (r: SlotRect, radius: number): React.CSSProperties => ({
     ...box(r),
-    ...glass(radius, 0.06),
-    border: `${px(3)}px solid ${ACCENT}`,
-    boxShadow: `0 0 ${px(28 + 14 * pulse)}px ${ACCENT}55`,
-    opacity: Math.min(1, slots * 1.2),
-    transform: `translateY(${(1 - slots) * 60 * K}px) scale(${0.7 + 0.3 * slots})`,
+    ...iosSurface(radius, 0.6),
+    opacity: Math.min(1, slots * 1.4),
+    transform: `scale(${0.96 + 0.04 * slots})`,
   });
 
   return (
     <AbsoluteFill>
-      <Background frame={frame} theme={THEME} />
+      <IosBackground accent={ACCENT} />
 
       {/* top copy: one centred column inside the safe margins */}
       <div
@@ -98,14 +96,14 @@ export const SearchEndScreen: React.FC<{ frame: number }> = ({ frame }) => {
         {/* comment prompt */}
         <div
           style={{
-            fontFamily: FONTS.display,
-            fontSize: px(80),
+            fontFamily: IOS.font,
+            fontWeight: IOS.weight.bold,
+            fontSize: px(76),
             lineHeight: 1.05,
-            letterSpacing: px(3),
-            color: COLORS.ink,
+            letterSpacing: -px(76) * 0.03,
+            color: IOS.color.label,
             opacity: l1.opacity,
             transform: l1.transform,
-            filter: l1.filter,
           }}
         >
           {SCORE_LINE}
@@ -113,11 +111,10 @@ export const SearchEndScreen: React.FC<{ frame: number }> = ({ frame }) => {
         <div
           style={{
             marginTop: px(GAP_LINE1_LINE2),
-            fontFamily: FONTS.body,
-            fontWeight: 800,
-            fontSize: px(38),
-            letterSpacing: px(2),
-            color: 'rgba(255,255,255,0.88)',
+            fontFamily: IOS.font,
+            fontWeight: IOS.weight.medium,
+            fontSize: px(36),
+            color: IOS.color.secondary,
             opacity: l2.opacity,
             transform: l2.transform,
           }}
@@ -131,12 +128,11 @@ export const SearchEndScreen: React.FC<{ frame: number }> = ({ frame }) => {
             marginTop: px(GAP_LINE2_SUBSCRIBE),
             padding: `${px(12)}px ${px(30)}px`,
             borderRadius: px(40),
-            background: ACCENT,
-            color: COLORS.inkDark,
-            fontFamily: FONTS.body,
-            fontWeight: 800,
+            background: IOS.color.blue,
+            color: IOS.color.label,
+            fontFamily: IOS.font,
+            fontWeight: IOS.weight.semibold,
             fontSize: px(24),
-            letterSpacing: px(4),
             opacity: sub.opacity,
             transform: sub.transform,
           }}
@@ -158,12 +154,12 @@ export const SearchEndScreen: React.FC<{ frame: number }> = ({ frame }) => {
             transform: pointer.transform,
           }}
         >
-          <div style={{ fontFamily: FONTS.display, fontSize: px(28), letterSpacing: px(6), color: COLORS.ink }}>{E.nextLabel}</div>
+          <div style={{ fontFamily: IOS.font, fontWeight: IOS.weight.semibold, fontSize: px(26), color: IOS.color.secondary }}>{E.nextLabel}</div>
           {NEXT.title.trim() !== '' ? (
-            <div style={{ fontFamily: FONTS.body, fontWeight: 800, fontSize: px(20), letterSpacing: px(2), color: COLORS.ink, marginTop: px(4) }}>{NEXT.title}</div>
+            <div style={{ fontFamily: IOS.font, fontWeight: IOS.weight.semibold, fontSize: px(22), color: IOS.color.label, marginTop: px(4) }}>{NEXT.title}</div>
           ) : null}
           {NEXT.linkText.trim() !== '' ? (
-            <div style={{ fontFamily: FONTS.body, fontWeight: 800, fontSize: px(16), letterSpacing: px(3), color: 'rgba(255,255,255,0.8)', marginTop: px(2) }}>{NEXT.linkText}</div>
+            <div style={{ fontFamily: IOS.font, fontWeight: IOS.weight.medium, fontSize: px(17), color: IOS.color.secondary, marginTop: px(2) }}>{NEXT.linkText}</div>
           ) : null}
         </div>
       ) : null}
@@ -173,7 +169,6 @@ export const SearchEndScreen: React.FC<{ frame: number }> = ({ frame }) => {
       <div style={slotStyle(END_SLOTS.videoRight, px(24))} />
       <div style={slotStyle(END_SLOTS.subscribe, px(END_SLOTS.subscribe.w / 2))} />
 
-      <Confetti frame={frame} start={LINE1_AT} count={CONFETTI.count} seed={CONFETTI.seed} origin={CONFETTI.origin} />
     </AbsoluteFill>
   );
 };
