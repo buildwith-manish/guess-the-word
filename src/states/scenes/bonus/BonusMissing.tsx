@@ -30,9 +30,9 @@ import React from 'react';
 import { AbsoluteFill } from 'remotion';
 import { Rich } from '../../../Icon';
 import { S, px } from '../../../style';
-import { IOS, IosBackground, iosSurface, spring } from '../../../ios';
-import { prog, cssEaseOut, mix, clamp01 } from '../../../anim';
-import { linear } from '../../../gsap-helpers';
+import { IOS, IosBackground, iosSurface } from '../../../ios';
+import { prog, mix, clamp01 } from '../../../anim';
+import { DUR, exitTicks, iosOut, spr, sprFit } from '../../motion';
 import { rise } from '../../ios-rise';
 import { fitTextSize } from '../../capital-fit';
 import { domMeasure, fallbackMeasure, useFontsReady } from '../../measure-dom';
@@ -140,7 +140,9 @@ export const BonusStage: React.FC<{ frame: number; puzzle: BonusPuzzle; T: Bonus
   T,
   children,
 }) => {
-  const exitP = prog(frame, T.dur - 12, 12, linear);
+  // exit: about 70% of an entrance, iosOut, ends with the segment
+  const exitLen = exitTicks(DUR.uiLong);
+  const exitP = iosOut((frame - (T.dur - exitLen)) / exitLen);
   return (
     <AbsoluteFill style={{ fontFamily: IOS.font }}>
       <IosBackground accent={BONUS_ACCENT} />
@@ -153,10 +155,10 @@ export const BonusStage: React.FC<{ frame: number; puzzle: BonusPuzzle; T: Bonus
 /** Pre-roll banner: "BONUS n / N, BONUS ROUND, <kind label>". */
 export const BonusBanner: React.FC<{ frame: number; puzzle: BonusPuzzle; pre: number }> = ({ frame, puzzle, pre }) => {
   if (frame >= pre) return null;
-  const out = prog(frame, pre - 8, 10, linear);
+  const out = iosOut((frame - (pre - 8)) / exitTicks(DUR.hero - 4));
   const e1 = rise(frame, 0, 14, 16);
-  const e2 = rise(frame, 4, 16, 28);
-  const e3 = rise(frame, 14, 14, 16);
+  const e2 = rise(frame, 4, 32, 24, 'slow'); // hero: fully settled by tick 34, the banner leaves from tick 36
+  const e3 = rise(frame, 4 + 2, 14, 16); // follows the title by 2 ticks
   return (
     <AbsoluteFill
       style={{
@@ -225,7 +227,7 @@ export const BonusBadge: React.FC<{ frame: number; puzzle: BonusPuzzle; at: numb
 export const BonusPrompt: React.FC<{ frame: number; text: string; at: number; hideAt?: number }> = ({ frame, text, at, hideAt }) => {
   if (frame < at) return null;
   const r = rise(frame, at, 14, 16);
-  const hide = hideAt === undefined ? 0 : prog(frame, hideAt, 8, linear);
+  const hide = hideAt === undefined ? 0 : iosOut((frame - hideAt) / 8);
   return (
     <div
       style={{
@@ -396,7 +398,7 @@ export const BonusTimer: React.FC<{ frame: number; T: BonusTimes }> = ({ frame, 
         width: S.timerWidth,
         bottom: S.timerBottom,
         height: px(70),
-        opacity: spring((frame - (T.clockStart - 8)) / 14) * (1 - prog(frame, T.clockEnd, 8, linear)),
+        opacity: spr(frame, T.clockStart - 8, 'quick') * (1 - iosOut((frame - T.clockEnd) / exitTicks(DUR.uiLong))),
       }}
     >
       <div
@@ -516,7 +518,7 @@ const FlyBack: React.FC<{ stateKey: string; frame: number; at: number; dur: numb
   if (frame < at) return null;
   const g = getShape(stateKey);
   const [cx, cy] = g.miniCentroid;
-  const p = spring((frame - at) / dur); // overshoots 1 by about 1.5% = the settle
+  const p = sprFit(frame, at, dur, 'normal'); // lands exactly at the end of its window
   const s = mix(2.6, 1, p);
   const dy = mix(-MINI_BOX[1] * 0.55, 0, p);
   return (
@@ -563,7 +565,7 @@ export const BonusMissing: React.FC<{ frame: number; puzzle: BonusPuzzle; durati
   const name = puzzle.options[puzzle.correctIndex];
   // the missing state fades out before the clock and stays gone until it flies back (drawn by FlyBack)
   const marks: Record<string, MapMark> = {
-    [puzzle.subject]: { opacity: 1 - prog(frame, M.fadeAt, M.fadeDur, linear) },
+    [puzzle.subject]: { opacity: 1 - prog(frame, M.fadeAt, M.fadeDur, iosOut) },
   };
   return (
     <BonusStage frame={frame} puzzle={puzzle} T={M}>

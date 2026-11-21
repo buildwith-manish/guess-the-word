@@ -17,7 +17,8 @@
  */
 import React from 'react';
 import { IOS } from '../../../ios';
-import { prog, cssEaseInOut, cssEaseOut } from '../../../anim';
+import { prog } from '../../../anim';
+import { iosOut, sprFit } from '../../motion';
 import type { BonusPuzzle } from '../../bonus-engine';
 import { getShape } from '../../geo';
 import { levelAccent } from '../../components/MiniMap';
@@ -71,8 +72,8 @@ export const BonusBorders: React.FC<{ frame: number; puzzle: BonusPuzzle; durati
   const accent = levelAccent(target);
 
   // the target is outlined in the accent, the true neighbour lights green on the reveal
-  const glowIn = prog(frame, B.glowAt, 12, cssEaseOut);
-  const lit = prog(frame, B.litAt, 10, cssEaseOut);
+  const glowIn = prog(frame, B.glowAt, 12, iosOut);
+  const lit = prog(frame, B.litAt, 10, iosOut);
   const marks: Record<string, MapMark> = {
     [target]: { fill: accent, fillOpacity: 0.3 + 0.5 * glowIn, edge: IOS.color.orange, edgeOpacity: 0.5 + 0.5 * glowIn, glow: glowIn },
   };
@@ -82,7 +83,7 @@ export const BonusBorders: React.FC<{ frame: number; puzzle: BonusPuzzle; durati
 
   const a = getShape(target).miniCentroid;
   const b = getShape(neighbour).miniCentroid;
-  const lineP = prog(frame, B.lineAt, B.lineDur, cssEaseInOut);
+  const lineP = sprFit(frame, B.lineAt, B.lineDur, 'normal');
 
   return (
     <BonusStage frame={frame} puzzle={puzzle} T={B}>

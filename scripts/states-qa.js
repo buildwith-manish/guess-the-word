@@ -373,6 +373,13 @@ const check = (name, fn) => {
     const stampAvail = ST.px(n(look, 'stampMaxW')) - 2 * ST.px(n(look, 'stampPadX'));
     const stampMax = ST.px(n(look, 'stampMaxFont'));
     const stampMin = ST.px(n(look, 'stampMinFont'));
+    // vertical layout: shape box, then the stamp (caption pill + gap + answer card at its largest), then the chips; none may overlap
+    const shapeBottom = n(look, 'top') + n(look, 'size');
+    const stampTopRef = n(look, 'stampTop');
+    const stampH = 4 * 2 + 20 * 1.21 + 10 + n(look, 'stampMaxFont') * 1.1 + 8 * 2;
+    const chipsTop = n(layout, 'optionsTop');
+    if (shapeBottom > stampTopRef) problems.push(`shape box ends at ${shapeBottom} ref px, below the stamp start ${stampTopRef}`);
+    if (stampTopRef + stampH > chipsTop - 4) problems.push(`stamp ends at ${(stampTopRef + stampH).toFixed(0)} ref px, over the option chips that start at ${chipsTop}`);
     const fam = IOSM.IOS.font;
     let tightChip = null;
     let tightStamp = null;
@@ -394,7 +401,7 @@ const check = (name, fn) => {
         if (!tightStamp || r < tightStamp.r) tightStamp = { r, st, kind, size: f.size / stampMax };
       });
     });
-    const info = `${D.STATES.length} states x name/capital/nickname fit a chip (${shrunk} shrink, none cut off); tightest chip: ${tightChip.st.key} ${tightChip.kind}, scale ${tightChip.size.toFixed(2)}; smallest stamp: ${tightStamp.st.key} ${tightStamp.kind}, scale ${tightStamp.size.toFixed(2)}`;
+    const info = `stamp ${stampTopRef}..${(stampTopRef + stampH).toFixed(0)} clear of chips at ${chipsTop}; ${D.STATES.length} states x name/capital/nickname fit a chip (${shrunk} shrink, none cut off); tightest chip: ${tightChip.st.key} ${tightChip.kind}, scale ${tightChip.size.toFixed(2)}; smallest stamp: ${tightStamp.st.key} ${tightStamp.kind}, scale ${tightStamp.size.toFixed(2)}`;
     return { problems, info };
   });
 

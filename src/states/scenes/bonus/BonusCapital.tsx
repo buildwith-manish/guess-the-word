@@ -22,8 +22,9 @@
  */
 import React from 'react';
 import { px } from '../../../style';
-import { IOS, iosSurface, spring } from '../../../ios';
-import { prog, cssEaseInOut, mix, clamp01 } from '../../../anim';
+import { IOS, iosSurface } from '../../../ios';
+import { enter, iosOut, settle, sprFit } from '../../motion';
+import { prog, mix, clamp01 } from '../../../anim';
 import { fitTextSize } from '../../capital-fit';
 import { domMeasure, fallbackMeasure, useFontsReady } from '../../measure-dom';
 import { WIDTH } from '../../state-timing';
@@ -48,13 +49,13 @@ import {
 // ------------------------------------------------------------------ shared: layout, timing, cues
 /** Reference px (1280x720, px() scales it). The shape box is square, centred, between the prompt and the chips. */
 const SHAPE_LAYOUT = {
-  top: 124,
-  size: 340,
-  /** stamp band, overlaps the lower edge of the shape box a little */
-  stampTop: 440,
+  top: 118,
+  size: 262,
+  /** stamp band: below the shape box and above the option chips (BONUS_LAYOUT.optionsTop); scripts/states-qa.js check 9 measures it */
+  stampTop: 388,
   stampMaxW: 1000,
-  stampMaxFont: 76,
-  stampMinFont: 44,
+  stampMaxFont: 54,
+  stampMinFont: 36,
   /** horizontal padding inside the answer card */
   stampPadX: 36,
 };
@@ -109,8 +110,8 @@ const CenterShape: React.FC<{ frame: number; puzzle: BonusPuzzle; at: number; dr
 }) => {
   if (frame < at) return null;
   const size = px(SHAPE_LAYOUT.size);
-  const draw = prog(frame, at, drawDur, cssEaseInOut);
-  const lit = prog(frame, revealAt, litDur, cssEaseInOut);
+  const draw = sprFit(frame, at, drawDur, 'normal');
+  const lit = prog(frame, revealAt, litDur, iosOut);
   return (
     <div
       style={{
@@ -150,7 +151,8 @@ const AnswerStamp: React.FC<{ frame: number; puzzle: BonusPuzzle; caption: strin
   const L = SHAPE_LAYOUT;
   // measured, so a long nickname shrinks (to a readable minimum) instead of leaving the card
   const fit = fitTextSize(answer, px(L.stampMaxW) - 2 * px(L.stampPadX), px(L.stampMaxFont), px(L.stampMinFont), { fontFamily: IOS.font, fontWeight: IOS.weight.bold }, ready ? domMeasure : fallbackMeasure);
-  const k = spring((frame - at) / dur);
+  const e = enter(frame, at, 'normal', 16);
+  const pop = settle(frame, at, dur, 1.015);
   return (
     <div style={{ position: 'absolute', left: 0, right: 0, top: px(L.stampTop), display: 'flex', justifyContent: 'center' }}>
       <div
@@ -160,8 +162,8 @@ const AnswerStamp: React.FC<{ frame: number; puzzle: BonusPuzzle; caption: strin
           alignItems: 'center',
           gap: px(10),
           fontFamily: IOS.font,
-          opacity: Math.min(1, k * 1.4),
-          transform: `translateY(${(1 - k) * px(24)}px) scale(${0.97 + 0.03 * k})`,
+          opacity: e.opacity,
+          transform: `translateY(${(1 - e.t) * px(16)}px) scale(${(0.97 + 0.03 * e.t) * pop})`,
         }}
       >
         <div
