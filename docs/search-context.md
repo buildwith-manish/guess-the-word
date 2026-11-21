@@ -90,4 +90,23 @@ Read from the GTW files on this branch (grep and short reads; bodies not read in
 
 ## D Components
 
+### SearchBar (src/search/components/SearchBar.tsx)
+Generic dark search UI, no images. Bar with SVG magnifier, typewriter, blinking caret; below it a "Recent searches" panel with an SVG clock per row. A finished search holds, slides into the top row, and the bar clears. Newest row on top. All motion via `useDesignFrame` (ticks, local to the mounting scene).
+
+Props `SearchBarProps`:
+- `searches: string[]` the searches in typing order (4)
+- `starts: number[]` start tick of each search (same length)
+- `typeTicks: number` ticks per character (from settings)
+- `accent: string` caret, magnifier, bar glow
+- `size: number` bar width in 1280x720 reference units (px() applied inside)
+- `at: { x: number; y: number }` bar centre-x and top-y, reference units
+- `heading?: string` list label, default "Recent searches"
+
+Exports:
+- `typedCount(frame, start, length, typeTicks = 1)` visible characters. Character k (1-based) appears at `start + (k - 1) * typeTicks`. For a key-click on every second character, cue the even k at that tick. Pass `typeTicks` (the default 1 only matches one char per tick).
+- `slideStart(start, length, typeTicks)` and `slideEnd(...)` ticks when a search starts and finishes sliding into the list.
+- `HOLD_CHARS` (6) and `SLIDE_CHARS` (8): hold and slide lengths, as multiples of `typeTicks`.
+
+Timing note: leave at least `slideStart` between one search's start and the next search's start (typed length + hold), or the bar clears mid-typing.
+
 ## E Scenes
