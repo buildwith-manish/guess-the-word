@@ -16,16 +16,18 @@
  * sequential, 4 ticks apart, only for clips in the manifest). The row of the rank being spoken is lit while its clip
  * plays. The segment length comes from state-timing (it grows with the clips); this scene does not change it.
  *
+ * iOS look: calm backdrop, Inter, frosted rows that settle on the shared spring; LEGEND is the brightest row (no glow
+ * pulse, no confetti). Beats, cues and voiceover plan are unchanged.
+ *
  * Time: `frame` = design ticks (30 per second) since the segment started. Not rendered or viewed.
  */
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { Background } from '../../Background';
-import { Confetti } from '../../Fx';
 import { Rich } from '../../Icon';
-import { COLORS, FONTS, K, glass, px } from '../../style';
-import { prog, revealIn, clamp01 } from '../../anim';
-import { backOut } from '../../gsap-helpers';
+import { px } from '../../style';
+import { IOS, IosBackground, iosSurface, spring } from '../../ios';
+import { clamp01 } from '../../anim';
+import { rise } from '../ios-rise';
 import settings from '../states-settings.json';
 import { LEVELS, TOTAL, voiceScoreboard } from '../state-timing';
 import { STATES } from '../states-data';
@@ -122,14 +124,14 @@ const ALL_KEYS = STATES.map((s) => s.key);
 
 export const StateScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
   const L = LAYOUT;
-  const theme = LEVELS[LEVELS.length - 1].theme;
-  const kicker = revealIn(frame, SB.kickerAt, 14, 20);
-  const title = revealIn(frame, SB.kickerAt + 8, 16, 30);
+  const last = LEVELS[LEVELS.length - 1];
+  const kicker = rise(frame, SB.kickerAt, 14, 16);
+  const title = rise(frame, SB.kickerAt + 8, 16, 24);
   const legendAt = legendLandsAt();
-  const footer = revealIn(frame, legendAt + SB.footerAfter, 16, 26);
+  const footer = rise(frame, legendAt + SB.footerAfter, 16, 18);
 
   // map: states light in order over litDur ticks
-  const mapP = prog(frame, SB.mapAt, 16, backOut);
+  const mapP = spring((frame - SB.mapAt) / 16);
   const lit = Math.floor(clamp01((frame - SB.litAt) / SB.litDur) * ALL_KEYS.length);
   const answered = ALL_KEYS.slice(0, lit);
   const mapW = px(L.mapW);
@@ -144,8 +146,8 @@ export const StateScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
   const spoken = scoreboardVoicePlan().find((v) => frame >= v.start && frame < v.start + v.frames)?.key;
 
   return (
-    <AbsoluteFill>
-      <Background frame={frame} theme={theme} />
+    <AbsoluteFill style={{ fontFamily: IOS.font }}>
+      <IosBackground accent={last.accent} />
 
       <div
         style={{
@@ -154,11 +156,10 @@ export const StateScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
           right: 0,
           top: px(L.kickerTop),
           textAlign: 'center',
-          fontFamily: FONTS.body,
-          fontWeight: 800,
-          fontSize: px(22),
-          letterSpacing: px(9),
-          color: 'rgba(255,255,255,0.8)',
+          fontWeight: IOS.weight.semibold,
+          fontSize: px(24),
+          letterSpacing: px(2),
+          color: IOS.color.secondary,
           opacity: kicker.opacity,
           transform: kicker.transform,
         }}
@@ -172,16 +173,16 @@ export const StateScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
           right: 0,
           top: px(L.titleTop),
           textAlign: 'center',
-          fontFamily: FONTS.display,
-          fontSize: px(66),
+          fontWeight: IOS.weight.bold,
+          fontSize: px(64),
           lineHeight: 1.1,
-          letterSpacing: px(3),
-          color: '#fff',
+          letterSpacing: px(-1),
+          color: IOS.color.label,
           opacity: title.opacity,
           transform: title.transform,
         }}
       >
-        {COPY.title} <b style={{ color: COLORS.yellow, fontWeight: 400 }}>{COPY.titleAccent}</b>
+        {COPY.title} <span style={{ color: last.accent }}>{COPY.titleAccent}</span>
       </div>
 
       {frame >= SB.mapAt ? (
@@ -192,8 +193,8 @@ export const StateScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
             top: px(mapTop),
             width: mapW,
             height: mapH,
-            opacity: clamp01(mapP * 1.5),
-            transform: `translate3d(0, ${(1 - mapP) * 30 * K}px, 0)`,
+            opacity: Math.min(1, mapP * 1.4),
+            transform: `translateY(${(1 - mapP) * px(24)}px)`,
           }}
         >
           <MiniMap answered={answered} size={mapW} frame={frame} />
@@ -203,10 +204,10 @@ export const StateScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
       <div style={{ position: 'absolute', left: px(L.tableLeft), top: px(tableTop), display: 'flex', flexDirection: 'column', gap: px(L.rowGap) }}>
         {RANKS.map((r, i) => {
           const at = rowStart(i);
-          const p = prog(frame, at, SB.rowDur, backOut);
+          const p = spring((frame - at) / SB.rowDur);
           const isTop = i === 0;
           const speaking = spoken === r.id.toLowerCase();
-          const pulse = isTop && frame >= legendAt ? 0.5 + 0.5 * Math.sin((frame - legendAt) / 9) : 0;
+          const bright = (isTop && frame >= legendAt) || speaking;
           return (
             <div
               key={r.id}
@@ -216,30 +217,23 @@ export const StateScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
                 gap: px(18),
                 width: px(L.rowW),
                 height: px(L.rowH),
-                boxSizing: 'border-box',
                 padding: `0 ${px(26)}px`,
-                ...glass(px(18), isTop || speaking ? 0.16 : 0.08),
-                background: isTop ? `linear-gradient(90deg, ${r.color}47, ${r.color}14)` : undefined,
-                borderLeft: `${px(10)}px solid ${r.color}`,
-                opacity: clamp01(p),
-                transform: `translate3d(${(1 - p) * -160 * K}px, 0, 0) scale(${0.92 + 0.08 * p})`,
-                boxShadow:
-                  isTop && frame >= legendAt
-                    ? `0 0 ${px(20 + 44 * pulse)}px ${r.color}99`
-                    : speaking
-                      ? `0 0 ${px(30)}px ${r.color}99`
-                      : (glass(px(18)).boxShadow as string),
+                ...iosSurface(px(IOS.radius.lg), 0.6),
+                background: bright ? IOS.color.fillStrong : IOS.color.fill,
+                borderColor: bright ? r.color : IOS.color.fillStrong,
+                opacity: Math.min(1, p * 1.4),
+                transform: `translateY(${(1 - p) * px(28)}px)`,
               }}
             >
-              <span style={{ fontSize: px(36), lineHeight: 1, display: 'inline-flex', alignItems: 'center' }}>
-                <Rich size={px(36)} style={{ verticalAlign: 'middle', margin: 0 }}>
+              <span style={{ fontSize: px(34), lineHeight: 1, display: 'inline-flex', alignItems: 'center' }}>
+                <Rich size={px(34)} style={{ verticalAlign: 'middle', margin: 0 }}>
                   {r.emoji}
                 </Rich>
               </span>
-              <span style={{ fontFamily: FONTS.display, fontSize: px(36), letterSpacing: px(2), flex: 1, textAlign: 'left', color: '#fff', whiteSpace: 'nowrap' }}>
+              <span style={{ fontWeight: IOS.weight.semibold, fontSize: px(32), flex: 1, textAlign: 'left', color: IOS.color.label, whiteSpace: 'nowrap' }}>
                 {r.name}
               </span>
-              <span style={{ fontFamily: FONTS.body, fontWeight: 800, fontSize: px(22), letterSpacing: px(2), color: r.color, whiteSpace: 'nowrap' }}>{r.range}</span>
+              <span style={{ fontWeight: IOS.weight.medium, fontSize: px(24), color: IOS.color.secondary, whiteSpace: 'nowrap' }}>{r.range}</span>
             </div>
           );
         })}
@@ -252,19 +246,15 @@ export const StateScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
           right: 0,
           bottom: px(L.footerBottom),
           textAlign: 'center',
-          fontFamily: FONTS.body,
-          fontWeight: 800,
+          fontWeight: IOS.weight.medium,
           fontSize: px(26),
-          letterSpacing: px(3),
-          color: '#fff',
+          color: IOS.color.secondary,
           opacity: footer.opacity,
           transform: footer.transform,
         }}
       >
         {COPY.footer}
       </div>
-
-      {frame >= legendAt ? <Confetti frame={frame} start={legendAt} seed={99} origin={{ x: L.tableLeft + L.rowW / 2, y: tableTop }} /> : null}
     </AbsoluteFill>
   );
 };
