@@ -1,0 +1,45 @@
+{
+  "_provisional": "Values marked here were NOT given in the task and need your confirmation: levels[].time (EASY/MEDIUM/HARD copied from GTW settings.json, EXPERT guessed), all level colours and themes (EXPERT is new), fastest.questions, reminder.after, reveal.minHoldSeconds. Everything else follows the 1d prompt or copies the GTW value.",
+  "levels": [
+    { "name": "EASY",   "time": 5,  "accent": "#34D399", "bg": "#05241B", "theme": ["#0FA37A", "#05241B"] },
+    { "name": "MEDIUM", "time": 7,  "accent": "#FBBF24", "bg": "#2B1B04", "theme": ["#D98E04", "#2B1B04"] },
+    { "name": "HARD",   "time": 8,  "accent": "#FB7185", "bg": "#2A0712", "theme": ["#E11D48", "#2A0712"] },
+    { "name": "EXPERT", "time": 10, "accent": "#A78BFA", "bg": "#150A33", "theme": ["#7C3AED", "#150A33"] }
+  ],
+  "fastest": {
+    "questions": [7, 18, 27, 35, 45],
+    "seconds": 2,
+    "label": "FASTEST GUESS"
+  },
+  "streak": {
+    "milestones": [5, 15, 25, 35, 45],
+    "label": "IN A ROW",
+    "cta": "DROP YOUR COUNT ⬇"
+  },
+  "reminder": {
+    "after": [10, 21, 34],
+    "frames": 51
+  },
+  "bonus": {
+    "after": [14, 28, 40, 50],
+    "kinds": ["missing", "borders", "capital", "nickname"]
+  },
+  "hints": {
+    "fractions": [0.3333, 0.6667]
+  },
+  "reveal": {
+    "minHoldSeconds": 2.5
+  },
+  "levelCardFrames": 72,
+  "ranks": [
+    { "id": "LEGEND",    "name": "LEGEND",     "emoji": "👑", "min": 45, "color": "#FFC93C" },
+    { "id": "EXPERT",    "name": "EXPERT",     "emoji": "🔥", "min": 35, "color": "#38E1FF" },
+    { "id": "GOOD",      "name": "GOOD",       "emoji": "👍", "min": 25, "color": "#34D399" },
+    { "id": "BEGINNER",  "name": "BEGINNER",   "emoji": "🌱", "min": 15, "color": "#FBBF24" },
+    { "id": "KEEPGOING", "name": "KEEP GOING", "emoji": "💪", "min": 0,  "color": "#FB7185" }
+  ],
+  "nextVideo": {
+    "title": "",
+    "linkText": ""
+  }
+}

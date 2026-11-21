@@ -86,6 +86,12 @@ fps, width, height, motionBlur, camera, voiceover, transitions, fastest, streak,
 
 - Geometry (src/states/states-geo.json, built by `npm run states:geo`): US Census Bureau cartographic boundaries via us-atlas
 
+### states-settings.json and types.ts (src/states/)
+
+`states-settings.json` is the one place for level accents and the video's timings/thresholds (frames are 30 fps ticks, seconds are real seconds). Keys: `levels` (EASY, MEDIUM, HARD, EXPERT: `name, time, accent, bg, theme`), `fastest` (`questions, seconds, label`), `streak` (`milestones, label, cta`), `reminder` (`after, frames`), `bonus` (`after` = question ids 14/28/40/50, `kinds` = missing, borders, capital, nickname per slot), `hints` (`fractions` of the clock, 1/3 and 2/3), `reveal` (`minHoldSeconds`), `levelCardFrames`, `ranks` (`id, name, emoji, min, color`; `min` = lowest score for that rank, out of 50), `nextVideo` (`title, linkText`, empty). Level accents live only here. The `_provisional` key lists values that still need confirmation.
+
+`types.ts` exports `StatesSettings` (typed from the JSON), `LevelCfg`, `StateQuestion`, `Hud`, `IrisVariant`, `BonusKind`, the `Segment` union (hook, levelCard, question, bonus, reminder, iris, scoreboard, endScreen) and `Timeline`.
+
 ## D Components
 
 ### StateShape (src/states/components/StateShape.tsx)
