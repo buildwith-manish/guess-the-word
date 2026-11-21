@@ -1,8 +1,7 @@
 import React from 'react';
-import { COLORS, FONTS, glass, px } from '../../style';
+import { px } from '../../style';
+import { IOS, iosSurface, spring, IosBackground } from '../../ios';
 import { prog, htmlEase, clamp01 } from '../../anim';
-import { Background } from '../../Background';
-import { Flash } from '../../Fx';
 import type { Cue } from '../../sound';
 import { makeRandom } from '../../util';
 import cfg from '../search-settings.json';
@@ -79,6 +78,8 @@ const RULE_CHIP_STAGGER_TICKS = 4;
 const RULE_CHIP_FADE_TICKS = 10;
 
 const FPS_DESIGN = 30;
+const HEADLINE_TICKS = 14; // headline spring-in length
+const HEADLINE_RISE = 16; // reference units
 const hash = (n: number) => {
   const x = Math.sin(n * 127.1 + 311.7) * 43758.5453;
   return x - Math.floor(x);
@@ -130,65 +131,28 @@ export const searchHookCues = (duration: number = defaultDuration()): Cue[] => {
 
 // ------------------------------------------------------------------ glitch
 
-const GlitchHeadline: React.FC<{ frame: number; hitAt: number; text: string; accent: string }> = ({
-  frame,
-  hitAt,
-  text,
-  accent,
-}) => {
-  // Clear from the first ticks; the glitch is a burst that starts at hitAt and settles back to the clean text.
-  const t = frame - hitAt;
-  const burst = clamp01(t / (GLITCH_BURST_SECONDS * FPS_DESIGN)); // 0..1 over the burst
-  const active = t >= 0 && burst < 1;
-  const step = Math.floor(Math.max(0, t) / GLITCH_STEP_TICKS);
-  const amp = active ? px(GLITCH_SHIFT) * (1 - burst) : 0;
-  const flicker = active && hash(step * 5.3) < 0.28 * (1 - burst) * 2 ? 0.15 : 1;
-  const jitter = active ? (hash(step * 2.1) - 0.5) * 2 * amp * 0.4 : 0;
-  const kick = t >= 0 ? 1 - prog(frame, hitAt, HIT_KICK_TICKS, htmlEase) : 0;
-  const band = (seed: number) => {
-    const top = hash(seed) * (1 - GLITCH_BAND);
-    return `inset(${top * 100}% 0 ${(1 - top - GLITCH_BAND) * 100}% 0)`;
-  };
-  const layer = (color: string, seed: number, sign: number): React.CSSProperties => ({
-    position: 'absolute',
-    inset: 0,
-    color,
-    transform: `translateX(${sign * amp * (0.4 + hash(seed))}px)`,
-    clipPath: band(seed + 1),
-    opacity: active ? 0.9 : 0,
-  });
-  const style: React.CSSProperties = {
-    fontFamily: FONTS.display,
-    fontSize: px(HEADLINE_FONT),
-    letterSpacing: px(2),
-    textAlign: 'center',
-    whiteSpace: 'pre',
-    lineHeight: 1.1,
-  };
-  const enter = prog(frame, 0, HEADLINE_ENTER_TICKS, htmlEase);
-
+const CalmHeadline: React.FC<{ frame: number; text: string }> = ({ frame, text }) => {
+  const k = spring(frame / HEADLINE_TICKS);
   return (
-    <div
-      style={{
-        position: 'absolute',
-        left: 0,
-        width: '100%',
-        top: px(HEADLINE_Y),
-        display: 'flex',
-        justifyContent: 'center',
-        opacity: enter,
-      }}
-    >
-      <div style={{ position: 'relative', opacity: flicker, transform: `translateX(${jitter}px) scale(${1 + HIT_KICK * kick})` }}>
-        <div style={{ ...style, color: COLORS.ink, textShadow: `0 0 ${px(24)}px ${accent}` }}>{text}</div>
-        <div style={{ ...style, ...layer(accent, step * 3.7, -1) }}>{text}</div>
-        <div style={{ ...style, ...layer(COLORS.red, step * 7.9, 1) }}>{text}</div>
+    <div style={{ position: 'absolute', left: 0, width: '100%', top: px(HEADLINE_Y), display: 'flex', justifyContent: 'center', opacity: Math.min(1, k * 1.4) }}>
+      <div
+        style={{
+          fontFamily: IOS.font,
+          fontWeight: IOS.weight.bold,
+          fontSize: px(HEADLINE_FONT),
+          letterSpacing: -px(HEADLINE_FONT) * 0.025,
+          lineHeight: 1.1,
+          color: IOS.color.label,
+          whiteSpace: 'pre',
+          transform: `translateY(${(1 - k) * px(HEADLINE_RISE)}px)`,
+        }}
+      >
+        {text}
       </div>
     </div>
   );
 };
 
-// ------------------------------------------------------------------- scene
 
 export const SearchHook: React.FC<{ frame: number; duration?: number }> = ({ frame, duration }) => {
   const p = hookPlan(duration);
@@ -207,7 +171,7 @@ export const SearchHook: React.FC<{ frame: number; duration?: number }> = ({ fra
 
   return (
     <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-      <Background frame={frame} theme={themeForRound(0)} />
+      <IosBackground accent={level.accent} />
 
       <div style={{ position: 'absolute', inset: 0, opacity: oldOpacity }}>
         <SearchBar
@@ -221,10 +185,8 @@ export const SearchHook: React.FC<{ frame: number; duration?: number }> = ({ fra
       </div>
 
       <div style={{ position: 'absolute', inset: 0, opacity: oldOpacity }}>
-        <GlitchHeadline frame={frame} hitAt={p.glitchAt} text={TEXT.headline} accent={level.accent} />
+        <CalmHeadline frame={frame} text={TEXT.headline} />
       </div>
-
-      <Flash frame={frame} start={p.glitchAt} ms={HIT_FLASH_MS} peak={HIT_FLASH_PEAK} />
 
       <SearchTitleLockup frame={frame} from={p.lockupAt} title={TEXT.title} subtitle={TEXT.subtitle} top={LOCKUP_TOP} scale={LOCKUP_SCALE} />
 
@@ -241,7 +203,7 @@ export const SearchHook: React.FC<{ frame: number; duration?: number }> = ({ fra
           }}
         >
           {rules.map((r, i) => {
-            const k = prog(frame, p.rulesAt + i * RULE_CHIP_STAGGER_TICKS, RULE_CHIP_FADE_TICKS, htmlEase);
+            const k = spring((frame - p.rulesAt - i * RULE_CHIP_STAGGER_TICKS) / RULE_CHIP_FADE_TICKS);
             return (
               <div
                 key={i}
@@ -250,16 +212,16 @@ export const SearchHook: React.FC<{ frame: number; duration?: number }> = ({ fra
                   alignItems: 'baseline',
                   gap: px(8),
                   padding: `${px(8)}px ${px(18)}px`,
-                  fontFamily: FONTS.body,
+                  fontFamily: IOS.font,
                   fontSize: px(17),
-                  fontWeight: 600,
-                  color: COLORS.muted,
-                  opacity: k,
+                  fontWeight: IOS.weight.medium,
+                  color: IOS.color.secondary,
+                  opacity: Math.min(1, k * 1.4),
                   transform: `translateY(${(1 - k) * px(10)}px)`,
-                  ...glass(px(14)),
+                  ...iosSurface(px(IOS.radius.md), 0.6),
                 }}
               >
-                <span style={{ fontFamily: FONTS.display, fontSize: px(26), color: level.accent }}>{r.n}</span>
+                <span style={{ fontWeight: IOS.weight.semibold, fontSize: px(24), color: IOS.color.label }}>{r.n}</span>
                 {r.label}
               </div>
             );
