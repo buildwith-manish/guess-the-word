@@ -88,4 +88,21 @@ fps, width, height, motionBlur, camera, voiceover, transitions, fastest, streak,
 
 ## D Components
 
+### StateShape (src/states/components/StateShape.tsx)
+
+Prop-driven SVG of one state. No time inside: the parent samples `useDesignFrame()` and passes 0..1 values. Geometry comes from `getShape(key)` in `src/states/geo.ts` (also exports `SHAPE_BOX`, `MINI_BOX`, type `GeoState`).
+
+| Prop | Type | Default | Meaning |
+|---|---|---|---|
+| `stateKey` | string | required | two-letter key, e.g. "TX" |
+| `size` | number | required | side of the square shape box in px (use `px()`) |
+| `progress` | 0..1 | 1 | outline draw (evolvePath, each island/ring draws at once) |
+| `fill` | 0..1 | 0 | gradient fill strength (vertical, accent, fades toward the bottom) |
+| `glow` | 0..1 | 0 | strength of the stacked-stroke halo (no SVG filter) |
+| `rotation` | degrees | 0 | clockwise, about the box centre |
+| `mode` | "outline" \| "filled" \| "ghost" | "outline" | outline = neon stroke (+ fill); filled = silhouette with thin edge (+ glow); ghost = faint silhouette and edge |
+| `accent` | CSS colour | COLORS.cyan | level accent |
+
+Also exported: `getShapeBox(stateKey, size)` returns `{ w, h, box }` in px (fitted shape size and box side) for placing labels and pins. The shape is centred in the box; rotation does not change `w`/`h`.
+
 ## E Scenes

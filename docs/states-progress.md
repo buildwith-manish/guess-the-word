@@ -10,7 +10,7 @@
 - [x] 1c scripts/check-states.js (npm run states:check)
 - [ ] 1d (label to fill from docs/states-prompts-split.md)
 - [ ] 1e (label to fill from docs/states-prompts-split.md)
-- [ ] 2a (label to fill from docs/states-prompts-split.md)
+- [x] 2a StateShape + geo.ts (not rendered or viewed)
 - [ ] 2b (label to fill from docs/states-prompts-split.md)
 - [ ] 2c (label to fill from docs/states-prompts-split.md)
 - [ ] 2d (label to fill from docs/states-prompts-split.md)
