@@ -38,7 +38,8 @@ export const CLOSING_LINE = `Where did you land? Comment your score out of ${MAX
 const THEME = LEVELS[LEVELS.length - 1].theme;
 
 /** Layout, 1280x720 reference units. */
-const STRIP = { x: 640, y: 104, w: 1000 };
+/** The strip holds 50 dots in level groups plus the "n / 50" counter, one row, inside the safe width (1152). */
+const STRIP = { x: 640, y: 104, w: 1100 };
 const TABLE_TOP = 168;
 const ROW_GAP = 10;
 const LINE_TOP = 566;
@@ -60,7 +61,8 @@ export const SearchScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
 
       {/* recap strip: every round, lit one by one */}
       <AbsoluteFill style={{ opacity: strip.opacity, transform: strip.transform }}>
-        <ProgressDots index={litCount} total={total} levelOf={levelColor} at={{ x: STRIP.x, y: STRIP.y }} size={STRIP.w} />
+        {/* index is the last lit dot, so the counter reads "lit / total" and the last lit dot pulses */}
+        <ProgressDots index={litCount - 1} total={total} levelOf={levelColor} at={{ x: STRIP.x, y: STRIP.y }} size={STRIP.w} />
       </AbsoluteFill>
 
       {/* rank table, filled bottom to top */}
