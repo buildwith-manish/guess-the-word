@@ -2,7 +2,7 @@ import React from 'react';
 import { COLORS, FONTS, glass, px } from '../../style';
 import { useDesignFrame } from '../../clock';
 import { charTick, typedChars } from '../typing';
-import { IOS, iosSurface, spring } from '../../ios';
+import { IOS, iosSurface, spring, easeOut } from '../../ios';
 import '../../fonts';
 
 /**
@@ -11,7 +11,7 @@ import '../../fonts';
  * while the bar clears for the next one.
  *
  * Typing is uneven on purpose (typing.ts): small speed changes, a pause at the start of each word, a longer one
- * after punctuation. Each typed character pops in (fades up a little) and the newest one glows for a moment.
+ * after punctuation. Each typed character fades up a little on the shared ease-out.
  * The "Recent searches" list shows only the last `recentCount` finished searches; older ones fade out.
  *
  * All times are 30 fps design ticks, sampled at 60 fps through useDesignFrame().
@@ -45,7 +45,6 @@ export const slideEnd = (start: number, length: number, typeTicks: number): numb
   slideStart(start, length, typeTicks) + SLIDE_CHARS * typeTicks;
 
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
-const easeOut = (t: number) => 1 - Math.pow(1 - clamp01(t), 3);
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
 /** Ticks per character of search `i`: a single number applies to every search, an array is one value per search
@@ -96,20 +95,12 @@ const CLUE = 26; // 52 px at 1440p
 const LABEL = 15; // 30 px
 const HEAD = 14; // 28 px
 const CLUE_LINE_HEIGHT = 1.25;
-/** Typed character: ticks to fade up, ticks the newest character keeps its glow, rise in em. Motion constants. */
+/** Typed character: ticks to fade up, rise in em. Motion constants. */
 const POP_TICKS = 3;
-const POP_RISE = 0.07; // a small, calm rise; no glow on the newest character
-/** Bar glow when a new search starts: length in ticks and strength. Motion constants. */
-const FOCUS_TICKS = 9;
-const FOCUS_GLOW = 0; // iOS-style: the bar does not flash when a search starts
+const POP_RISE = 0.07; // a small, calm rise
 /** Part of the slide in which the big clue crossfades into its small list row. */
 const XFADE_FROM = 0.25;
 const XFADE_SPAN = 0.5;
-
-const smooth = (t: number) => {
-  const k = clamp01(t);
-  return k * k * (3 - 2 * k);
-};
 
 export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTicks, size, at, heading = 'Recent searches', recentCount }) => {
   const frame = useDesignFrame();
@@ -161,9 +152,6 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
   const rowsShown = Math.min(shown, landed);
   const panelH = headH + rowsShown * rowH + (rowsShown > 0 ? 16 * u : 0);
   const panelIn = n ? e.reduce((m, v) => Math.max(m, v), 0) : 0;
-
-  // A short glow on the bar when a search starts.
-  const focus = inBar ? 1 - easeOut((frame - starts[cur]) / FOCUS_TICKS) : 0;
 
   // The clue as words of characters: every character is always laid out (so lines never re-wrap while typing)
   // and fades up when its tick comes. The caret sits after the last typed character.
@@ -244,7 +232,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
           position: 'relative',
           height: barH,
           ...surface(radius, 12 * u, 40 * u),
-          boxShadow: `0 ${12 * u}px ${40 * u}px rgba(0,0,0,0.28), 0 0 ${40 * u * focus}px rgba(255,255,255,${FOCUS_GLOW * focus})`,
+          boxShadow: `0 ${12 * u}px ${40 * u}px rgba(0,0,0,0.28)`,
         }}
       >
         <div style={{ position: 'absolute', left: barPad, top: (barH - icon) / 2, display: 'flex' }}>
@@ -316,7 +304,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
         const h = lerp(barH, rowH, e[i]);
         const x = lerp(barTextX, rowTextX, e[i]);
         const settled = clamp01(e[i]);
-        const f = smooth((e[i] - XFADE_FROM) / XFADE_SPAN);
+        const f = easeOut((e[i] - XFADE_FROM) / XFADE_SPAN);
         const shrink = lerp(1, rowFont / barFont, e[i]);
         return (
           <div

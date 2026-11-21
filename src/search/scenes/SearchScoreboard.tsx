@@ -10,7 +10,6 @@ import {
   DOTS_SPAN,
   MAX_SCORE,
   RANKS,
-  legendAt,
   lineAt,
   rankRange,
   rowStart,
@@ -23,7 +22,7 @@ import {
  *  - frame: scene-local tick (design frames, 30 per second; the caller passes `local` from locate()).
  *
  * Phases: recap strip of all rounds lights up over DOTS_SPAN ticks, one dot per round; the rank table drops in bottom to top
- * (best rank last, with glow and confetti); the closing line fades in. All beats live in
+ * (best rank last); the closing line fades in. All beats live in
  * searchScoreboardCues.ts, so scene and sound cues cannot drift apart.
  * Content: ranks and colours from search-settings.json, round count from search-data.ts, no images.
  */
@@ -40,9 +39,6 @@ const STRIP = { x: 640, y: 104, w: 1100 };
 const TABLE_TOP = 168;
 const ROW_GAP = 10;
 const LINE_TOP = 566;
-/** Confetti seed, piece count and origin. Motion constants. */
-const CONFETTI = { seed: 99, count: 110, origin: { x: 640, y: 520 } };
-
 const levelColor = (i: number) => LEVELS.find((l) => l.name === ROUNDS[i].level)!.accent;
 
 export const SearchScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
@@ -54,7 +50,6 @@ export const SearchScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
   };
   const strip = rise(0, 14, 14);
   const line = rise(lineAt(), 16, 16);
-  const glowAt = legendAt();
 
   return (
     <AbsoluteFill>

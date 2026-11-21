@@ -1,6 +1,6 @@
 import React from 'react';
 import { px } from '../../style';
-import { IOS, iosSurface, spring } from '../../ios';
+import { IOS, iosSurface, spring, easeOut } from '../../ios';
 import { useDesignFrame } from '../../clock';
 import cfg from '../search-settings.json';
 import { BONUS_THEME, FPS, TIME_SCALE, buildBonusPlan } from '../search-timing';
@@ -12,10 +12,9 @@ import { AnswerCard } from '../components/AnswerCard';
 
 /**
  * One bonus scene (task 4b, polished in 7f): a full-screen BONUS intro slam, badge, search bar with
- * three searches, four option chips (A to D), the clock, then the correct chip lights up, a ring and a
- * soft flash mark the reveal and the answer card stamps. The intro and the reveal effects are overlays
- * above the stage, so the chip layout and the bonus-engine plan are untouched. They add no sound:
- * searchBonusCues.ts has no cue for them (it is not part of 7f).
+ * three searches, four option chips (A to D), the clock, then the correct chip lights up and the answer
+ * card settles in. The intro is an overlay above the stage, so the chip layout and the bonus-engine plan
+ * are untouched. It adds no sound: searchBonusCues.ts has no cue for it (it is not part of 7f).
  *
  * Props:
  *  - frame: scene-local tick (design frames, 30 per second; the caller passes `local` from locate()).
@@ -35,7 +34,7 @@ const RISE = 14; // reference units
 const DIM_TO = 0.25;
 const WRONG_CHIP_TO = 0.3;
 const REVEAL_SECONDS = 0.3;
-/** Intro slam (tick 0 on): scrim, big badge text, ring and flash, out before the chips matter. Motion constants. */
+/** Intro (tick 0 on): scrim and big badge text settle in, then fade out before the chips matter. Motion constants. */
 const INTRO_SLAM_SECONDS = 0.3;
 const INTRO_HOLD_SECONDS = 0.7; // from tick 0 until the fade-out starts
 const INTRO_OUT_SECONDS = 0.3;
@@ -44,21 +43,13 @@ const INTRO_FONT = 76; // reference units
 const INTRO_SUB_FONT = 28;
 const INTRO_SUB_DELAY_TICKS = 4;
 const INTRO_START_SCALE = 1.06;
-const INTRO_RING = 560;
-const INTRO_FLASH_MS = 420;
-const INTRO_FLASH_PEAK = 0.28;
-/** The badge pops from this scale up to 1 (with overshoot). Motion constant. */
+/** The badge settles from this scale up to 1 on the shared spring. Motion constant. */
 const BADGE_START_SCALE = 0.96;
-/** Reveal effects on the answer card. Motion constants. */
-const REVEAL_RING_OF_CARD = 0.9; // ring size as a share of the answer card width
-const REVEAL_FLASH_MS = 400;
-const REVEAL_FLASH_PEAK = 0.16;
 /** Layout (reference units): gap between the chips and the answer card, and between chips. */
 const CHIPS_TO_ANSWER_GAP = 14;
 const CHIP_GAP = 10;
 
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
-const easeOutCubic = (t: number) => spring(t); // every move here uses the shared spring
 const letterOf = (i: number) => String.fromCharCode(65 + i); // A to D
 
 export type SearchBonusProps = { frame: number; index: number };
@@ -73,25 +64,25 @@ export const SearchBonus: React.FC<SearchBonusProps> = ({ frame, index }) => {
   const bonusSub = bonusRest.join(':').trim();
 
   // Stage-in: the bar slides in over the pre-roll, plan tick 0 .. first search.
-  const slideK = easeOutCubic(clamp01(frame / Math.max(1, plan.searchAt[0])));
+  const slideK = spring(clamp01(frame / Math.max(1, plan.searchAt[0])));
 
   // Reveal.
-  const revealK = easeOutCubic(clamp01((frame - plan.revealAt) / (REVEAL_SECONDS * FPS)));
+  const revealK = spring(clamp01((frame - plan.revealAt) / (REVEAL_SECONDS * FPS)));
   const searchOpacity = slideK * (1 - (1 - DIM_TO) * revealK);
 
   // Badge (top right, level with the HUD pill) and chips (right column, above the answer card).
   const col = SLOTS.hint; // right column: x = centre, w = width
-  const badgeIn = easeOutCubic(clamp01(frame / (BADGE_SECONDS * FPS)));
+  const badgeIn = spring(clamp01(frame / (BADGE_SECONDS * FPS)));
   const badgePop = 1;
   const chipsTop = col.y;
   const chipsBottom = SLOTS.answer.y - CHIPS_TO_ANSWER_GAP;
   const chipH = (chipsBottom - chipsTop - CHIP_GAP * (plan.options.length - 1)) / plan.options.length;
 
-  // Intro slam: slams in, holds, fades out. Gone (null) once it has faded.
+  // Intro: settles in, holds, fades out. Gone (null) once it has faded.
   const introEnd = (INTRO_HOLD_SECONDS + INTRO_OUT_SECONDS) * FPS;
   const slamK = spring(frame / (INTRO_SLAM_SECONDS * FPS));
-  const introLife = 1 - easeOutCubic(clamp01((frame - INTRO_HOLD_SECONDS * FPS) / (INTRO_OUT_SECONDS * FPS)));
-  const subK = easeOutCubic(clamp01((frame - INTRO_SUB_DELAY_TICKS) / (INTRO_SLAM_SECONDS * FPS)));
+  const introLife = 1 - easeOut((frame - INTRO_HOLD_SECONDS * FPS) / (INTRO_OUT_SECONDS * FPS));
+  const subK = spring(clamp01((frame - INTRO_SUB_DELAY_TICKS) / (INTRO_SLAM_SECONDS * FPS)));
   const intro =
     frame < introEnd ? (
       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
@@ -113,7 +104,7 @@ export const SearchBonus: React.FC<SearchBonusProps> = ({ frame, index }) => {
           <div
             style={{
               fontFamily: IOS.font,
-              fontWeight: IOS.weight.bold,
+              fontWeight: IOS.weight.semibold,
               fontSize: px(INTRO_FONT),
               letterSpacing: -px(INTRO_FONT) * 0.03,
               color: IOS.color.label,
@@ -142,7 +133,7 @@ export const SearchBonus: React.FC<SearchBonusProps> = ({ frame, index }) => {
       </div>
     ) : null;
 
-  // Reveal: a ring leaves the answer card and a soft flash fires as the right chip lights.
+  // Reveal: the right chip lights and the answer card settles in.
   return (
     <div style={{ position: 'absolute', inset: 0 }}>
       <SearchStage
@@ -202,7 +193,7 @@ export const SearchBonus: React.FC<SearchBonusProps> = ({ frame, index }) => {
                 {cfg.bonus.badgeText}
               </div>
               {plan.options.map((o, i) => {
-                const inK = easeOutCubic(clamp01((frame - plan.chipsAt[i]) / (CHIP_SECONDS * FPS)));
+                const inK = spring(clamp01((frame - plan.chipsAt[i]) / (CHIP_SECONDS * FPS)));
                 const lit = o.correct;
                 const litK = lit ? revealK : 0;
                 const dim = lit ? 1 : 1 - (1 - WRONG_CHIP_TO) * revealK;

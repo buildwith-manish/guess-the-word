@@ -1,5 +1,5 @@
 import React from 'react';
-import { IOS, IosBackground, iosSurface } from '../../ios';
+import { IOS, IosBackground, iosSurface, easeOut } from '../../ios';
 import { COLORS, FONTS, SCALE, SAFE_X, SAFE_Y, glass, px } from '../../style';
 import { useDesignFrame } from '../../clock';
 import { FPS } from '../../timing';
@@ -23,24 +23,6 @@ export type Rect = { x: number; y: number; w: number; h: number }; // x = centre
 
 /** Fade-in length of a slot, in seconds. Motion constant. */
 const FADE_SECONDS = 0.25;
-
-/** Background drift light: loop length in seconds, travel in % of the frame, size in %, strength. Motion constants. */
-const DRIFT_SECONDS = 40;
-const DRIFT_RANGE_X = 14;
-const DRIFT_RANGE_Y = 9;
-const DRIFT_W = 60;
-const DRIFT_H = 55;
-const DRIFT_ALPHA = 0.045;
-
-/** Atmosphere (task 8c). Two slow accent-coloured lights and a vignette that builds with `tension`. Motion constants. */
-const AMBIENT_SECONDS = [53, 71]; // loop length of each light; different, so they never line up
-const AMBIENT_SIZE = 46; // % of the frame
-const AMBIENT_PERCENT = 13; // strength of each light, percent of the accent
-const VIGNETTE_PERCENT = 46; // accent strength at the frame edge when tension = 1
-const VIGNETTE_INNER = 52; // % of the way out where the vignette starts
-const PULSE_FROM = 0.55; // tension where the once-a-second pulse starts
-const PULSE_DEPTH = 0.18;
-const mixAlpha = (color: string, percent: number) => `color-mix(in srgb, ${color} ${percent.toFixed(2)}%, transparent)`;
 
 // Safe box in reference units, taken from style.ts.
 const X0 = SAFE_X / SCALE;
@@ -77,7 +59,7 @@ export type SearchStageProps = {
   hud: HudInfo;
   /** Background calm-to-reveal energy, 0..1 (omit for the full look). */
   energy?: number;
-  /** 0..1. Builds an accent vignette (and a pulse) toward the end of the clock. 0 or omitted = none. */
+  /** Kept for API compatibility. The vignette and its pulse were removed; the stage no longer reacts to it. */
   tension?: number;
   /** 0..1 opacity of the HUD pill (omit = fully shown). Used to clear the screen for a picture-only reveal. */
   hudOpacity?: number;
@@ -92,7 +74,7 @@ const Slot: React.FC<{ slot?: SlotProps; rect: Rect; frame: number }> = ({ slot,
   if (!slot) return null;
   const at = slot.at ?? -Infinity;
   if (frame < at) return null;
-  const k = slot.at === undefined ? 1 : Math.max(0, Math.min(1, (frame - at) / (FADE_SECONDS * FPS)));
+  const k = slot.at === undefined ? 1 : easeOut((frame - at) / (FADE_SECONDS * FPS));
   return (
     <div style={{ position: 'absolute', inset: 0, opacity: k }}>
       {typeof slot.children === 'function' ? slot.children(rect) : slot.children}
@@ -100,18 +82,10 @@ const Slot: React.FC<{ slot?: SlotProps; rect: Rect; frame: number }> = ({ slot,
   );
 };
 
-export const SearchStage: React.FC<SearchStageProps> = ({ theme, accent, hud, energy, tension = 0, hudOpacity = 1, search, timer, hint, answer, dots }) => {
+export const SearchStage: React.FC<SearchStageProps> = ({ theme, accent, hud, hudOpacity = 1, search, timer, hint, answer, dots }) => {
   const frame = useDesignFrame();
   const pill = SLOTS.hud;
   const H = px(pill.h);
-  const driftT = (frame / (DRIFT_SECONDS * FPS)) * Math.PI * 2;
-  const driftX = 40 + DRIFT_RANGE_X * Math.sin(driftT);
-  const driftY = 45 + DRIFT_RANGE_Y * Math.sin(driftT * 2 + 1);
-
-  const amb = AMBIENT_SECONDS.map((sec, i) => (frame / (sec * FPS)) * Math.PI * 2 + i * 2.1);
-  const pulse = tension > PULSE_FROM ? 1 - PULSE_DEPTH * (0.5 + 0.5 * Math.cos((frame / FPS) * Math.PI * 2)) : 1;
-  const vignette = Math.max(0, Math.min(1, tension)) * pulse;
-
   return (
     <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
       <IosBackground accent={accent} />

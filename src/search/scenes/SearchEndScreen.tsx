@@ -45,7 +45,7 @@ const COPY_TOP = SAFE_Y / SCALE + 24; // 60 reference units
 const GAP_LINE1_LINE2 = 24;
 const GAP_LINE2_SUBSCRIBE = 30;
 const POINTER_TOP = 336;
-/** Motion: entrances use expoOut (the same family as the level card and the reminder). */
+/** Motion: entrances use the shared spring (same as the level card and the reminder). */
 const SLOT_TICKS = 18;
 /** Confetti seed, piece count and origin. Fewer pieces than before so the copy stays clear. */
 const CONFETTI = { seed: 2024, count: 18, origin: { x: 640, y: 150 } };

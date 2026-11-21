@@ -2,8 +2,7 @@ import React from 'react';
 import { AbsoluteFill } from 'remotion';
 import { SAFE_X, px } from '../../style';
 import { prog, mix } from '../../anim';
-import { power2InOut } from '../../gsap-helpers';
-import { IOS, iosSurface, spring } from '../../ios';
+import { IOS, iosSurface, spring, easeOut } from '../../ios';
 import { FPS } from '../../timing';
 import type { Cue } from '../../sound';
 import type { Segment } from '../types';
@@ -21,7 +20,7 @@ type ReminderSegment = Extract<Segment, { kind: 'reminder' }>;
  * The pill text is a constant here: search-settings.json has no key for it, and it names no brand.
  */
 const TEXT = '🔔 Enjoying this? Subscribe';
-/** Same entrance and exit as the level card: expoOut in over ENTER_TICKS, power2InOut out over OUT_SECONDS. */
+/** Same entrance and exit as the level card: shared spring in over ENTER_TICKS, shared ease-out out over OUT_SECONDS. */
 const ENTER_TICKS = 14;
 const EXIT_SCALE = 0.06;
 const OUT_SECONDS = 0.3;
@@ -38,7 +37,7 @@ export const searchReminderCues = (): Cue[] => [{ frame: 0, sfx: 'remind' }];
 
 export const SearchReminder: React.FC<{ frame: number; seg: ReminderSegment }> = ({ frame, seg }) => {
   const inP = spring(frame / ENTER_TICKS);
-  const outP = prog(frame, outStart(seg.duration), Math.round(OUT_SECONDS * FPS), power2InOut);
+  const outP = prog(frame, outStart(seg.duration), Math.round(OUT_SECONDS * FPS), easeOut);
   const opacity = Math.min(1, inP * 1.4) * (1 - outP);
   const accent = LEVELS.find((l) => l.name === seg.hud.label)?.accent ?? IOS.color.red;
 

@@ -1,8 +1,8 @@
 import React from 'react';
 import { AbsoluteFill, Sequence } from 'remotion';
 import { px } from '../../style';
-import { IOS, IosBackground, iosSurface, spring } from '../../ios';
-import { prog, irisEase } from '../../anim';
+import { IOS, IosBackground, iosSurface, spring, easeOut } from '../../ios';
+import { prog } from '../../anim';
 import { TIME_SCALE } from '../../timing';
 import type { Cue } from '../../sound';
 import type { Segment } from '../types';
@@ -55,7 +55,7 @@ export const SearchIris: React.FC<{ frame: number; seg: IrisSegment; next?: { in
   seg,
   next,
 }) => {
-  const p = prog(frame, 0, seg.duration, irisEase);
+  const p = prog(frame, 0, seg.duration, easeOut);
   // search backdrops are calm; only the bonus backdrop is already at full energy
   const fromEnergy = isBonus(seg.fromTheme) ? undefined : 0;
   const toEnergy = isBonus(seg.toTheme) ? undefined : 0;

@@ -1,5 +1,6 @@
 import React from 'react';
 import { px } from '../../style';
+import { spring, easeOut } from '../../ios';
 import { FPS, TIME_SCALE } from '../../timing';
 import { ROUNDS, getRound } from '../search-data';
 import { LEVELS, RECENT_VISIBLE, buildRoundPlan } from '../search-timing';
@@ -12,7 +13,6 @@ import { AnswerCard, answerCardHeight } from '../components/AnswerCard';
 import { AnswerPicture, answerPictureHeightShare } from '../components/AnswerPicture';
 import settings from '../search-settings.json';
 import { ProgressDots } from '../components/ProgressDots';
-import { Flash } from '../../Fx';
 import { useDesignFrame } from '../../clock';
 
 /**
@@ -49,7 +49,6 @@ const PICTURE_MAX_WIDTH = 740;
 const PICTURE_FILL = 0.82;
 
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
-const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 
 export type SearchRoundProps = { frame: number; index: number; lead: number };
 
@@ -72,12 +71,12 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
 
   // Stage-in: the bar slides in over the title-in window, plan tick 0 .. plan.clockStart.
   const slideT = clamp01((frame - shift(0)) / Math.max(1, plan.clockStart));
-  const slideK = easeOutCubic(slideT);
+  const slideK = spring(slideT);
 
   // Reveal: the searches dim from plan.revealAt.
   const revealAt = shift(plan.revealAt);
-  const dimK = easeOutCubic(clamp01((frame - revealAt) / (DIM_SECONDS * FPS)));
-  const searchOpacity = slideK * (1 - dimK);
+  const dimK = easeOut((frame - revealAt) / (DIM_SECONDS * FPS));
+  const searchOpacity = Math.min(1, slideK) * (1 - dimK);
   const answerImage = (answerImages as Record<string, string>)[String(round.id)];
   // With a picture, the reveal is the picture alone: the HUD pill and the dots clear as well.
   const chromeOpacity = answerImage ? 1 - dimK : 1;

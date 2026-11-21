@@ -2,8 +2,7 @@ import React from 'react';
 import { AbsoluteFill } from 'remotion';
 import { SAFE_X, px } from '../../style';
 import { prog } from '../../anim';
-import { power2InOut } from '../../gsap-helpers';
-import { IOS, IosBackground, spring } from '../../ios';
+import { IOS, IosBackground, spring, easeOut } from '../../ios';
 import type { Cue } from '../../sound';
 import cfg from '../search-settings.json';
 import { ROUNDS } from '../search-data';
@@ -22,8 +21,8 @@ import '../../fonts';
  */
 
 /**
- * Motion, shared with the other search overlays (reminder, end screen): entrances ease with expoOut,
- * exits with power2InOut, and only the hero text (the level name) uses slamIn. Ticks unless noted.
+ * Motion, shared with the other search overlays (reminder, end screen): entrances settle on the shared spring,
+ * exits with the shared ease-out. Ticks unless noted.
  * Order of reading inside the card's fixed length: name by about 0.7 s, facts by about 1.1 s,
  * sample line typed by about 1.9 s, then it leaves over the last EXIT_TICKS.
  */
@@ -79,7 +78,7 @@ export const SearchLevelCard: React.FC<{ frame: number; levelIndex: number; dura
 }) => {
   const p = levelCardPlan(levelIndex, duration);
   const { level } = p;
-  const exitP = prog(frame, p.duration - EXIT_TICKS, EXIT_TICKS, power2InOut);
+  const exitP = prog(frame, p.duration - EXIT_TICKS, EXIT_TICKS, easeOut);
 
   // Everything rises in on the shared spring (ticks of ENTER_TICKS), a little apart; the demo bar fades in with it.
   const rise = (at: number, dist: number) => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { px } from '../../style';
-import { IOS, iosSurface, spring, IosBackground } from '../../ios';
-import { prog, htmlEase, clamp01 } from '../../anim';
+import { IOS, iosSurface, spring, easeOut, IosBackground } from '../../ios';
+import { prog, clamp01 } from '../../anim';
 import type { Cue } from '../../sound';
 import { makeRandom } from '../../util';
 import cfg from '../search-settings.json';
@@ -59,31 +59,17 @@ const BEAT_TICKS = 16;
 const GLITCH_HIT_TICKS = BEAT_TICKS;
 /** The headline fades in over these ticks, so it is clear from the first frames. Motion constant. */
 const HEADLINE_ENTER_TICKS = 2;
-/** On the hit the headline punches in (scale 1 + KICK, back to 1) and a soft flash fires. Motion constants. */
-const HIT_KICK = 0.05;
-const HIT_KICK_TICKS = 6;
-const HIT_FLASH_MS = 360;
-const HIT_FLASH_PEAK = 0.3;
 /** Key-click pitch: playbackRate varies by +/- this fraction per click (same value as searchRoundCues.ts). */
 const CLICK_JITTER = 0.12;
 /** Seed of the hook's click stream. The rounds use 1..N, so 1000 keeps the streams apart. */
 const CLICK_SEED = 1000;
 
-/** Glitch burst. Motion constants. */
-const GLITCH_BURST_SECONDS = 0.45;
-const GLITCH_STEP_TICKS = 2;
-const GLITCH_SHIFT = 22;
-const GLITCH_BAND = 0.3;
 const RULE_CHIP_STAGGER_TICKS = 4;
 const RULE_CHIP_FADE_TICKS = 10;
 
 const FPS_DESIGN = 30;
 const HEADLINE_TICKS = 14; // headline spring-in length
 const HEADLINE_RISE = 16; // reference units
-const hash = (n: number) => {
-  const x = Math.sin(n * 127.1 + 311.7) * 43758.5453;
-  return x - Math.floor(x);
-};
 
 const defaultDuration = () => TIMELINE.segments.find((s) => s.kind === 'hook')?.duration ?? 0;
 
@@ -158,7 +144,7 @@ export const SearchHook: React.FC<{ frame: number; duration?: number }> = ({ fra
   const level = LEVELS.find((l) => l.name === round.level) ?? LEVELS[0];
 
   // The headline and the bar are there from tick 0; both leave together when the lockup starts.
-  const gone = prog(frame, p.lockupAt, FADE_OUT_SECONDS * FPS_DESIGN);
+  const gone = prog(frame, p.lockupAt, FADE_OUT_SECONDS * FPS_DESIGN, easeOut);
   const oldOpacity = 1 - gone;
 
   const rules = [
