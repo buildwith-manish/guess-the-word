@@ -11,9 +11,7 @@
  * at most 60% of the normal size, otherwise stacked (small label above, the city below). Its height is fixed per state.
  * Kept inside the 5% safe margin (SAFE_X / SAFE_Y). Time from useDesignFrame() unless `frame` is passed.
  */
-import React, { useEffect, useState } from 'react';
-import { continueRender, delayRender } from 'remotion';
-import { measureText } from '@remotion/layout-utils';
+import React from 'react';
 import { useDesignFrame } from '../../clock';
 import { SAFE_X, SAFE_Y, S, px } from '../../style';
 import { IOS, iosSurface, spring } from '../../ios';
@@ -23,6 +21,7 @@ import { WIDTH, HEIGHT } from '../state-timing';
 import { getState } from '../states-data';
 import { CAPITAL_LOOK, fitCapitalRow, fitNameSize, fitVoiceBars } from '../capital-fit';
 import type { MeasureFn } from '../capital-fit';
+import { domMeasure as measure, fallbackMeasure as fallback, useFontsReady } from '../measure-dom';
 
 export interface AnswerCardProps {
   /** two-letter key */
@@ -77,34 +76,11 @@ const measure_chip = (ready: boolean, key: string): number => {
   return w + 2 * px(LOOK.chipPadX);
 };
 
-const measure: MeasureFn = (text, o) =>
-  measureText({ text, fontFamily: o.fontFamily, fontWeight: String(o.fontWeight), fontSize: o.fontSize, letterSpacing: `${o.letterSpacing}px`, validateFontIsLoaded: false }).width;
-
-/** Inter is loaded in src/ios/fonts.ts; hold the frame until the browser has them so nothing is measured with a fallback face. */
-const useFontsReady = (): boolean => {
-  const [ready, setReady] = useState(false);
-  const [handle] = useState(() => delayRender('AnswerCard fonts'));
-  useEffect(() => {
-    let live = true;
-    Promise.all(['500 20px Inter', '600 20px Inter', '700 20px Inter'].map((f) => document.fonts.load(f)))
-      .catch(() => undefined)
-      .then(() => {
-        if (!live) return;
-        setReady(true);
-        continueRender(handle);
-      });
-    return () => {
-      live = false;
-    };
-  }, [handle]);
-  return ready;
-};
-
 export const AnswerCard: React.FC<AnswerCardProps> = ({ stateKey, at, accent, box, exit, frame, nameAt, capitalAt, voice }) => {
   const designFrame = useDesignFrame();
   const f = frame ?? designFrame;
   const info = getState(stateKey);
-  const fontsReady = useFontsReady();
+  const fontsReady = useFontsReady('AnswerCard fonts');
 
   const stampTicks = ms(LOOK.stampMs);
   const k = spring((f - at) / stampTicks);
@@ -123,7 +99,6 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ stateKey, at, accent, bo
   const cardW = Math.min(box ? box.w : S.resultW, maxW);
   const innerW = cardW - 2 * px(LOOK.padX);
   const name = info.name;
-  const fallback: MeasureFn = (t, o) => t.length * o.fontSize * 0.8 + t.length * o.letterSpacing; // only until the fonts are ready
   const m: MeasureFn = fontsReady ? measure : fallback;
   // name: sized from its real width (max NAME_LOOK.max, with headroom for the glow-flash scale)
   const nameSize = fitNameSize(name, innerW, IOS.font, m, IOS.weight.bold).size;

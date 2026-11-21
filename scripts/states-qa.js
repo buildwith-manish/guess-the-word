@@ -24,6 +24,8 @@
  *                           is re-measured with the real Inter files (fontkit) and must be <= innerW (card width minus
  *                           2 x padX); the state name (Inter bold) and the key chip + voice bars are checked the same way;
  *                           prints the tightest state and its scale factor
+ *   9 bonus chips + stamp   every state's name / capital / nickname fits a bonus answer chip (shrinking to 72% at most) and the
+ *                           capital / nickname stamp (to its minimum size), measured with the same Inter files; prints the tightest
  *   7 question order        the 50 question segments are indices 0..49 in order, ids 1..50, level = states-data level,
  *                           levels never go back, and a level card comes right before each level's first question
  */
@@ -52,6 +54,17 @@ const load = async () => {
       format: 'cjs',
       outfile,
       packages: 'external',
+      // src/fonts.ts and src/ios/fonts.ts register fonts when imported (the scenes import them); there is no browser here,
+      // so that call would reject after the checks and make the run exit 1. The QA never draws, so the loader is a no-op.
+      plugins: [
+        {
+          name: 'no-font-loading',
+          setup(b) {
+            b.onResolve({ filter: /^@remotion\/fonts$/ }, () => ({ path: 'remotion-fonts-stub', namespace: 'stub' }));
+            b.onLoad({ filter: /.*/, namespace: 'stub' }, () => ({ contents: 'export const loadFont = () => Promise.resolve();', loader: 'js' }));
+          },
+        },
+      ],
       jsx: 'automatic',
       logLevel: 'silent',
       resolveExtensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
@@ -259,21 +272,21 @@ const check = (name, fn) => {
   });
 
 
+  // fontkit measuring of the Inter files (the same signature the render's measureText has); shared by checks 8 and 9
+  const fontkit = require('fontkit');
+  const interFonts = {};
+  const interFont = (weight) => {
+    if (!interFonts[weight]) interFonts[weight] = fontkit.openSync(path.join(ROOT, 'public', 'fonts', 'ios', `Inter-${weight}.woff2`));
+    return interFonts[weight];
+  };
+  const measure = (text, o) => {
+    const f = interFont(o.fontWeight);
+    const run = f.layout(text);
+    return (run.advanceWidth * o.fontSize) / f.unitsPerEm + o.letterSpacing * [...text].length;
+  };
+
   check('8 capital row fits the card (all 50 states)', () => {
     const problems = [];
-    const fontkit = require('fontkit');
-    // the card is set in Inter (src/ios): one font file per weight
-    const fonts = {};
-    const font = (weight) => {
-      if (!fonts[weight]) fonts[weight] = fontkit.openSync(path.join(ROOT, 'public', 'fonts', 'ios', `Inter-${weight}.woff2`));
-      return fonts[weight];
-    };
-    // same signature as the render's measureText: width of `text` in px (kerning on, letter-spacing added per glyph)
-    const measure = (text, o) => {
-      const f = font(o.fontWeight);
-      const run = f.layout(text);
-      return (run.advanceWidth * o.fontSize) / f.unitsPerEm + o.letterSpacing * [...text].length;
-    };
     const body = IOSM.IOS.font;
     const display = IOSM.IOS.font;
     // layout constants read from the card source so the check follows the card
@@ -341,6 +354,45 @@ const check = (name, fn) => {
     lines.push(`stress innerW ${narrowInner}px: ${nStack} stacked, all fit`);
     const t = tight;
     const info = `${D.STATES.length} capitals x ${widths.length} widths fit; ${lines.join('; ')}; tightest: ${t.st.key} ${t.st.capital} @ ${t.cfg}, ${t.fit.mode}, scale ${t.fit.scale.toFixed(3)}, ${t.painted.toFixed(0)}/${t.innerW.toFixed(0)}px (${(t.ratio * 100).toFixed(1)}%)`;
+    return { problems, info };
+  });
+
+  check('9 bonus chips and stamp fit (all 50 states)', () => {
+    const problems = [];
+    const grab = (file, from) => fs.readFileSync(path.join(ROOT, 'src', 'states', 'scenes', 'bonus', file), 'utf8').split(from)[1];
+    const n = (txt, k) => Number(new RegExp(`${k}:\\s*([0-9.]+)`).exec(txt)[1]);
+    const layout = grab('BonusMissing.tsx', 'export const BONUS_LAYOUT');
+    const chipW = ST.px(n(layout, 'chipW'));
+    // inside a chip: padding 14 x2, the 30 px A-D disc and a 12 px gap (literals in BonusOptions)
+    const chipTextW = chipW - 2 * ST.px(14) - ST.px(30) - ST.px(12);
+    const chipMax = ST.px(19);
+    const chipMin = chipMax * 0.72;
+    const look = grab('BonusCapital.tsx', 'const SHAPE_LAYOUT');
+    const stampAvail = ST.px(n(look, 'stampMaxW')) - 2 * ST.px(n(look, 'stampPadX'));
+    const stampMax = ST.px(n(look, 'stampMaxFont'));
+    const stampMin = ST.px(n(look, 'stampMinFont'));
+    const fam = IOSM.IOS.font;
+    let tightChip = null;
+    let tightStamp = null;
+    let shrunk = 0;
+    D.STATES.forEach((st) => {
+      // any state can be an option of a bonus chip: name, capital (capital bonus) and nickname (nickname bonus)
+      [['name', st.name], ['capital', st.capital], ['nickname', st.nickname]].forEach(([kind, text]) => {
+        const f = C.fitTextSize(text, chipTextW, chipMax, chipMin, { fontFamily: fam, fontWeight: IOSM.IOS.weight.semibold }, measure);
+        if (f.size < chipMax - 0.01) shrunk++;
+        if (!f.fits) problems.push(`chip ${st.key} ${kind} "${text}": ${f.width.toFixed(1)}px > ${chipTextW.toFixed(1)}px even at the minimum size`);
+        const r = f.width / chipTextW;
+        if (!tightChip || r > tightChip.r) tightChip = { r, st, kind, size: f.size / chipMax };
+      });
+      // the stamp shows the capital or the nickname of the subject, uppercase, bold
+      [['capital', st.capital], ['nickname', st.nickname]].forEach(([kind, text]) => {
+        const f = C.fitTextSize(text.toUpperCase(), stampAvail, stampMax, stampMin, { fontFamily: fam, fontWeight: IOSM.IOS.weight.bold }, measure);
+        if (!f.fits) problems.push(`stamp ${st.key} ${kind} "${text}": ${f.width.toFixed(1)}px > ${stampAvail.toFixed(1)}px at the minimum size`);
+        const r = f.size / stampMax;
+        if (!tightStamp || r < tightStamp.r) tightStamp = { r, st, kind, size: f.size / stampMax };
+      });
+    });
+    const info = `${D.STATES.length} states x name/capital/nickname fit a chip (${shrunk} shrink, none cut off); tightest chip: ${tightChip.st.key} ${tightChip.kind}, scale ${tightChip.size.toFixed(2)}; smallest stamp: ${tightStamp.st.key} ${tightStamp.kind}, scale ${tightStamp.size.toFixed(2)}`;
     return { problems, info };
   });
 

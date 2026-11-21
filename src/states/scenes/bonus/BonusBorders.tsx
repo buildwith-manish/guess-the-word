@@ -16,7 +16,7 @@
  * Not rendered or viewed.
  */
 import React from 'react';
-import { COLORS } from '../../../style';
+import { IOS } from '../../../ios';
 import { prog, cssEaseInOut, cssEaseOut } from '../../../anim';
 import type { BonusPuzzle } from '../../bonus-engine';
 import { getShape } from '../../geo';
@@ -70,15 +70,14 @@ export const BonusBorders: React.FC<{ frame: number; puzzle: BonusPuzzle; durati
   const neighbour = puzzle.optionKeys[puzzle.correctIndex];
   const accent = levelAccent(target);
 
-  // the target glows (a slow pulse once it is in), the true neighbour lights green on the reveal
+  // the target is outlined in the accent, the true neighbour lights green on the reveal
   const glowIn = prog(frame, B.glowAt, 12, cssEaseOut);
-  const pulse = 0.75 + 0.25 * Math.sin((frame / 30) * Math.PI * 2 * 1.1);
   const lit = prog(frame, B.litAt, 10, cssEaseOut);
   const marks: Record<string, MapMark> = {
-    [target]: { fill: accent, fillOpacity: 0.3 + 0.55 * glowIn, edge: COLORS.yellow, edgeOpacity: 0.4 + 0.6 * glowIn, glow: glowIn * pulse, glowColor: COLORS.yellow },
+    [target]: { fill: accent, fillOpacity: 0.3 + 0.5 * glowIn, edge: IOS.color.orange, edgeOpacity: 0.5 + 0.5 * glowIn, glow: glowIn },
   };
   if (lit > 0) {
-    marks[neighbour] = { fill: COLORS.green, fillOpacity: 0.9 * lit, edge: '#fff', edgeOpacity: lit, glow: lit, glowColor: COLORS.green };
+    marks[neighbour] = { fill: IOS.color.green, fillOpacity: 0.85 * lit, edge: IOS.color.label, edgeOpacity: lit, glow: lit };
   }
 
   const a = getShape(target).miniCentroid;
@@ -95,9 +94,9 @@ export const BonusBorders: React.FC<{ frame: number; puzzle: BonusPuzzle; durati
           <BonusMap size={size} marks={marks}>
             {lineP > 0 ? (
               <>
-                <path d={`M ${a[0]} ${a[1]} L ${b[0]} ${b[1]}`} pathLength={1} fill="none" stroke={COLORS.yellow} strokeWidth={3} strokeLinecap="round" strokeDasharray="1" strokeDashoffset={1 - lineP} />
-                <circle cx={a[0]} cy={a[1]} r={4.5} fill={COLORS.yellow} />
-                <circle cx={b[0]} cy={b[1]} r={4.5 * lineP} fill="#fff" />
+                <path d={`M ${a[0]} ${a[1]} L ${b[0]} ${b[1]}`} pathLength={1} fill="none" stroke={IOS.color.orange} strokeWidth={3} strokeLinecap="round" strokeDasharray="1" strokeDashoffset={1 - lineP} />
+                <circle cx={a[0]} cy={a[1]} r={4.5} fill={IOS.color.orange} />
+                <circle cx={b[0]} cy={b[1]} r={4.5 * lineP} fill={IOS.color.label} />
               </>
             ) : null}
           </BonusMap>

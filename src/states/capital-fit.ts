@@ -144,3 +144,19 @@ export const fitNameSize = (name: string, innerW: number, fontFamily: string, me
   const size = Math.min(max, (max * innerW * CAPITAL_LOOK.safety) / (w1 * (1 + NAME_LOOK.flash)));
   return { size, width: measure(name, { fontFamily, fontWeight, fontSize: size, letterSpacing: 0 }) };
 };
+
+/** Largest font size (<= maxSize, >= minSize) at which `text` is at most `availW` wide, from its measured width. */
+export const fitTextSize = (
+  text: string,
+  availW: number,
+  maxSize: number,
+  minSize: number,
+  o: { fontFamily: string; fontWeight: number; letterSpacing?: number },
+  measure: MeasureFn,
+): { size: number; width: number; fits: boolean } => {
+  const ls = o.letterSpacing ?? 0;
+  const w1 = measure(text, { fontFamily: o.fontFamily, fontWeight: o.fontWeight, fontSize: maxSize, letterSpacing: ls * (maxSize / px(CAPITAL_LOOK.font)) });
+  const size = Math.max(minSize, Math.min(maxSize, (maxSize * availW * CAPITAL_LOOK.safety) / w1));
+  const width = measure(text, { fontFamily: o.fontFamily, fontWeight: o.fontWeight, fontSize: size, letterSpacing: ls * (size / px(CAPITAL_LOOK.font)) });
+  return { size, width, fits: width <= availW };
+};

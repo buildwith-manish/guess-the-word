@@ -15,11 +15,17 @@
  *   revealAt + answerChipDelayFrames   erase chip
  *   duration - 12             exit (BonusStage)
  *
+ * iOS look: the stamp is a frosted card (spring settle, Inter bold, measured to fit) instead of a slam + shake; the shape
+ * fills with the level colour without a halo. Beats and cues are unchanged (the old shake length is simply unused).
+ *
  * Time: `frame` = design ticks (30 per second) since the segment started. Not rendered or viewed.
  */
 import React from 'react';
-import { COLORS, FONTS, glass, px } from '../../../style';
-import { prog, slamIn, cssEaseInOut, mix, clamp01 } from '../../../anim';
+import { px } from '../../../style';
+import { IOS, iosSurface, spring } from '../../../ios';
+import { prog, cssEaseInOut, mix, clamp01 } from '../../../anim';
+import { fitTextSize } from '../../capital-fit';
+import { domMeasure, fallbackMeasure, useFontsReady } from '../../measure-dom';
 import { WIDTH } from '../../state-timing';
 import { getState } from '../../states-data';
 import { StateShape } from '../../components/StateShape';
@@ -47,9 +53,10 @@ const SHAPE_LAYOUT = {
   /** stamp band, overlaps the lower edge of the shape box a little */
   stampTop: 440,
   stampMaxW: 1000,
-  stampMaxFont: 84,
-  /** Anton is about this wide per em, used to shrink long answers to fit stampMaxW */
-  glyphEm: 0.52,
+  stampMaxFont: 76,
+  stampMinFont: 44,
+  /** horizontal padding inside the answer card */
+  stampPadX: 36,
 };
 
 /** Copy for the stamp caption (not data). */
@@ -120,55 +127,51 @@ const CenterShape: React.FC<{ frame: number; puzzle: BonusPuzzle; at: number; dr
         size={size}
         progress={draw}
         fill={mix(0.15, 0.7, lit)}
-        glow={mix(0.25 * draw, 1, lit)}
+        glow={0}
         accent={levelAccent(puzzle.subject)}
       />
     </div>
   );
 };
 
-/** AnswerCard-style stamp: "<CAPTION> OF <STATE>" pill over the answer in big Anton, slam-in then a short decaying shake. */
+/** AnswerCard-style stamp: "<CAPTION> OF <STATE>" pill over the answer in a frosted card, settling on the shared spring. */
 const AnswerStamp: React.FC<{ frame: number; puzzle: BonusPuzzle; caption: string; at: number; dur: number; shakeDur: number }> = ({
   frame,
   puzzle,
   caption,
   at,
   dur,
-  shakeDur,
 }) => {
+  const ready = useFontsReady('bonus stamp fonts');
   if (frame < at) return null;
-  const answer = puzzle.options[puzzle.correctIndex];
+  const answer = puzzle.options[puzzle.correctIndex].toUpperCase();
   const accent = levelAccent(puzzle.subject);
   const stateName = getState(puzzle.subject).name;
   const L = SHAPE_LAYOUT;
-  const fontRef = Math.min(L.stampMaxFont, L.stampMaxW / (Math.max(1, answer.length) * L.glyphEm));
-  const t = frame - (at + dur);
-  const decay = t > 0 && t < shakeDur ? 1 - t / shakeDur : 0;
-  const shakeX = Math.sin(t * 2.1) * decay * px(7);
-  const shakeY = Math.cos(t * 2.9) * decay * px(4);
+  // measured, so a long nickname shrinks (to a readable minimum) instead of leaving the card
+  const fit = fitTextSize(answer, px(L.stampMaxW) - 2 * px(L.stampPadX), px(L.stampMaxFont), px(L.stampMinFont), { fontFamily: IOS.font, fontWeight: IOS.weight.bold }, ready ? domMeasure : fallbackMeasure);
+  const k = spring((frame - at) / dur);
   return (
-    <div
-      style={{
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        top: px(L.stampTop),
-        display: 'flex',
-        justifyContent: 'center',
-        transform: `translate3d(${shakeX}px, ${shakeY}px, 0)`,
-      }}
-    >
-      <div style={{ ...slamIn(frame, at, dur), display: 'flex', flexDirection: 'column', alignItems: 'center', gap: px(8) }}>
+    <div style={{ position: 'absolute', left: 0, right: 0, top: px(L.stampTop), display: 'flex', justifyContent: 'center' }}>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: px(10),
+          fontFamily: IOS.font,
+          opacity: Math.min(1, k * 1.4),
+          transform: `translateY(${(1 - k) * px(24)}px) scale(${0.97 + 0.03 * k})`,
+        }}
+      >
         <div
           style={{
             padding: `${px(4)}px ${px(20)}px`,
             borderRadius: px(30),
             background: accent,
-            color: COLORS.inkDark,
-            fontFamily: FONTS.body,
-            fontWeight: 800,
-            fontSize: px(18),
-            letterSpacing: px(4),
+            color: '#0B0B12',
+            fontWeight: IOS.weight.semibold,
+            fontSize: px(20),
             whiteSpace: 'nowrap',
           }}
         >
@@ -176,20 +179,17 @@ const AnswerStamp: React.FC<{ frame: number; puzzle: BonusPuzzle; caption: strin
         </div>
         <div
           style={{
-            ...glass(px(22), 0.18),
-            padding: `${px(6)}px ${px(36)}px`,
-            border: `${px(3)}px solid ${accent}`,
-            boxShadow: `0 0 ${px(44)}px ${accent}`,
-            fontFamily: FONTS.display,
-            fontSize: px(fontRef),
-            lineHeight: 1.05,
-            letterSpacing: px(3),
-            color: COLORS.yellow,
-            textShadow: `0 ${px(6)}px 0 rgba(0,0,0,0.47)`,
+            ...iosSurface(px(IOS.radius.xl)),
+            padding: `${px(8)}px ${px(L.stampPadX)}px`,
+            fontWeight: IOS.weight.bold,
+            fontSize: fit.size,
+            lineHeight: 1.1,
+            letterSpacing: px(-1),
+            color: IOS.color.label,
             whiteSpace: 'nowrap',
           }}
         >
-          {answer.toUpperCase()}
+          {answer}
         </div>
       </div>
     </div>

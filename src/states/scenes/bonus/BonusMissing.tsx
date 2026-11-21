@@ -18,17 +18,24 @@
  *                                spells out, the erase chip follows (answerChipDelayFrames)
  *   duration - 12                exit
  *
+ * iOS look (all four bonus kinds share these parts): calm backdrop with ONE accent (the iOS orange), Inter, frosted
+ * chips on the shared spring, a thin clock bar whose number is grey and turns red only in the last 3 seconds; no
+ * glow halos, slam-ins, backdrop pulse or gradient fills. Beats and cues are unchanged.
+ *
  * Time: `frame` = design ticks (30 per second) since the segment started. `duration` is the segment length
  * (a voiceover clip can stretch it); default bonusBaseFrames(slot).
  * Not rendered or viewed.
  */
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { Background } from '../../../Background';
 import { Rich } from '../../../Icon';
-import { COLORS, FONTS, K, S, glass, px } from '../../../style';
-import { prog, slamIn, revealIn, bounceEase, cssEaseOut, mix, clamp01 } from '../../../anim';
-import { backOut, expoOut, linear } from '../../../gsap-helpers';
+import { S, px } from '../../../style';
+import { IOS, IosBackground, iosSurface, spring } from '../../../ios';
+import { prog, cssEaseOut, mix, clamp01 } from '../../../anim';
+import { linear } from '../../../gsap-helpers';
+import { rise } from '../../ios-rise';
+import { fitTextSize } from '../../capital-fit';
+import { domMeasure, fallbackMeasure, useFontsReady } from '../../measure-dom';
 import rootSettings from '../../../../settings.json';
 import {
   bonusClockStart,
@@ -123,7 +130,10 @@ export const bonusMapRect = () => {
 };
 
 // ------------------------------------------------------------------ shared: parts
-/** The slate: backdrop, HUD pill, exit fade, and the children. The last 3 seconds of the clock pulse the backdrop. */
+/** The one accent of the bonus screens. */
+export const BONUS_ACCENT = IOS.color.orange;
+
+/** The slate: calm backdrop, HUD pill, exit fade, and the children. */
 export const BonusStage: React.FC<{ frame: number; puzzle: BonusPuzzle; T: BonusTimes; children: React.ReactNode }> = ({
   frame,
   puzzle,
@@ -131,13 +141,10 @@ export const BonusStage: React.FC<{ frame: number; puzzle: BonusPuzzle; T: Bonus
   children,
 }) => {
   const exitP = prog(frame, T.dur - 12, 12, linear);
-  // red heartbeat pulse on the last 3 seconds, like the word quiz
-  const beatPhase = (((frame - (T.clockEnd - 3 * FPS)) % 22) + 22) % 22;
-  const pulse = frame > T.clockEnd - 3 * FPS && frame < T.clockEnd ? Math.max(0, 1 - beatPhase / 14) * 0.55 : 0;
   return (
-    <AbsoluteFill>
-      <Background frame={frame} theme={BONUS_THEME} pulse={pulse} />
-      <AbsoluteFill style={{ opacity: 1 - exitP, transform: `scale(${1 - 0.04 * exitP})` }}>{children}</AbsoluteFill>
+    <AbsoluteFill style={{ fontFamily: IOS.font }}>
+      <IosBackground accent={BONUS_ACCENT} />
+      <AbsoluteFill style={{ opacity: 1 - exitP, transform: `scale(${1 - 0.02 * exitP})` }}>{children}</AbsoluteFill>
       <StateHudPill hud={{ label: 'BONUS', number: puzzle.slot + 1, total: BONUS_PUZZLES.length, erases: 0 }} />
     </AbsoluteFill>
   );
@@ -147,66 +154,66 @@ export const BonusStage: React.FC<{ frame: number; puzzle: BonusPuzzle; T: Bonus
 export const BonusBanner: React.FC<{ frame: number; puzzle: BonusPuzzle; pre: number }> = ({ frame, puzzle, pre }) => {
   if (frame >= pre) return null;
   const out = prog(frame, pre - 8, 10, linear);
+  const e1 = rise(frame, 0, 14, 16);
+  const e2 = rise(frame, 4, 16, 28);
+  const e3 = rise(frame, 14, 14, 16);
   return (
     <AbsoluteFill
       style={{
-        background: 'radial-gradient(ellipse 80% 70% at 50% 40%, rgba(255,122,24,0.69), rgba(42,16,0,0.95))',
+        fontFamily: IOS.font,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         textAlign: 'center',
         opacity: 1 - out,
-        transform: `scale(${1 - 0.05 * out})`,
+        transform: `scale(${1 - 0.02 * out})`,
       }}
     >
-      <div style={{ ...slamIn(frame, 0, 14), fontFamily: FONTS.body, fontWeight: 800, fontSize: px(22), letterSpacing: px(10), color: 'rgba(255,255,255,0.87)' }}>
+      <IosBackground accent={BONUS_ACCENT} />
+      <div style={{ ...e1, position: 'relative', fontWeight: IOS.weight.semibold, fontSize: px(26), letterSpacing: px(2), color: IOS.color.secondary }}>
         BONUS {puzzle.slot + 1} / {BONUS_PUZZLES.length}
       </div>
       <div
         style={{
-          ...slamIn(frame, 4, 15),
-          fontFamily: FONTS.display,
-          fontSize: px(170),
-          lineHeight: 0.92,
-          letterSpacing: px(6),
-          color: COLORS.yellow,
-          textShadow: `0 ${px(8)}px 0 rgba(0,0,0,0.47), 0 0 ${px(60)}px rgba(255,184,0,0.53)`,
-          margin: `${px(12)}px 0 ${px(14)}px`,
+          ...e2,
+          position: 'relative',
+          fontWeight: IOS.weight.bold,
+          fontSize: px(140),
+          lineHeight: 0.98,
+          letterSpacing: px(-3),
+          color: IOS.color.label,
+          margin: `${px(12)}px 0 ${px(16)}px`,
         }}
       >
         BONUS
         <br />
-        ROUND
+        <span style={{ color: BONUS_ACCENT }}>ROUND</span>
       </div>
-      <div style={{ ...revealIn(frame, 14, 14), fontFamily: FONTS.body, fontWeight: 800, fontSize: px(26), letterSpacing: px(8), color: '#fff' }}>
-        {BONUS_KIND_LABEL[puzzle.kind]}
-      </div>
+      <div style={{ ...e3, position: 'relative', fontWeight: IOS.weight.medium, fontSize: px(30), color: IOS.color.secondary }}>{BONUS_KIND_LABEL[puzzle.kind]}</div>
     </AbsoluteFill>
   );
 };
 
-/** The yellow "BONUS n / N" badge, top centre, once the banner is gone. */
+/** The "BONUS n / N" badge, top centre, once the banner is gone. */
 export const BonusBadge: React.FC<{ frame: number; puzzle: BonusPuzzle; at: number }> = ({ frame, puzzle, at }) => {
   if (frame < at) return null;
-  const p = prog(frame, at, 16, backOut);
+  const r = rise(frame, at, 16, 16);
   return (
     <div
       style={{
+        ...iosSurface(px(40), 0.6),
         position: 'absolute',
         left: '50%',
         top: px(BONUS_LAYOUT.badgeTop),
-        transform: `translate3d(-50%, ${(1 - p) * -20 * K}px, 0) scale(${0.7 + 0.3 * p})`,
-        opacity: clamp01(p),
+        transform: `translate(-50%, ${(1 - r.t) * -px(16)}px)`,
+        opacity: r.opacity,
         padding: `${px(6)}px ${px(26)}px`,
-        borderRadius: px(40),
-        background: `linear-gradient(180deg, ${COLORS.yellowSoft}, ${COLORS.yellow})`,
-        color: COLORS.inkDark,
-        fontFamily: FONTS.display,
+        fontFamily: IOS.font,
+        fontWeight: IOS.weight.semibold,
         fontSize: px(26),
-        letterSpacing: px(6),
+        color: BONUS_ACCENT,
         whiteSpace: 'nowrap',
-        boxShadow: `0 0 ${px(30)}px rgba(255,214,10,0.55)`,
       }}
     >
       BONUS {puzzle.slot + 1} / {BONUS_PUZZLES.length}
@@ -217,7 +224,7 @@ export const BonusBadge: React.FC<{ frame: number; puzzle: BonusPuzzle; at: numb
 /** The question line under the badge. `hideAt` fades it out (the reveal replaces it). */
 export const BonusPrompt: React.FC<{ frame: number; text: string; at: number; hideAt?: number }> = ({ frame, text, at, hideAt }) => {
   if (frame < at) return null;
-  const r = revealIn(frame, at, 14, 16);
+  const r = rise(frame, at, 14, 16);
   const hide = hideAt === undefined ? 0 : prog(frame, hideAt, 8, linear);
   return (
     <div
@@ -234,13 +241,12 @@ export const BonusPrompt: React.FC<{ frame: number; text: string; at: number; hi
     >
       <div
         style={{
-          ...glass(px(26), 0.1),
+          ...iosSurface(px(IOS.radius.lg), 0.6),
           padding: `${px(10)}px ${px(30)}px`,
-          fontFamily: FONTS.body,
-          fontWeight: 800,
+          fontFamily: IOS.font,
+          fontWeight: IOS.weight.semibold,
           fontSize: px(28),
-          letterSpacing: px(1),
-          color: COLORS.ink,
+          color: IOS.color.label,
           whiteSpace: 'nowrap',
         }}
       >
@@ -257,20 +263,17 @@ export type MapMark = {
   fillOpacity?: number;
   edge?: string;
   edgeOpacity?: number;
-  /** 0..1 strength of the stacked-stroke halo (no SVG filter) */
+  /** 0..1 strength of the marked outline (a thicker hairline, no halo) */
   glow?: number;
   glowColor?: string;
 };
 
 const MAP_LOOK = {
   edge: 0.9,
-  baseFill: 0.1,
-  baseEdge: 0.5,
-  halo: [
-    { k: 7, a: 0.1 },
-    { k: 4, a: 0.18 },
-    { k: 2, a: 0.3 },
-  ],
+  baseFill: 0.08,
+  baseEdge: 0.4,
+  /** extra stroke width of a marked state at full strength (map units) */
+  markEdge: 1.4,
 };
 
 /** All 50 states from the `mini` paths (975x610 map units). `children` are drawn on top, in map units. */
@@ -286,37 +289,21 @@ export const BonusMap: React.FC<{ size: number; marks?: Record<string, MapMark>;
             key={p.key}
             d={p.d}
             opacity={m?.opacity ?? 1}
-            fill={m?.fill ?? COLORS.ink}
+            fill={m?.fill ?? IOS.color.label}
             fillOpacity={m?.fillOpacity ?? MAP_LOOK.baseFill}
-            stroke={m?.edge ?? COLORS.ink}
+            stroke={m?.edge ?? IOS.color.label}
             strokeOpacity={m?.edgeOpacity ?? MAP_LOOK.baseEdge}
-            strokeWidth={MAP_LOOK.edge}
+            strokeWidth={MAP_LOOK.edge + (m?.glow ? MAP_LOOK.markEdge * m.glow : 0)}
             strokeLinejoin="round"
           />
         );
-      })}
-      {paths.map((p) => {
-        const m = marks[p.key];
-        if (!m || !m.glow || m.glow <= 0) return null;
-        return MAP_LOOK.halo.map((h, i) => (
-          <path
-            key={`g-${p.key}-${i}`}
-            d={p.d}
-            fill="none"
-            stroke={m.glowColor ?? COLORS.yellow}
-            strokeOpacity={h.a * m.glow * (m.opacity ?? 1)}
-            strokeWidth={MAP_LOOK.edge * h.k}
-            strokeLinejoin="round"
-            strokeLinecap="round"
-          />
-        ));
       })}
       {children}
     </svg>
   );
 };
 
-/** Four option chips (A-D) under the map. After `revealAt` the correct one lights up and the rest dim. */
+/** Four option chips (A-D) under the map. After `revealAt` the correct one is marked and the rest dim. */
 export const BonusOptions: React.FC<{
   frame: number;
   options: string[];
@@ -326,6 +313,9 @@ export const BonusOptions: React.FC<{
 }> = ({ frame, options, correctIndex, at, revealAt }) => {
   const L = BONUS_LAYOUT;
   const revealed = frame >= revealAt;
+  const ready = useFontsReady('bonus chips fonts');
+  // room for the text inside a chip: width minus padding, the A-D disc and the gaps
+  const textW = px(L.chipW) - 2 * px(14) - px(30) - px(12);
   return (
     <div
       style={{
@@ -339,37 +329,31 @@ export const BonusOptions: React.FC<{
       }}
     >
       {options.map((text, i) => {
-        const p = prog(frame, at + i * 3, 14, backOut);
         if (frame < at + i * 3) return <div key={i} style={{ width: px(L.chipW), height: px(L.chipH) }} />;
+        const r = rise(frame, at + i * 3, 14, 20);
         const win = revealed && i === correctIndex;
         const dim = revealed && i !== correctIndex;
-        const pop = win ? 1 + 0.06 * prog(frame, revealAt, 10, backOut) : 1;
+        // long answers (nicknames, capitals) shrink to fit, down to 72% of the normal size, instead of being cut off
+        const fontSize = fitTextSize(text, textW, px(19), px(19) * 0.72, { fontFamily: IOS.font, fontWeight: IOS.weight.semibold }, ready ? domMeasure : fallbackMeasure).size;
         return (
           <div
             key={i}
             style={{
-              ...glass(px(26), 0.1),
+              ...iosSurface(px(IOS.radius.lg), 0.5),
               width: px(L.chipW),
               height: px(L.chipH),
-              boxSizing: 'border-box',
               display: 'flex',
               alignItems: 'center',
               gap: px(12),
               padding: `0 ${px(14)}px`,
-              fontFamily: FONTS.body,
-              fontWeight: 800,
-              fontSize: px(19),
-              color: win ? COLORS.inkDark : COLORS.ink,
+              fontFamily: IOS.font,
+              fontWeight: IOS.weight.semibold,
+              fontSize,
+              color: IOS.color.label,
               whiteSpace: 'nowrap',
-              opacity: clamp01(p) * (dim ? 0.35 : 1),
-              transform: `translate3d(0, ${(1 - p) * 24 * K}px, 0) scale(${(0.8 + 0.2 * p) * pop})`,
-              ...(win
-                ? {
-                    background: `linear-gradient(180deg, ${COLORS.yellowSoft}, ${COLORS.yellow})`,
-                    border: `${px(2)}px solid #fff`,
-                    boxShadow: `0 0 ${px(34)}px rgba(255,214,10,0.7)`,
-                  }
-                : {}),
+              opacity: r.opacity * (dim ? 0.4 : 1),
+              transform: r.transform,
+              ...(win ? { background: `color-mix(in srgb, ${BONUS_ACCENT} 24%, transparent)`, borderColor: BONUS_ACCENT } : {}),
             }}
           >
             <span
@@ -381,10 +365,10 @@ export const BonusOptions: React.FC<{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontFamily: FONTS.display,
-                fontSize: px(18),
-                background: win ? COLORS.inkDark : 'rgba(255,255,255,0.16)',
-                color: win ? COLORS.yellow : COLORS.ink,
+                fontWeight: IOS.weight.semibold,
+                fontSize: px(17),
+                background: win ? BONUS_ACCENT : IOS.color.fillStrong,
+                color: win ? '#1A1000' : IOS.color.secondary,
               }}
             >
               {'ABCD'[i]}
@@ -397,12 +381,13 @@ export const BonusOptions: React.FC<{
   );
 };
 
-/** Clock bar with the seconds disc (red in the last three seconds), from `clockStart - 8` to the reveal. */
+/** Thin clock bar with the seconds number (grey; the number and the bar turn red in the last three seconds), from `clockStart - 8` to the reveal. */
 export const BonusTimer: React.FC<{ frame: number; T: BonusTimes }> = ({ frame, T }) => {
   if (!(frame >= T.clockStart - 8 && frame < T.clockEnd + 6)) return null;
   const clockP = Math.min(1, Math.max(0, (frame - T.clockStart) / T.clockFrames));
   const secondsLeft = Math.max(1, Math.ceil((T.clockFrames - (frame - T.clockStart)) / FPS));
   const hot = secondsLeft <= 3;
+  const tone = hot ? IOS.color.red : BONUS_ACCENT;
   return (
     <div
       style={{
@@ -411,7 +396,7 @@ export const BonusTimer: React.FC<{ frame: number; T: BonusTimes }> = ({ frame, 
         width: S.timerWidth,
         bottom: S.timerBottom,
         height: px(70),
-        opacity: prog(frame, T.clockStart - 8, 14, expoOut) * (1 - prog(frame, T.clockEnd, 8, linear)),
+        opacity: spring((frame - (T.clockStart - 8)) / 14) * (1 - prog(frame, T.clockEnd, 8, linear)),
       }}
     >
       <div
@@ -419,39 +404,30 @@ export const BonusTimer: React.FC<{ frame: number; T: BonusTimes }> = ({ frame, 
           position: 'absolute',
           left: 0,
           right: 0,
-          top: px(26),
-          height: S.timerTrackH,
-          borderRadius: px(10),
-          background: 'rgba(255,255,255,0.10)',
-          border: `${px(1.5)}px solid rgba(255,255,255,0.18)`,
+          top: px(32),
+          height: px(6),
+          borderRadius: px(6),
+          background: IOS.color.fill,
           overflow: 'hidden',
         }}
       >
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            transformOrigin: 'left',
-            transform: `scaleX(${1 - clockP})`,
-            background: `linear-gradient(90deg, ${COLORS.yellowDeep} 0%, ${COLORS.yellow} 70%, ${COLORS.yellowSoft} 100%)`,
-          }}
-        />
+        <div style={{ position: 'absolute', inset: 0, transformOrigin: 'left', transform: `scaleX(${1 - clockP})`, background: tone }} />
       </div>
       <div style={{ position: 'absolute', left: -px(31) + (1 - clockP) * S.timerWidth, top: px(4), width: px(62), height: px(62) }}>
         <div
           style={{
+            ...iosSurface(px(31), 0.5),
             width: px(62),
             height: px(62),
-            borderRadius: '50%',
-            background: hot ? COLORS.red : '#fff',
-            color: hot ? '#fff' : COLORS.inkDark,
-            border: `${px(3)}px solid ${hot ? '#fff' : 'rgba(255,255,255,0.9)'}`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontFamily: FONTS.display,
-            fontSize: px(34),
-            boxShadow: `0 0 ${px(26)}px rgba(255,214,10,0.8)`,
+            fontFamily: IOS.font,
+            fontWeight: IOS.weight.semibold,
+            fontSize: px(30),
+            fontVariantNumeric: 'tabular-nums',
+            color: hot ? IOS.color.red : IOS.color.secondary,
+            borderColor: hot ? IOS.color.red : IOS.color.fillStrong,
           }}
         >
           {secondsLeft}
@@ -465,7 +441,7 @@ export const BonusTimer: React.FC<{ frame: number; T: BonusTimes }> = ({ frame, 
 export const BonusEraseChip: React.FC<{ frame: number; revealAt: number }> = ({ frame, revealAt }) => {
   const at = revealAt + rootSettings.bonus.answerChipDelayFrames;
   if (frame < at) return null;
-  const p = prog(frame, at, 16, backOut);
+  const r = rise(frame, at, 16, 24);
   return (
     <div
       style={{
@@ -475,17 +451,15 @@ export const BonusEraseChip: React.FC<{ frame: number; revealAt: number }> = ({ 
         marginLeft: -px(320),
         width: px(640),
         textAlign: 'center',
-        padding: `${px(9)}px 0`,
+        padding: `${px(10)}px 0`,
         borderRadius: px(40),
-        background: `linear-gradient(180deg, ${COLORS.yellowSoft}, ${COLORS.yellow})`,
-        color: COLORS.inkDark,
-        fontFamily: FONTS.body,
-        fontWeight: 800,
-        fontSize: px(20),
-        letterSpacing: px(3),
-        boxShadow: `0 0 ${px(34)}px rgba(255,214,10,0.6)`,
-        opacity: clamp01(p),
-        transform: `translate3d(0, ${(1 - p) * 30 * K}px, 0) scale(${0.6 + 0.4 * p})`,
+        background: BONUS_ACCENT,
+        color: '#1A1000',
+        fontFamily: IOS.font,
+        fontWeight: IOS.weight.semibold,
+        fontSize: px(22),
+        opacity: r.opacity,
+        transform: r.transform,
       }}
     >
       <Rich tone="dark">{rootSettings.text.eraseChip}</Rich>
@@ -497,9 +471,9 @@ export const BonusEraseChip: React.FC<{ frame: number; revealAt: number }> = ({ 
 export const BonusMapBlock: React.FC<{ frame: number; at: number; children: (size: number) => React.ReactNode }> = ({ frame, at, children }) => {
   if (frame < at) return null;
   const R = bonusMapRect();
-  const p = prog(frame, at, 16, expoOut);
+  const r = rise(frame, at, 16, 24);
   return (
-    <div style={{ position: 'absolute', left: R.x, top: R.y, width: R.w, height: R.h, opacity: clamp01(p * 1.5), transform: `translate3d(0, ${(1 - p) * 30 * K}px, 0)` }}>
+    <div style={{ position: 'absolute', left: R.x, top: R.y, width: R.w, height: R.h, opacity: r.opacity, transform: r.transform }}>
       {children(R.w)}
     </div>
   );
@@ -537,22 +511,17 @@ export const bonusMissingCues = (puzzle: BonusPuzzle): StateCue[] => {
   return sortCues(cues);
 };
 
-/** The removed state coming back: drops in from above, big and transparent, snaps into place, then glows. */
+/** The removed state coming back: drops in from above, big and transparent, settles into place on the shared spring. */
 const FlyBack: React.FC<{ stateKey: string; frame: number; at: number; dur: number }> = ({ stateKey, frame, at, dur }) => {
   if (frame < at) return null;
   const g = getShape(stateKey);
   const [cx, cy] = g.miniCentroid;
-  const accent = levelAccent(stateKey);
-  const p = prog(frame, at, dur, bounceEase); // overshoots 1 a little = the snap
+  const p = spring((frame - at) / dur); // overshoots 1 by about 1.5% = the settle
   const s = mix(2.6, 1, p);
   const dy = mix(-MINI_BOX[1] * 0.55, 0, p);
-  const glow = prog(frame, at + dur, 10, cssEaseOut);
   return (
     <g transform={`translate(0 ${dy}) translate(${cx} ${cy}) scale(${s}) translate(${-cx} ${-cy})`} opacity={clamp01(p * 3)}>
-      {MAP_LOOK.halo.map((h, i) => (
-        <path key={i} d={g.mini} fill="none" stroke={accent} strokeOpacity={h.a * 2 * glow} strokeWidth={MAP_LOOK.edge * h.k} strokeLinejoin="round" strokeLinecap="round" />
-      ))}
-      <path d={g.mini} fill={accent} fillOpacity={0.92} stroke="#fff" strokeOpacity={0.85} strokeWidth={MAP_LOOK.edge * 1.6} strokeLinejoin="round" />
+      <path d={g.mini} fill={BONUS_ACCENT} fillOpacity={0.85} stroke={IOS.color.label} strokeOpacity={0.9} strokeWidth={MAP_LOOK.edge * 1.6} strokeLinejoin="round" />
     </g>
   );
 };
@@ -569,18 +538,18 @@ const NameReveal: React.FC<{ frame: number; name: string; at: number; step: numb
         top: px(BONUS_LAYOUT.promptTop - 10),
         display: 'flex',
         justifyContent: 'center',
-        fontFamily: FONTS.display,
-        fontSize: px(64),
-        letterSpacing: px(6),
-        color: COLORS.yellow,
-        textShadow: `0 ${px(6)}px 0 rgba(0,0,0,0.47), 0 0 ${px(40)}px rgba(255,184,0,0.5)`,
+        fontFamily: IOS.font,
+        fontWeight: IOS.weight.bold,
+        fontSize: px(60),
+        letterSpacing: px(2),
+        color: IOS.color.label,
         whiteSpace: 'pre',
       }}
     >
       {Array.from(name.toUpperCase()).map((ch, k) => {
-        const p = prog(frame, at + k * step, 8, backOut);
+        const r = rise(frame, at + k * step, 8, 14);
         return (
-          <span key={k} style={{ display: 'inline-block', opacity: clamp01(p * 2), transform: `translate3d(0, ${(1 - p) * 18 * K}px, 0) scale(${0.6 + 0.4 * p})` }}>
+          <span key={k} style={{ display: 'inline-block', opacity: r.opacity, transform: r.transform }}>
             {ch}
           </span>
         );
