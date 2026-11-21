@@ -6,7 +6,7 @@ import { LEVELS, buildRoundPlan } from '../search-timing';
 import { SearchStage } from '../components/SearchStage';
 import { SearchBar } from '../components/SearchBar';
 import { TimerBar } from '../components/TimerBar';
-import { HintEmoji } from '../components/HintEmoji';
+import { HintClue } from '../components/HintClue';
 import { AnswerCard } from '../components/AnswerCard';
 import { ProgressDots } from '../components/ProgressDots';
 import { Flash } from '../../Fx';
@@ -111,7 +111,8 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
       }}
       hint={{
         children: (rect) => (
-          <HintEmoji
+          <HintClue
+            roundId={round.id}
             emoji={round.hint}
             from={shift(plan.hintAt)}
             at={{ x: rect.x, y: rect.y + rect.h / 2 }}

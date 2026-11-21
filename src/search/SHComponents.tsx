@@ -5,7 +5,7 @@ import { ROUNDS } from './search-data';
 import { SearchStage } from './components/SearchStage';
 import { SearchBar } from './components/SearchBar';
 import { TimerBar } from './components/TimerBar';
-import { HintEmoji } from './components/HintEmoji';
+import { HintClue } from './components/HintClue';
 import { ProgressDots } from './components/ProgressDots';
 import { AnswerCard } from './components/AnswerCard';
 
@@ -96,7 +96,7 @@ const Panel: React.FC<PanelDef> = ({ index, red, search }) => {
       hint={{
         children: (r) => (
           <Freeze tick={hintTick}>
-            <HintEmoji emoji={round.hint} from={plan.hintAt} at={{ x: r.x, y: r.y + r.h / 2 }} size={r.w * 0.4} accent={accent} />
+            <HintClue roundId={round.id} emoji={round.hint} from={plan.hintAt} at={{ x: r.x, y: r.y + r.h / 2 }} size={r.w * 0.4} accent={accent} />
           </Freeze>
         ),
       }}
