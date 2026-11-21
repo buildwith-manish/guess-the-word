@@ -197,4 +197,17 @@ MEDIUM tier wrapper. Hides one half of its children (StateShape, EmojiFill or bo
 | `size` | px | required | shape box side, same as StateShape `size` |
 | `children` | node | required | what to crop |
 
+### AnswerCard (src/states/components/AnswerCard.tsx)
+
+The reveal card: state name very large (Anton, uppercase, shrunk to fit long names), two-letter chip, capital, nickname in quotes and the fact line (hidden when `withFact` is false or the fact is empty). Stamp-in = `slamIn` from anim.ts (scale-down slam with blur), then a short decaying shake. **2D card, built from scratch**: Card3D is word + clue-image specific (`word`, `index` props), and RevealStyle does take `children` but applies its own six reveal styles chosen from `questionId` and needs `exit`, so it would fight the stamp. A parent can still wrap AnswerCard in RevealStyle if it wants one of those looks. The card is a flex-centred layer inside the safe margin (`SAFE_X` / `SAFE_Y` from style.ts, frame size from state-timing `WIDTH` / `HEIGHT`), width `S.resultW` capped to the safe width; mount it as a full-frame layer. Time from `useDesignFrame()` unless `frame` is passed.
+
+| Prop | Type | Default | Meaning |
+|---|---|---|---|
+| `stateKey` | string | required | two-letter key |
+| `at` | ticks | required | tick the stamp starts (e.g. the plan's `stamp`) |
+| `accent` | CSS colour | required | level accent (border, chip, glow, nickname) |
+| `withFact` | boolean | true | show the fact line (empty fact stays hidden) |
+| `exit` | ticks | none | tick the card starts fading out (e.g. the plan's `exit`) |
+| `frame` | ticks | useDesignFrame() | optional override |
+
 ## E Scenes

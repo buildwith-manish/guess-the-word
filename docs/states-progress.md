@@ -14,7 +14,7 @@
 - [x] 2b TimerRing + EmojiFill (not rendered or viewed)
 - [x] 2c MiniMap + FlyIn (not rendered or viewed)
 - [x] 2d PixelReveal + CropMask (not rendered or viewed)
-- [ ] 2e (label to fill from docs/states-prompts-split.md)
+- [x] 2e AnswerCard (2D, not rendered or viewed)
 - [ ] 2f (label to fill from docs/states-prompts-split.md)
 - [ ] 3a (label to fill from docs/states-prompts-split.md)
 - [ ] 3b (label to fill from docs/states-prompts-split.md)
