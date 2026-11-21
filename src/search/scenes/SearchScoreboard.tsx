@@ -10,7 +10,7 @@ import { LEVELS } from '../search-timing';
 import { ProgressDots } from '../components/ProgressDots';
 import {
   DOTS_AT,
-  DOT_STEP,
+  DOTS_SPAN,
   MAX_SCORE,
   RANKS,
   legendAt,
@@ -25,7 +25,7 @@ import {
  * Props:
  *  - frame: scene-local tick (design frames, 30 per second; the caller passes `local` from locate()).
  *
- * Phases: recap strip of all rounds lights up one dot at a time; the rank table drops in bottom to top
+ * Phases: recap strip of all rounds lights up over DOTS_SPAN ticks, one dot per round; the rank table drops in bottom to top
  * (best rank last, with glow and confetti); the closing line fades in. All beats live in
  * searchScoreboardCues.ts, so scene and sound cues cannot drift apart.
  * Content: ranks and colours from search-settings.json, round count from search-data.ts, no images.
@@ -38,7 +38,7 @@ export const CLOSING_LINE = `Where did you land? Comment your score out of ${MAX
 const THEME = LEVELS[LEVELS.length - 1].theme;
 
 /** Layout, 1280x720 reference units. */
-const STRIP = { x: 640, y: 104, w: 900 };
+const STRIP = { x: 640, y: 104, w: 1000 };
 const TABLE_TOP = 168;
 const ROW_GAP = 10;
 const LINE_TOP = 566;
@@ -49,7 +49,7 @@ const levelColor = (i: number) => LEVELS.find((l) => l.name === ROUNDS[i].level)
 
 export const SearchScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
   const total = ROUNDS.length;
-  const litCount = Math.max(0, Math.min(total, Math.floor((frame - DOTS_AT) / DOT_STEP) + 1));
+  const litCount = Math.max(0, Math.min(total, Math.floor(((frame - DOTS_AT) / DOTS_SPAN) * total) + 1));
   const strip = revealIn(frame, 0, 14, 20);
   const line = revealIn(frame, lineAt(), 16, 26);
   const glowAt = legendAt();

@@ -6,7 +6,7 @@
  *  clip lengths from the voiceover manifest through search-timing.ts. */
 import type { Cue, Voice } from '../../sound';
 import cfg from '../search-settings.json';
-import { ROUNDS } from '../search-data';
+import { ROUNDS, BONUS } from '../search-data';
 import { voiceScoreboard } from '../search-timing';
 
 export type RankCfg = { name: string; min: number; accent: string };
@@ -14,8 +14,8 @@ export type RankCfg = { name: string; min: number; accent: string };
 /** Ranks in settings order: best first. */
 export const RANKS: RankCfg[] = cfg.ranks as RankCfg[];
 export const RANK_COUNT = RANKS.length;
-/** Highest possible score: one point per round. */
-export const MAX_SCORE = ROUNDS.length;
+/** Highest possible score: one point per round and per bonus puzzle (the rank minimums in settings are scaled to this). */
+export const MAX_SCORE = ROUNDS.length + BONUS.length;
 
 /** Score range of rank i, inclusive. The best rank ends at MAX_SCORE, every other one just below the rank above it. */
 export const rankRange = (i: number): [number, number] => [RANKS[i].min, i === 0 ? MAX_SCORE : RANKS[i - 1].min - 1];
@@ -26,8 +26,8 @@ export const rankKey = (name: string) => name.replace(/\s+/g, '').toLowerCase();
 // ---- beats (motion constants, 1/30 s ticks, same rhythm as the GTW scoreboard) ----
 /** Tick the recap strip starts to light up. */
 export const DOTS_AT = 6;
-/** Ticks between two dots lighting. */
-export const DOT_STEP = 1;
+/** Ticks the whole recap strip takes to light up, whatever the number of rounds (so the later beats never move). */
+export const DOTS_SPAN = 30;
 /** Ticks between the last dot and the first rank row. */
 export const DOTS_TO_ROWS = 10;
 /** Ticks between two rank rows. */
@@ -43,7 +43,7 @@ const VO_AFTER_ROWS = 10;
 /** Pitch rise per row for the row sound (1 = unchanged). */
 const ROW_PITCH_STEP = 1 / 3;
 
-export const rowBase = () => DOTS_AT + MAX_SCORE * DOT_STEP + DOTS_TO_ROWS;
+export const rowBase = () => DOTS_AT + DOTS_SPAN + DOTS_TO_ROWS;
 /** Tick rank i (0 = best) drops in. Rows fill bottom to top, the best rank lands last. */
 export const rowStart = (i: number) => rowBase() + (RANK_COUNT - 1 - i) * ROW_STEP;
 export const legendAt = () => rowStart(0) + LEGEND_DELAY;
