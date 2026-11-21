@@ -150,4 +150,18 @@ Two large emoji, each with a ping ring and a spring scale-bounce, second one sta
 
 Props `HintEmojiProps`: `emoji: [string, string]`, `from: number` hint tick, `at: {x, y}` centre of the pair (reference units), `size: number` emoji size (reference units), `accent?: string` ping colour (default COLORS.yellow).
 
+### ProgressDots (src/search/components/ProgressDots.tsx)
+Row of small dots: future dim, current pulsing (with glow), finished filled in its level colour. Design ticks, sampled at 60 fps.
+
+Props `ProgressDotsProps`: `index: number` 0-based current round, `total: number` dot count, `levelOf: (i: number) => string` colour per round, `at: {x, y}` centre-x and centre-y (reference units), `size: number` row width (reference units).
+
+### SearchStage (src/search/components/SearchStage.tsx)
+Round layout frame: `Background` (imported, not edited), HUD pill top left (own glass pill; GTW `Hud` is coupled to bonus/streak, so it was not reused), and five slots. Everything sits inside the safe margin from style.ts (SAFE_X/SAFE_Y, converted to reference units).
+
+Props `SearchStageProps`: `theme: [string, string]`, `accent: string`, `hud: Hud` (`{label, number, total}` from search/types.ts, text comes from settings via the caller), `energy?: number`, and slots `search?`, `timer?`, `hint?`, `answer?`, `dots?`.
+
+Slot = `{ at?: number; children: ReactNode | ((rect: Rect) => ReactNode) }`. `at` is the scene-local tick the slot fades in (omit = always shown; nothing rendered before it). Children get the slot rect when given as a function. Each slot layer fills the frame, so children position themselves with their own reference-unit `at` (as SearchBar, TimerBar, HintEmoji do).
+
+Exports: `SLOTS` (rects in reference units: `x` = centre-x, `y` = top, `w`, `h`; exceptions: `hud.x` is the left edge and `dots.y` is the centre line), `Rect` type, `SlotProps`, `SearchStageProps`. Layout: search and timer in the left-centre column; hint (top) and answer card (below it) in the right column; dots along the bottom of the safe box. Slot heights are budgets: SearchBar is about 0.72 x its width tall, so `search.w` is a good `size`.
+
 ## E Scenes
