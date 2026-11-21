@@ -6,6 +6,8 @@ import { HEIGHT, RENDER_FPS, RENDER_TOTAL_FRAMES, WIDTH } from './timing';
 import { PixelMain } from './pixel/PixelMain';
 import { PIXEL_TOTAL_FRAMES } from './pixel/pixel-timing';
 import { SHComponents } from './search/SHComponents';
+import { SearchMain } from './search/SearchMain';
+import { RENDER_TOTAL_FRAMES as SEARCH_TOTAL_FRAMES } from './search/search-timing';
 import { SearchRoundPreview, roundPreviewFrames } from './search/scenes/SearchRound';
 import { ThumbEasy, ThumbLadder, ThumbZero } from './thumbnails/Thumbnails';
 
@@ -44,6 +46,15 @@ export const RemotionRoot: React.FC = () => {
         height={HEIGHT}
         defaultProps={{ index: 1 }}
         calculateMetadata={({ props }) => ({ durationInFrames: roundPreviewFrames(props.index) })}
+      />
+      {/* Search History: the full video */}
+      <Composition
+        id="SearchHistory"
+        component={SearchMain}
+        durationInFrames={SEARCH_TOTAL_FRAMES}
+        fps={RENDER_FPS}
+        width={WIDTH}
+        height={HEIGHT}
       />
       {/* YouTube thumbnails (1280x720). Render: npx remotion still src/index.ts ThumbZero out/thumb-zero.png */}
       <Still id="ThumbZero" component={ThumbZero} width={1280} height={720} />

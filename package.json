@@ -8,6 +8,8 @@
     "dev": "remotion studio",
     "timeline": "node scripts/timeline.js",
     "typecheck": "tsc --noEmit",
+    "search:dev": "remotion studio",
+    "search:still": "remotion still SearchHistory out/search-still.png --frame=600",
     "search:check": "node scripts/check-search.js",
     "search:timeline": "node scripts/search-timeline.js",
     "render": "node scripts/voiceover-scan.js && node scripts/render-batches.js --lane",
