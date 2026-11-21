@@ -76,17 +76,9 @@ export const SearchIris: React.FC<{ frame: number; seg: IrisSegment; next?: { in
         iris={{ theme: seg.toTheme, p, variant: seg.variant, energy: toEnergy }}
       />
 
-      {next && planTick >= 0 ? (
-        <AbsoluteFill style={{ clipPath: wipeClip(seg.variant ?? 'circle', p) }}>
-          {/* the child scene reads its own clock, so it gets a Sequence that starts at the overlap */}
-          <Sequence from={Math.round(overlapStart * TIME_SCALE)}>
-            <SearchRound frame={planTick} index={next.index} lead={0} />
-          </Sequence>
-        </AbsoluteFill>
-      ) : null}
-
-      {/* HUD pill, same look and place as SearchStage's (hidden once the round is drawing its own) */}
-      {!(next && planTick >= 0) ? (
+      {/* HUD pill, same look and place as SearchStage's. It shows the OLD round; the incoming round's
+          own pill covers it as the wipe reaches it. */}
+      {(
         <div
           style={{
             position: 'absolute',
@@ -109,6 +101,15 @@ export const SearchIris: React.FC<{ frame: number; seg: IrisSegment; next?: { in
             {seg.hud.number}/{seg.hud.total}
           </span>
         </div>
+      )}
+
+      {next && planTick >= 0 ? (
+        <AbsoluteFill style={{ clipPath: wipeClip(seg.variant ?? 'circle', p) }}>
+          {/* the child scene reads its own clock, so it gets a Sequence that starts at the overlap */}
+          <Sequence from={Math.round(overlapStart * TIME_SCALE)}>
+            <SearchRound frame={planTick} index={next.index} lead={0} />
+          </Sequence>
+        </AbsoluteFill>
       ) : null}
     </AbsoluteFill>
   );
