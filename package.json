@@ -13,6 +13,7 @@
     "search:qa": "node scripts/search-qa.js",
     "search:check": "node scripts/check-search.js",
     "search:timeline": "node scripts/search-timeline.js",
+    "search:stills": "node scripts/search-stills.js",
     "render": "node scripts/voiceover-scan.js && node scripts/render-batches.js --lane",
     "render:batches": "node scripts/voiceover-scan.js && node scripts/render-batches.js",
     "render:lanes": "node scripts/voiceover-scan.js && node scripts/render-batches.js --size 1800",

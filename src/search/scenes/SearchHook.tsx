@@ -117,8 +117,8 @@ export const searchHookCues = (duration: number = defaultDuration()): Cue[] => {
     for (let k = 2; k <= text.length; k += 2) {
       add(p.starts[i] + (k - 1) * p.typeTicks, 'key-click', { rate: 1 + (rand() * 2 - 1) * CLICK_JITTER });
     }
-    // TODO(6b): 'pop' stands in for the soft "send".
-    add(slideEnd(p.starts[i], text.length, p.typeTicks), 'pop', { volume: 0.7 });
+    // Soft "send" when the search has landed in the list ('send' has its gain baked in, task 7d).
+    add(slideEnd(p.starts[i], text.length, p.typeTicks), 'send');
   });
   add(p.glitchAt, 'thump'); // glitch hit
   add(p.glitchAt + GLITCH_BURST_SECONDS * FPS_DESIGN, 'blip'); // glitch settles

@@ -32,8 +32,8 @@ export const searchRoundCues = (index: number): Cue[] => {
       add(start + (k - 1) * typeTicks, 'key-click', { rate: 1 + (rand() * 2 - 1) * CLICK_JITTER });
     }
     // Soft "send" sound when the search has landed in the history list.
-    // TODO(6b): 'pop' stands in for a soft "send". Task 6b creates a real 'send' sound.
-    add(slideEnd(start, text.length, typeTicks), 'pop', { volume: 0.7 });
+    // 'send' has its gain baked in (task 7d, quieter than 'pop'), so no extra volume here.
+    add(slideEnd(start, text.length, typeTicks), 'send');
   });
 
   // Hint: one ping when the first emoji pops in.
