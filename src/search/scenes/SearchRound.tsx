@@ -42,6 +42,11 @@ const DIM_SECONDS = 0.25;
 /** The hint pair is about 2.3 emoji wide (HintEmoji spaces them 0.3 apart): size so the pair fits the slot width. */
 const HINT_PAIR_WIDTHS = 2.6;
 
+/** The reveal picture is 3:2 landscape: as wide as the slot height allows, but not wider than PICTURE_MAX_WIDTH
+ *  (reference units, 1280 wide frame). Layout constants. */
+const PICTURE_ASPECT = 3 / 2;
+const PICTURE_MAX_WIDTH = 1100;
+
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 
@@ -155,7 +160,7 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
                 at={revealAt}
                 accent={level.accent}
                 place={{ x: rect.x, y: rect.y }}
-                size={rect.h}
+                size={Math.min(rect.h * PICTURE_ASPECT, PICTURE_MAX_WIDTH)}
                 showName={settings.reveal.showName}
               />
             ) : (

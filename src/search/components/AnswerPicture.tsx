@@ -10,8 +10,8 @@ import '../../fonts';
  * Behind it a soft spotlight in the level accent. Optionally the name under it (`showName`, from settings reveal.showName).
  *
  * `at` is the tick the picture appears (design ticks, local to the scene). It pops in from a larger size with a little
- * overshoot, then floats slowly. The slot is a square block `size` wide and tall; with a name the picture takes
- * the top PICTURE_SHARE of it and the name the rest.
+ * overshoot, then floats slowly. The block is `size` wide and size / ASPECT tall (3:2 landscape pictures); with a name
+ * the picture takes the top PICTURE_SHARE of it and the name the rest.
  *
  * `image` is a file name in public/search/answers (listed in src/search/answer-images.json).
  */
@@ -24,10 +24,12 @@ const FLOAT = 0.006; // share of the block size
 const FLOAT_SECONDS = 3;
 const SPOTLIGHT_SECONDS = 0.5;
 const SPOTLIGHT_PERCENT = 34; // strength of the accent spotlight
+/** Width / height of the picture block. The pictures are 3:2 landscape. */
+const ASPECT = 3 / 2;
 /** Share of the block height the picture takes when the name is shown. */
 const PICTURE_SHARE = 0.84;
-/** Name size as a share of the block size, and the longest name that keeps that size before it shrinks. */
-const NAME_SIZE = 0.085;
+/** Name size as a share of the block height, and the longest name that keeps that size before it shrinks. */
+const NAME_SIZE = 0.11;
 const NAME_FULL_CHARS = 12;
 
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
@@ -40,7 +42,7 @@ export type AnswerPictureProps = {
   accent: string;
   /** Centre-x and top-y of the block, reference units. */
   place: { x: number; y: number };
-  /** Block width and height, reference units. */
+  /** Block width, reference units (its height is size / 3 * 2). */
   size: number;
   showName?: boolean;
 };
@@ -49,25 +51,26 @@ export const AnswerPicture: React.FC<AnswerPictureProps> = ({ image, name, from,
   const frame = useDesignFrame();
   if (frame < at) return null;
 
-  const S = px(size);
-  const picH = showName ? S * PICTURE_SHARE : S;
+  const S = px(size); // block width
+  const B = S / ASPECT; // block height
+  const picH = showName ? B * PICTURE_SHARE : B;
   const t = clamp01((frame - at) / (POP_SECONDS * FPS));
   const back = 1 + 2.70158 * Math.pow(t - 1, 3) + 1.70158 * Math.pow(t - 1, 2);
   const scale = POP_FROM + (1 - POP_FROM) * back;
   const opacity = clamp01((frame - at) / (FADE_SECONDS * FPS));
-  const float = Math.sin(((frame - at) / (FLOAT_SECONDS * FPS)) * Math.PI * 2) * S * FLOAT;
+  const float = Math.sin(((frame - at) / (FLOAT_SECONDS * FPS)) * Math.PI * 2) * B * FLOAT;
   const spot = clamp01((frame - at) / (SPOTLIGHT_SECONDS * FPS));
-  const nameFont = S * NAME_SIZE * Math.min(1, NAME_FULL_CHARS / Math.max(1, name.length));
+  const nameFont = B * NAME_SIZE * Math.min(1, NAME_FULL_CHARS / Math.max(1, name.length));
 
   return (
-    <div style={{ position: 'absolute', left: px(place.x) - S / 2, top: px(place.y), width: S, height: S, opacity }}>
+    <div style={{ position: 'absolute', left: px(place.x) - S / 2, top: px(place.y), width: S, height: B, opacity }}>
       {/* spotlight */}
       <div
         style={{
           position: 'absolute',
-          left: -S * 0.15,
-          top: -S * 0.1,
-          width: S * 1.3,
+          left: -S * 0.1,
+          top: -B * 0.1,
+          width: S * 1.2,
           height: picH * 1.2,
           background: `radial-gradient(ellipse 50% 50% at 50% 50%, color-mix(in srgb, ${accent} ${(SPOTLIGHT_PERCENT * spot).toFixed(1)}%, transparent), transparent 70%)`,
           pointerEvents: 'none',
@@ -84,7 +87,7 @@ export const AnswerPicture: React.FC<AnswerPictureProps> = ({ image, name, from,
           objectFit: 'contain',
           transform: `translateY(${float}px) scale(${scale})`,
           transformOrigin: 'center center',
-          filter: `drop-shadow(0 ${S * 0.02}px ${S * 0.035}px rgba(0,0,0,0.5))`,
+          filter: `drop-shadow(0 ${B * 0.02}px ${B * 0.035}px rgba(0,0,0,0.5))`,
         }}
       />
       {showName ? (
@@ -94,7 +97,7 @@ export const AnswerPicture: React.FC<AnswerPictureProps> = ({ image, name, from,
             left: 0,
             top: picH,
             width: S,
-            height: S - picH,
+            height: B - picH,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
