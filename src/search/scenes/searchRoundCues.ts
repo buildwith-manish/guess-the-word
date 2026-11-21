@@ -41,6 +41,13 @@ export const searchRoundCues = (index: number): Cue[] => {
     add(slideEnd(start, text.length, typeTicks), 'pop', { volume: 0.7 });
   });
 
+  // Hint: one ping when the first emoji pops in.
+  add(plan.hintAt, 'ping-hi');
+
+  // Reveal: stamp sound when the answer card starts to stamp in.
+  // Check by ear: the card's stamp takes a few ticks to land (STAMP_SECONDS in AnswerCard); move this later if the hit is early.
+  add(plan.revealAt, 'stamp');
+
   // Timer: one tick per second of the clock; the last second uses tick-low.
   const seconds = Math.round(plan.clockFrames / FPS);
   for (let k = 0; k < seconds; k++) {

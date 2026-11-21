@@ -1,11 +1,17 @@
 import React from 'react';
 import { px } from '../../style';
+import { FPS, TIME_SCALE } from '../../timing';
 import cfg from '../search-settings.json';
 import { ROUNDS, getRound } from '../search-data';
-import { buildRoundPlan } from '../search-timing';
+import { LEVELS, buildRoundPlan } from '../search-timing';
 import { SearchStage } from '../components/SearchStage';
 import { SearchBar } from '../components/SearchBar';
 import { TimerBar } from '../components/TimerBar';
+import { HintEmoji } from '../components/HintEmoji';
+import { AnswerCard } from '../components/AnswerCard';
+import { ProgressDots } from '../components/ProgressDots';
+import { Flash } from '../../Fx';
+import { useDesignFrame } from '../../clock';
 import { typeTicksFor } from './searchRoundCues';
 
 /**
@@ -26,6 +32,12 @@ import { typeTicksFor } from './searchRoundCues';
 
 /** How far the search bar travels while it slides in, in 1280x720 reference units. Motion constant. */
 const SLIDE_IN_DISTANCE = 60;
+
+/** The searches dim to this opacity at the reveal, over DIM_SECONDS. Motion constants. */
+const DIM_TO = 0.25;
+const DIM_SECONDS = 0.3;
+/** The hint pair is about 2.3 emoji wide (HintEmoji spaces them 0.3 apart): size so the pair fits the slot width. */
+const HINT_PAIR_WIDTHS = 2.6;
 
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
@@ -53,6 +65,15 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
   const slideT = clamp01((frame - shift(0)) / Math.max(1, plan.clockStart));
   const slideK = easeOutCubic(slideT);
 
+  // Reveal: the searches dim from plan.revealAt.
+  const revealAt = shift(plan.revealAt);
+  const dimK = easeOutCubic(clamp01((frame - revealAt) / (DIM_SECONDS * FPS)));
+  const searchOpacity = slideK * (1 - (1 - DIM_TO) * dimK);
+
+  // Progress dots: the current round pulses until the reveal, then counts as finished.
+  const dotsIndex = frame >= revealAt ? index + 1 : index;
+  const colorOfRound = (i: number) => (LEVELS.find((l) => l.name === ROUNDS[i].level) ?? level).accent;
+
   return (
     <SearchStage
       theme={level.theme}
@@ -64,7 +85,7 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
             style={{
               position: 'absolute',
               inset: 0,
-              opacity: slideK,
+              opacity: searchOpacity,
               transform: `translateY(${(1 - slideK) * px(SLIDE_IN_DISTANCE)}px)`,
             }}
           >
@@ -90,11 +111,56 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
           />
         ),
       }}
-      // TODO(3b): hint slot. Show <HintEmoji emoji={round.hint} from={shift(plan.hintAt)} .../> in SLOTS.hint
-      //           (hint={{ at: shift(plan.hintAt), children: ... }}).
-      // TODO(3b): answer slot. Reveal round.name and round.from at shift(plan.revealAt), hold plan.holdFrames,
-      //           then exit over plan.exitFrames. The timer is already empty at plan.revealAt.
-      // TODO(3b): ProgressDots slot (dots), only if 3b wants it.
+      hint={{
+        children: (rect) => (
+          <HintEmoji
+            emoji={round.hint}
+            from={shift(plan.hintAt)}
+            at={{ x: rect.x, y: rect.y + rect.h / 2 }}
+            size={Math.min(rect.w / HINT_PAIR_WIDTHS, rect.h * 0.9)}
+            accent={level.accent}
+          />
+        ),
+      }}
+      answer={{
+        children: (rect) => (
+          <>
+            <Flash frame={frame} start={revealAt} />
+            <AnswerCard
+              name={round.name}
+              from={round.from}
+              at={revealAt}
+              accent={level.accent}
+              place={{ x: rect.x, y: rect.y }}
+              size={rect.w}
+            />
+          </>
+        ),
+      }}
+      dots={{
+        children: (rect) => (
+          <ProgressDots
+            index={dotsIndex}
+            total={ROUNDS.length}
+            levelOf={colorOfRound}
+            at={{ x: rect.x, y: rect.y }}
+            size={rect.w}
+          />
+        ),
+      }}
+      // The hold (plan.holdFrames: settings minimum, stretched by a voiceover clip) is part of the scene
+      // duration, so the card simply stays up until the scene ends.
+      // TODO(3c): exit over plan.exitFrames (nothing leaves the screen yet; the next wipe covers it).
     />
   );
 };
+
+/** Studio preview of one round on its own (composition "SH-Round"): reads the clock itself, no lead. */
+export const SearchRoundPreview: React.FC<{ index: number }> = ({ index }) => {
+  const frame = useDesignFrame();
+  return <SearchRound frame={frame} index={index} lead={0} />;
+};
+
+/** Length of one round at 60 fps for the preview composition (index clamped into range). */
+export const roundPreviewFrames = (index: number): number =>
+  Math.round(buildRoundPlan(Math.max(0, Math.min(ROUNDS.length - 1, index))).duration * TIME_SCALE);
