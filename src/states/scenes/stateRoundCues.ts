@@ -9,7 +9,6 @@
  *
  * All timings come from buildQuestionPlan (state-timing.ts); sound names are files in public/sounds.
  *
- * TODO(3b): hint cues at plan.hintAt.
  * TODO(3c): answer cues (stamp / boom at plan.stamp, reveal build from plan.revealStart).
  */
 import soundManifest from '../../sound-manifest.json';
@@ -34,6 +33,7 @@ export type StateCue = {
  * - tick on every whole second the clock has run (the same instants the TimerRing pulses on)
  * - tick-low instead of tick for every second boundary that falls inside the last second
  *   (the last FPS ticks of the clock, where the ring turns red)
+ * - ping-hi when the emoji hint appears, ding-hi when the region glow appears
  */
 export const stateRoundCues = (index: number, withTitle = false): StateCue[] => {
   const plan = buildQuestionPlan(index, withTitle);
@@ -49,7 +49,10 @@ export const stateRoundCues = (index: number, withTitle = false): StateCue[] => 
     add(plan.timerStart + t, t >= lastSecondFrom ? 'tick-low' : 'tick');
   }
 
-  // TODO(3b): hints   -> plan.hintAt.forEach(...)
+  // hints: emoji at hintAt[0], region glow at hintAt[1] (fractions of the clock from states-settings.json)
+  add(plan.hintAt[0], 'ping-hi');
+  add(plan.hintAt[1], 'ding-hi');
+
   // TODO(3c): answer  -> plan.revealStart, plan.stamp
 
   return cues.sort((a, b) => a.frame - b.frame);
