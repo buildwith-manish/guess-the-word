@@ -111,4 +111,31 @@ Prop-driven SVG of one state. No time inside: the parent samples `useDesignFrame
 
 Also exported: `getShapeBox(stateKey, size)` returns `{ w, h, box }` in px (fitted shape size and box side) for placing labels and pins. The shape is centred in the box; rotation does not change `w`/`h`.
 
+### TimerRing (src/states/components/TimerRing.tsx)
+
+Shrinking clock ring. Reads time from `useDesignFrame()` (ticks local to the enclosing Sequence) unless `frame` is passed. Colour = level accent, `COLORS.red` in the last second (`FPS` ticks from state-timing), seconds shown with Anton, a pulse (digits scale, halo brightens) once per whole second elapsed. Glow is stacked strokes, no filter.
+
+| Prop | Type | Default | Meaning |
+|---|---|---|---|
+| `from` | ticks | required | tick the clock starts |
+| `duration` | ticks | required | clock length, e.g. `buildQuestionPlan(i).timerFrames` |
+| `accent` | CSS colour | required | level accent from states-settings.json |
+| `size` | px | required | outer diameter (use `px()`) |
+| `digits` | "center" \| "below" \| "none" | "center" | where the remaining seconds go |
+| `frame` | ticks | useDesignFrame() | optional override from a parent |
+
+### EmojiFill (src/states/components/EmojiFill.tsx)
+
+The state's three `hintEmoji` tiled in a grid (NotoColorEmoji, loaded by importing `src/fonts.ts`), clipped to the state shape, faded in from `at`. **Approach: HTML grid + CSS `clip-path: url(#id)`** to an inline SVG `<clipPath clipPathUnits="objectBoundingBox">` holding the same shape path scaled by 1/SHAPE_BOX (SVG text was not used). The shape box is square, so the clip scales with `size`. Not rendered or viewed yet.
+
+| Prop | Type | Default | Meaning |
+|---|---|---|---|
+| `stateKey` | string | required | two-letter key |
+| `size` | px | required | shape box side, same as StateShape `size` |
+| `at` | ticks | required | tick the fade-in starts |
+| `fadeTicks` | ticks | 10 | fade length |
+| `rotation` | degrees | 0 | same as StateShape; the clip rotates, the emoji stay upright |
+| `opacity` | 0..1 | 1 | peak opacity |
+| `frame` | ticks | useDesignFrame() | optional override from a parent |
+
 ## E Scenes

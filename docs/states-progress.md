@@ -11,7 +11,7 @@
 - [x] 1d states-settings.json + types.ts (several values provisional, see _provisional)
 - [x] 1e state-timing.ts + voiceover manifest + states:timeline (runtime 11:59, outside 9-11, see reply)
 - [x] 2a StateShape + geo.ts (not rendered or viewed)
-- [ ] 2b (label to fill from docs/states-prompts-split.md)
+- [x] 2b TimerRing + EmojiFill (not rendered or viewed)
 - [ ] 2c (label to fill from docs/states-prompts-split.md)
 - [ ] 2d (label to fill from docs/states-prompts-split.md)
 - [ ] 2e (label to fill from docs/states-prompts-split.md)
