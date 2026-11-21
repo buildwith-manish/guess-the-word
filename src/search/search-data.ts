@@ -13,7 +13,7 @@ export type Round = {
 };
 
 export type Bonus = {
-  afterRound: 10 | 20 | 30 | 40 | 50;
+  afterRound: 10 | 20 | 30;
   answer: string;
   from: string;
   searches: [string, string, string];
@@ -153,88 +153,10 @@ export const ROUNDS: Round[] = [
       "boots with spurs for cowboy toys",
     ],
   },
-  {
-    id: 11,
-    name: "Superman",
-    from: "DC",
-    level: "EASY",
-    hint: ["🦸", "🌍"],
-    searches: [
-      "do glasses really work as a full disguise",
-      "why does a glowing green rock make me feel weak",
-      "how to fly to work without messing up my hair",
-      "best way to hide a big S under my shirt",
-    ],
-  },
-  {
-    id: 12,
-    name: "Stitch",
-    from: "Lilo & Stitch",
-    level: "EASY",
-    hint: ["👽", "🌺"],
-    searches: [
-      "best ukulele songs for a loud troublemaker",
-      "how to teach manners to an alien who bites",
-      "my neighbor's pet is a blue alien in disguise",
-      "help, my little sister adopted a blue alien from space",
-    ],
-  },
-  {
-    id: 13,
-    name: "The Grinch",
-    from: "Dr. Seuss",
-    level: "EASY",
-    hint: ["💚", "🎄"],
-    searches: [
-      "how to stop loud neighbors singing all night",
-      "my heart feels a few sizes too small lately",
-      "how to disguise a dog as a reindeer",
-      "best way to take every present from a whole town",
-    ],
-  },
-  {
-    id: 14,
-    name: "Cookie Monster",
-    from: "Sesame Street",
-    level: "EASY",
-    hint: ["🍪", "🔵"],
-    searches: [
-      "why does my grammar vanish when I'm hungry",
-      "how many choc-chip treats can one blue guy eat",
-      "best googly eyes for a big blue furry friend",
-      "my favorite letter is C, what's yours",
-    ],
-  },
-  {
-    id: 15,
-    name: "Bluey",
-    from: "Bluey",
-    level: "EASY",
-    hint: ["🐶", "💙"],
-    searches: [
-      "how to make up a game that lasts all afternoon",
-      "best games for two sisters and a patient dad",
-      "how to keep a balloon from touching the ground",
-      "my little sister Bingo wants to play again",
-    ],
-  },
-  {
-    id: 16,
-    name: "Minion",
-    from: "Despicable Me",
-    level: "EASY",
-    hint: ["🍌", "👓"],
-    searches: [
-      "how to tell my boss nobody gets my language",
-      "best goggles for a tiny, loud, one-eyed helper",
-      "where to buy overalls for a tiny yellow capsule",
-      "why do I love bananas this much",
-    ],
-  },
 
   // MEDIUM
   {
-    id: 17,
+    id: 11,
     name: "Iron Man",
     from: "Marvel",
     level: "MEDIUM",
@@ -247,7 +169,7 @@ export const ROUNDS: Round[] = [
     ],
   },
   {
-    id: 18,
+    id: 12,
     name: "Darth Vader",
     from: "Star Wars",
     level: "MEDIUM",
@@ -260,7 +182,7 @@ export const ROUNDS: Round[] = [
     ],
   },
   {
-    id: 19,
+    id: 13,
     name: "Simba",
     from: "The Lion King",
     level: "MEDIUM",
@@ -273,7 +195,7 @@ export const ROUNDS: Round[] = [
     ],
   },
   {
-    id: 20,
+    id: 14,
     name: "Buzz Lightyear",
     from: "Toy Story",
     level: "MEDIUM",
@@ -286,7 +208,7 @@ export const ROUNDS: Round[] = [
     ],
   },
   {
-    id: 21,
+    id: 15,
     name: "Joker",
     from: "DC",
     level: "MEDIUM",
@@ -299,33 +221,7 @@ export const ROUNDS: Round[] = [
     ],
   },
   {
-    id: 22,
-    name: "Sonic",
-    from: "Sonic the Hedgehog",
-    level: "MEDIUM",
-    hint: ["💨", "🔵"],
-    searches: [
-      "fastest shoes for a hedgehog",
-      "how to collect gold rings without stopping",
-      "blue hair gel recommendations",
-      "how fast is too fast for a speeding ticket",
-    ],
-  },
-  {
-    id: 23,
-    name: "Elmo",
-    from: "Sesame Street",
-    level: "MEDIUM",
-    hint: ["🔴", "👀"],
-    searches: [
-      "best red fur shampoo",
-      "how to teach numbers on a busy street",
-      "why do I talk about myself in third person",
-      "how to get to a street with furry neighbors",
-    ],
-  },
-  {
-    id: 24,
+    id: 16,
     name: "Lightning McQueen",
     from: "Cars",
     level: "MEDIUM",
@@ -338,7 +234,33 @@ export const ROUNDS: Round[] = [
     ],
   },
   {
-    id: 25,
+    id: 17,
+    name: "Elmo",
+    from: "Sesame Street",
+    level: "MEDIUM",
+    hint: ["🔴", "👀"],
+    searches: [
+      "best red fur shampoo",
+      "how to teach numbers on a busy street",
+      "why do I talk about myself in third person",
+      "how to get to a street with furry neighbors",
+    ],
+  },
+  {
+    id: 18,
+    name: "Sonic",
+    from: "Sonic the Hedgehog",
+    level: "MEDIUM",
+    hint: ["💨", "🔵"],
+    searches: [
+      "fastest shoes for a hedgehog",
+      "how to collect gold rings without stopping",
+      "blue hair gel recommendations",
+      "how fast is too fast for a speeding ticket",
+    ],
+  },
+  {
+    id: 19,
     name: "Homer Simpson",
     from: "The Simpsons",
     level: "MEDIUM",
@@ -351,7 +273,7 @@ export const ROUNDS: Round[] = [
     ],
   },
   {
-    id: 26,
+    id: 20,
     name: "Moana",
     from: "Moana",
     level: "MEDIUM",
@@ -363,114 +285,10 @@ export const ROUNDS: Round[] = [
       "how to bargain with a demigod over fishhooks",
     ],
   },
-  {
-    id: 27,
-    name: "Hulk",
-    from: "Marvel",
-    level: "MEDIUM",
-    hint: ["💪", "🟢"],
-    searches: [
-      "anger management classes near me",
-      "how to stop my clothes from ripping when I'm upset",
-      "best purple shorts that stretch a lot",
-      "a science lab accident turned me green and huge",
-    ],
-  },
-  {
-    id: 28,
-    name: "Jack Sparrow",
-    from: "Pirates of the Caribbean",
-    level: "MEDIUM",
-    hint: ["🏴‍☠️", "🧭"],
-    searches: [
-      "why does my compass point to what I want, not north",
-      "how to get a ship back after losing it again",
-      "best eyeliner for a wobbly pirate walk",
-      "can you be a pirate captain without a ship",
-    ],
-  },
-  {
-    id: 29,
-    name: "Toothless",
-    from: "How to Train Your Dragon",
-    level: "MEDIUM",
-    hint: ["🐉", "🖤"],
-    searches: [
-      "how to fly with only one working tail fin",
-      "best fish for a grumpy flying pet",
-      "how to befriend a dragon instead of fighting it",
-      "black dragon who acts like a giant cat",
-    ],
-  },
-  {
-    id: 30,
-    name: "Optimus Prime",
-    from: "Transformers",
-    level: "MEDIUM",
-    hint: ["🚛", "🤖"],
-    searches: [
-      "how to park a very large red and blue truck",
-      "my whole family turns into cars sometimes",
-      "how to lead a team of robots through a long war",
-      "best way to fold myself from a robot into a truck",
-    ],
-  },
-  {
-    id: 31,
-    name: "Groot",
-    from: "Guardians of the Galaxy",
-    level: "MEDIUM",
-    hint: ["🌳", "🚀"],
-    searches: [
-      "how to explain myself using only the same three words",
-      "best fertilizer for a walking tree",
-      "can a potted plant join a team of space misfits",
-      "my best friend is a raccoon with a big gun",
-    ],
-  },
-  {
-    id: 32,
-    name: "Rapunzel",
-    from: "Tangled",
-    level: "MEDIUM",
-    hint: ["🍳", "🏰"],
-    searches: [
-      "can a frying pan really be a good weapon",
-      "best shampoo for 70 feet of hair",
-      "how to climb down a tower using only my hair",
-      "my hair glows when I sing, is that normal",
-    ],
-  },
-  {
-    id: 33,
-    name: "Kermit the Frog",
-    from: "The Muppets",
-    level: "MEDIUM",
-    hint: ["🐸", "🎤"],
-    searches: [
-      "how to host a variety show with total chaos",
-      "how to tell my pig girlfriend to calm down",
-      "best banjo songs about rainbows",
-      "why does everyone say being green is hard",
-    ],
-  },
 
   // HARD
   {
-    id: 34,
-    name: "Scooby-Doo",
-    from: "Scooby-Doo",
-    level: "HARD",
-    hint: ["🐶", "🔍"],
-    searches: [
-      "how to make a sandwich bigger than my head",
-      "best dog snacks for solving mysteries",
-      "how to scare away haunted-house caretakers",
-      "van insurance for four teenagers and a dog",
-    ],
-  },
-  {
-    id: 35,
+    id: 21,
     name: "Gollum",
     from: "The Lord of the Rings",
     level: "HARD",
@@ -483,7 +301,7 @@ export const ROUNDS: Round[] = [
     ],
   },
   {
-    id: 36,
+    id: 22,
     name: "WALL-E",
     from: "WALL-E",
     level: "HARD",
@@ -496,7 +314,7 @@ export const ROUNDS: Round[] = [
     ],
   },
   {
-    id: 37,
+    id: 23,
     name: "Yoda",
     from: "Star Wars",
     level: "HARD",
@@ -509,7 +327,20 @@ export const ROUNDS: Round[] = [
     ],
   },
   {
-    id: 38,
+    id: 24,
+    name: "Scooby-Doo",
+    from: "Scooby-Doo",
+    level: "HARD",
+    hint: ["🐶", "🔍"],
+    searches: [
+      "how to make a sandwich bigger than my head",
+      "best dog snacks for solving mysteries",
+      "how to scare away haunted-house caretakers",
+      "van insurance for four teenagers and a dog",
+    ],
+  },
+  {
+    id: 25,
     name: "Garfield",
     from: "Garfield",
     level: "HARD",
@@ -522,7 +353,7 @@ export const ROUNDS: Round[] = [
     ],
   },
   {
-    id: 39,
+    id: 26,
     name: "Bugs Bunny",
     from: "Looney Tunes",
     level: "HARD",
@@ -535,7 +366,7 @@ export const ROUNDS: Round[] = [
     ],
   },
   {
-    id: 40,
+    id: 27,
     name: "Link",
     from: "The Legend of Zelda",
     level: "HARD",
@@ -548,7 +379,7 @@ export const ROUNDS: Round[] = [
     ],
   },
   {
-    id: 41,
+    id: 28,
     name: "Steve",
     from: "Minecraft",
     level: "HARD",
@@ -561,7 +392,7 @@ export const ROUNDS: Round[] = [
     ],
   },
   {
-    id: 42,
+    id: 29,
     name: "Dora",
     from: "Dora the Explorer",
     level: "HARD",
@@ -574,7 +405,7 @@ export const ROUNDS: Round[] = [
     ],
   },
   {
-    id: 43,
+    id: 30,
     name: "Sherlock Holmes",
     from: "Sherlock Holmes stories",
     level: "HARD",
@@ -584,97 +415,6 @@ export const ROUNDS: Round[] = [
       "best violin for thinking",
       "apartment at 221B rent",
       "my partner keeps publishing stories about my cases",
-    ],
-  },
-  {
-    id: 44,
-    name: "Wile E. Coyote",
-    from: "Looney Tunes",
-    level: "HARD",
-    hint: ["🌵", "💥"],
-    searches: [
-      "why do my plans always end at the bottom of a canyon",
-      "how to order a giant magnet by mail",
-      "painted tunnel on a rock wall: will it work",
-      "how to catch a bird that outruns every car",
-    ],
-  },
-  {
-    id: 45,
-    name: "Mike Wazowski",
-    from: "Monsters, Inc.",
-    level: "HARD",
-    hint: ["👁️", "🟢"],
-    searches: [
-      "best sunglasses for one giant eye",
-      "why does my scare partner never listen",
-      "best friend is big, blue and covered in fur",
-      "round green monster with one eye needs a job",
-    ],
-  },
-  {
-    id: 46,
-    name: "Gandalf",
-    from: "The Lord of the Rings",
-    level: "HARD",
-    hint: ["🧙", "🔥"],
-    searches: [
-      "how to arrive exactly when everyone needs me",
-      "best pointy hat for a traveling wizard",
-      "how to block a bridge using only a staff",
-      "help a short guy with hairy feet carry a ring",
-    ],
-  },
-  {
-    id: 47,
-    name: "Charlie Brown",
-    from: "Peanuts",
-    level: "HARD",
-    hint: ["🏈", "🐶"],
-    searches: [
-      "how to cheer up a boy who never wins",
-      "why does my friend always pull the football away",
-      "my dog thinks he's a pilot fighting a baron",
-      "best sad little tree for a holiday special",
-    ],
-  },
-  {
-    id: 48,
-    name: "Kirby",
-    from: "Kirby",
-    level: "HARD",
-    hint: ["🌸", "💨"],
-    searches: [
-      "can you vacuum up enemies on purpose",
-      "how to copy the powers of what I swallow",
-      "best pink paint for a small round hero",
-      "pink puffball who inhales everything in sight",
-    ],
-  },
-  {
-    id: 49,
-    name: "Indiana Jones",
-    from: "Indiana Jones",
-    level: "HARD",
-    hint: ["🐍", "🗿"],
-    searches: [
-      "how to swap a golden idol without setting off a trap",
-      "why are there always snakes",
-      "how to outrun a giant rolling boulder",
-      "best whip and fedora combo for a treasure hunter",
-    ],
-  },
-  {
-    id: 50,
-    name: "Ash Ketchum",
-    from: "Pokémon",
-    level: "HARD",
-    hint: ["🧢", "🔴"],
-    searches: [
-      "why am I still ten years old after all these seasons",
-      "best hat for someone traveling to every region",
-      "how to catch a creature with a small red and white ball",
-      "my yellow best friend refuses to stay in his ball",
     ],
   },
 ];
@@ -715,30 +455,6 @@ export const BONUS: Bonus[] = [
     ],
     options: ["Pac-Man", "Sonic", "Mario", "Link"],
     correctIndex: 0,
-  },
-  {
-    afterRound: 40,
-    answer: "Po",
-    from: "Kung Fu Panda",
-    searches: [
-      "why do stairs feel harder when you are round",
-      "my dad is a goose and I'm a panda",
-      "can a panda become a kung fu master",
-    ],
-    options: ["Baloo", "Po", "Yogi Bear", "Fozzie Bear"],
-    correctIndex: 1,
-  },
-  {
-    afterRound: 50,
-    answer: "Olaf",
-    from: "Frozen",
-    searches: [
-      "how to enjoy summer when I'm made of snow",
-      "best carrot replacements for a missing nose",
-      "my big sister can freeze a whole kingdom",
-    ],
-    options: ["Frosty the Snowman", "Jack Frost", "Olaf", "Casper"],
-    correctIndex: 2,
   },
 ];
 

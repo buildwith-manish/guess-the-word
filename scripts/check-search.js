@@ -15,7 +15,7 @@ const mod = { exports: {} };
 new Function("module", "exports", out.outputFiles[0].text)(mod, mod.exports);
 const { ROUNDS, BONUS } = mod.exports;
 
-const EXPECT = { rounds: 50, levels: { EASY: 16, MEDIUM: 17, HARD: 17 }, bonus: 5, after: [10, 20, 30, 40, 50] };
+const EXPECT = { rounds: 30, levels: { EASY: 10, MEDIUM: 10, HARD: 10 }, bonus: 3, after: [10, 20, 30] };
 const results = []; // { name, ok, detail }
 const check = (name, problems) =>
   results.push({ name, ok: problems.length === 0, detail: problems.join("; ") });

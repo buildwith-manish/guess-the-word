@@ -50,7 +50,7 @@ const rows = files.map(([r, f], i) => {
   return { round: r, file: f, opaque: opaqueTxt[i] || '-', status: probs.length ? 'FAIL: ' + probs.join(', ') : 'ok' };
 });
 console.table(rows);
-const missing = []; for (let r = 1; r <= 50; r++) if (!manifest[String(r)]) missing.push(r);
-console.log(`rounds in manifest: ${Object.keys(manifest).length}/50; failing files: ${fail}`);
+const missing = []; for (let r = 1; r <= 30; r++) if (!manifest[String(r)]) missing.push(r);
+console.log(`rounds in manifest: ${Object.keys(manifest).length}/30; failing files: ${fail}`);
 console.log('rounds missing: ' + (missing.length ? missing.join(', ') : 'none'));
 process.exit(fail ? 1 : 0);

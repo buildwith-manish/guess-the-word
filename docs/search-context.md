@@ -98,10 +98,10 @@ Read from the GTW files on this branch (grep and short reads; bodies not read in
 | searchAt | 4 fractions of the clock | 0.04, 0.26, 0.48, 0.7 (clue 1 to clue 4) |
 | hintAt | fraction of the clock | 0.82 (the 2-emoji hint) |
 | reveal | `{ minHoldSeconds }` | 2.5 |
-| bonus | `{ after[], clockSeconds, answerHoldTicks, theme }` | after rounds 10, 20, 30, 40, 50; clock 9 s; answer hold 75 ticks; theme `#FF8A3D` / `#2B1204` (GTW bonus theme) |
+| bonus | `{ after[], clockSeconds, answerHoldTicks, theme }` | after rounds 10, 20, 30; clock 9 s; answer hold 75 ticks; theme `#FF8A3D` / `#2B1204` (GTW bonus theme) |
 | reminder | `{ after[], ticks }` | after rounds 8 and 22; 51 ticks (GTW value) |
 | levelCardFrames | ticks | 72 (GTW value) |
-| ranks | `[{ name, min, accent }]` | LEGEND 45, EXPERT 35, GOOD 25, BEGINNER 15, KEEP GOING 0 (out of 55 = 50 rounds + 5 bonus) (`min` = lowest score for the rank; accents are GTW's rank colours) |
+| ranks | `[{ name, min, accent }]` | LEGEND 27, EXPERT 21, GOOD 15, BEGINNER 9, KEEP GOING 0 (out of 33 = 30 rounds + 3 bonus) (`min` = lowest score for the rank; accents are GTW's rank colours) |
 | typing | `{ ticksPerChar, minTicks }` | 2 ticks per character, at least 12 ticks per search |
 | nextVideo | `{ title, linkText }` | both empty for now |
 

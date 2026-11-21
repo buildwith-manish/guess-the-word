@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Cut hint sheets (sheet-01.png..sheet-10.png, 5 cols x 2 rows) into transparent 512x512 PNGs.
-Sheet k, column c -> round 5(k-1)+c. Top row = image 1, bottom row = image 2.
+Sheet k, column c -> sheet position 5(k-1)+c, then POS_TO_ID gives the round id (30-round layout). Top row = image 1, bottom row = image 2.
 Usage: python3 scripts/search-hints-cut.py [--src DIR] [--out public/search/hints] [--manifest src/search/hint-images.json]
 Needs: pillow numpy scipy. No network."""
 import argparse, json, os, sys, glob
@@ -61,9 +61,14 @@ def split_components(a):
 # Cells where white INSIDE the outline is really a hole or trapped sticker rim, not part of the object.
 # value = minimum size of an enclosed pale region (fraction of the object's bbox) that is made transparent.
 HOLE_CELLS = {'hint-01-2': 0.002,  # spider web gaps
-              'hint-25-1': 0.03,   # donut hole
-              'hint-33-2': 0.01,   # microphone: sticker rim trapped in the cable loop
-              'hint-35-1': 0.03}   # gold ring hole
+              'hint-19-1': 0.03,   # donut hole
+              'hint-21-1': 0.03}   # gold ring hole
+
+# The sheets were cut for 50 rounds (position 1-50). The video now has 30 rounds, so each sheet position maps to the
+# round id it has today; positions of removed rounds map to None and are skipped.
+POS_TO_ID = {1:1,2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:9,10:10,
+             17:11,18:12,19:13,20:14,21:15,24:16,23:17,22:18,25:19,26:20,
+             35:21,36:22,37:23,34:24,38:25,39:26,40:27,41:28,42:29,43:30}
 
 def remove_bg(rgb, hole_frac=0):
     """Flood fill white from the border only; return RGBA + fraction of bbox area lost to leaks."""
@@ -127,7 +132,8 @@ def main():
             report['failed_sheets'][k] = 'could not find exactly 10 objects'; continue
         report['sheets'][k] = {'mode': mode, 'size': im.size}
         for c, r, (x0, y0, x1, y1) in cells:
-            rid = 5 * (k - 1) + c + 1
+            rid = POS_TO_ID.get(5 * (k - 1) + c + 1)
+            if rid is None: continue
             pad = 6
             crop = a[max(0, y0 - pad):y1 + pad, max(0, x0 - pad):x1 + pad]
             crop = np.pad(crop, ((4, 4), (4, 4), (0, 0)), constant_values=255)  # guarantee white border for flood fill
@@ -136,7 +142,7 @@ def main():
             if lost > LEAK_LIMIT: report['flags'].append({'file': f'hint-{rid:02d}-{r+1}.png', 'why': f'leak {lost:.0%}'})
             finish(rgba).save(os.path.join(A.out, f'hint-{rid:02d}-{r+1}.png'))
     man = {}
-    for rid in range(1, 51):
+    for rid in range(1, 31):
         p = [f'hint-{rid:02d}-{i}.png' for i in (1, 2)]
         if all(os.path.exists(os.path.join(A.out, x)) for x in p): man[str(rid)] = p
     json.dump(man, open(A.manifest, 'w'), indent=2)
