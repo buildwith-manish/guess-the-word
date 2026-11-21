@@ -12,7 +12,6 @@ import { HintClue } from '../components/HintClue';
 import { AnswerCard, answerCardHeight } from '../components/AnswerCard';
 import { AnswerPicture, answerPictureHeightShare } from '../components/AnswerPicture';
 import settings from '../search-settings.json';
-import { ProgressDots } from '../components/ProgressDots';
 import { useDesignFrame } from '../../clock';
 
 /**
@@ -28,7 +27,7 @@ import { useDesignFrame } from '../../clock';
  *
  * Question phase: search bar and recent list in the middle, four searches typed at plan.searchAt (each slides
  * into the list, which keeps the last RECENT_VISIBLE), hint pair under the list, timer at the bottom.
- * Reveal phase: everything else fades out (question side, HUD pill, dots). If answer-images.json has a picture for the
+ * Reveal phase: everything else fades out (question side, HUD pill). If answer-images.json has a picture for the
  * round, only that picture is shown, large (AnswerPicture; the name only when settings reveal.showName is true).
  * Without a picture the text answer card stamps in instead.
  */
@@ -78,7 +77,7 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
   const dimK = easeOut((frame - revealAt) / (DIM_SECONDS * FPS));
   const searchOpacity = Math.min(1, slideK) * (1 - dimK);
   const answerImage = (answerImages as Record<string, string>)[String(round.id)];
-  // With a picture, the reveal is the picture alone: the HUD pill and the dots clear as well.
+  // With a picture, the reveal is the picture alone: the HUD pill clears as well.
   const chromeOpacity = answerImage ? 1 - dimK : 1;
 
   // Tension (task 8c): an accent vignette that builds over the clock, scaled by how hard the level is
@@ -86,10 +85,6 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
   const levelWeight = LEVELS.length > 1 ? Math.max(0, LEVELS.findIndex((l) => l.name === level.name)) / (LEVELS.length - 1) : 0;
   const clockProgress = clamp01((frame - shift(plan.clockStart)) / Math.max(1, plan.clockFrames));
   const tension = levelWeight * clockProgress * clockProgress * (1 - dimK);
-
-  // Progress dots: the current round pulses until the reveal, then counts as finished.
-  const dotsIndex = frame >= revealAt ? index + 1 : index;
-  const colorOfRound = (i: number) => (LEVELS.find((l) => l.name === ROUNDS[i].level) ?? level).accent;
 
   return (
     <SearchStage
@@ -181,19 +176,6 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
           </>
           );
         },
-      }}
-      dots={{
-        children: (rect) => (
-          <div style={{ position: 'absolute', inset: 0, opacity: chromeOpacity }}>
-            <ProgressDots
-              index={dotsIndex}
-              total={ROUNDS.length}
-              levelOf={colorOfRound}
-              at={{ x: rect.x, y: rect.y }}
-              size={rect.w}
-            />
-          </div>
-        ),
       }}
       // The hold (plan.holdFrames: settings minimum, stretched by a voiceover clip) is part of the scene
       // duration, so the card simply stays up until the scene ends.

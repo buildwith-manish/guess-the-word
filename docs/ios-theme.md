@@ -22,5 +22,5 @@ Tick and pop do not duck the music; the chime does, like every other reveal soun
 
 To use recordings of your own: save them under the same names as 16-bit or 32-bit float `.wav`, then run `npm run search:sounds`. That writes `src/search/search-sound-files.json` (which clips exist, and how long). A clip listed as missing plays the older clip instead (`IOS_FALLBACK`: key-click, send, ding), so a missing file never fails a render. `npm run sounds` writes the default clips back over your files.
 
-Opted in so far: search-history round screen (search field, recents, timer, dots, HUD pill, answer reveal).
+Opted in so far: search-history round screen (search field, recents, timer, HUD pill, answer reveal; no progress dots).
 Not yet: hook, level cards, bonus, scoreboard, end screen, hint tiles (search-history), and the other videos.

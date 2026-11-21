@@ -1,7 +1,8 @@
 import React from 'react';
-import { AbsoluteFill } from 'remotion';
+import { AbsoluteFill, Sequence } from 'remotion';
 import { CameraMotionBlur } from '@remotion/motion-blur';
 import { useDesignFrame } from '../clock';
+import { TIME_SCALE } from '../timing';
 import { CameraRig } from '../CameraRig';
 import rootSettings from '../../settings.json';
 import searchSettings from './search-settings.json';
@@ -52,44 +53,56 @@ const Scenes: React.FC = () => {
       <>{children}</>
     );
 
-  switch (seg.kind) {
-    case 'hook':
-      return <AbsoluteFill>{rig(<SearchHook frame={local} duration={seg.duration} />)}</AbsoluteFill>;
-    case 'levelCard':
-      return <AbsoluteFill>{rig(<SearchLevelCard frame={local} levelIndex={seg.levelIndex} duration={seg.duration} />)}</AbsoluteFill>;
-    case 'round':
-      return (
-        <AbsoluteFill>
-          <BlurWrap>
-            <SearchRound frame={local + (seg.lead ?? 0)} index={seg.index} lead={seg.lead ?? 0} />
-          </BlurWrap>
-        </AbsoluteFill>
-      );
-    case 'bonus':
-      return (
-        <AbsoluteFill>
-          <BlurWrap>{rig(<SearchBonus frame={local} index={seg.index} />)}</BlurWrap>
-        </AbsoluteFill>
-      );
-    case 'reminder':
-      return <AbsoluteFill>{rig(<SearchReminder frame={local} seg={seg} />)}</AbsoluteFill>;
-    case 'iris': {
-      // overlap: the next round's content plays inside the last `lead` ticks of the transition
-      const next = TIMELINE.segments[index + 1];
-      const nextRound = next && next.kind === 'round' ? { index: next.index, lead: next.lead ?? 0 } : undefined;
-      return (
-        <AbsoluteFill>
-          <SearchIris frame={local} seg={seg} next={nextRound} />
-        </AbsoluteFill>
-      );
+  const scene = (): React.ReactNode => {
+    switch (seg.kind) {
+      case 'hook':
+        return <AbsoluteFill>{rig(<SearchHook frame={local} duration={seg.duration} />)}</AbsoluteFill>;
+      case 'levelCard':
+        return <AbsoluteFill>{rig(<SearchLevelCard frame={local} levelIndex={seg.levelIndex} duration={seg.duration} />)}</AbsoluteFill>;
+      case 'round':
+        return (
+          <AbsoluteFill>
+            <BlurWrap>
+              <SearchRound frame={local} index={seg.index} lead={seg.lead ?? 0} />
+            </BlurWrap>
+          </AbsoluteFill>
+        );
+      case 'bonus':
+        return (
+          <AbsoluteFill>
+            <BlurWrap>{rig(<SearchBonus frame={local} index={seg.index} />)}</BlurWrap>
+          </AbsoluteFill>
+        );
+      case 'reminder':
+        return <AbsoluteFill>{rig(<SearchReminder frame={local} seg={seg} />)}</AbsoluteFill>;
+      case 'iris': {
+        // overlap: the next round's content plays inside the last `lead` ticks of the transition
+        const next = TIMELINE.segments[index + 1];
+        const nextRound = next && next.kind === 'round' ? { index: next.index, lead: next.lead ?? 0 } : undefined;
+        return (
+          <AbsoluteFill>
+            <SearchIris frame={local} seg={seg} next={nextRound} />
+          </AbsoluteFill>
+        );
+      }
+      case 'scoreboard':
+        return <AbsoluteFill>{rig(<SearchScoreboard frame={local} />)}</AbsoluteFill>;
+      case 'endScreen':
+        return <AbsoluteFill>{rig(<SearchEndScreen frame={local} />)}</AbsoluteFill>;
+      default:
+        return <AbsoluteFill style={{ background: '#000' }} />;
     }
-    case 'scoreboard':
-      return <AbsoluteFill>{rig(<SearchScoreboard frame={local} />)}</AbsoluteFill>;
-    case 'endScreen':
-      return <AbsoluteFill>{rig(<SearchEndScreen frame={local} />)}</AbsoluteFill>;
-    default:
-      return <AbsoluteFill style={{ background: '#000' }} />;
-  }
+  };
+
+  // Every scene is planned in ticks counted from its own start, and the components inside it (timer, search bar,
+  // hint pair, answer) read the Remotion clock themselves. So each scene sits in a Sequence that starts where it
+  // does; without it they read the clock of the whole video and drew every round already finished (timer at 0,
+  // all searches typed). ceil = the first frame locate() puts in this scene.
+  return (
+    <Sequence key={index} from={Math.ceil(seg.from * TIME_SCALE)} layout="none">
+      {scene()}
+    </Sequence>
+  );
 };
 
 /** Scenes + the audio plan (src/search/search-sound.ts). */
