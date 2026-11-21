@@ -19,6 +19,11 @@
  *                           the three music loops (named in StateSoundtrack.tsx) exist
  *   6 voiceover files       every file named in states-voiceover-manifest.json and in STATE_VOICE exists in
  *                           public/<voiceover dir> (an empty manifest passes with 0 clips)
+ *   8 capital row fits      for all 50 states, at every card width the reveal uses (WIDTH x REVEAL.cardW and S.resultW,
+ *                           both capped to the safe area), the capital row after capital-fit.ts has scaled / stacked it
+ *                           is re-measured with the real Poppins files (fontkit) and must be <= innerW (card width minus
+ *                           2 x padX); the state name (Anton) and the key chip + voice bars are checked the same way;
+ *                           prints the tightest state and its scale factor
  *   7 question order        the 50 question segments are indices 0..49 in order, ids 1..50, level = states-data level,
  *                           levels never go back, and a level card comes right before each level's first question
  */
@@ -38,7 +43,7 @@ const load = async () => {
     await esbuild.build({
       stdin: {
         contents:
-          "export * as T from './src/states/state-timing.ts'; export * as S from './src/states/state-sound.ts'; export * as D from './src/states/states-data.ts';",
+          "export * as T from './src/states/state-timing.ts'; export * as S from './src/states/state-sound.ts'; export * as D from './src/states/states-data.ts'; export * as C from './src/states/capital-fit.ts'; export * as ST from './src/style.ts';",
         resolveDir: ROOT,
         loader: 'ts',
       },
@@ -68,7 +73,7 @@ const check = (name, fn) => {
 };
 
 (async () => {
-  const { T, S, D } = await load();
+  const { T, S, D, C, ST } = await load();
   const segs = T.TIMELINE.segments;
   const total = T.TIMELINE.totalFrames;
   const soundDir = path.join(ROOT, 'public', 'sounds');
@@ -251,6 +256,94 @@ const check = (name, fn) => {
     });
     const per = T.LEVELS.map((l) => `${l.name} ${qs.filter((s) => T.QUESTIONS[s.index].level === l.name).length}`).join(', ');
     return { problems, info: `${qs.length} questions in order 1..${qs.length}, levels ascend (${per})` };
+  });
+
+
+  check('8 capital row fits the card (all 50 states)', () => {
+    const problems = [];
+    const fontkit = require('fontkit');
+    const fontFile = { 'Poppins-600': 'Poppins-SemiBold.woff2', 'Poppins-800': 'Poppins-ExtraBold.woff2', 'Anton-400': 'Anton-Regular.woff2' };
+    const fonts = {};
+    const font = (family, weight) => {
+      const k = `${family}-${weight}`;
+      if (!fonts[k]) fonts[k] = fontkit.openSync(path.join(ROOT, 'public', 'fonts', fontFile[k]));
+      return fonts[k];
+    };
+    // same signature as the render's measureText: width of `text` in px (kerning on, letter-spacing added per glyph)
+    const measure = (text, o) => {
+      const fam = o.fontFamily.includes('Anton') ? 'Anton' : 'Poppins';
+      const f = font(fam, fam === 'Anton' ? 400 : o.fontWeight);
+      const run = f.layout(text);
+      return (run.advanceWidth * o.fontSize) / f.unitsPerEm + o.letterSpacing * [...text].length;
+    };
+    const body = ST.FONTS.body;
+    const display = ST.FONTS.display;
+    // layout constants read from the card source so the check follows the card
+    const src = fs.readFileSync(path.join(ROOT, 'src', 'states', 'components', 'AnswerCard.tsx'), 'utf8');
+    const num = (k) => Number(new RegExp(`${k}:\\s*([0-9.]+)`).exec(src.split('const LOOK')[1])[1]);
+    const LOOK = { padX: num('padX'), chipFont: num('chipFont'), chipSpacing: num('chipSpacing'), chipPadX: num('chipPadX'), barsW: num('barsW'), barsGap: num('barsGap') };
+    const maxW = T.WIDTH - 2 * ST.SAFE_X;
+    const revealSrc = fs.readFileSync(path.join(ROOT, 'src', 'states', 'scenes', 'StateRound.tsx'), 'utf8');
+    const cardFrac = Number(/REVEAL\s*=\s*\{\s*cardW:\s*([0-9.]+)/.exec(revealSrc)[1]);
+    const widths = [
+      { label: `reveal column ${(T.WIDTH * cardFrac).toFixed(0)}px`, box: { x: ST.SAFE_X, w: T.WIDTH * cardFrac } },
+      { label: `default S.resultW ${ST.S.resultW}px`, box: undefined },
+    ];
+    const lines = [];
+    let tight = null;
+    widths.forEach((cfg) => {
+      const cardW = Math.min(cfg.box ? cfg.box.w : ST.S.resultW, maxW);
+      const innerW = cardW - 2 * ST.px(LOOK.padX);
+      if (cfg.box && cfg.box.x + cardW > T.WIDTH - ST.SAFE_X + 0.01) problems.push(`${cfg.label}: card right edge ${(cfg.box.x + cardW).toFixed(1)} past the safe margin ${T.WIDTH - ST.SAFE_X}`);
+      if (cfg.box && cfg.box.x < ST.SAFE_X - 0.01) problems.push(`${cfg.label}: card left edge inside the safe margin`);
+      let stacked = 0;
+      D.STATES.forEach((st) => {
+        const fit = C.fitCapitalRow({ label: 'CAPITAL', capital: st.capital, innerW, fontFamily: body, measure });
+        // independent re-measure of what is painted: label + margin + value inline, or the wider of the two stacked lines
+        const K = fit.valueSize / ST.px(C.CAPITAL_LOOK.font);
+        const labelW = measure('CAPITAL', { fontFamily: body, fontWeight: C.CAPITAL_LOOK.labelWeight, fontSize: fit.labelSize, letterSpacing: fit.labelSpacing });
+        const valueW = measure(st.capital, { fontFamily: body, fontWeight: C.CAPITAL_LOOK.valueWeight, fontSize: fit.valueSize, letterSpacing: 0 });
+        const painted = fit.mode === 'inline' ? labelW + fit.labelMargin + valueW : Math.max(labelW, valueW);
+        if (fit.mode === 'stacked') stacked++;
+        if (painted > innerW + 0.01) problems.push(`${st.key} ${st.capital} @ ${cfg.label}: capital row ${painted.toFixed(1)}px > innerW ${innerW.toFixed(1)}px`);
+        if (fit.mode === 'inline' && fit.scale < C.CAPITAL_LOOK.minScale - 1e-9) problems.push(`${st.key} ${st.capital}: inline scale ${fit.scale.toFixed(3)} below the minimum`);
+        if (fit.mode === 'stacked' && fit.scale < C.CAPITAL_LOOK.minScale - 1e-9) problems.push(`${st.key} ${st.capital} @ ${cfg.label}: stacked value scale ${fit.scale.toFixed(3)} below the minimum`);
+        if (fit.height <= 0 || !Number.isFinite(fit.height)) problems.push(`${st.key}: bad reserved height ${fit.height}`);
+        const ratio = painted / innerW;
+        if (!tight || ratio > tight.ratio) tight = { ratio, st, fit, cfg: cfg.label, painted, innerW };
+        // state name (Anton): sized by fitNameSize; re-measured at its flash peak (scale 1 + NAME_LOOK.flash) it must still fit
+        const name = st.name.toUpperCase();
+        const nameSize = C.fitNameSize(name, innerW, display, measure).size;
+        const nameW = measure(name, { fontFamily: display, fontWeight: 400, fontSize: nameSize, letterSpacing: 0 }) * (1 + C.NAME_LOOK.flash);
+        if (nameW > innerW + 0.01) problems.push(`${st.key} name ${st.name} @ ${cfg.label}: ${nameW.toFixed(1)}px > innerW ${innerW.toFixed(1)}px`);
+      });
+      // key chip vs voice bars: chip is centred, bars sit in the right inset; they must not touch for any key
+      D.STATES.forEach((st) => {
+        const chipW = measure(st.key, { fontFamily: body, fontWeight: 800, fontSize: ST.px(LOOK.chipFont), letterSpacing: ST.px(LOOK.chipSpacing) }) + 2 * ST.px(LOOK.chipPadX);
+        const b = C.fitVoiceBars(cardW, chipW, ST.px(LOOK.padX * 0.6), ST.px(LOOK.barsW), ST.px(LOOK.barsGap));
+        const barsLeft = cardW - ST.px(LOOK.padX * 0.6) - b.width;
+        const chipRight = cardW / 2 + chipW / 2;
+        if (b.show && barsLeft < chipRight + 1) problems.push(`${st.key} @ ${cfg.label}: voice bars (left ${barsLeft.toFixed(1)}) touch the chip (right ${chipRight.toFixed(1)})`);
+        if (!b.show) problems.push(`${st.key} @ ${cfg.label}: voice bars hidden (no room beside the chip)`);
+      });
+      lines.push(`${cfg.label}: innerW ${innerW.toFixed(0)}px, ${stacked} stacked`);
+    });
+    // stress: the stacked fallback is not reached at the two real widths, so prove it on a deliberately narrow card
+    const narrowInner = 520;
+    let nStack = 0;
+    D.STATES.forEach((st) => {
+      const fit = C.fitCapitalRow({ label: 'CAPITAL', capital: st.capital, innerW: narrowInner, fontFamily: body, measure });
+      const labelW = measure('CAPITAL', { fontFamily: body, fontWeight: C.CAPITAL_LOOK.labelWeight, fontSize: fit.labelSize, letterSpacing: fit.labelSpacing });
+      const valueW = measure(st.capital, { fontFamily: body, fontWeight: C.CAPITAL_LOOK.valueWeight, fontSize: fit.valueSize, letterSpacing: 0 });
+      const painted = fit.mode === 'inline' ? labelW + fit.labelMargin + valueW : Math.max(labelW, valueW);
+      if (fit.mode === 'stacked') nStack++;
+      if (painted > narrowInner + 0.01) problems.push(`stress ${st.key} ${st.capital}: ${painted.toFixed(1)}px > ${narrowInner}px (${fit.mode})`);
+    });
+    if (nStack === 0) problems.push('stress: no capital stacked at innerW 520, the stacked branch is untested');
+    lines.push(`stress innerW ${narrowInner}px: ${nStack} stacked, all fit`);
+    const t = tight;
+    const info = `${D.STATES.length} capitals x ${widths.length} widths fit; ${lines.join('; ')}; tightest: ${t.st.key} ${t.st.capital} @ ${t.cfg}, ${t.fit.mode}, scale ${t.fit.scale.toFixed(3)}, ${t.painted.toFixed(0)}/${t.innerW.toFixed(0)}px (${(t.ratio * 100).toFixed(1)}%)`;
+    return { problems, info };
   });
 
   // table
