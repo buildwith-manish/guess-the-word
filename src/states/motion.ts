@@ -122,3 +122,15 @@ export const leave = (frame: number, start: number, dur: number, dist = 10): Lea
   const t = iosOut((frame - start) / Math.max(1, dur));
   return { t, opacity: 1 - t, transform: `translateY(${-t * px(dist)}px) scale(${1 - 0.02 * t})` };
 };
+
+/**
+ * Spring progress that reaches exactly 1 at `start + dur`: for moves with a fixed window (outline draw, map move, shape
+ * flight) where the timeline must not change. It eases in AND out (a spring starts at zero speed), unlike iosOut, which
+ * starts at full speed and is only for fades, wipes and exits. Windows shorter than the preset's settle time end a
+ * little early on a slightly steeper tail; give travel moves 18+ ticks.
+ */
+export const sprFit = (frame: number, start: number, dur: number, preset: SpringName = 'normal'): number => {
+  const v = spr(frame, start, preset);
+  const end = spr(start + Math.max(1, dur), start, preset);
+  return clamp01(end > 0 ? v / end : v);
+};

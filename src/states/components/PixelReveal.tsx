@@ -6,7 +6,8 @@
  */
 import React, { useMemo } from 'react';
 import { useDesignFrame } from '../../clock';
-import { prog, cssEaseInOut } from '../../anim';
+import { prog } from '../../anim';
+import { iosOut } from '../motion';
 import { COLORS } from '../../style';
 import { SHAPE_BOX, getShape } from '../geo';
 import { StateShape } from './StateShape';
@@ -68,7 +69,7 @@ export const PixelReveal: React.FC<PixelRevealProps> = ({ stateKey, size, progre
   );
 
   const stage = Math.min(grids.length - 1, Math.floor(Math.max(0, Math.min(1, progress)) * grids.length));
-  const fade = prog(f, at, dur, cssEaseInOut);
+  const fade = prog(f, at, dur, iosOut);
 
   return (
     <div style={{ position: 'relative', width: size, height: size }}>

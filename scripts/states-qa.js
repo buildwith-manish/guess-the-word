@@ -26,6 +26,8 @@
  *                           prints the tightest state and its scale factor
  *   9 bonus chips + stamp   every state's name / capital / nickname fits a bonus answer chip (shrinking to 72% at most) and the
  *                           capital / nickname stamp (to its minimum size), measured with the same Inter files; prints the tightest
+ *  10 HUD pill vs title   the level pill (name + n / 50, measured) ends at least 16 ref px before the GUESS THE STATE lockup starts, for
+ *                           every level and number; the stage and the wipe use the same pill size
  *   7 question order        the 50 question segments are indices 0..49 in order, ids 1..50, level = states-data level,
  *                           levels never go back, and a level card comes right before each level's first question
  */
@@ -394,6 +396,36 @@ const check = (name, fn) => {
     });
     const info = `${D.STATES.length} states x name/capital/nickname fit a chip (${shrunk} shrink, none cut off); tightest chip: ${tightChip.st.key} ${tightChip.kind}, scale ${tightChip.size.toFixed(2)}; smallest stamp: ${tightStamp.st.key} ${tightStamp.kind}, scale ${tightStamp.size.toFixed(2)}`;
     return { problems, info };
+  });
+
+  check('10 HUD pill clear of the title (every level, every number)', () => {
+    const problems = [];
+    const stage = fs.readFileSync(path.join(ROOT, 'src', 'states', 'components', 'StateStage.tsx'), 'utf8');
+    const iris = fs.readFileSync(path.join(ROOT, 'src', 'states', 'scenes', 'StateIris.tsx'), 'utf8');
+    const num = (txt, k) => Number(new RegExp(`${k}:\\s*([0-9.]+)`).exec(txt)[1]);
+    const lay = stage.split('const LAYOUT')[1];
+    const hud = { font: num(lay, 'hudFont'), padX: num(lay, 'hudPadX'), gap: num(lay, 'hudGap') };
+    const irisHud = iris.split('const HUD_LOOK')[1];
+    if (num(irisHud, 'font') !== hud.font || num(irisHud, 'padX') !== hud.padX || num(irisHud, 'gap') !== hud.gap) problems.push('StateIris HUD_LOOK differs from StateStage LAYOUT (the pill must look the same in the wipe)');
+    // lockup width: Inter bold letters at 62 ref px, -1 px letter-spacing, 2 px between letters, 30 px between words (StateTitleLockup)
+    const u = ST.px;
+    const words = ['GUESS', 'THE', 'STATE'];
+    const wordW = (w) => [...w].reduce((a, ch) => a + measure(ch, { fontFamily: IOSM.IOS.font, fontWeight: 700, fontSize: u(62), letterSpacing: -u(1) }), 0) + u(2) * (w.length - 1);
+    const lockupW = words.reduce((a, w) => a + wordW(w), 0) + 2 * u(30);
+    const lockupLeft = (T.WIDTH - lockupW) / 2;
+    const minGap = u(16);
+    let worst = null;
+    T.LEVELS.forEach((l) => {
+      for (let n = 1; n <= T.TOTAL; n++) {
+        const nameW = measure(l.name, { fontFamily: IOSM.IOS.font, fontWeight: 600, fontSize: u(hud.font), letterSpacing: 0 });
+        const numW = measure(`${n} / ${T.TOTAL}`, { fontFamily: IOSM.IOS.font, fontWeight: 600, fontSize: u(hud.font), letterSpacing: 0 });
+        const right = ST.S.hudLeft + 2 * u(hud.padX) + nameW + u(hud.gap) + numW;
+        const gap = lockupLeft - right;
+        if (!worst || gap < worst.gap) worst = { gap, level: l.name, n };
+        if (gap < minGap) problems.push(`${l.name} ${n} / ${T.TOTAL}: HUD pill ends ${right.toFixed(0)}px, title starts ${lockupLeft.toFixed(0)}px (gap ${gap.toFixed(0)}px < ${minGap}px)`);
+      }
+    });
+    return { problems, info: `title starts ${lockupLeft.toFixed(0)}px; tightest pill: ${worst.level} ${worst.n} / ${T.TOTAL}, gap ${worst.gap.toFixed(0)}px (min ${minGap}px)` };
   });
 
   // table

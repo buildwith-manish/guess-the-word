@@ -6,6 +6,8 @@ Nothing in `src/anim.ts`, `src/ios/motion.ts`, `style.ts`, `Background.tsx` or `
 Measured (30 ticks/s): peak overshoot quick 0.33%, normal 0.01%, slow 0%; ticks to settle within 0.1%: quick 18, normal 18, slow 30.
 `slow` therefore needs a window of about 24+ ticks (it is at 89% after 12 ticks); on shorter windows use `normal`. Step 2 checks each move against its window.
 
+Travel moves with a fixed window (outline draw, map in/out, shape flight) use `sprFit()`: a spring normalised to land exactly at the end of the existing window, so nothing in the timeline moves. `iosOut` starts at full speed, so it is only for fades, wipes and exits.
+
 Rules: entrance = `enter()` (spring translate 10-24 px + fade + scale 0.97 -> 1). Exit = `leave()` over `exitTicks(entrance)` (about 70%), iosOut, no bounce.
 Group offsets = `stagger()` (2 ticks by default, clamped to 2-3). Exception: per-letter cascades (title lockup, name reveal) use a 1-tick step because 2 ticks per letter would run past their window.
 
@@ -13,7 +15,7 @@ Group offsets = `stagger()` (2 ticks by default, clamped to 2-3). Exception: per
 |---|---|---|---|
 | **Round (StateRound / StateStage)** | | | |
 | StateStage | slot fade-in (ring, shape, title, mini map) | cssEaseOut, `LAYOUT.fade` | quick enter |
-| StateStage | HUD pill | static | quick enter |
+| StateStage | HUD pill | static | stays static (the wipe draws the same pill, so animating it would pop at the cut) |
 | AnswerCard | card settle (`plan.stamp`) | ios `spring` | normal enter |
 | AnswerCard | chip, then name, then capital (stagger 2) | prog cssEaseOut 280 ms | quick enter each |
 | AnswerCard | voice bars in / out | prog 5 / 6 ticks | quick |
@@ -21,14 +23,14 @@ Group offsets = `stagger()` (2 ticks by default, clamped to 2-3). Exception: per
 | TimerLead | voice label | prog cssEaseOut | quick enter |
 | TimerLead | "get ready" ring settle-in | ios `spring` | normal + settle (peak 1.02) |
 | TimerRing | ring / number | static (clock linear) | none (clock stays linear) |
-| StateRound | outline draw (`drawFrames`) | cssEaseInOut | iosOut |
-| StateRound | reveal: fill, map in (`revealStart` to `stamp`) | cssEaseInOut | iosOut over the window |
-| StateRound | corner-map fly-out | cssEaseInOut | iosOut |
+| StateRound | outline draw (`drawFrames`) | cssEaseInOut | sprFit normal |
+| StateRound | reveal: fill, map in (`revealStart` to `stamp`) | cssEaseInOut | sprFit normal |
+| StateRound | corner-map fly-out | cssEaseInOut | sprFit normal |
 | StateRound | shape-slot fade at reveal | cssEaseOut | leave |
 | StateRound | hint / overlay fade (10 ticks) | cssEaseOut | quick enter |
 | StateRound | streak banner | ios `spring` | normal enter |
 | StateRound | fastest badge | static | quick enter |
-| FlyIn | shape flight along an arc | cssEaseInOut + sin lift | iosOut (arc kept) |
+| FlyIn | shape flight along an arc | cssEaseInOut + sin lift | sprFit normal (arc kept) |
 | PixelReveal / EmojiFill | fades | cssEaseInOut / cssEaseOut | iosOut |
 | MiniMap | accent pulse | sin | slow sine (amplitude cut in Step 4), not a spring |
 | VoiceBars | pop-in | static bars | quick |
@@ -62,3 +64,8 @@ Group offsets = `stagger()` (2 ticks by default, clamped to 2-3). Exception: per
 | NameReveal | letter-by-letter | ios rise | quick per letter (cadence 1.4 ticks) |
 | AnswerStamp (capital / nickname) | stamp card | ios spring | normal + settle |
 | BonusStage | exit (12 ticks) | prog linear | leave |
+
+
+## Done so far
+- Round group (AnswerCard, TimerLead, StateStage slots, StateRound, FlyIn, PixelReveal, EmojiFill): converted.
+- HUD pill made smaller (24 ref px) in the stage and the wipe: at 30 px it overlapped the title on MEDIUM / EXPERT. QA check 10 measures it for every level and number.

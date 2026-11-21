@@ -32,9 +32,10 @@
 import React from 'react';
 import { AbsoluteFill, Audio, Sequence, staticFile } from 'remotion';
 import { useDesignFrame } from '../../clock';
-import { prog, mix, cssEaseInOut, cssEaseOut } from '../../anim';
+import { prog, mix } from '../../anim';
 import { S, SAFE_X, SAFE_Y, px } from '../../style';
-import { IOS, iosSurface, spring } from '../../ios';
+import { IOS, iosSurface } from '../../ios';
+import { enter, iosOut, sprFit } from '../motion';
 import { Watermark } from '../../Watermark';
 import { HEIGHT, WIDTH, TIME_SCALE, buildQuestionPlan, LEVELS, QUESTIONS } from '../state-timing';
 import type { StateQuestionPlan } from '../state-timing';
@@ -65,7 +66,8 @@ const fill: React.CSSProperties = { position: 'absolute', left: 0, top: 0, right
 const StreakBanner: React.FC<{ f: number; plan: StateQuestionPlan }> = ({ f, plan }) => {
   const at = streakAt(plan);
   if (f < at) return null;
-  const t = spring((f - at) / Math.max(1, plan.stamp - plan.revealStart));
+  const e = enter(f, at, 'normal', 18);
+  const t = e.t;
   return (
     <div
       style={{
@@ -75,8 +77,8 @@ const StreakBanner: React.FC<{ f: number; plan: StateQuestionPlan }> = ({ f, pla
         bottom: SAFE_Y,
         padding: `${px(14)}px ${px(36)}px`,
         fontFamily: IOS.font,
-        opacity: Math.min(1, t * 1.4),
-        transform: `translateY(${(1 - t) * px(24)}px)`,
+        opacity: e.opacity,
+        transform: e.transform,
       }}
     >
       <div style={{ display: 'flex', alignItems: 'baseline', gap: px(20) }}>
@@ -121,11 +123,11 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
   const size = L.shape.w;
 
   // stage-in: the outline draws and its glow comes up with it
-  const draw = prog(f, plan.drawStart, plan.drawFrames, cssEaseInOut);
+  const draw = sprFit(f, plan.drawStart, plan.drawFrames, 'normal');
   // clock progress 0 -> 1 (EXPERT grid resolution)
   const clock = prog(f, plan.timerStart, plan.timerFrames);
   // reveal build 0 -> 1: fill, hidden half opens, emoji clue fades out
-  const reveal = prog(f, plan.revealStart, plan.stamp - plan.revealStart, cssEaseInOut);
+  const reveal = sprFit(f, plan.revealStart, plan.stamp - plan.revealStart, 'normal');
   // fly-in: starts when the hold ends, lasts until the end of the round
   const flyAt = plan.exit;
   const flyDur = plan.duration - plan.exit;
@@ -133,8 +135,8 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
   // answer map: grows from the corner map to the right column at the reveal, shrinks back to the corner at flyAt
   const bigW = WIDTH * REVEAL.mapW;
   const big = { x: WIDTH - SAFE_X - bigW, y: L.shape.y + L.shape.h / 2 - miniMapHeight(bigW) / 2, w: bigW };
-  const mapIn = prog(f, plan.revealStart, plan.stamp - plan.revealStart, cssEaseInOut);
-  const mapOut = prog(f, flyAt, flyDur, cssEaseInOut);
+  const mapIn = sprFit(f, plan.revealStart, plan.stamp - plan.revealStart, 'normal');
+  const mapOut = sprFit(f, flyAt, flyDur, 'normal');
   const mapK = mapIn * (1 - mapOut);
   const answerMap = { x: mix(L.miniMap.x, big.x, mapK), y: mix(L.miniMap.y, big.y, mapK), w: mix(L.miniMap.w, big.w, mapK) };
 
@@ -195,7 +197,7 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
         shape: {
           children:
             f < plan.stamp ? (
-              <div style={{ opacity: 1 - prog(f, plan.revealStart, (plan.stamp - plan.revealStart) * 0.5, cssEaseOut) }}>{shapeSlot}</div>
+              <div style={{ opacity: 1 - iosOut((f - plan.revealStart) / ((plan.stamp - plan.revealStart) * 0.5)) }}>{shapeSlot}</div>
             ) : null,
         },
         miniMap: {
@@ -218,7 +220,8 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
                     top: L.title.y + L.title.h + px(24),
                     display: 'flex',
                     justifyContent: 'center',
-                    opacity: prog(f, plan.drawStart, 10, cssEaseOut),
+                    opacity: enter(f, plan.drawStart, 'quick', 12).opacity,
+                    transform: enter(f, plan.drawStart, 'quick', 12).transform,
                   }}
                 >
                   <FastBadge />

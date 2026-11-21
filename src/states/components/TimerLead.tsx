@@ -8,8 +8,7 @@
  * Without a question clip only the get-ready beat and the burst play. Everything is a pure function of the tick.
  */
 import React from 'react';
-import { cssEaseOut, prog } from '../../anim';
-import { spring } from '../../ios';
+import { DUR, enter, settle } from '../motion';
 import { TimerRing } from './TimerRing';
 import { VoicePulse } from './VoiceBars';
 
@@ -36,7 +35,7 @@ export const TimerLead: React.FC<TimerLeadProps> = ({ frame: f, voice, readyStar
   if (f < readyStart) {
     if (!voice) return null;
     return (
-      <div style={{ opacity: prog(f, voice.start - 6, 8, cssEaseOut) }}>
+      <div style={{ opacity: enter(f, voice.start - 6, 'quick', 10).opacity }}>
         <VoicePulse file={voice.file} tick={f - voice.start} accent={accent} size={size} />
       </div>
     );
@@ -44,10 +43,12 @@ export const TimerLead: React.FC<TimerLeadProps> = ({ frame: f, voice, readyStar
 
   // get ready: the full clock ring settles in on the shared spring
   if (f < timerStart) {
-    const beat = Math.max(1, timerStart - readyStart);
-    const k = spring((f - readyStart) / (beat * 0.7));
+    // scale 0.97 -> 1 with one tiny settle (peak 1.015), all inside the get-ready beat
+    const e = enter(f, readyStart, 'normal', 10);
+    const k = e.t;
+    const pop = settle(f, readyStart, DUR.ui, 1.015);
     return (
-      <div style={{ opacity: Math.min(1, k * 1.4), transform: `scale(${0.94 + 0.06 * k})` }}>
+      <div style={{ opacity: e.opacity, transform: `scale(${(0.97 + 0.03 * k) * pop})` }}>
         <TimerRing from={timerStart} duration={timerFrames} accent={accent} size={size} frame={f} />
       </div>
     );

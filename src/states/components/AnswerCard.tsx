@@ -14,8 +14,8 @@
 import React from 'react';
 import { useDesignFrame } from '../../clock';
 import { SAFE_X, SAFE_Y, S, px } from '../../style';
-import { IOS, iosSurface, spring } from '../../ios';
-import { ms, prog, cssEaseIn, cssEaseOut } from '../../anim';
+import { IOS, iosSurface } from '../../ios';
+import { DUR, enter, exitTicks, iosOut, leave, spr, stagger } from '../motion';
 import { VoiceBars } from './VoiceBars';
 import { WIDTH, HEIGHT } from '../state-timing';
 import { getState } from '../states-data';
@@ -82,16 +82,16 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ stateKey, at, accent, bo
   const info = getState(stateKey);
   const fontsReady = useFontsReady('AnswerCard fonts');
 
-  const stampTicks = ms(LOOK.stampMs);
-  const k = spring((f - at) / stampTicks);
-  const settle = { opacity: Math.min(1, k * 1.4), transform: `scale(${0.94 + 0.06 * k})` };
+  // the card settles (normal), then the chip follows 2 ticks later; name and capital come in when they are spoken (quick)
+  const settle = enter(f, at, 'normal', 14);
+  const chipIn = enter(f, at + stagger(1), 'quick', 12);
+  const nameIn = enter(f, nameAt ?? at, 'quick', 18);
+  const capIn = enter(f, capitalAt ?? at, 'quick', 14);
+  const speaking = voice ? spr(f, voice.start - 3, 'quick') * (1 - iosOut((f - (voice.start + voice.frames)) / exitTicks(DUR.uiShort))) : 0;
 
-  // name and capital come in when they are spoken (a short rise + fade)
-  const nameP = prog(f, nameAt ?? at, ms(LOOK.lineMs), cssEaseOut);
-  const capP = prog(f, capitalAt ?? at, ms(LOOK.lineMs), cssEaseOut);
-  const speaking = voice ? prog(f, voice.start - 3, 5, cssEaseOut) * (1 - prog(f, voice.start + voice.frames, 6, cssEaseOut)) : 0;
-
-  const exitOpacity = exit === undefined ? 1 : 1 - prog(f, exit, ms(LOOK.exitMs), cssEaseIn);
+  // exit: about 70% of the entrance, iosOut, no bounce (inside plan.exit .. plan.duration)
+  const out = exit === undefined ? undefined : leave(f, exit, exitTicks(DUR.uiLong), 12);
+  const exitOpacity = out ? out.opacity : 1;
 
   // fit inside the safe area
   const maxW = WIDTH - 2 * SAFE_X;
@@ -147,11 +147,13 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ stateKey, at, accent, bo
           alignItems: 'center',
           textAlign: 'center',
           gap: px(LOOK.gap),
-          transform: settle.transform,
+          transform: `${settle.transform} ${out ? out.transform : ''}`,
         }}
       >
         <div
           style={{
+            opacity: chipIn.opacity,
+            transform: chipIn.transform,
             fontFamily: IOS.font,
             fontWeight: IOS.weight.semibold,
             fontSize: px(LOOK.chipFont),
@@ -182,8 +184,8 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ stateKey, at, accent, bo
             lineHeight: 1,
             whiteSpace: 'nowrap',
             color: IOS.color.label,
-            opacity: nameP,
-            transform: `translateY(${px(18) * (1 - nameP)}px)`,
+            opacity: nameIn.opacity,
+            transform: nameIn.transform,
           }}
         >
           {name}
@@ -202,8 +204,8 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ stateKey, at, accent, bo
             justifyContent: 'center',
             whiteSpace: 'nowrap',
             lineHeight: CAPITAL_LOOK.lineHeight,
-            opacity: capP,
-            transform: `translateY(${px(14) * (1 - capP)}px)`,
+            opacity: capIn.opacity,
+            transform: capIn.transform,
           }}
         >
           {cap.mode === 'inline' ? (

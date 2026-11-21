@@ -10,7 +10,7 @@
  */
 import React from 'react';
 import { useDesignFrame } from '../../clock';
-import { prog, cssEaseInOut } from '../../anim';
+import { sprFit } from '../motion';
 import { COLORS } from '../../style';
 import { getShape, SHAPE_BOX } from '../geo';
 import { getMiniRect } from './MiniMap';
@@ -59,7 +59,7 @@ export const FlyIn: React.FC<FlyInProps> = ({
 }) => {
   const designFrame = useDesignFrame();
   const f = frame ?? designFrame;
-  const p = prog(f, at, dur, cssEaseInOut);
+  const p = sprFit(f, at, dur, 'normal');
 
   const geo = getShape(stateKey);
   const k = from.w / SHAPE_BOX;

@@ -11,7 +11,8 @@ import React, { useId } from 'react';
 import '../../fonts';
 import { useDesignFrame } from '../../clock';
 import { FONTS } from '../../style';
-import { prog, cssEaseOut } from '../../anim';
+import { prog } from '../../anim';
+import { iosOut } from '../motion';
 import { SHAPE_BOX, getShape } from '../geo';
 import { getState } from '../states-data';
 
@@ -58,7 +59,7 @@ export const EmojiFill: React.FC<EmojiFillProps> = ({
   const geo = getShape(stateKey);
   const emoji = getState(stateKey).hintEmoji;
 
-  const a = prog(f, at, fadeTicks, cssEaseOut) * opacity;
+  const a = prog(f, at, fadeTicks, iosOut) * opacity;
   if (a <= 0) return null;
 
   // the counter-rotated grid must still cover the clipped box: side = box * sqrt(2)

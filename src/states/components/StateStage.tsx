@@ -11,7 +11,7 @@ import React from 'react';
 import { useDesignFrame } from '../../clock';
 import { IOS, IosBackground, iosSurface } from '../../ios';
 import { S, SAFE_X, SAFE_Y, px } from '../../style';
-import { prog, cssEaseOut } from '../../anim';
+import { enter } from '../motion';
 import { HEIGHT, LEVELS, TOTAL, WIDTH } from '../state-timing';
 import type { Level } from '../states-data';
 import type { Rect } from './MiniMap';
@@ -65,7 +65,10 @@ const LAYOUT = {
   titleW: 0.4,
   titleH: 80,
   /** HUD pill ref px */
-  hudFont: 30,
+  hudFont: 24,
+  /** HUD pill padding and name/number gap, ref px (kept clear of the title lockup: scripts/states-qa.js check 10) */
+  hudPadX: 20,
+  hudGap: 12,
   /** slot fade length in ticks */
   fade: 10,
 };
@@ -102,7 +105,9 @@ const SlotBox: React.FC<{ rect: Rect; slot?: StageSlot; frame: number; fadeDefau
   if (!slot) return null;
   if (slot.at !== undefined && frame < slot.at) return null;
   const fade = slot.fade ?? fadeDefault;
-  const opacity = fade && slot.at !== undefined ? prog(frame, slot.at, LAYOUT.fade, cssEaseOut) : 1;
+  // slots come in on the quick spring (a short rise + fade + scale 0.97 -> 1); static slots stay as they are
+  const e = fade && slot.at !== undefined ? enter(frame, slot.at, 'quick', 12) : undefined;
+  const opacity = e ? e.opacity : 1;
   return (
     <div
       style={{
@@ -112,6 +117,7 @@ const SlotBox: React.FC<{ rect: Rect; slot?: StageSlot; frame: number; fadeDefau
         width: rect.w,
         height: rect.h,
         opacity,
+        ...(e ? { transform: e.transform } : {}),
         ...(centre ? { display: 'flex', alignItems: 'center', justifyContent: 'center' } : {}),
       }}
     >
@@ -141,10 +147,10 @@ export const StateStage: React.FC<StateStageProps> = ({ level, number, total = T
           position: 'absolute',
           left: S.hudLeft,
           top: S.hudTop,
-          padding: `${px(8)}px ${px(26)}px`,
+          padding: `${px(8)}px ${px(LAYOUT.hudPadX)}px`,
           display: 'flex',
           alignItems: 'baseline',
-          gap: px(14),
+          gap: px(LAYOUT.hudGap),
           fontFamily: IOS.font,
           fontWeight: IOS.weight.semibold,
           fontSize: px(LAYOUT.hudFont),

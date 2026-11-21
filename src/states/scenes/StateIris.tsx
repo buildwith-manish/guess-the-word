@@ -46,7 +46,7 @@ export type StateIrisLook = IrisVariant | 'pixel';
 const PIXEL_WIPE = { cell: 40, noise: 0.6, seed: 4, blipAt: 0.45 };
 
 /** Same look as the HUD pill of StateStage (those constants are private there). */
-const HUD_LOOK = { font: 30, radius: 40 };
+const HUD_LOOK = { font: 24, radius: 40, padX: 20, gap: 12 };
 
 const sameTheme = (a: [string, string], b: [string, string]) => a[0] === b[0] && a[1] === b[1];
 
@@ -93,10 +93,10 @@ export const StateHudPill: React.FC<{ hud: Hud }> = ({ hud }) => {
         position: 'absolute',
         left: S.hudLeft,
         top: S.hudTop,
-        padding: `${px(8)}px ${px(26)}px`,
+        padding: `${px(8)}px ${px(HUD_LOOK.padX)}px`,
         display: 'flex',
         alignItems: 'baseline',
-        gap: px(14),
+        gap: px(HUD_LOOK.gap),
         fontFamily: IOS.font,
         fontWeight: IOS.weight.semibold,
         fontSize: px(HUD_LOOK.font),
