@@ -53,6 +53,8 @@ export type AnswerCardProps = {
   from: string;
   /** Stamp tick. */
   at: number;
+  /** Scene-local tick that `at` is measured on. Omit only when `at` is on the global timeline. */
+  frame?: number;
   /** Border and glow colour. */
   accent: string;
   /** Centre-x and top-y of the card, reference units. */
@@ -87,8 +89,9 @@ const useFit = (avail: number) => {
   return { ref, fit };
 };
 
-export const AnswerCard: React.FC<AnswerCardProps> = ({ name, from, at, accent, place, size, anticipate = true }) => {
-  const frame = useDesignFrame();
+export const AnswerCard: React.FC<AnswerCardProps> = ({ name, from, at, accent, place, size, anticipate = true, frame: frameProp }) => {
+  const ownFrame = useDesignFrame();
+  const frame = frameProp ?? ownFrame;
 
   const W = px(size);
   const H = W * CARD_HEIGHT_SHARE;

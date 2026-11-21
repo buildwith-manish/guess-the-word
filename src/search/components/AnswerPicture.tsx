@@ -39,6 +39,8 @@ export type AnswerPictureProps = {
   name: string;
   from: string;
   at: number;
+  /** Scene-local tick that `at` is measured on. Omit only when `at` is on the global timeline. */
+  frame?: number;
   accent: string;
   /** Centre-x and top-y of the block, reference units. */
   place: { x: number; y: number };
@@ -47,8 +49,9 @@ export type AnswerPictureProps = {
   showName?: boolean;
 };
 
-export const AnswerPicture: React.FC<AnswerPictureProps> = ({ image, name, from, at, accent, place, size, showName = false }) => {
-  const frame = useDesignFrame();
+export const AnswerPicture: React.FC<AnswerPictureProps> = ({ image, name, from, at, accent, place, size, showName = false, frame: frameProp }) => {
+  const ownFrame = useDesignFrame();
+  const frame = frameProp ?? ownFrame;
   if (frame < at) return null;
 
   const S = px(size); // block width
