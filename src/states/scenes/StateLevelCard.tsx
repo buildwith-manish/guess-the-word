@@ -17,10 +17,11 @@
  */
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { Background } from '../../Background';
-import { COLORS, FONTS, SAFE_X, glass, px } from '../../style';
-import { prog, slamIn, revealIn, cssEaseInOut, mix } from '../../anim';
-import { backOut, linear } from '../../gsap-helpers';
+import { SAFE_X, px } from '../../style';
+import { IOS, IosBackground, iosSurface, spring } from '../../ios';
+import { prog, cssEaseInOut, mix } from '../../anim';
+import { linear } from '../../gsap-helpers';
+import { rise } from '../ios-rise';
 import rootSettings from '../../../settings.json';
 import settings from '../states-settings.json';
 import { LEVELS, QUESTIONS, voiceLevel } from '../state-timing';
@@ -87,7 +88,7 @@ const RuleDemo: React.FC<{ t: number; levelIndex: number; size: number; accent: 
           <StateShape stateKey={s.key} size={size} progress={1} fill={1} glow={0} mode="filled" accent={accent} />
         </div>
         <div style={{ position: 'absolute', inset: 0, opacity: fade }}>
-          <StateShape stateKey={s.key} size={size} progress={1} glow={1} accent={accent} />
+          <StateShape stateKey={s.key} size={size} progress={1} glow={0} accent={accent} />
         </div>
       </div>
     );
@@ -95,15 +96,15 @@ const RuleDemo: React.FC<{ t: number; levelIndex: number; size: number; accent: 
   if (tier === 'crop') {
     // outline traces itself
     const trace = prog(t, 0, DEMO.cropAt + DEMO.cropDur, cssEaseInOut);
-    return <StateShape stateKey={s.key} size={size} progress={trace} glow={draw} accent={accent} />;
+    return <StateShape stateKey={s.key} size={size} progress={trace} glow={0} accent={accent} />;
   }
   if (tier === 'rotate') {
     const spin = prog(t, 0, DEMO.spin, cssEaseInOut);
     const sway = Math.sin((Math.max(0, t) / 30) * Math.PI * 2 * 0.8) * 4 * spin;
     const rotation = (s.rotation ?? 0) + mix(-180, 0, spin) + sway;
-    return <StateShape stateKey={s.key} size={size} progress={draw} glow={draw} rotation={rotation} accent={accent} />;
+    return <StateShape stateKey={s.key} size={size} progress={draw} glow={0} rotation={rotation} accent={accent} />;
   }
-  return <StateShape stateKey={s.key} size={size} progress={draw} glow={draw} accent={accent} />;
+  return <StateShape stateKey={s.key} size={size} progress={draw} glow={0} accent={accent} />;
 };
 
 /** "LEVEL n / N, name, count and seconds" on the left, the rule demo on the right. */
@@ -115,22 +116,22 @@ export const StateLevelCard: React.FC<{ frame: number; levelIndex: number; durat
   const level = LEVELS[levelIndex] ?? LEVELS[0];
   const exitP = prog(frame, duration - LEVEL_BEATS.exit, LEVEL_BEATS.exit, linear);
 
-  const eyebrow = revealIn(frame, 2, 14, 18);
-  const title = slamIn(frame, LEVEL_BEATS.nameAt, 16);
-  const meta = revealIn(frame, 34, 16, 22);
-  const pop = prog(frame, 10, 18, backOut);
-  const demoIn = revealIn(frame, LEVEL_BEATS.demoAt, 16, 22);
+  const eyebrow = rise(frame, 2, 14, 16);
+  const title = rise(frame, LEVEL_BEATS.nameAt, 16, 28);
+  const meta = rise(frame, 34, 16, 20);
+  const pop = spring((frame - 10) / 18);
+  const demoIn = rise(frame, LEVEL_BEATS.demoAt, 16, 24);
 
   const demoSize = px(250);
   const tier = tierOf(levelIndex);
 
   return (
     <AbsoluteFill>
-      <Background frame={frame} theme={level.theme} />
+      <IosBackground accent={level.accent} />
       <AbsoluteFill
         style={{
           opacity: 1 - exitP,
-          transform: `scale(${1 - 0.06 * exitP})`,
+          transform: `scale(${1 - 0.03 * exitP})`,
           display: 'flex',
           flexDirection: 'row',
           alignItems: 'center',
@@ -139,14 +140,13 @@ export const StateLevelCard: React.FC<{ frame: number; levelIndex: number; durat
           padding: `0 ${SAFE_X}px`,
         }}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', fontFamily: IOS.font }}>
           <div
             style={{
-              fontFamily: FONTS.body,
-              fontWeight: 800,
-              fontSize: px(24),
-              letterSpacing: px(10),
-              color: 'rgba(255,255,255,0.87)',
+              fontWeight: IOS.weight.semibold,
+              fontSize: px(26),
+              letterSpacing: px(2),
+              color: IOS.color.secondary,
               opacity: eyebrow.opacity,
               transform: eyebrow.transform,
             }}
@@ -155,14 +155,13 @@ export const StateLevelCard: React.FC<{ frame: number; levelIndex: number; durat
           </div>
           <div
             style={{
-              fontFamily: FONTS.display,
-              fontSize: px(170),
+              fontWeight: IOS.weight.bold,
+              fontSize: px(150),
               lineHeight: 1,
-              letterSpacing: px(6),
+              letterSpacing: px(-3),
               color: level.accent,
               opacity: title.opacity,
               transform: title.transform,
-              filter: `${title.filter} drop-shadow(0 ${px(10)}px ${px(40)}px ${level.accent}66)`,
               margin: `${px(6)}px 0 ${px(18)}px`,
               whiteSpace: 'nowrap',
             }}
@@ -171,25 +170,25 @@ export const StateLevelCard: React.FC<{ frame: number; levelIndex: number; durat
           </div>
           <div
             style={{
-              fontFamily: FONTS.display,
-              fontSize: px(40),
-              letterSpacing: px(3),
-              color: COLORS.ink,
+              fontWeight: IOS.weight.medium,
+              fontSize: px(36),
+              color: IOS.color.secondary,
               opacity: meta.opacity,
               transform: meta.transform,
               whiteSpace: 'nowrap',
             }}
           >
-            <b style={{ color: level.accent, fontWeight: 400 }}>{countFor(level.name)}</b> STATES ·{' '}
-            <b style={{ color: level.accent, fontWeight: 400 }}>{level.time}</b> SECONDS EACH
+            <b style={{ color: IOS.color.label, fontWeight: IOS.weight.semibold }}>{countFor(level.name)}</b> states ·{' '}
+            <b style={{ color: IOS.color.label, fontWeight: IOS.weight.semibold }}>{level.time}</b> seconds each
           </div>
           <div
             style={{
               marginTop: px(26),
-              height: px(4),
+              height: px(3),
               width: px(560) * pop,
-              borderRadius: px(4),
-              background: `linear-gradient(90deg, ${level.accent}, transparent)`,
+              borderRadius: px(3),
+              background: level.accent,
+              opacity: 0.8,
             }}
           />
         </div>
@@ -206,8 +205,7 @@ export const StateLevelCard: React.FC<{ frame: number; levelIndex: number; durat
         >
           <div
             style={{
-              ...glass(px(36), 0.1),
-              border: `${px(2)}px solid ${level.accent}`,
+              ...iosSurface(px(IOS.radius.xl)),
               padding: px(24),
               width: demoSize,
               height: demoSize,
@@ -216,7 +214,7 @@ export const StateLevelCard: React.FC<{ frame: number; levelIndex: number; durat
           >
             <RuleDemo t={frame - LEVEL_BEATS.demoAt} levelIndex={levelIndex} size={demoSize} accent={level.accent} />
           </div>
-          <div style={{ fontFamily: FONTS.display, fontSize: px(30), letterSpacing: px(4), color: level.accent }}>{TIER_LABEL[tier]}</div>
+          <div style={{ fontFamily: IOS.font, fontWeight: IOS.weight.medium, fontSize: px(28), color: IOS.color.secondary }}>{TIER_LABEL[tier]}</div>
         </div>
       </AbsoluteFill>
     </AbsoluteFill>
