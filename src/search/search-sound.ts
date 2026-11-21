@@ -16,13 +16,14 @@
 import rootSettings from '../../settings.json';
 import manifest from '../sound-manifest.json';
 import type { Cue, Sfx, Voice } from '../sound';
-import { FPS, TIMELINE, TIME_SCALE, buildBonusPlan, voiceLevel, voiceIntro, voiceBonus } from './search-timing';
+import { FPS, TIMELINE, TIME_SCALE, buildBonusPlan, voiceLevel, voiceIntro, voiceBonus, voiceClue } from './search-timing';
 import { buildBonusCues } from './scenes/searchBonusCues';
 import { searchRoundCues } from './scenes/searchRoundCues';
 import { searchHookCues } from './scenes/SearchHook';
 import { searchScoreboardCues, scoreboardVoice } from './scenes/searchScoreboardCues';
 import { searchEndScreenCues, endScreenVoice } from './scenes/searchEndScreenCues';
 import { buildRoundPlan } from './search-timing';
+import { ROUNDS } from './search-data';
 
 export type { Cue, Voice };
 export { TIME_SCALE };
@@ -84,6 +85,8 @@ const buildCues = (): Cue[] => {
         const plan = buildRoundPlan(seg.index);
         const base = f0 - (seg.lead ?? 0); // the first `lead` ticks play inside the previous wipe
         place(base, searchRoundCues(seg.index));
+        // each clue is read while it types (clips exist only once the manifest has all four for the round)
+        ROUNDS[seg.index].searches.forEach((_, i) => voice(base + plan.searchAt[i], voiceClue(ROUNDS[seg.index].id, i)));
         // riser into the answer: the last second of the clock
         add(base + Math.max(plan.clockStart, plan.revealAt - riserFrames), 'riser');
         HUSHES.push({ from: Math.round(base + plan.revealAt - HUSH_LEAD), to: Math.round(base + plan.revealAt) });

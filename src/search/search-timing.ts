@@ -45,6 +45,8 @@ const clipOf = (e: VoEntry): VoClip | undefined => {
 const vo = voManifest as unknown as {
   intro: VoEntry;
   level: Record<string, VoEntry>;
+  /** round id -> the four clue clips (clue 1 hardest ... clue 4 easiest) */
+  clue?: Record<string, VoEntry[]>;
   reveal: Record<string, VoEntry>;
   bonus: Record<string, VoEntry>;
   scoreboard: Record<string, VoEntry>;
@@ -56,6 +58,8 @@ const needFor = (clip?: VoClip) => (clip ? VO.offsetFrames + clip.frames + VO.ta
 export const voiceIntro = () => clipOf(vo.intro);
 export const voiceOutro = () => clipOf(vo.outro);
 export const voiceLevel = (levelIndex: number) => clipOf(vo.level[String(levelIndex + 1)]);
+/** clue `clueIndex` (0-3) of round id (1-30): the clip that is read while that search types */
+export const voiceClue = (roundId: number, clueIndex: number) => clipOf(vo.clue?.[String(roundId)]?.[clueIndex]);
 /** round id (1-30) */
 export const voiceReveal = (roundId: number) => clipOf(vo.reveal[String(roundId)]);
 /** bonus number (1-3) */
@@ -83,6 +87,8 @@ export const HOLD_CHARS = cfg.bonus.searchHoldChars;
 /** Slide-into-the-list length, in characters' worth of ticks. Mirror of SLIDE_CHARS in components/SearchBar.tsx
  *  (search-qa.js checks that the two agree). */
 export const SLIDE_CHARS = 8;
+/** How many finished searches the "Recent searches" list shows at once (settings recent.visible, at least 1). */
+export const RECENT_VISIBLE = Math.max(1, Math.round(cfg.recent.visible));
 /** Ticks kept free between the end of the last search's slot and the reveal. Existing constant: the beat between timer end and answer flip. */
 const LAST_SLOT_MARGIN = T.answerFlipsAfterTimer;
 
@@ -95,9 +101,42 @@ export const searchUnits = (length: number) => length + HOLD_CHARS + SLIDE_CHARS
 export const fitTypeTicks = (length: number, slot: number) =>
   Math.max(cfg.typing.fastestTicksPerChar, Math.min(cfg.typing.ticksPerChar, slot / searchUnits(length)));
 
+/** Voice-paced layout of one round (absolute ticks from the start of the round scene). Only exists when all four
+ *  clue clips are in the manifest; otherwise undefined and the settings fractions (searchAt) pace the round.
+ *  Each clue starts typing when its clip starts. Typing is spread over voiceClue.typeShare of the clip, so the
+ *  last character lands just before the speaker finishes. The next clue starts once this one has landed in the
+ *  list (and its clip is over), plus voiceClue.pauseTicks. The clock ends voiceClue.thinkSeconds after the last
+ *  clip, and is never shorter than the level's own time. */
+type ClueLayout = { clockFrames: number; starts: number[]; slots: number[]; typeTicks: number[] };
+const voiceClueLayout = (index: number): ClueLayout | undefined => {
+  const round = ROUNDS[index];
+  const clips = round.searches.map((_, i) => voiceClue(round.id, i));
+  if (clips.some((c) => !c)) return undefined;
+  const vc = cfg.voiceClue;
+  const clockStart = T.titleInFrames;
+  const levelTicks = toTicks(LEVELS[levelIndexOfRound(index)].time);
+  let at = clockStart + Math.round(cfg.searchAt[0] * levelTicks);
+  const starts: number[] = [];
+  const typeTicks: number[] = [];
+  round.searches.forEach((text, i) => {
+    const clip = clips[i] as VoClip;
+    const tt = Math.max(cfg.typing.fastestTicksPerChar, (clip.frames * vc.typeShare) / Math.max(1, text.length));
+    starts.push(at);
+    typeTicks.push(tt);
+    at += Math.round(Math.max(searchUnits(text.length) * tt, clip.frames)) + vc.pauseTicks;
+  });
+  const lastClip = clips[clips.length - 1] as VoClip;
+  const clockFrames = Math.max(levelTicks, starts[starts.length - 1] - clockStart + lastClip.frames + toTicks(vc.thinkSeconds));
+  const end = clockStart + clockFrames - LAST_SLOT_MARGIN;
+  const slots = starts.map((st, i) => (i + 1 < starts.length ? starts[i + 1] : end) - st);
+  return { clockFrames, starts, slots, typeTicks };
+};
+
 /** Slot of each search of round `index`, in ticks: the gap to the next search's start; for the last search,
  *  the gap to the reveal minus LAST_SLOT_MARGIN. */
 export const searchSlots = (index: number): number[] => {
+  const voiced = voiceClueLayout(index);
+  if (voiced) return voiced.slots;
   const clockStart = T.titleInFrames;
   const clockFrames = toTicks(LEVELS[levelIndexOfRound(index)].time);
   const starts = cfg.searchAt.map((f) => clockStart + Math.round(f * clockFrames));
@@ -133,7 +172,8 @@ export const buildRoundPlan = (index: number): RoundPlan => {
   const levelIndex = levelIndexOfRound(index);
   const level = LEVELS[levelIndex];
   const clockStart = T.titleInFrames;
-  const clockFrames = toTicks(level.time);
+  const voiced = voiceClueLayout(index); // undefined until the clue clips are in the manifest
+  const clockFrames = voiced ? voiced.clockFrames : toTicks(level.time);
   const at = (f: number) => clockStart + Math.round(f * clockFrames);
   const clip = voiceReveal(ROUNDS[index].id);
   const holdFrames = Math.max(toTicks(cfg.reveal.minHoldSeconds), needFor(clip));
@@ -145,8 +185,8 @@ export const buildRoundPlan = (index: number): RoundPlan => {
     levelIndex,
     clockStart,
     clockFrames,
-    searchAt: cfg.searchAt.map(at) as RoundPlan['searchAt'],
-    typeTicks: ROUNDS[index].searches.map((t, i) => fitTypeTicks(t.length, slots[i])),
+    searchAt: (voiced ? voiced.starts : cfg.searchAt.map(at)) as RoundPlan['searchAt'],
+    typeTicks: voiced ? voiced.typeTicks : ROUNDS[index].searches.map((t, i) => fitTypeTicks(t.length, slots[i])),
     hintAt: at(cfg.hintAt),
     revealAt: clockStart + clockFrames,
     holdFrames,

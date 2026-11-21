@@ -12,6 +12,7 @@ import { makeRandom } from '../../util';
 import { getRound } from '../search-data';
 import { buildRoundPlan } from '../search-timing';
 import { slideEnd } from '../components/SearchBar';
+import { charTick } from '../typing';
 
 /** Key-click pitch: playbackRate varies by +/- this fraction per click (seeded, so every render is identical). */
 const CLICK_JITTER = 0.12;
@@ -27,9 +28,9 @@ export const searchRoundCues = (index: number): Cue[] => {
   round.searches.forEach((text, i) => {
     const start = plan.searchAt[i];
     const typeTicks = plan.typeTicks[i]; // this search's own speed, same value the scene uses
-    // Key-click on every second typed character. Character k (1-based) appears at start + (k - 1) * typeTicks.
+    // Key-click on every second typed character, at the tick that character appears (typing.ts: uneven, human rhythm).
     for (let k = 2; k <= text.length; k += 2) {
-      add(start + (k - 1) * typeTicks, 'key-click', { rate: 1 + (rand() * 2 - 1) * CLICK_JITTER });
+      add(charTick(start, text, k, typeTicks), 'key-click', { rate: 1 + (rand() * 2 - 1) * CLICK_JITTER });
     }
     // Soft "send" sound when the search has landed in the history list.
     // 'send' has its gain baked in (task 7d, quieter than 'pop'), so no extra volume here.

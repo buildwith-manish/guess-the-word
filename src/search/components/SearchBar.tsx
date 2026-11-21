@@ -1,12 +1,17 @@
 import React from 'react';
 import { COLORS, FONTS, glass, px } from '../../style';
 import { useDesignFrame } from '../../clock';
+import { charTick, typedChars } from '../typing';
 import '../../fonts';
 
 /**
  * Generic dark search UI: a rounded bar (magnifier, typewriter, blinking caret) and a
  * "Recent searches" list. A finished search holds a beat, then slides down into the list
  * while the bar clears for the next one.
+ *
+ * Typing is uneven on purpose (typing.ts): small speed changes, a pause at the start of each word, a longer one
+ * after punctuation. Each typed character pops in (fades up a little) and the newest one glows for a moment.
+ * The "Recent searches" list shows only the last `recentCount` finished searches; older ones fade out.
  *
  * All times are 30 fps design ticks, sampled at 60 fps through useDesignFrame().
  * `frame` below always means design ticks local to the scene that mounts this component.
@@ -62,6 +67,8 @@ export type SearchBarProps = {
   at: { x: number; y: number };
   /** Label above the list. */
   heading?: string;
+  /** How many finished searches the list shows at once. Omit to show all of them. */
+  recentCount?: number;
 };
 
 const Magnifier: React.FC<{ s: number; color: string }> = ({ s, color }) => (
@@ -88,6 +95,13 @@ const CLUE = 26; // 52 px at 1440p
 const LABEL = 15; // 30 px
 const HEAD = 14; // 28 px
 const CLUE_LINE_HEIGHT = 1.25;
+/** Typed character: ticks to fade up, ticks the newest character keeps its glow, rise in em. Motion constants. */
+const POP_TICKS = 4;
+const GLOW_TICKS = 9;
+const POP_RISE = 0.22;
+/** Bar glow when a new search starts: length in ticks and strength. Motion constants. */
+const FOCUS_TICKS = 9;
+const FOCUS_GLOW = 0.22;
 /** Part of the slide in which the big clue crossfades into its small list row. */
 const XFADE_FROM = 0.25;
 const XFADE_SPAN = 0.5;
@@ -97,7 +111,7 @@ const smooth = (t: number) => {
   return k * k * (3 - 2 * k);
 };
 
-export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTicks, size, at, heading = 'Recent searches' }) => {
+export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTicks, size, at, heading = 'Recent searches', recentCount }) => {
   const frame = useDesignFrame();
 
   const W = px(size);
@@ -116,7 +130,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
   const listTop = barH + listGap;
   const rowsTop = listTop + headH;
   const n = searches.length;
-  const panelH = headH + n * rowH + 16 * u;
+  const shown = Math.max(1, Math.min(n, recentCount ?? n)); // rows the list can hold
   const radius = barH * 0.32;
 
   const barTextX = barPad + icon + gap;
@@ -133,15 +147,80 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
   // Current search in the bar: the last one that has started and not yet slid away.
   let cur = -1;
   for (let i = 0; i < n; i++) if (frame >= starts[i]) cur = i;
-  const barText =
-    cur >= 0 && e[cur] <= 0 ? searches[cur].slice(0, typedCount(frame, starts[cur], searches[cur].length, tt(cur))) : '';
+  const inBar = cur >= 0 && e[cur] <= 0;
+  const curText = cur >= 0 ? searches[cur] : '';
+  const typed = inBar ? typedChars(frame, starts[cur], curText, tt(cur)) : 0;
 
-  // Caret: solid while typing, blinking otherwise.
-  const typing = cur >= 0 && e[cur] <= 0 && typedCount(frame, starts[cur], searches[cur].length, tt(cur)) < searches[cur].length;
-  const blinkOn = Math.floor(frame / (BLINK_CHARS * tt(Math.max(0, cur)))) % 2 === 0;
-  const caretOn = typing || blinkOn;
+  // Caret: solid while typing, then a soft blink.
+  const typing = inBar && typed < curText.length;
+  const blink = 0.5 + 0.5 * Math.cos((frame / (BLINK_CHARS * tt(Math.max(0, cur)))) * Math.PI);
+  const caretOpacity = typing ? 1 : clamp01(blink * 1.6);
 
+  // Finished searches that have landed in the list, counted smoothly; the list is as tall as the rows it shows.
+  const landed = e.reduce((m, v) => m + clamp01(v), 0);
+  const rowsShown = Math.min(shown, landed);
+  const panelH = headH + rowsShown * rowH + (rowsShown > 0 ? 16 * u : 0);
   const panelIn = n ? e.reduce((m, v) => Math.max(m, v), 0) : 0;
+
+  // A short glow on the bar when a search starts.
+  const focus = inBar ? 1 - easeOut((frame - starts[cur]) / FOCUS_TICKS) : 0;
+
+  // The clue as words of characters: every character is always laid out (so lines never re-wrap while typing)
+  // and fades up when its tick comes. The caret sits after the last typed character.
+  const caretAfter = typed === curText.length || curText[typed] === ' ' ? typed - 1 : null;
+  const caretBefore = caretAfter === null ? typed : null;
+  const caretEl = (
+    <span style={{ position: 'relative', display: 'inline-block', width: 0, height: barFont * 1.05, verticalAlign: 'text-bottom' }}>
+      <span
+        style={{
+          position: 'absolute',
+          left: barFont * 0.07,
+          top: 0,
+          width: barFont * 0.09,
+          height: '100%',
+          borderRadius: barFont * 0.05,
+          background: COLORS.ink,
+          opacity: caretOpacity,
+        }}
+      />
+    </span>
+  );
+  const clueNodes: React.ReactNode[] = [];
+  if (inBar) {
+    let idx = 0;
+    curText.split(' ').forEach((word, wi) => {
+      const chars: React.ReactNode[] = [];
+      for (let c = 0; c < word.length; c++, idx++) {
+        const age = frame - charTick(starts[cur], curText, idx + 1, tt(cur));
+        const pop = idx < typed ? easeOut(age / POP_TICKS) : 0;
+        const glow = idx < typed ? 1 - clamp01(age / GLOW_TICKS) : 0;
+        if (caretBefore === idx) chars.push(<React.Fragment key={`c${idx}`}>{caretEl}</React.Fragment>);
+        chars.push(
+          <span
+            key={idx}
+            style={{
+              display: 'inline-block',
+              opacity: pop,
+              transform: `translateY(${(1 - pop) * POP_RISE * barFont}px)`,
+              textShadow: glow > 0.01 ? `0 0 ${barFont * 0.45 * glow}px rgba(255,255,255,${0.7 * glow})` : undefined,
+            }}
+          >
+            {word[c]}
+          </span>,
+        );
+        if (caretAfter === idx) chars.push(<React.Fragment key={`a${idx}`}>{caretEl}</React.Fragment>);
+      }
+      if (wi > 0) clueNodes.push(' ');
+      clueNodes.push(
+        <span key={`w${wi}`} style={{ display: 'inline-block', whiteSpace: 'nowrap' }}>
+          {chars}
+        </span>,
+      );
+      idx++; // the space after the word
+    });
+  } else {
+    clueNodes.push(caretEl); // empty bar: just the blinking caret
+  }
 
   // Glass surface: frosted, dark-tinted so light text stays readable over the moving background.
   const surface = (r: number, shadowY: number, shadowBlur: number): React.CSSProperties => ({
@@ -164,7 +243,14 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
       }}
     >
       {/* Bar: the hero. Up to two lines of clue, vertically centred. */}
-      <div style={{ position: 'relative', height: barH, ...surface(radius, 24 * u, 64 * u) }}>
+      <div
+        style={{
+          position: 'relative',
+          height: barH,
+          ...surface(radius, 24 * u, 64 * u),
+          boxShadow: `0 ${24 * u}px ${64 * u}px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2), 0 0 ${40 * u * focus}px rgba(255,255,255,${FOCUS_GLOW * focus})`,
+        }}
+      >
         <div style={{ position: 'absolute', left: barPad, top: (barH - icon) / 2, display: 'flex' }}>
           <Magnifier s={icon} color={COLORS.ink} />
         </div>
@@ -188,19 +274,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
               overflowWrap: 'break-word',
             }}
           >
-            <span>{barText}</span>
-            <span
-              style={{
-                display: 'inline-block',
-                width: barFont * 0.09,
-                height: barFont * 1.05,
-                marginLeft: barFont * 0.1,
-                verticalAlign: 'text-bottom',
-                borderRadius: barFont * 0.05,
-                background: COLORS.ink,
-                opacity: caretOn ? 1 : 0,
-              }}
-            />
+            {clueNodes}
           </div>
         </div>
       </div>
@@ -257,7 +331,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
               top: y,
               width: W,
               height: h,
-              opacity: slot > n - 1 ? 0 : 1,
+              opacity: clamp01(shown - slot),
             }}
           >
             <div style={{ position: 'absolute', left: barPad, top: (h - rowIcon) / 2, display: 'flex', opacity: settled }}>

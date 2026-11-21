@@ -2,12 +2,13 @@ import React from 'react';
 import { px } from '../../style';
 import { FPS, TIME_SCALE } from '../../timing';
 import { ROUNDS, getRound } from '../search-data';
-import { LEVELS, buildRoundPlan } from '../search-timing';
+import { LEVELS, RECENT_VISIBLE, buildRoundPlan } from '../search-timing';
+import answerImages from '../answer-images.json';
 import { SearchStage } from '../components/SearchStage';
 import { SearchBar } from '../components/SearchBar';
 import { TimerBar } from '../components/TimerBar';
 import { HintClue } from '../components/HintClue';
-import { AnswerCard } from '../components/AnswerCard';
+import { AnswerCard, answerCardHeight } from '../components/AnswerCard';
 import { ProgressDots } from '../components/ProgressDots';
 import { Flash } from '../../Fx';
 import { useDesignFrame } from '../../clock';
@@ -23,17 +24,18 @@ import { useDesignFrame } from '../../clock';
  * The plan from buildRoundPlan counts from the start INCLUDING the lead, so every plan tick is
  * shifted by -lead to become a scene-local tick (the children read their own local clock).
  *
- * Phases built here: stage-in (bar slides in), four searches typed at plan.searchAt (each slides
- * into the history), timer over the whole clock.
- * NOT built (task 3b): hint, reveal/answer, exit. See the TODO(3b) markers.
+ * Question phase: search bar and recent list in the middle, four searches typed at plan.searchAt (each slides
+ * into the list, which keeps the last RECENT_VISIBLE), hint pair under the list, timer at the bottom.
+ * Reveal phase: the question side fades out and the answer card (with its picture, if answer-images.json has one)
+ * stamps in the middle.
  */
 
 /** How far the search bar travels while it slides in, in 1280x720 reference units. Motion constant. */
 const SLIDE_IN_DISTANCE = 60;
 
-/** The searches dim to this opacity at the reveal, over DIM_SECONDS. Motion constants. */
-const DIM_TO = 0.25;
-const DIM_SECONDS = 0.3;
+/** At the reveal the question side (search, list, hint, timer) fades out over DIM_SECONDS, so the answer stands alone.
+ *  The answer card is not drawn at all before the reveal. Motion constant. */
+const DIM_SECONDS = 0.25;
 /** The hint pair is about 2.3 emoji wide (HintEmoji spaces them 0.3 apart): size so the pair fits the slot width. */
 const HINT_PAIR_WIDTHS = 2.6;
 
@@ -66,7 +68,8 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
   // Reveal: the searches dim from plan.revealAt.
   const revealAt = shift(plan.revealAt);
   const dimK = easeOutCubic(clamp01((frame - revealAt) / (DIM_SECONDS * FPS)));
-  const searchOpacity = slideK * (1 - (1 - DIM_TO) * dimK);
+  const searchOpacity = slideK * (1 - dimK);
+  const answerImage = (answerImages as Record<string, string>)[String(round.id)];
 
   // Tension (task 8c): an accent vignette that builds over the clock, scaled by how hard the level is
   // (first level = 0, last level = 1), and gone once the answer lands.
@@ -101,32 +104,37 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
               accent={level.accent}
               size={rect.w}
               at={{ x: rect.x, y: rect.y }}
+              recentCount={RECENT_VISIBLE}
             />
           </div>
         ),
       }}
       timer={{
         children: (rect) => (
-          <TimerBar
-            from={shift(plan.clockStart)}
-            duration={plan.clockFrames}
-            accent={level.accent}
-            size={rect.w}
-            at={{ x: rect.x, y: rect.y }}
-          />
+          <div style={{ position: 'absolute', inset: 0, opacity: 1 - dimK }}>
+            <TimerBar
+              from={shift(plan.clockStart)}
+              duration={plan.clockFrames}
+              accent={level.accent}
+              size={rect.w}
+              at={{ x: rect.x, y: rect.y }}
+            />
+          </div>
         ),
       }}
       hint={{
         children: (rect) => (
-          <HintClue
-            roundId={round.id}
-            revealAt={revealAt}
-            emoji={round.hint}
-            from={shift(plan.hintAt)}
-            at={{ x: rect.x, y: rect.y + rect.h / 2 }}
-            size={Math.min(rect.w / HINT_PAIR_WIDTHS, rect.h * 0.9)}
-            accent={level.accent}
-          />
+          <div style={{ position: 'absolute', inset: 0, opacity: 1 - dimK }}>
+            <HintClue
+              roundId={round.id}
+              revealAt={revealAt}
+              emoji={round.hint}
+              from={shift(plan.hintAt)}
+              at={{ x: rect.x, y: rect.y + rect.h / 2 }}
+              size={Math.min(rect.w / HINT_PAIR_WIDTHS, rect.h * 0.9)}
+              accent={level.accent}
+            />
+          </div>
         ),
       }}
       answer={{
@@ -138,8 +146,10 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
               from={round.from}
               at={revealAt}
               accent={level.accent}
-              place={{ x: rect.x, y: rect.y }}
+              place={{ x: rect.x, y: rect.y + (rect.h - answerCardHeight(rect.w, !!answerImage)) / 2 }}
               size={rect.w}
+              image={answerImage}
+              anticipate={false}
             />
           </>
         ),

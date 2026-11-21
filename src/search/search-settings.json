@@ -6,6 +6,8 @@
   ],
   "searchAt": [0.04, 0.26, 0.48, 0.7],
   "hintAt": 0.82,
+  "recent": { "visible": 2 },
+  "voiceClue": { "typeShare": 0.88, "pauseTicks": 6, "thinkSeconds": 2.5 },
   "reveal": { "minHoldSeconds": 2.5 },
   "bonus": {
     "after": [10, 20, 30],

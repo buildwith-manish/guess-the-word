@@ -51,13 +51,15 @@ const SH = 720 - 2 * Y0;
 const colX = (f: number) => X0 + SW * f;
 const rowY = (f: number) => Y0 + SH * f;
 
-/** Slot rects (centre-x, top-y, width, height), as proportions of the safe box. */
+/** Slot rects (centre-x, top-y, width, height), as proportions of the safe box.
+ *  Question phase: search bar and recent list in the middle, the hint pair under them, the timer at the bottom.
+ *  Reveal phase: the answer slot is the whole middle; the other slots fade out. */
 export const SLOTS = {
   hud: { x: X0, y: Y0, w: SW * 0.2, h: SH * 0.07 } as Rect, // x here is the LEFT edge
-  search: { x: colX(0.36), y: rowY(0.17), w: SW * 0.5, h: SH * 0.62 } as Rect,
-  timer: { x: colX(0.36), y: rowY(0.81), w: SW * 0.5, h: SH * 0.07 } as Rect,
-  hint: { x: colX(0.82), y: rowY(0.2), w: SW * 0.34, h: SH * 0.3 } as Rect,
-  answer: { x: colX(0.82), y: rowY(0.58), w: SW * 0.34, h: SH * 0.24 } as Rect,
+  search: { x: colX(0.5), y: rowY(0.1), w: SW * 0.52, h: SH * 0.5 } as Rect,
+  timer: { x: colX(0.5), y: rowY(0.83), w: SW * 0.52, h: SH * 0.07 } as Rect,
+  hint: { x: colX(0.5), y: rowY(0.58), w: SW * 0.34, h: SH * 0.2 } as Rect,
+  answer: { x: colX(0.5), y: rowY(0.07), w: SW * 0.4, h: SH * 0.84 } as Rect,
   dots: { x: colX(0.5), y: rowY(0.97), w: SW, h: SH * 0.04 } as Rect, // y here is the CENTRE
 };
 

@@ -9,6 +9,7 @@ import cfg from '../search-settings.json';
 import { ROUNDS } from '../search-data';
 import { LEVELS, TIMELINE, themeForRound } from '../search-timing';
 import { HOLD_CHARS, SLIDE_CHARS, SearchBar, slideEnd } from '../components/SearchBar';
+import { charTick } from '../typing';
 import { SearchTitleLockup } from '../components/SearchTitleLockup';
 import '../../fonts';
 
@@ -115,7 +116,7 @@ export const searchHookCues = (duration: number = defaultDuration()): Cue[] => {
 
   p.searches.forEach((text, i) => {
     for (let k = 2; k <= text.length; k += 2) {
-      add(p.starts[i] + (k - 1) * p.typeTicks, 'key-click', { rate: 1 + (rand() * 2 - 1) * CLICK_JITTER });
+      add(charTick(p.starts[i], text, k, p.typeTicks), 'key-click', { rate: 1 + (rand() * 2 - 1) * CLICK_JITTER });
     }
     // Soft "send" when the search has landed in the list ('send' has its gain baked in, task 7d).
     add(slideEnd(p.starts[i], text.length, p.typeTicks), 'send');
