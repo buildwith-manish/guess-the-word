@@ -1,22 +1,23 @@
 import React from 'react';
-import { COLORS, FONTS, px } from '../../style';
+import { FONTS, px } from '../../style';
+import { IOS, iosSurface, spring } from '../../ios';
 import { useDesignFrame } from '../../clock';
 import { FPS } from '../../timing';
 import '../../fonts';
 
 /**
- * Two large emoji that pop in one after the other with a ping and a scale-bounce.
+ * Two emoji in frosted iOS tiles that settle in one after the other on the shared spring (no ping, no bounce).
  * Emoji glyphs come from the Noto Color Emoji face that src/fonts.ts loads (FONTS.emoji).
  * `from` is the hint tick (design ticks, local to the scene). Nothing is drawn before it.
  */
 
-/** Motion constants, as fractions of a second. */
-const POP_SECONDS = 0.6;
-const STAGGER_SECONDS = 0.2;
-const PING_SECONDS = 0.7;
-/** Spring feel: higher DAMP settles faster, higher WOBBLE rings more. */
-const DAMP = 5;
-const WOBBLE = 2.2;
+/** Motion constants, as fractions of a second. One shared iOS spring, no ping. */
+const POP_SECONDS = 0.4;
+const STAGGER_SECONDS = 0.12;
+/** Scale the tile grows from. */
+const START_SCALE = 0.92;
+/** Emoji size inside its frosted tile, fraction of the tile. */
+const EMOJI_FILL = 0.56;
 
 export type HintEmojiProps = {
   /** The two emoji. */
@@ -27,18 +28,10 @@ export type HintEmojiProps = {
   at: { x: number; y: number };
   /** Emoji size in reference units. */
   size: number;
-  /** Level accent. Kept for API compatibility; the ping is neutral (accent lives on timer, current dot, stamp). */
+  /** Level accent. Kept for API compatibility; the tiles are neutral. */
   accent?: string;
 };
 
-const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
-
-/** 0 at t=0, overshoots, settles at 1 at t=1. */
-const bounce = (t: number): number => {
-  if (t <= 0) return 0;
-  if (t >= 1) return 1;
-  return 1 - Math.exp(-DAMP * t) * Math.cos(Math.PI * WOBBLE * t);
-};
 
 export const HintEmoji: React.FC<HintEmojiProps> = ({ emoji, from, at, size }) => {
   const frame = useDesignFrame();
@@ -61,38 +54,26 @@ export const HintEmoji: React.FC<HintEmojiProps> = ({ emoji, from, at, size }) =
     >
       {emoji.map((e, i) => {
         const t0 = from + i * STAGGER_SECONDS * FPS;
-        const t = (frame - t0) / (POP_SECONDS * FPS);
-        const pingT = clamp01((frame - t0) / (PING_SECONDS * FPS));
+        const k = spring((frame - t0) / (POP_SECONDS * FPS));
         const visible = frame >= t0;
         return (
-          <div key={i} style={{ position: 'relative', width: S, height: S }}>
-            {visible && pingT < 1 && (
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  borderRadius: '50%',
-                  border: `${px(3)}px solid ${COLORS.ink}`,
-                  boxSizing: 'border-box',
-                  transform: `scale(${0.6 + pingT * 1.1})`,
-                  opacity: 1 - pingT,
-                }}
-              />
-            )}
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: S * 0.82,
-                lineHeight: 1,
-                transform: `scale(${visible ? bounce(t) : 0})`,
-              }}
-            >
-              {e}
-            </div>
+          <div
+            key={i}
+            style={{
+              ...iosSurface(S * 0.24, 0.8),
+              width: S,
+              height: S,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: S * EMOJI_FILL,
+              lineHeight: 1,
+              color: IOS.color.label,
+              opacity: visible ? Math.min(1, k * 1.4) : 0,
+              transform: `scale(${START_SCALE + (1 - START_SCALE) * (visible ? k : 0)})`,
+            }}
+          >
+            {e}
           </div>
         );
       })}
