@@ -168,13 +168,42 @@ const check = (name, fn) => {
     };
     take(man.intro, 'intro');
     take(man.outro, 'outro');
-    ['level', 'reveal', 'bonus', 'bonusq', 'scoreboard'].forEach((k) => Object.entries(man[k] || {}).forEach(([id, e]) => take(e, `${k}.${id}`)));
+    ['level', 'question', 'reveal', 'bonus', 'bonusq', 'scoreboard'].forEach((k) => Object.entries(man[k] || {}).forEach(([id, e]) => take(e, `${k}.${id}`)));
     S.STATE_VOICE.forEach((v, i) => files.push([`plan#${i}`, v.file]));
     files.forEach(([label, f]) => {
       if (!fs.existsSync(path.join(voiceDir, f))) problems.push(`${label}: missing ${path.relative(ROOT, path.join(voiceDir, f))}`);
     });
     const n = files.filter(([l]) => !l.startsWith('plan#')).length;
     return { problems, info: n === 0 && S.STATE_VOICE.length === 0 ? 'manifest empty: 0 clips to check (passes)' : `${n} manifest clips, ${S.STATE_VOICE.length} placed in the plan, all present` };
+  });
+
+  check('6b voiceover order: question clip -> clock; stamp -> reveal clip (and the segment holds it)', () => {
+    const problems = [];
+    const VO = require(path.join(ROOT, 'settings.json')).voiceover;
+    let withQ = 0;
+    let withR = 0;
+    T.QUESTIONS.forEach((q, i) => {
+      const p = T.buildQuestionPlan(i, false);
+      if (p.questionVo) {
+        withQ++;
+        if (p.questionVo.start < p.drawStart) problems.push(`Q${q.id}: question clip starts before the outline`);
+        if (p.timerStart < p.questionVo.start + p.questionVo.frames) problems.push(`Q${q.id}: clock starts at ${p.timerStart}, before the question clip ends (${p.questionVo.start + p.questionVo.frames})`);
+      }
+      if (p.vo) {
+        withR++;
+        if (p.vo.start < p.stamp) problems.push(`Q${q.id}: reveal clip starts before the answer lands`);
+        if (p.vo.start + p.vo.frames + VO.tailFrames > p.exit) problems.push(`Q${q.id}: reveal clip is cut off, hold ${p.hold} too short`);
+      }
+    });
+    for (let slot = 0; slot < T.BONUS_PUZZLES.length; slot++) {
+      const bq = T.voiceBonusQuestion(slot + 1);
+      const ba = T.voiceBonus(slot + 1);
+      const start = T.bonusClockStart(slot);
+      const end = start + T.bonusClockFrames(slot);
+      if (bq && start < VO.offsetFrames + bq.frames) problems.push(`bonus ${slot + 1}: clock starts before the question clip ends`);
+      if (ba && T.bonusSegmentFrames(slot) < end + VO.offsetFrames + ba.frames) problems.push(`bonus ${slot + 1}: answer clip is cut off by the segment end`);
+    }
+    return { problems, info: `${withQ} question clips gate the clock, ${withR} reveal clips start after the stamp and fit in the hold, ${T.BONUS_PUZZLES.length} bonuses checked` };
   });
 
   check('7 questions in video order', () => {

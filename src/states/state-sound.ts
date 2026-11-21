@@ -37,12 +37,12 @@ import root from '../../settings.json';
 import soundManifest from '../sound-manifest.json';
 import settings from './states-settings.json';
 import {
-  BONUS_CLOCK_START,
   BONUS_PUZZLES,
   FPS,
   LEVELS,
   TIMELINE,
   bonusClockFrames,
+  bonusClockStart,
   buildQuestionPlan,
   voiceBonus,
   voiceBonusQuestion,
@@ -137,6 +137,8 @@ const build = () => {
         addAt(base, stateRoundCues(seg.index, questionHasTitle(seg.index)));
         riser(base + plan.timerStart + plan.timerFrames);
         add(base + plan.stamp, 'boom', { volume: PANIC.stampBoomVolume });
+        // question clip first (the clock waits for it), then the reveal clip after the stamp
+        if (plan.questionVo) voiceAt(base + plan.questionVo.start, plan.questionVo);
         if (plan.vo) voiceAt(base + plan.vo.start, plan.vo);
         break;
       }
@@ -144,7 +146,7 @@ const build = () => {
         beds.push({ frame: f0, gains: BONUS_BED });
         const puzzle = BONUS_PUZZLES[seg.index];
         addAt(f0, stateBonusCues(puzzle));
-        const clockEnd = BONUS_CLOCK_START + bonusClockFrames(seg.index);
+        const clockEnd = bonusClockStart(seg.index) + bonusClockFrames(seg.index);
         riser(f0 + clockEnd);
         // voiceover: question clip near the start, answer clip right after the clock (same placement as the word quiz)
         voiceAt(f0 + root.voiceover.offsetFrames, voiceBonusQuestion(seg.index + 1));

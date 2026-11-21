@@ -68,12 +68,30 @@ export const BONUS_PHASE = {
   build: root.bonus.buildFrames,
   answerHold: root.bonus.revealHoldFrames,
 };
-/** tick (from the start of the bonus segment) the clock starts */
+/** earliest tick (from the start of the bonus segment) the clock starts, with no voiceover */
 export const BONUS_CLOCK_START = BONUS_PHASE.preRoll + BONUS_PHASE.build;
 /** length of the clock of bonus slot `slot` (0-based), in ticks */
 export const bonusClockFrames = (slot: number): number => BONUS_PUZZLES[slot].seconds * FPS;
+/**
+ * Tick (from the start of the bonus segment) the clock of bonus slot `slot` (0-based) starts: the usual
+ * preRoll + build, or later when the bonus question clip (voiceover offset + clip + tail) is still playing, so the
+ * question is always read out BEFORE the clock starts.
+ */
+export const bonusClockStart = (slot: number): number => {
+  const clip = voiceBonusQuestion(slot + 1);
+  return clip ? Math.max(BONUS_CLOCK_START, VO.offsetFrames + clip.frames + VO.tailFrames) : BONUS_CLOCK_START;
+};
 /** segment length of bonus slot `slot` (0-based) before any voiceover stretch, in ticks */
-export const bonusBaseFrames = (slot: number): number => BONUS_CLOCK_START + bonusClockFrames(slot) + BONUS_PHASE.answerHold;
+export const bonusBaseFrames = (slot: number): number => bonusClockStart(slot) + bonusClockFrames(slot) + BONUS_PHASE.answerHold;
+/**
+ * Segment length with the answer clip: the answer lands when the clock ends and the clip starts `offsetFrames` after
+ * that (reveal first, then voice); a clip longer than the answer hold stretches the segment.
+ */
+export const bonusSegmentFrames = (slot: number): number => {
+  const answer = voiceBonus(slot + 1);
+  const voEnd = answer ? bonusClockStart(slot) + bonusClockFrames(slot) + VO.offsetFrames + answer.frames + VO.tailFrames : 0;
+  return Math.max(bonusBaseFrames(slot), voEnd);
+};
 
 // ---------------------------------------------------------------- voiceover
 const VO = root.voiceover;
@@ -82,6 +100,8 @@ type VoEntry = { file: string; seconds: number | string } | null | undefined;
 type VoManifest = {
   intro: VoEntry;
   level: Record<string, VoEntry>;
+  /** question-phase clip, played as the outline draws; the clock waits for it (key = question id) */
+  question?: Record<string, VoEntry>;
   reveal: Record<string, VoEntry>;
   bonus: Record<string, VoEntry>;
   bonusq: Record<string, VoEntry>;
@@ -98,6 +118,7 @@ const clipOf = (e: VoEntry): VoClip | undefined => {
 export const voiceIntro = () => clipOf(manifest.intro);
 export const voiceOutro = () => clipOf(manifest.outro);
 export const voiceLevel = (levelName: string) => clipOf(manifest.level[levelName]);
+export const voiceQuestion = (questionId: number) => clipOf(manifest.question?.[String(questionId)]);
 export const voiceReveal = (questionId: number) => clipOf(manifest.reveal[String(questionId)]);
 export const voiceBonus = (slot: number) => clipOf(manifest.bonus[String(slot)]);
 export const voiceBonusQuestion = (slot: number) => clipOf(manifest.bonusq[String(slot)]);
@@ -133,7 +154,10 @@ export type StateQuestionPlan = {
   hold: number;
   exit: number;
   duration: number;
+  /** reveal clip: starts offsetFrames after the stamp (reveal first, then voice) */
   vo?: { file: string; start: number; frames: number };
+  /** question clip: starts offsetFrames after the outline starts drawing; the clock starts after it */
+  questionVo?: { file: string; start: number; frames: number };
 };
 
 export const buildQuestionPlan = (index: number, withTitle = false): StateQuestionPlan => {
@@ -146,7 +170,11 @@ export const buildQuestionPlan = (index: number, withTitle = false): StateQuesti
 
   const titleFrames = withTitle ? t.titleInFrames : 0;
   const drawStart = titleFrames + t.questionAfterTitle;
-  const timerStart = drawStart + PHASE.draw + PHASE.beatBeforeClock;
+  // the question clip plays first (as the outline draws); the clock starts only after it has finished
+  const qClip = voiceQuestion(q.id);
+  const questionVoStart = drawStart + VO.offsetFrames;
+  const defaultTimerStart = drawStart + PHASE.draw + PHASE.beatBeforeClock;
+  const timerStart = qClip ? Math.max(defaultTimerStart, questionVoStart + qClip.frames + VO.tailFrames) : defaultTimerStart;
   const hintAt = settings.hints.fractions.map((f) => timerStart + timerFrames * f);
 
   const revealStart = timerStart + timerFrames + t.answerFlipsAfterTimer;
@@ -179,6 +207,7 @@ export const buildQuestionPlan = (index: number, withTitle = false): StateQuesti
     exit,
     duration: exit + t.revealExit,
     vo: clip ? { file: clip.file, start: stamp + VO.offsetFrames, frames: clip.frames } : undefined,
+    questionVo: qClip ? { file: qClip.file, start: questionVoStart, frames: qClip.frames } : undefined,
   };
 };
 
@@ -249,12 +278,7 @@ const buildTimeline = (): Timeline => {
     }
     if (slot >= 0) {
       pushIris(themeForQuestion(i), BONUS_THEME, qHud, true);
-      const bonusFrames = fitClip(
-        bonusBaseFrames(slot),
-        voiceBonus(slot + 1) && voiceBonusQuestion(slot + 1)
-          ? { file: '', frames: voiceBonus(slot + 1)!.frames + voiceBonusQuestion(slot + 1)!.frames }
-          : voiceBonus(slot + 1) ?? voiceBonusQuestion(slot + 1),
-      );
+      const bonusFrames = bonusSegmentFrames(slot);
       push({ kind: 'bonus', from: cursor, duration: bonusFrames, index: slot, bonusKind: kinds[slot] });
       withTitle = true;
       erases += 1;

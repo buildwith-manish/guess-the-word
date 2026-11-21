@@ -31,7 +31,7 @@ import { prog, slamIn, revealIn, bounceEase, cssEaseOut, mix, clamp01 } from '..
 import { backOut, expoOut, linear } from '../../../gsap-helpers';
 import rootSettings from '../../../../settings.json';
 import {
-  BONUS_CLOCK_START,
+  bonusClockStart,
   BONUS_PHASE,
   BONUS_PUZZLES,
   BONUS_THEME,
@@ -63,10 +63,11 @@ export type BonusTimes = {
 
 export const bonusTimes = (puzzle: BonusPuzzle, duration?: number): BonusTimes => {
   const clockFrames = bonusClockFrames(puzzle.slot);
-  const clockEnd = BONUS_CLOCK_START + clockFrames;
+  const clockStart = bonusClockStart(puzzle.slot);
+  const clockEnd = clockStart + clockFrames;
   return {
     pre: BONUS_PHASE.preRoll,
-    clockStart: BONUS_CLOCK_START,
+    clockStart,
     clockFrames,
     clockEnd,
     revealAt: clockEnd,
