@@ -9,7 +9,7 @@ import React from 'react';
 import { useDesignFrame } from '../../clock';
 import { IOS } from '../../ios';
 import { FPS } from '../state-timing';
-import { COLOR, FONT, TIMER, WEIGHT, glassPanel } from '../look';
+import { BACKDROP, COLOR, FONT, SOFT_GLOW, TIMER, WEIGHT, glassPanel } from '../look';
 import { enter, exitTicks, leave, settleTicks } from '../motion';
 import { px } from '../../style';
 
@@ -56,6 +56,12 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
   const c = size / 2;
   const len = 2 * Math.PI * r;
   const arc = len * remainingFrac;
+  // the arc end as an angle clockwise from 12 o'clock; the conic gradient, the head dot and the arc length all use this one number
+  const arcDeg = 360 * remainingFrac;
+  const arcRad = (arcDeg * Math.PI) / 180;
+  const headD = stroke * LOOK.headScale;
+  const tint = `color-mix(in srgb, ${color} ${100 - LOOK.arcTint}%, white)`;
+  const ringMask = `radial-gradient(farthest-side, transparent calc(100% - ${stroke}px), ${BACKDROP.black} calc(100% - ${stroke}px))`;
 
   // glass disc: its edge sits `discGap` of the diameter inside the ring's inner edge (ring inner radius = size / 2 - stroke)
   const discD = size - 2 * stroke - 2 * size * LOOK.discGap;
@@ -107,20 +113,40 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
       )}
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible' }}>
         <circle cx={c} cy={c} r={r} fill="none" stroke={COLOR.fill} strokeWidth={stroke} strokeLinecap="round" />
-        {arc > 0 && (
-          <circle
-            cx={c}
-            cy={c}
-            r={r}
-            fill="none"
-            stroke={color}
-            strokeWidth={stroke}
-            strokeLinecap="round"
-            strokeDasharray={`${arc} ${len}`}
-            transform={`rotate(-90 ${c} ${c})`}
-          />
-        )}
       </svg>
+      {arc > 0 && (
+        <>
+          {/* the arc: a conic gradient (tint at the start, full accent at the head) cut to the ring by a mask, so there are no seams */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              borderRadius: '50%',
+              background: `conic-gradient(from 0deg, ${tint} 0deg, ${color} ${arcDeg}deg, transparent ${arcDeg}deg 360deg)`,
+              WebkitMaskImage: ringMask,
+              maskImage: ringMask,
+            }}
+          />
+          {/* round cap at the start of the arc, in the start tint */}
+          <div style={{ position: 'absolute', left: c - stroke / 2, top: c - r - stroke / 2, width: stroke, height: stroke, borderRadius: '50%', background: tint }} />
+          {/* the head: rides the arc end (same angle maths), accent at full, two soft glow layers from SOFT_GLOW */}
+          <div
+            style={{
+              position: 'absolute',
+              left: c + r * Math.sin(arcRad) - headD / 2,
+              top: c - r * Math.cos(arcRad) - headD / 2,
+              width: headD,
+              height: headD,
+              borderRadius: '50%',
+              background: color,
+              boxShadow: [
+                `0 0 ${headD * LOOK.headGlowBlur}px color-mix(in srgb, ${color} ${SOFT_GLOW.near.alpha * LOOK.headGlowGain * 100}%, transparent)`,
+                `0 0 ${headD * LOOK.headGlowBlur * (SOFT_GLOW.far.blur / SOFT_GLOW.near.blur)}px color-mix(in srgb, ${color} ${SOFT_GLOW.far.alpha * LOOK.headGlowGain * 100}%, transparent)`,
+              ].join(', '),
+            }}
+          />
+        </>
+      )}
       {digits !== 'none' && showPrev && prevLeave && (
         <div
           style={{
