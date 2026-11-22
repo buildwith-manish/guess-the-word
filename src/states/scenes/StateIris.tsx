@@ -25,7 +25,7 @@
  */
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { Watermark } from '../../Watermark';
+import { StateWatermark } from '../components/StateWatermark';
 import { S, px } from '../../style';
 import { IOS, IosBackground } from '../../ios';
 import { prog } from '../../anim';
@@ -134,7 +134,7 @@ export const StateIris: React.FC<{ frame: number; seg: IrisSegment }> = ({ frame
       </div>
       {seg.title ? <StateTitleSlot frame={frame} /> : null}
       <StateHudPill hud={seg.hud} />
-      {seg.watermark ? <Watermark /> : null}
+      {seg.watermark ? <StateWatermark /> : null}
     </AbsoluteFill>
   );
 };

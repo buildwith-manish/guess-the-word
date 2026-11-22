@@ -131,3 +131,21 @@ export const TYPE = { xs: 20, sm: 26, md: 32, lg: 56, xl: 92, xxl: 150 } as cons
 
 /** Letter-spacing: uppercase labels get 0.14em (inside the 0.12-0.2em range); big titles are pulled in a little. */
 export const TRACKING = { label: '0.14em', title: '-0.02em' } as const;
+
+/**
+ * Brand badge (round two, Step 1): the QUIZ MATRIX pill, top right. Inter, label colour, 0.14em tracking, a thin neutral
+ * stroke icon and a glass pill; no gold, no mono. All sizes are reference px (pass through px()).
+ */
+export const BADGE = {
+  top: 40,
+  right: 68,
+  fontSize: 17,
+  gap: 12,
+  padX: 20,
+  padY: 10,
+  iconHeight: 30,
+  /** icon stroke in icon-viewBox units (viewBox is 24 wide), so about 1.75 px at the reference size */
+  iconStroke: 1.75,
+  /** glassPanel depth for the pill */
+  depth: 0.4,
+} as const;

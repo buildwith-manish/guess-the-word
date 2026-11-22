@@ -37,7 +37,7 @@ import { S, SAFE_X, SAFE_Y, px } from '../../style';
 import { IOS } from '../../ios';
 import { enter, iosOut, sprFit } from '../motion';
 import {RADIUS, glassPanel, COLOR, FONT, WEIGHT, TYPE } from '../look';
-import { Watermark } from '../../Watermark';
+import { StateWatermark } from '../components/StateWatermark';
 import { HEIGHT, WIDTH, TIME_SCALE, buildQuestionPlan, LEVELS, QUESTIONS } from '../state-timing';
 import type { StateQuestionPlan } from '../state-timing';
 import { STATES, getState } from '../states-data';
@@ -211,7 +211,7 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
           fade: false,
           children: (
             <>
-              <Watermark />
+              <StateWatermark />
               {plan.fast ? (
                 <div
                   style={{

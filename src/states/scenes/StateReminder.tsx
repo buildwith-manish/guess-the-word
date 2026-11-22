@@ -13,7 +13,7 @@
  */
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { Watermark } from '../../Watermark';
+import { StateWatermark } from '../components/StateWatermark';
 import { Icon } from '../../Icon';
 import { px } from '../../style';
 import { IOS, IosBackground } from '../../ios';
@@ -52,7 +52,7 @@ export const StateReminder: React.FC<{ frame: number; seg: ReminderSegment }> = 
       <IosBackground accent={LEVELS.find((l) => l.theme[0] === seg.theme[0] && l.theme[1] === seg.theme[1])?.accent ?? BONUS_THEME[0]} />
       {seg.title ? <StateTitleSlot frame={frame} /> : null}
       <StateHudPill hud={seg.hud} />
-      <Watermark />
+      <StateWatermark />
       <div
         style={{
           position: 'absolute',
