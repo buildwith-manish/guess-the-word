@@ -28,6 +28,7 @@ The task table (docs/gta6-prompts-split.md) is not in the repo on any branch and
 - [x] 5e: `src/gta6/parts/Part3.tsx` (`Part3`, `part3Plan`, `part3Frames`, `part3Replay`, `part3RingsAt`, `part3NoBanner`), `part3Cues` in `sfxCues.ts` (`cuesOf` got an optional `noBanner` predicate), `GTA6-P3` in Root.
   - Q42 (`q42Replay`): the hook's `LockNotification` is replayed (same props shape, `HOOK_TEXT`, `LOCK_NOTIFICATION_TICKS`) in a slot INSERTED before the item, so Part3 is 30 ticks longer than `partRanges[2]`; timing.ts is unchanged, so Scoreboard/Outro chapter times are 1 s early in a full build. No end banner on Q41 (the replay announces Q42). Q42 draws its own `ScoreHud` (shell HUD off), tweened at `hold.from + expandStartSec('full')` so the rings close on the answer. No sound on the ring close.
   - Hard timers are 7 s except item 34 (fastest, 3 s in data). No render run.
+- [x] 6a: `src/gta6/scenes/Scoreboard.tsx` (`Scoreboard { frame }`, `scoreboardCues(start)`, `BEATS`, `cardStart`, `lightStart`). `data.ts` gained `RankName` and `rankLines` (five voiceover lines, EMPTY: script text was not available; paste them). Not mounted in any part yet (Part4 task). Rings close fully; ranks light lowest to highest. tsc clean for gta6. No render run.
 
 ## Next step
 Supply the task table (docs/gta6-prompts-split.md) so the remaining task IDs can be added to this checklist. Open points from `docs/gta6-context.md`: 2560x1440 at 60 fps is the repo convention, not 1920x1080.

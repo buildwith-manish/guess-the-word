@@ -60,3 +60,16 @@ export const extraIds = (item: Pick<Item, 'extra'>): string[] =>
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean);
+
+export type RankName = (typeof rankTiers)[number]['name'];
+/**
+ * Voiceover line spoken as each rank card is highlighted (script). TODO(script): the five lines were not in the repo or in
+ * the task text, so they are empty; the scoreboard draws a caption only for a non-empty line. Paste the script lines here.
+ */
+export const rankLines: Record<RankName, string> = {
+  LEGEND: '',
+  EXPERT: '',
+  GOOD: '',
+  BEGINNER: '',
+  'KEEP GOING': '',
+};
