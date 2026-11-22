@@ -79,6 +79,8 @@ export type ShellLabels = {
 export const SLOTS = {
   timerRing: { left: SAFE.x, top: SAFE.top, size: 200 },
   spoiler: { left: SAFE.x, bottom: SAFE.bottom },
+  /** Width of the island (pill) timer on hard items, reference units (the pill is 0.3 of this high). */
+  islandW: 260,
   /** Score counter in the top-left corner: distance from the left edge and size (1 = full). */
   hud: { left: 56, scale: 0.8 },
   /**
@@ -234,7 +236,7 @@ export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, child
             dur={phases.timer.to - phases.timer.from}
             variant={island ? 'island' : 'ring'}
             level={level}
-            size={island ? undefined : beside.size}
+            size={island ? SLOTS.islandW : beside.size}
           />
         </div>
       ) : null}

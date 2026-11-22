@@ -34,7 +34,7 @@ const SAFARI = {
 } as const;
 
 /** Layout, 1920x1080 reference units. */
-const BOX = { barW: 1500, barH: 180, barTop: 176, tileH: 132, tileGap: 24, tilesTop: 392, cardTop: 716 } as const;
+const BOX = { barW: 1500, barH: 180, barTop: 224, tileH: 132, tileGap: 24, tilesTop: 440, cardTop: 764 } as const;
 
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 const easeOut = (t: number) => 1 - Math.pow(1 - clamp01(t), 3);
@@ -135,7 +135,7 @@ export const SafariLook: React.FC<SafariLookProps> = ({ item, localFrame: f, pha
             justifyContent: 'center',
           }}
         >
-          <TimerRing frame={f} at={phases.timer.from} dur={phases.timer.to - phases.timer.from} variant="island" level="hard" />
+          <TimerRing frame={f} at={phases.timer.from} dur={phases.timer.to - phases.timer.from} variant="island" level="hard" size={SLOTS.islandW} />
         </div>
       ) : null}
 
