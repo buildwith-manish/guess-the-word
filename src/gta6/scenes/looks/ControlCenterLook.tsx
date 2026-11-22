@@ -118,9 +118,10 @@ export const ControlCenterLook: React.FC<ControlCenterLookProps> = ({ item, loca
 
 /* ---------- tile ---------- */
 
-const Toggle: React.FC<{ on: number }> = ({ on }) => {
+const Toggle: React.FC<{ on: number; lit?: boolean }> = ({ on, lit = false }) => {
   const off = [0x78, 0x78, 0x80];
-  const green = [0x30, 0xd1, 0x58];
+  // On a lit (green) tile a green "on" track vanishes into the tile, so it turns dark instead and only the knob stays white.
+  const green = lit ? [0x06, 0x13, 0x0a] : [0x30, 0xd1, 0x58];
   const track = `rgb(${[0, 1, 2].map((k) => mixHex(off[k], green[k], on)).join(',')})`;
   return (
     <div style={{ width: u(124), height: u(72), borderRadius: u(36), background: track, position: 'relative', flex: 'none' }}>
@@ -159,7 +160,7 @@ const Tile: React.FC<{
         <div style={{ ...textStyle('caption'), color: lit ? colors.onAccent : colors.muted, fontWeight: 700 }}>{LETTERS[index]}</div>
         <div style={{ ...textStyle('choice'), color: ink }}>{text}</div>
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <Toggle on={back ? sw : 0} />
+          <Toggle on={back ? sw : 0} lit={lit} />
         </div>
       </div>
     </div>

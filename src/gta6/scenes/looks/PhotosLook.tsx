@@ -158,8 +158,8 @@ export const PhotosLook: React.FC<PhotosLookProps> = ({ctx, music = false}) => {
               frame={frame}
               at={enterAt}
               level={level}
-              width={tileW}
-              height={tileH}
+              width={TILE_W}
+              height={TILE_H}
               padding={0}
             >
               <div
