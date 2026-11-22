@@ -85,8 +85,13 @@ Content lives in `src/states/states-data.ts`: `ROWS` become `STATES: readonly St
 - `rankTiers` (`{ name, min, max }`, LEGEND 41-45 down to KEEP GOING 0-13).
 - `extraIds(item): string[]` splits `item.extra` on commas.
 
-### `src/gta6/timing.ts` exports
-- **File does not exist yet** (task 1c is not in the repo). No signatures to list.
+### `src/gta6/timing.ts` exports (task 1c; listed from its `export` lines)
+- Clock: `WIDTH`, `HEIGHT`, `RENDER_FPS` (from root `settings.json`), `FPS = 30`, `TIME_SCALE = RENDER_FPS / FPS`.
+- Phase seconds: `hookSec`, `readSec`, `holdSec`, `revealFullSec`, `revealFastSec`, `dykSec`, `bannerSec`, `levelCardSec`, `scoreCardSec`, `scoreboardSec`, `outroSec`; `targetSec = { min, max }`.
+- Conversions: `secToTicks(sec)`, `ticksToSec(ticks)`, `ticksToFrames(ticks)`, `secToFrames(sec)`, `timecode(sec): string`, hook `useGta6Frame(): number` (design ticks).
+- Types: `Range { from, to }`, `ItemPhases { banner?, read, timer, hold, reveal, dyk? }`, `Segment`, `PartRange`.
+- Helpers: `isFullReveal(item: Item): boolean`, `scoreCardLevel(item: Item): Level | undefined`.
+- Timeline: `segments: Segment[]`, `TOTAL_TICKS`, `TOTAL_SEC`, `RENDER_TOTAL_FRAMES`, `locate(tick): { seg, local, index }`, `partRanges: PartRange[]`, `chapters: string[]`.
 
 ### SFX ids (`src/gta6/sfx.ts`, files in `public/gta6/sfx/`)
 - Ids: `chime-easy`, `ping-medium`, `pulse-hard`, `tick`, `whoosh`, `correct`, `wrong-fade`, `buzz-small`, `notification`, `shake-thud`, `streak`, `scorecard`.

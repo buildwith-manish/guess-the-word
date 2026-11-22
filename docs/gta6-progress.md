@@ -4,7 +4,7 @@ The task table (docs/gta6-prompts-split.md) is not in the repo on any branch and
 
 - [x] 1a: shared reuse context. `docs/gta6-context.md` (sections 0 to 3).
 - [x] 1b: data. `src/gta6/data.ts`, `docs/gta6/questions.json` (45 items), `scripts/build-questions.js`, `scripts/check_gta6_data.ts`.
-- [ ] 1c: **not present in the repo.** `src/gta6/timing.ts` does not exist (no `TIMELINE`, `locate`, `RENDER_TOTAL_FRAMES`). Nothing in 1d depends on it.
+- [x] 1c: timing. `src/gta6/timing.ts` (clock helpers, phase constants, `segments`, `locate`, `RENDER_TOTAL_FRAMES`, `partRanges`, `chapters`), `scripts/gta6_runtime.ts`. Landed on the remote while 1d was in progress; not re-checked by 1d beyond listing its exports.
 - [x] 1d: sound effects.
   - `scripts/make_gta6_sfx.py` (numpy, original synthesis, no external audio).
   - `public/gta6/sfx/*.wav` (12 files, 48 kHz mono 16-bit) and `public/gta6/sfx/manifest.json`.
@@ -12,4 +12,4 @@ The task table (docs/gta6-prompts-split.md) is not in the repo on any branch and
   - Level: peak at most -3 dBFS, RMS target -19 dBFS (loudness proxy, not a true LUFS meter); short impulsive sounds are peak-limited.
 
 ## Next step
-Find or supply the task table and `src/gta6/timing.ts` (task 1c) before any scene task. Open points from `docs/gta6-context.md`: 2560x1440 at 60 fps is the repo convention, not 1920x1080.
+Supply the task table (docs/gta6-prompts-split.md) so the remaining task IDs can be added to this checklist. Open points from `docs/gta6-context.md`: 2560x1440 at 60 fps is the repo convention, not 1920x1080.
