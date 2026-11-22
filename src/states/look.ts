@@ -167,11 +167,11 @@ export const BADGE = {
   padX: 20,
   padY: 10,
   /**
-   * The QUIZ MATRIX logo: the animated bulb (transparent loop, 82 frames at 30 fps) as a sprite sheet,
-   * public/images/states/quiz-matrix-logo.webp (9 columns x 10 rows of 128 px cells, row by row). `size` is the logo box
-   * in ref px; `overhang` lets it stand that many ref px above and below the pill's text row without making the pill taller.
+   * The QUIZ MATRIX logo: a still bulb (no rays, no sparkles, no loop), public/images/states/quiz-matrix-bulb.png, one
+   * 128 px cell (cols 1, rows 1, frames 1), drawn on a frosted-glass disc (src/ios/QuizMatrixBadge.tsx). `size` is the logo
+   * box in ref px; `overhang` lets it stand that many ref px above and below the pill's text row without making the pill taller.
    */
-  logo: { file: 'images/states/quiz-matrix-logo.webp', cols: 9, rows: 10, frames: 82, fps: 30, size: 52, overhang: 10 },
+  logo: { file: 'images/states/quiz-matrix-bulb.png', cols: 1, rows: 1, frames: 1, fps: 30, size: 52, overhang: 10 },
   /** glassPanel depth for the pill */
   depth: 0.4,
 } as const;

@@ -1,10 +1,10 @@
 /**
  * QuizMatrixBadge: the QUIZ MATRIX watermark, one component for both videos (States and Search History).
  *
- * iOS look, no pill: the animated bulb logo on the left, the two words stacked on its right, QUIZ above MATRIX
- * (QUIZ in the label colour, semibold; MATRIX in the secondary colour, medium), Inter, wide tracking, slightly
- * transparent so it never competes with the question. The logo is the same sprite sheet as before (82 frames at 30 fps,
- * looping), unchanged.
+ * iOS look, no pill: the bulb logo on the left, on a frosted-glass disc, the two words stacked on its right, QUIZ above
+ * MATRIX (QUIZ in the label colour, semibold; MATRIX in the secondary colour, medium), Inter, wide tracking, slightly
+ * transparent so it never competes with the question. The logo is a STILL bulb (no rays, no sparkles, no loop): a single
+ * cell, so callers pass cols 1, rows 1, frames 1. The sprite-sheet maths below still works if a loop is ever wanted again.
  *
  * Entrance (badge-motion.ts): the logo appears ALONE first, then QUIZ slides out of it, then MATRIX. The space for the
  * words is reserved from the first frame, so the logo never shifts when they arrive.
@@ -40,6 +40,18 @@ const LOOK = {
   tracking: '0.18em',
   /** the whole badge is a watermark: a little see-through */
   opacity: 0.92,
+  /**
+   * Glass disc behind the bulb. `size` = its diameter as a fraction of the logo box. Drawn as a layered translucent fill
+   * (a blur would see nothing here: the badge has opacity, which cuts it off from the video behind).
+   */
+  glass: {
+    size: 0.94,
+    light: 'rgba(255,255,255,0.30)',
+    mid: 'rgba(255,255,255,0.11)',
+    deep: 'rgba(255,255,255,0.05)',
+    edge: 'rgba(255,255,255,0.30)',
+    shine: 'rgba(255,255,255,0.40)',
+  },
 };
 
 export interface QuizMatrixBadgeProps {
@@ -58,6 +70,7 @@ const Logo: React.FC<{ frame: number; size: number; logo: QuizMatrixLogo; opacit
   const i = Math.floor((frame * logo.fps) / 30) % logo.frames;
   const col = i % logo.cols;
   const row = Math.floor(i / logo.cols);
+  const inset = ((1 - LOOK.glass.size) / 2) * size;
   return (
     <div
       style={{
@@ -71,6 +84,21 @@ const Logo: React.FC<{ frame: number; size: number; logo: QuizMatrixLogo; opacit
         transform: `scale(${scale})`,
       }}
     >
+      {/* frosted-glass disc: light from the top left, hairline edge, a soft shine along the top */}
+      <div
+        style={{
+          position: 'absolute',
+          left: inset,
+          top: inset,
+          right: inset,
+          bottom: inset,
+          borderRadius: '50%',
+          background: `radial-gradient(circle at 30% 24%, ${LOOK.glass.light}, ${LOOK.glass.mid} 55%, ${LOOK.glass.deep})`,
+          border: `${px(1)}px solid ${LOOK.glass.edge}`,
+          boxShadow: `inset 0 ${px(2)}px ${px(1.5)}px ${LOOK.glass.shine}, inset 0 ${-px(4)}px ${px(10)}px ${LOOK.glass.deep}`,
+          boxSizing: 'border-box',
+        }}
+      />
       <Img
         src={staticFile(logo.file)}
         style={{ position: 'absolute', left: -col * size, top: -row * size, width: size * logo.cols, height: size * logo.rows, maxWidth: 'none' }}
