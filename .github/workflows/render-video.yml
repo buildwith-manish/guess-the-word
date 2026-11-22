@@ -97,6 +97,11 @@ jobs:
                   items = cand
                   break
           if items is None:
+              # this Remotion version prints a text table even with --json:  "GuessTheState   60   2560x1440   57194 (953.23 sec)"
+              m = re.search(r'^' + re.escape(comp) + r'[ \t]+\d+[ \t]+\d+x\d+[ \t]+(\d+)', txt, re.M)
+              if m:
+                  print(m.group(1))
+                  sys.exit(0)
               sys.exit('could not read the composition list')
           for c in items:
               if c['id'] == comp:
