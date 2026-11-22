@@ -200,6 +200,8 @@ export const TIMER = {
   flashAlpha: 0.2,
   flashWidth: 70,
   dissolveScale: 0.04,
+  /** digit change: blur (ref px) of the digit that leaves, shared by the ring and the bonus bar */
+  digitBlur: 4,
   alertFade: 6,
   alertPeak: 1.025,
   alertSettle: 24,

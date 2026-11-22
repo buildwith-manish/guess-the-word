@@ -43,7 +43,7 @@ const RED_TICKS = 3 * FPS;
  * Digit change (iOS): the old digit rises `moveOut` px and blurs out, the new one rises in from below with the quick
  * spring. The exit is 70% of the entrance (exitTicks), iosOut, no bounce; both run from the same tick so they overlap.
  */
-const DIGIT = { moveIn: 12, moveOut: 12, blurOut: 4, scaleFrom: 0.97 } as const;
+const DIGIT = { moveIn: 12, moveOut: 12, blurOut: TIMER.digitBlur, scaleFrom: 0.97 } as const;
 
 export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, size, digits = 'center', frame, ready, after = 6 }) => {
   const designFrame = useDesignFrame();

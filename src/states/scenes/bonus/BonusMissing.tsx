@@ -31,10 +31,10 @@ import { AbsoluteFill } from 'remotion';
 import { Rich } from '../../../Icon';
 import { S, px } from '../../../style';
 import { IOS, IosBackground } from '../../../ios';
-import { prog, mix, clamp01 } from '../../../anim';
-import { DUR, exitTicks, iosOut, spr, sprFit } from '../../motion';
+import { prog, mix, clamp01, cssEaseOut } from '../../../anim';
+import { DUR, SETTLE, enter, exitTicks, iosOut, leave, settle, settleTicks, spr, sprFit } from '../../motion';
 import { rise } from '../../ios-rise';
-import {RADIUS, glassPanel, COLOR, FONT, WEIGHT, TYPE, TRACKING } from '../../look';
+import {RADIUS, glassPanel, COLOR, FONT, WEIGHT, TYPE, TRACKING, TIMER } from '../../look';
 import { fitTextSize } from '../../capital-fit';
 import { domMeasure, fallbackMeasure, useFontsReady } from '../../measure-dom';
 import rootSettings from '../../../../settings.json';
@@ -384,13 +384,47 @@ export const BonusOptions: React.FC<{
   );
 };
 
-/** Thin clock bar with the seconds number (grey; the number and the bar turn red in the last three seconds), from `clockStart - 8` to the reveal. */
+/**
+ * Thin clock bar with a glass disc at its head, from `clockStart - 8` to the reveal. Same rules as the question TimerRing
+ * (look.ts TIMER): the digit is the hero (primary white, bold, tabular, iOS change: old digit rises and blurs out, new one
+ * springs in), a gradient along the bar from the accent mixed with white to the full accent at the head, the last 3 seconds
+ * cross-fade to the softer alert tone, and the disc settles up by at most 1.025 on each of those seconds. Accent is the
+ * bonus orange. No timing is changed: the bar still appears at clockStart - 8 and leaves over exitTicks(DUR.uiLong).
+ */
 export const BonusTimer: React.FC<{ frame: number; T: BonusTimes }> = ({ frame, T }) => {
   if (!(frame >= T.clockStart - 8 && frame < T.clockEnd + 6)) return null;
   const clockP = Math.min(1, Math.max(0, (frame - T.clockStart) / T.clockFrames));
   const secondsLeft = Math.max(1, Math.ceil((T.clockFrames - (frame - T.clockStart)) / FPS));
+  const total = Math.max(1, Math.round(T.clockFrames / FPS));
   const hot = secondsLeft <= 3;
-  const tone = hot ? COLOR.alert : BONUS_ACCENT;
+
+  const alertT = prog(frame, T.clockStart + T.clockFrames - 3 * FPS, TIMER.alertFade, cssEaseOut);
+  const tone = alertT > 0 ? `color-mix(in srgb, ${COLOR.alertSoft} ${alertT * 100}%, ${BONUS_ACCENT})` : BONUS_ACCENT;
+  const tint = `color-mix(in srgb, ${tone} ${100 - TIMER.arcTint}%, white)`;
+
+  const DISC = 84; // ref px: bigger than the old 62 so the hero digit has room
+  const disc = px(DISC);
+  const digitPx = px(TYPE.lg);
+  // digit d is on screen while the remaining ticks are in ((d - 1) * FPS, d * FPS]
+  const startOf = (d: number) => T.clockStart + T.clockFrames - d * FPS;
+  const outTicks = exitTicks(settleTicks('quick'));
+  const nowIn = secondsLeft >= total ? null : enter(frame, startOf(secondsLeft), 'quick', 12, 0.97);
+  const prevLeave = secondsLeft >= total ? null : leave(frame, startOf(secondsLeft), outTicks, 12);
+  const digitBox: React.CSSProperties = {
+    position: 'absolute',
+    inset: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontFamily: FONT.sans,
+    fontWeight: WEIGHT.strong,
+    fontVariantNumeric: 'tabular-nums',
+    fontSize: digitPx,
+    lineHeight: 1,
+  };
+  const colorOf = (d: number) => (d <= 3 ? COLOR.alertSoft : COLOR.text.primary);
+  const pulse = hot ? settle(frame, startOf(secondsLeft), TIMER.alertSettle, Math.min(TIMER.alertPeak, SETTLE.maxPeak)) : 1;
+
   return (
     <div
       style={{
@@ -414,26 +448,43 @@ export const BonusTimer: React.FC<{ frame: number; T: BonusTimes }> = ({ frame, 
           overflow: 'hidden',
         }}
       >
-        <div style={{ position: 'absolute', inset: 0, transformOrigin: 'left', transform: `scaleX(${1 - clockP})`, background: tone }} />
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            transformOrigin: 'left',
+            transform: `scaleX(${1 - clockP})`,
+            background: `linear-gradient(90deg, ${tint}, ${tone})`,
+          }}
+        />
       </div>
-      <div style={{ position: 'absolute', left: -px(31) + (1 - clockP) * S.timerWidth, top: px(4), width: px(62), height: px(62) }}>
+      <div style={{ position: 'absolute', left: -disc / 2 + (1 - clockP) * S.timerWidth, top: px(35) - disc / 2, width: disc, height: disc }}>
         <div
           style={{
             ...glassPanel(px(RADIUS.pill), undefined, 0.3),
-            width: px(62),
-            height: px(62),
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontFamily: FONT.sans,
-            fontWeight: WEIGHT.strong,
-            fontSize: px(TYPE.md),
-            fontVariantNumeric: 'tabular-nums',
-            color: hot ? COLOR.alert : COLOR.text.label,
-            borderColor: hot ? COLOR.alert : COLOR.fillStrong,
+            position: 'relative',
+            width: disc,
+            height: disc,
+            transform: pulse === 1 ? undefined : `scale(${pulse})`,
+            borderColor: `color-mix(in srgb, ${COLOR.alertSoft} ${alertT * 100}%, ${COLOR.fillStrong})`,
           }}
         >
-          {secondsLeft}
+          {prevLeave && prevLeave.t < 1 && (
+            <div
+              style={{
+                ...digitBox,
+                color: colorOf(secondsLeft + 1),
+                opacity: prevLeave.opacity,
+                transform: prevLeave.transform,
+                filter: `blur(${prevLeave.t * px(TIMER.digitBlur)}px)`,
+              }}
+            >
+              {secondsLeft + 1}
+            </div>
+          )}
+          <div style={{ ...digitBox, color: colorOf(secondsLeft), ...(nowIn ? { opacity: nowIn.opacity, transform: nowIn.transform } : null) }}>
+            {secondsLeft}
+          </div>
         </div>
       </div>
     </div>
