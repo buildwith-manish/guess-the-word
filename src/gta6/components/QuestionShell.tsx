@@ -97,6 +97,17 @@ export const SLOTS = {
   /** Left edge for a question card that sits in the top row, right of the score counter in the top-left corner. */
   questionLeft: 56 + 334 * 0.8 + 26,
   dyk: { left: FRAME.w - SAFE.x - 640, top: FRAME.h / 2 - 120, width: 640 },
+  /**
+   * Did-you-know card where the default `dyk` slot would cover the options (messages and safari keep `dyk`):
+   *   maps           left of the tile grid, under the route pin
+   *   photos         right of the centred photo grid (narrow: the gap is ~400 wide)
+   *   controlCenter  top-right band beside the question card (the right column below holds the score badge and slider)
+   */
+  dykByLook: {
+    maps: { left: 150, top: 640, width: 640 },
+    photos: { left: 1440, top: 470, width: 384 },
+    controlCenter: { left: 1380, top: 190, width: 444 },
+  },
 } as const;
 
 export type QuestionShellProps = {
@@ -180,6 +191,7 @@ export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, child
   // Edge glow builds from urgentFrom and fades out over the first ticks of the hold/reveal.
   const glowOpacity = 1 - clamp01((localFrame - phases.timer.to) / 8);
   const island = level === 'hard';
+  const dykSlot = SLOTS.dykByLook[item.look as keyof typeof SLOTS.dykByLook] ?? SLOTS.dyk;
   const beside = SLOTS.timerBeside[item.look as keyof typeof SLOTS.timerBeside] ?? SLOTS.timerBeside.messages;
 
   const au = audioOf(item);
@@ -245,9 +257,9 @@ export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, child
           dur={dykTicks}
           outTicks={dykSecLen !== undefined ? secToTicks(DYK_TAIL_SEC) : undefined}
           level={level}
-          left={SLOTS.dyk.left}
-          top={SLOTS.dyk.top}
-          width={SLOTS.dyk.width}
+          left={dykSlot.left}
+          top={dykSlot.top}
+          width={dykSlot.width}
         />
       ) : null}
 
