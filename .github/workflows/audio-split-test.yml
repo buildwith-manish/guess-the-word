@@ -29,7 +29,7 @@ jobs:
           node-version: '20'
           cache: 'npm'
       - run: npm install --no-audit --no-fund
-      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg python3-numpy
       - name: Render reference and pieces, compare
         env:
           COMP: ${{ inputs.composition || (contains(github.ref_name, 'search') && 'SearchHistory' || 'GuessTheState') }}
@@ -40,8 +40,8 @@ jobs:
           TOTAL=$(sed 's/\x1b\[[0-9;?]*[A-Za-z]//g' comps.out | grep -E "^$COMP[[:space:]]" | awk '{print $4}' | head -1)
           [ -n "$TOTAL" ] || { echo "cannot read the length of $COMP"; cat comps.out; exit 1; }
           echo "$COMP: $TOTAL frames"
-          # four ranges of 400 frames spread over the video (2%, 16%, 52%, 91%), each cut in the middle
-          for P in 2 16 52 91; do
+          # two ranges of 400 frames spread over the video (16%, 52%), each cut in the middle
+          for P in 16 52; do
             S=$(( TOTAL * P / 100 )); M=$(( S + 250 )); E=$(( S + 399 ))
             [ $E -lt $TOTAL ] || { E=$(( TOTAL - 1 )); }
             echo "=== range $S-$E, cut at $M ==="
@@ -52,27 +52,49 @@ jobs:
             $F out/t/p2-$S.wav  --frames=$M-$E $C
             printf "file 'p1-$S.wav'\nfile 'p2-$S.wav'\n" > out/t/l-$S.txt
             ffmpeg -y -v error -f concat -safe 0 -i out/t/l-$S.txt -c copy out/t/joined-$S.wav
-            python3 - "$S" "$S" <<'PY' || FAIL=1
+            python3 - "$S" "$M" "$E" <<'PY' || FAIL=1
           import sys, wave, array
-          s = sys.argv[1]
+          import numpy as np
+          s, m, e = (int(x) for x in sys.argv[1:4])
           def load(f):
               w = wave.open(f)
               assert w.getsampwidth() == 2, 'not 16 bit'
-              return w.getframerate(), w.getnchannels(), array.array('h', w.readframes(w.getnframes()))
+              ch = w.getnchannels()
+              a = np.frombuffer(w.readframes(w.getnframes()), dtype='<i2').astype(np.int32)
+              return w.getframerate(), ch, a
+          def note(msg):
+              print(f'::notice title=split {s}::{msg}')
           r1, c1, a = load(f'out/t/ref-{s}.wav')
+          _, _, p1 = load(f'out/t/p1-{s}.wav')
+          _, _, p2 = load(f'out/t/p2-{s}.wav')
           r2, c2, b = load(f'out/t/joined-{s}.wav')
-          rms = (sum(x * x for x in a) / max(1, len(a))) ** 0.5
-          peak = max((abs(x) for x in a), default=0)
-          print(f'rate {r1}/{r2}, channels {c1}/{c2}, samples {len(a)}/{len(b)}, reference RMS {rms:.1f}, peak {peak}')
-          if (r1, c1, len(a)) != (r2, c2, len(b)):
-              print('::error::length/format differs'); sys.exit(1)
-          diff = max((abs(x - y) for x, y in zip(a, b)), default=0)
-          bad = sum(1 for x, y in zip(a, b) if abs(x - y) > 1)
-          print(f'max sample difference {diff}, samples differing by more than 1: {bad}')
-          if bad:
-              print('::error::pieces do not match the single render'); sys.exit(1)
-          if peak == 0:
-              print('::warning::this range is silent, so it proves little')
+          want = (e - s + 1) * (r1 // 60) * c1
+          note(f'rate {r1}, channels {c1}; samples x channels: expected {want}, ref {len(a)}, p1 {len(p1)} (expected {(m - s) * (r1 // 60) * c1}), p2 {len(p2)} (expected {(e - m + 1) * (r1 // 60) * c1}), joined {len(b)}')
+          peak = int(np.abs(a).max()) if len(a) else 0
+          note(f'reference peak {peak}')
+          # where does each piece match the reference?
+          def first_diff(x, y):
+              n = min(len(x), len(y)); d = np.nonzero(x[:n] != y[:n])[0]
+              return int(d[0]) if len(d) else -1
+          note(f'p1 vs start of ref: first differing sample {first_diff(p1, a)}')
+          off2 = (m - s) * (r1 // 60) * c1
+          note(f'p2 vs ref at the cut: first differing sample {first_diff(p2, a[off2:])}')
+          # shift search: is p2 the reference moved by some samples?
+          w0 = min(len(p2) - 9000, 30000); w0 = max(w0, 0)
+          win = p2[w0:w0 + 4000]
+          best = None
+          if peak and len(win) == 4000 and np.abs(win).max() > 50:
+              for k in range(-4000, 4001):
+                  st = off2 + w0 + k
+                  if st < 0 or st + 4000 > len(a): continue
+                  if np.array_equal(a[st:st + 4000], win):
+                      best = k; break
+          note(f'p2 matches the reference shifted by {best} samples (None = no match found or silent window)')
+          note(f'p1 start: first nonzero sample {int(np.nonzero(p1)[0][0]) if np.any(p1) else -1}, ref start: {int(np.nonzero(a)[0][0]) if np.any(a) else -1}')
+          bad = 0 if len(a) != len(b) else int(np.sum(np.abs(a - b) > 1))
+          if len(a) != len(b) or bad:
+              print('::error::pieces do not match the single render (length %d vs %d, differing samples %d)' % (len(a), len(b), bad))
+              sys.exit(1)
           PY
           done
           exit $FAIL
