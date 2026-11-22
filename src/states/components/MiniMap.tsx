@@ -31,6 +31,8 @@ export interface MiniMapProps {
    * there is no swap at the stamp. Default undefined (old behaviour). At p = 1 it draws exactly like an answered state.
    */
   arriving?: { key: string; p: number };
+  /** landing pulse: scales the piece `key` (and its outline) about its own centre; other states do not move. Default undefined */
+  pulse?: { key: string; scale: number };
   /** 0..1 strength of the region glow (highlightRegion); default 1 (old behaviour) */
   regionGlow?: number;
   /** 0..1 strength of the `current` outline (halo and stroke); default 1 (old behaviour) */
@@ -78,7 +80,7 @@ const LOOK = {
   ],
 };
 
-export const MiniMap: React.FC<MiniMapProps> = ({ answered = [], current, highlightRegion, size, arriving, currentAlpha = 1, regionGlow = 1, frame }) => {
+export const MiniMap: React.FC<MiniMapProps> = ({ answered = [], current, highlightRegion, size, arriving, currentAlpha = 1, regionGlow = 1, pulse: pulseProp, frame }) => {
   const designFrame = useDesignFrame();
   const f = frame ?? designFrame;
 
@@ -88,13 +90,21 @@ export const MiniMap: React.FC<MiniMapProps> = ({ answered = [], current, highli
   const period = ms(LOOK.pulseMs);
   const pulse = 0.5 + 0.5 * Math.sin((2 * Math.PI * f) / period);
   const cur = current ? paths.find((p) => p.key === current) : undefined;
+  // landing pulse: a scale about the centre of the state's own box (map units); undefined when there is none
+  const pulseT = (key: string): string | undefined => {
+    if (!pulseProp || pulseProp.key !== key || pulseProp.scale === 1) return undefined;
+    const [x0, y0, x1, y1] = getShape(key).miniBBox;
+    const cx = (x0 + x1) / 2;
+    const cy = (y0 + y1) / 2;
+    return `translate(${cx} ${cy}) scale(${pulseProp.scale}) translate(${-cx} ${-cy})`;
+  };
   const glowing = highlightRegion && regionGlow > 0 ? paths.filter((p) => p.region === highlightRegion) : [];
 
   return (
     <svg width={size} height={miniMapHeight(size)} viewBox={`0 0 ${MINI_W} ${MINI_H}`} style={{ display: 'block', overflow: 'visible' }}>
       {paths.map((p) => {
         const answeredPath = (opacity = 1) => (
-          <path key={p.key} d={p.d} opacity={opacity} fill={p.accent} fillOpacity={LOOK.answeredFillAlpha} stroke={COLORS.base} strokeOpacity={LOOK.answeredEdgeAlpha} strokeWidth={LOOK.edge} strokeLinejoin="round" />
+          <path key={p.key} d={p.d} opacity={opacity} transform={pulseT(p.key)} fill={p.accent} fillOpacity={LOOK.answeredFillAlpha} stroke={COLORS.base} strokeOpacity={LOOK.answeredEdgeAlpha} strokeWidth={LOOK.edge} strokeLinejoin="round" />
         );
         const dimPath = (opacity = 1) => (
           <path key={`${p.key}-dim`} d={p.d} opacity={opacity} fill={whiteA(MAP.unansweredFill)} stroke={whiteA(MAP.unansweredEdge)} strokeWidth={MAP.unansweredEdgeWidth} strokeLinejoin="round" />
@@ -121,7 +131,7 @@ export const MiniMap: React.FC<MiniMapProps> = ({ answered = [], current, highli
       )}
 
       {cur && (
-        <>
+        <g transform={pulseT(cur.key)}>
           {LOOK.halo.map((h, i) => (
             <path key={`c-${i}`} d={cur.d} fill="none" stroke={COLOR.text.primary} strokeOpacity={h.a * (1 + MINI_PULSE.lift * pulse) * currentAlpha} strokeWidth={LOOK.edge * h.k} strokeLinejoin="round" strokeLinecap="round" />
           ))}
@@ -133,7 +143,7 @@ export const MiniMap: React.FC<MiniMapProps> = ({ answered = [], current, highli
             strokeWidth={LOOK.currentStroke * (1 + LOOK.pulseSwing * pulse)}
             strokeLinejoin="round"
           />
-        </>
+        </g>
       )}
     </svg>
   );

@@ -35,7 +35,7 @@ import { useDesignFrame } from '../../clock';
 import { prog, mix } from '../../anim';
 import { S, SAFE_X, SAFE_Y, px } from '../../style';
 import { IOS } from '../../ios';
-import { FLIGHT, enter, iosOut, sprFit } from '../motion';
+import { FLIGHT, enter, iosOut, settle, sprFit } from '../motion';
 import {RADIUS, glassPanel, COLOR, FONT, WEIGHT, TYPE } from '../look';
 import { StateWatermark } from '../components/StateWatermark';
 import { HEIGHT, WIDTH, TIME_SCALE, buildQuestionPlan, LEVELS, QUESTIONS } from '../state-timing';
@@ -258,6 +258,7 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
                     answered={STATES.slice(0, f >= plan.stamp ? index + 1 : index).map((s) => s.key)}
                     current={f >= plan.stamp && curAlpha > 0 ? plan.key : undefined}
                     currentAlpha={curAlpha}
+                    pulse={f >= plan.stamp ? { key: plan.key, scale: settle(f, plan.stamp, FLIGHT.settleTicks, FLIGHT.settlePeak) } : undefined}
                     highlightRegion={region}
                     regionGlow={1 - iosOut((f - plan.revealStart) / FLIGHT.glowFade)}
                     arriving={f >= plan.revealStart && f < plan.stamp ? { key: plan.key, p: arrive } : undefined}
