@@ -1,0 +1,879 @@
+{
+ "title": "GTA 6 Trivia (45 items)",
+ "items": [
+  {
+   "n": "1",
+   "level": "easy",
+   "kind": "q",
+   "q": "Which company makes the GTA games?",
+   "options": [
+    "Rockstar Games",
+    "Ubisoft",
+    "Electronic Arts",
+    "Activision"
+   ],
+   "answer": 0,
+   "reveal": "Rockstar Games.",
+   "look": "messages",
+   "extra": "plain",
+   "timerSec": 6,
+   "fastest": false,
+   "order": 1
+  },
+  {
+   "n": "2",
+   "level": "easy",
+   "kind": "q",
+   "q": "In what year did the very first GTA come out?",
+   "options": [
+    "1995",
+    "1997",
+    "1999",
+    "2001"
+   ],
+   "answer": 1,
+   "reveal": "1997. The first game launched on November 28, 1997.",
+   "look": "messages",
+   "extra": "calendarDate",
+   "timerSec": 6,
+   "fastest": false,
+   "order": 2
+  },
+  {
+   "n": "3",
+   "level": "easy",
+   "kind": "q",
+   "q": "Which game made GTA a 3D series in 2001?",
+   "options": [
+    "GTA 2",
+    "GTA III",
+    "Vice City",
+    "San Andreas"
+   ],
+   "answer": 1,
+   "reveal": "GTA III.",
+   "look": "messages",
+   "extra": "factCard",
+   "timerSec": 6,
+   "fastest": false,
+   "didYouKnow": "GTA III is where the 3D era began.",
+   "order": 3
+  },
+  {
+   "n": "4",
+   "level": "easy",
+   "kind": "q",
+   "q": "Vice City is inspired by which real US city?",
+   "options": [
+    "Los Angeles",
+    "Chicago",
+    "Miami",
+    "New York"
+   ],
+   "answer": 2,
+   "reveal": "Miami.",
+   "look": "messages",
+   "extra": "mapPin",
+   "timerSec": 6,
+   "fastest": false,
+   "order": 4
+  },
+  {
+   "n": "5",
+   "level": "easy",
+   "kind": "q",
+   "q": "Which 2004 GTA is set in a state based on California and Nevada?",
+   "options": [
+    "San Andreas",
+    "Vice City",
+    "GTA IV",
+    "GTA III"
+   ],
+   "answer": 0,
+   "reveal": "San Andreas.",
+   "look": "messages",
+   "extra": "streak5",
+   "timerSec": 6,
+   "fastest": false,
+   "order": 5
+  },
+  {
+   "n": "6",
+   "level": "easy",
+   "kind": "q",
+   "q": "Who is the main character of GTA IV?",
+   "options": [
+    "Tommy Vercetti",
+    "Niko Bellic",
+    "Trevor Philips",
+    "Franklin Clinton"
+   ],
+   "answer": 1,
+   "reveal": "Niko Bellic.",
+   "look": "messages",
+   "extra": "factCard",
+   "timerSec": 6,
+   "fastest": false,
+   "didYouKnow": "GTA IV scored 98 on Metacritic.",
+   "order": 6
+  },
+  {
+   "n": "7",
+   "level": "easy",
+   "kind": "q",
+   "q": "FASTEST GUESS, 3 seconds! How many playable main characters does GTA V have?",
+   "options": [
+    "1",
+    "2",
+    "3",
+    "4"
+   ],
+   "answer": 2,
+   "reveal": "Three.",
+   "look": "messages",
+   "extra": "fastest",
+   "timerSec": 3,
+   "fastest": true,
+   "order": 7
+  },
+  {
+   "n": "8",
+   "level": "easy",
+   "kind": "q",
+   "q": "What is the name of the fictional state GTA 6 is set in?",
+   "options": [
+    "San Andreas",
+    "Leonida",
+    "Liberty State",
+    "Vice Island"
+   ],
+   "answer": 1,
+   "reveal": "Leonida.",
+   "look": "messages",
+   "extra": "reminderStillCounting",
+   "timerSec": 6,
+   "fastest": false,
+   "order": 8
+  },
+  {
+   "n": "9",
+   "level": "easy",
+   "kind": "q",
+   "q": "Which city returns as the heart of GTA 6?",
+   "options": [
+    "Liberty City",
+    "Los Santos",
+    "Vice City",
+    "San Fierro"
+   ],
+   "answer": 2,
+   "reveal": "Vice City.",
+   "look": "messages",
+   "extra": "factCard",
+   "timerSec": 6,
+   "fastest": false,
+   "didYouKnow": "The original Vice City was set in 1986.",
+   "order": 9
+  },
+  {
+   "n": "10",
+   "level": "easy",
+   "kind": "q",
+   "q": "When did GTA 6 launch?",
+   "options": [
+    "November 12",
+    "November 17",
+    "November 19",
+    "November 26"
+   ],
+   "answer": 2,
+   "reveal": "November 19, 2026.",
+   "look": "messages",
+   "extra": "dateChip",
+   "timerSec": 6,
+   "fastest": false,
+   "order": 10
+  },
+  {
+   "n": "B1",
+   "level": "easy",
+   "kind": "bonus",
+   "q": "Bonus round! Which Tom Petty song plays in the very first GTA 6 trailer?",
+   "options": [
+    "Free Fallin'",
+    "Love Is a Long Road",
+    "American Girl",
+    "Refugee"
+   ],
+   "answer": 1,
+   "reveal": "Love Is a Long Road.",
+   "look": "controlCenter",
+   "extra": "waveform",
+   "timerSec": 9,
+   "fastest": false,
+   "order": 11
+  },
+  {
+   "n": "11",
+   "level": "easy",
+   "kind": "q",
+   "q": "Which of these did GTA 6 NOT launch on?",
+   "options": [
+    "PS5",
+    "Xbox Series X",
+    "Xbox Series S",
+    "PC"
+   ],
+   "answer": 3,
+   "reveal": "PC. For now, it's console only.",
+   "look": "messages",
+   "extra": "deviceIcons",
+   "timerSec": 6,
+   "fastest": false,
+   "order": 12
+  },
+  {
+   "n": "12",
+   "level": "easy",
+   "kind": "q",
+   "q": "Who is the female lead of GTA 6?",
+   "options": [
+    "Lucia",
+    "Maria",
+    "Carmen",
+    "Jasmine"
+   ],
+   "answer": 0,
+   "reveal": "Lucia.",
+   "look": "messages",
+   "extra": "factCard",
+   "timerSec": 6,
+   "fastest": false,
+   "didYouKnow": "She's the series' first non-optional female protagonist.",
+   "verify": "Claim 'first non-optional female protagonist' is not tied to a listed source; confirm or drop the did-you-know line.",
+   "order": 13
+  },
+  {
+   "n": "13",
+   "level": "easy",
+   "kind": "q",
+   "q": "Who is the male lead of GTA 6?",
+   "options": [
+    "Cal",
+    "Jason",
+    "Brian",
+    "Raul"
+   ],
+   "answer": 1,
+   "reveal": "Jason.",
+   "look": "messages",
+   "extra": "profilePair",
+   "timerSec": 6,
+   "fastest": false,
+   "order": 14
+  },
+  {
+   "n": "14",
+   "level": "easy",
+   "kind": "q",
+   "q": "Which real US state inspired Leonida?",
+   "options": [
+    "Texas",
+    "Florida",
+    "California",
+    "Louisiana"
+   ],
+   "answer": 1,
+   "reveal": "Florida.",
+   "look": "messages",
+   "extra": "mapPin",
+   "timerSec": 6,
+   "fastest": false,
+   "order": 15
+  },
+  {
+   "n": "15",
+   "level": "easy",
+   "kind": "q",
+   "q": "In which year did GTA 6 Trailer 1 come out?",
+   "options": [
+    "2021",
+    "2022",
+    "2023",
+    "2024"
+   ],
+   "answer": 2,
+   "reveal": "2023.",
+   "look": "messages",
+   "extra": "streak15,easyScoreCard",
+   "timerSec": 6,
+   "fastest": false,
+   "didYouKnow": "It got about 101 million views in just two days.",
+   "order": 16
+  },
+  {
+   "n": "16",
+   "level": "medium",
+   "kind": "q",
+   "q": "FASTEST GUESS, 3 seconds! Which GTA 6 region is inspired by the Everglades?",
+   "options": [
+    "Grassrivers",
+    "Ambrosia",
+    "Port Gellhorn",
+    "Mount Kalaga"
+   ],
+   "answer": 0,
+   "reveal": "Grassrivers.",
+   "look": "maps",
+   "extra": "mapCrop,fastest",
+   "timerSec": 3,
+   "fastest": true,
+   "order": 17
+  },
+  {
+   "n": "17",
+   "level": "medium",
+   "kind": "q",
+   "q": "Which actor voiced the hero of Vice City?",
+   "options": [
+    "Ray Liotta",
+    "Al Pacino",
+    "Ray Winstone",
+    "Danny Trejo"
+   ],
+   "answer": 0,
+   "reveal": "Ray Liotta, the series' first speaking protagonist.",
+   "look": "photos",
+   "extra": "photoGrid",
+   "timerSec": 6,
+   "fastest": false,
+   "order": 18
+  },
+  {
+   "n": "18",
+   "level": "medium",
+   "kind": "q",
+   "q": "Which region is a one-company sugar town?",
+   "options": [
+    "Ambrosia",
+    "Port Gellhorn",
+    "Grassrivers",
+    "Leonida Keys"
+   ],
+   "answer": 0,
+   "reveal": "Ambrosia.",
+   "look": "maps",
+   "extra": "mapCrop",
+   "timerSec": 6,
+   "fastest": false,
+   "didYouKnow": "The Allied Crystal sugar refinery dominates the town.",
+   "order": 19
+  },
+  {
+   "n": "19",
+   "level": "medium",
+   "kind": "q",
+   "q": "Which region is called Leonida's forgotten coast?",
+   "options": [
+    "Mount Kalaga",
+    "Port Gellhorn",
+    "Vice City",
+    "Leonida Keys"
+   ],
+   "answer": 1,
+   "reveal": "Port Gellhorn, a former vacation spot full of cheap motels.",
+   "look": "maps",
+   "extra": "mapCrop",
+   "timerSec": 6,
+   "fastest": false,
+   "order": 20
+  },
+  {
+   "n": "20",
+   "level": "medium",
+   "kind": "q",
+   "q": "Which animal lives in the wetlands of Grassrivers?",
+   "options": [
+    "Alligators",
+    "Polar bears",
+    "Kangaroos",
+    "Camels"
+   ],
+   "answer": 0,
+   "reveal": "Alligators.",
+   "look": "photos",
+   "extra": "silhouette",
+   "timerSec": 6,
+   "fastest": false,
+   "order": 21
+  },
+  {
+   "n": "B2",
+   "level": "medium",
+   "kind": "bonus",
+   "q": "Bonus round! One of these is NOT among the six confirmed regions of Leonida.",
+   "options": [
+    "Ambrosia",
+    "Port Gellhorn",
+    "Mount Kalaga National Park",
+    "Blueberry Bay"
+   ],
+   "answer": 3,
+   "reveal": "Blueberry Bay is made up. The six real regions are Vice City, Mount Kalaga, Grassrivers, the Leonida Keys, Ambrosia and Port Gellhorn.",
+   "look": "controlCenter",
+   "extra": "mapDropPin",
+   "timerSec": 9,
+   "fastest": false,
+   "order": 22
+  },
+  {
+   "n": "21",
+   "level": "medium",
+   "kind": "q",
+   "q": "In which month and year did GTA 6 Trailer 2 come out?",
+   "options": [
+    "December 2023",
+    "May 2025",
+    "August 2025",
+    "November 2025"
+   ],
+   "answer": 1,
+   "reveal": "May 2025.",
+   "look": "maps",
+   "extra": "factCard",
+   "timerSec": 6,
+   "fastest": false,
+   "didYouKnow": "It reportedly reached about 475 million views across platforms in 24 hours.",
+   "order": 23
+  },
+  {
+   "n": "22",
+   "level": "medium",
+   "kind": "q",
+   "q": "Who runs a business empire in Vice City?",
+   "options": [
+    "Boobie Ike",
+    "Cal Hampton",
+    "Raul Bautista",
+    "Brian Heder"
+   ],
+   "answer": 0,
+   "reveal": "Boobie Ike.",
+   "look": "photos",
+   "extra": "reminderStillCounting",
+   "timerSec": 6,
+   "fastest": false,
+   "order": 24
+  },
+  {
+   "n": "23",
+   "level": "medium",
+   "kind": "q",
+   "q": "Which character is a seasoned bank robber?",
+   "options": [
+    "Boobie Ike",
+    "Cal Hampton",
+    "Raul Bautista",
+    "Dre'Quan Priest"
+   ],
+   "answer": 2,
+   "reveal": "Raul Bautista.",
+   "look": "photos",
+   "extra": "profileCard",
+   "timerSec": 6,
+   "fastest": false,
+   "order": 25
+  },
+  {
+   "n": "24",
+   "level": "medium",
+   "kind": "q",
+   "q": "How many main playable characters does GTA 6 have?",
+   "options": [
+    "One",
+    "Two",
+    "Three",
+    "Four"
+   ],
+   "answer": 1,
+   "reveal": "Two, Lucia and Jason.",
+   "look": "photos",
+   "extra": "factCard",
+   "timerSec": 6,
+   "fastest": false,
+   "didYouKnow": "Jason Duval is a former Army soldier.",
+   "order": 26
+  },
+  {
+   "n": "25",
+   "level": "medium",
+   "kind": "q",
+   "q": "Which music duo is signed to Only Raw Records?",
+   "options": [
+    "Real Dimez",
+    "Fresh Roxy",
+    "Bae Brothers",
+    "Only Two"
+   ],
+   "answer": 0,
+   "reveal": "Real Dimez.",
+   "look": "photos",
+   "extra": "streak25",
+   "timerSec": 6,
+   "fastest": false,
+   "order": 27
+  },
+  {
+   "n": "26",
+   "level": "medium",
+   "kind": "q",
+   "q": "Which Pointer Sisters song plays in Trailer 2?",
+   "options": [
+    "Hot Together",
+    "Jump",
+    "Fire",
+    "Slow Hand"
+   ],
+   "answer": 0,
+   "reveal": "Hot Together.",
+   "look": "photos",
+   "extra": "waveform",
+   "timerSec": 6,
+   "fastest": false,
+   "verify": "Silent waveform only, no audio.",
+   "order": 28
+  },
+  {
+   "n": "27",
+   "level": "medium",
+   "kind": "q",
+   "q": "FASTEST GUESS, 3 seconds! Which engine does GTA 6 run on?",
+   "options": [
+    "RAGE",
+    "Unreal",
+    "Unity",
+    "Frostbite"
+   ],
+   "answer": 0,
+   "reveal": "RAGE.",
+   "look": "photos",
+   "extra": "fastest",
+   "timerSec": 3,
+   "fastest": true,
+   "didYouKnow": "It stands for Rockstar Advanced Game Engine.",
+   "order": 29
+  },
+  {
+   "n": "28",
+   "level": "medium",
+   "kind": "q",
+   "q": "Which band performs Everybody Have Fun Tonight, heard in Trailer 2?",
+   "options": [
+    "Duran Duran",
+    "Wang Chung",
+    "Toto",
+    "Bananarama"
+   ],
+   "answer": 1,
+   "reveal": "Wang Chung.",
+   "look": "photos",
+   "extra": "waveform",
+   "timerSec": 6,
+   "fastest": false,
+   "verify": "Silent waveform only, no audio.",
+   "order": 30
+  },
+  {
+   "n": "29",
+   "level": "medium",
+   "kind": "q",
+   "q": "Not counting spin-offs and handheld games, GTA 6 is which main game in the series?",
+   "options": [
+    "Sixth",
+    "Seventh",
+    "Eighth",
+    "Ninth"
+   ],
+   "answer": 2,
+   "reveal": "The eighth main GTA game, not counting spin-offs and handheld titles.",
+   "look": "maps",
+   "extra": "counter1to8",
+   "timerSec": 6,
+   "fastest": false,
+   "order": 31
+  },
+  {
+   "n": "30",
+   "level": "medium",
+   "kind": "q",
+   "q": "How many times was GTA 6 delayed before November 19, 2026?",
+   "options": [
+    "One",
+    "Two",
+    "Three",
+    "Four"
+   ],
+   "answer": 1,
+   "reveal": "Two.",
+   "look": "maps",
+   "extra": "timeline3",
+   "timerSec": 6,
+   "fastest": false,
+   "didYouKnow": "The window moved from 2025 to May 26, 2026, then to November 19, 2026.",
+   "order": 32
+  },
+  {
+   "n": "B3",
+   "level": "medium",
+   "kind": "bonus",
+   "q": "Bonus round! What score did GTA 6 get on Metacritic on PS5?",
+   "options": [
+    "97",
+    "98",
+    "99",
+    "100"
+   ],
+   "answer": 2,
+   "reveal": "99, tying Ocarina of Time for the highest Metascore ever.",
+   "look": "controlCenter",
+   "extra": "scoreBadge,mediumScoreCard",
+   "timerSec": 9,
+   "fastest": false,
+   "verify": "Check the live score before recording. Fallback: 'GTA V came out in which year? 2011/2013/2015/2017' answer 2013.",
+   "order": 33
+  },
+  {
+   "n": "31",
+   "level": "hard",
+   "kind": "q",
+   "q": "Jason Duval used to work for drug runners in which area?",
+   "options": [
+    "Leonida Keys",
+    "Grassrivers",
+    "Ambrosia",
+    "Port Gellhorn"
+   ],
+   "answer": 0,
+   "reveal": "The Leonida Keys.",
+   "look": "safari",
+   "extra": "plain",
+   "timerSec": 7,
+   "fastest": false,
+   "order": 34
+  },
+  {
+   "n": "32",
+   "level": "hard",
+   "kind": "q",
+   "q": "Where is Lucia imprisoned at the start of her story?",
+   "options": [
+    "Leonida Penitentiary",
+    "Vice City Jail",
+    "Port Gellhorn Prison",
+    "Mount Kalaga Camp"
+   ],
+   "answer": 0,
+   "reveal": "Leonida Penitentiary.",
+   "look": "safari",
+   "extra": "plain",
+   "timerSec": 7,
+   "fastest": false,
+   "order": 35
+  },
+  {
+   "n": "33",
+   "level": "hard",
+   "kind": "q",
+   "q": "What is Lucia's last name?",
+   "options": [
+    "Caminos",
+    "Duval",
+    "Hampton",
+    "Bautista"
+   ],
+   "answer": 0,
+   "reveal": "Caminos. Lucia Caminos.",
+   "look": "safari",
+   "extra": "profileCard",
+   "timerSec": 7,
+   "fastest": false,
+   "order": 36
+  },
+  {
+   "n": "34",
+   "level": "hard",
+   "kind": "q",
+   "q": "FASTEST GUESS, 3 seconds! What is Jason's last name?",
+   "options": [
+    "Duval",
+    "Bellic",
+    "Vance",
+    "Clinton"
+   ],
+   "answer": 0,
+   "reveal": "Duval. Jason Duval.",
+   "look": "safari",
+   "extra": "fastest",
+   "timerSec": 3,
+   "fastest": true,
+   "order": 37
+  },
+  {
+   "n": "35",
+   "level": "hard",
+   "kind": "q",
+   "q": "Which character is Jason's paranoid friend?",
+   "options": [
+    "Cal Hampton",
+    "Boobie Ike",
+    "Raul Bautista",
+    "Dre'Quan Priest"
+   ],
+   "answer": 0,
+   "reveal": "Cal Hampton.",
+   "look": "safari",
+   "extra": "streak35",
+   "timerSec": 7,
+   "fastest": false,
+   "order": 38
+  },
+  {
+   "n": "36",
+   "level": "hard",
+   "kind": "q",
+   "q": "Who co-owns Only Raw Records with Boobie Ike?",
+   "options": [
+    "Dre'Quan Priest",
+    "Cal Hampton",
+    "Brian Heder",
+    "Raul Bautista"
+   ],
+   "answer": 0,
+   "reveal": "Dre'Quan Priest.",
+   "look": "safari",
+   "extra": "factCard",
+   "timerSec": 7,
+   "fastest": false,
+   "didYouKnow": "Only Raw Records signs the duo Real Dimez.",
+   "order": 39
+  },
+  {
+   "n": "37",
+   "level": "hard",
+   "kind": "q",
+   "q": "Which Tammy Wynette song is heard in Trailer 2?",
+   "options": [
+    "Talkin' to Myself Again",
+    "Stand By Your Man",
+    "D-I-V-O-R-C-E",
+    "Take Me to Your World"
+   ],
+   "answer": 0,
+   "reveal": "Talkin' to Myself Again.",
+   "look": "safari",
+   "extra": "waveform",
+   "timerSec": 7,
+   "fastest": false,
+   "verify": "Check the trailer's music credits before recording. Silent waveform only.",
+   "order": 40
+  },
+  {
+   "n": "38",
+   "level": "hard",
+   "kind": "q",
+   "q": "In which year did Rockstar officially confirm GTA 6 was in development?",
+   "options": [
+    "2020",
+    "2021",
+    "2022",
+    "2023"
+   ],
+   "answer": 2,
+   "reveal": "2022. Rockstar confirmed it on February 4, 2022.",
+   "look": "safari",
+   "extra": "calendarDate",
+   "timerSec": 7,
+   "fastest": false,
+   "order": 41
+  },
+  {
+   "n": "39",
+   "level": "hard",
+   "kind": "q",
+   "q": "How many perfect scores were in the PS5 launch review roundup?",
+   "options": [
+    "98",
+    "118",
+    "128",
+    "147"
+   ],
+   "answer": 1,
+   "reveal": "118, out of 147 reviews.",
+   "look": "safari",
+   "extra": "sliders",
+   "timerSec": 7,
+   "fastest": false,
+   "didYouKnow": "The lowest score was an 80, which cited a slow stretch early on.",
+   "verify": "Re-check the live count before recording. Fallback: 'GTA IV came out in which year? 2006/2008/2010/2013' answer 2008.",
+   "order": 42
+  },
+  {
+   "n": "40",
+   "level": "hard",
+   "kind": "q",
+   "q": "Which actor voices Brian Heder, Jason's landlord?",
+   "options": [
+    "Stephen Root",
+    "Bryan Cranston",
+    "Steve Buscemi",
+    "Ron Perlman"
+   ],
+   "answer": 0,
+   "reveal": "Stephen Root.",
+   "look": "safari",
+   "extra": "streak40",
+   "timerSec": 7,
+   "fastest": false,
+   "order": 43
+  },
+  {
+   "n": "41",
+   "level": "hard",
+   "kind": "q",
+   "q": "How long before its official release did GTA 6 Trailer 1 leak?",
+   "options": [
+    "One hour",
+    "One day",
+    "One week",
+    "One month"
+   ],
+   "answer": 1,
+   "reveal": "About one day. Rockstar then released it on December 5, 2023.",
+   "look": "safari",
+   "extra": "timelineLeak",
+   "timerSec": 7,
+   "fastest": false,
+   "order": 44
+  },
+  {
+   "n": "42",
+   "level": "hard",
+   "kind": "q",
+   "q": "FINAL QUESTION. Rockstar North was formerly known as which studio?",
+   "options": [
+    "DMA Design",
+    "Bungie",
+    "Naughty Dog",
+    "Insomniac"
+   ],
+   "answer": 0,
+   "reveal": "DMA Design.",
+   "look": "safari",
+   "extra": "q42Replay,hardScoreCard",
+   "timerSec": 7,
+   "fastest": false,
+   "didYouKnow": "The original GTA was created by David Jones and Mike Dailly.",
+   "order": 45
+  }
+ ]
+}
