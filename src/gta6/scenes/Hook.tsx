@@ -8,6 +8,7 @@ import type { SfxCue } from '../sfx';
 import { FRAME, SAFE, springAt, u } from '../system';
 import { hookSec, secToTicks, ticksToFrames, useGta6Frame } from '../timing';
 import { QuestionScene } from './QuestionScene';
+import { ShellVoiceContext } from '../voiceContext';
 
 /**
  * Hook, 0:00 to 0:06 (timing.ts `hookSec`). Rules are on screen only, no voiceover.
@@ -99,7 +100,10 @@ const Lock: React.FC = () => {
 export const Hook: React.FC<{ at?: number }> = ({ at = 0 }) => (
   <Sequence from={ticksToFrames(at)} durationInFrames={ticksToFrames(hookTicks)} layout="absolute-fill">
     {/* Q1 runs under everything; it starts when the notification ends. Its own counter is off: the hook draws 0 / total. */}
-    <QuestionScene item={FIRST} at={hookBeats.question} hud={false} />
+    {/* the hook is a silent teaser for Q1 (the hook line plays over it); Q1 is voiced in its own segment, never twice */}
+    <ShellVoiceContext.Provider value={false}>
+      <QuestionScene item={FIRST} at={hookBeats.question} hud={false} />
+    </ShellVoiceContext.Provider>
     <Lock />
     <Overlays />
   </Sequence>

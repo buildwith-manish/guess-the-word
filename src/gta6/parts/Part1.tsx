@@ -57,7 +57,10 @@ const NUMBER_PREFIX = /^B/;
 export const roundLabel = (item: Item): string => (item.kind === 'bonus' ? `Bonus ${item.n.replace(NUMBER_PREFIX, '')}` : `Question ${item.n}`);
 
 /** The round that follows `item` in this part, or undefined (a score card follows, or the part ends). */
-export const nextRound = (item: Item): Item | undefined => (scoreCardLevel(item) ? undefined : items.find((i) => i.order === item.order + 1));
+/** Switch for the blurred "next round" banner on the last 0.6 s of each item (Parts 1 to 3) and its notification sound. Off by request. */
+export const NEXT_ROUND_BANNER = false;
+export const nextRound = (item: Item): Item | undefined =>
+  !NEXT_ROUND_BANNER || scoreCardLevel(item) ? undefined : items.find((i) => i.order === item.order + 1);
 
 const LevelCardAt: React.FC<{ level: Level }> = ({ level }) => {
   const f = useGta6Frame();
