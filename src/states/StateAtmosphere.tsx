@@ -30,7 +30,7 @@ export const ATMOS = {
   glow: 0.045,
   glowSize: 58,
   /** hairline grid alpha and cell (ref px); 0 alpha turns it off */
-  gridAlpha: 0.028,
+  gridAlpha: 0.014,
   gridCell: 64,
   /** vignette: alpha at the corners (0 = off) */
   vignette: 0.32,
@@ -38,8 +38,8 @@ export const ATMOS = {
 } as const;
 
 export const GRAIN = {
-  /** overlay opacity (3-5%): 0 turns it off */
-  opacity: 0.04,
+  /** overlay opacity (2.5-5%): 0 turns it off. Round two: 0.04 -> 0.025 so text stays crisp (grain stays above the scenes) */
+  opacity: 0.025,
   /** noise tile (px, square) and how many distinct seeds the cycle uses */
   tile: 256,
   seeds: 12,
