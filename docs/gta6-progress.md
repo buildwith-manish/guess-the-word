@@ -24,6 +24,7 @@ The task table (docs/gta6-prompts-split.md) is not in the repo on any branch and
   - Banner on the last `bannerSec` of each item names the next round; none before a score card. Before Bonus 1 the shell also draws its own banner at the start of B1: check for a double.
   - `part1Cues` holds only what the scenes export (hook, level card, B1 buzz, banner notification, scorecard); no per-item answer or timer cues exist yet.
   - tsc: no errors in `src/gta6/` or Root (same 3 older errors). No render or `remotion still` run.
+- [x] 5d: `src/gta6/parts/Part2.tsx` (`Part2 { showVerifyTags? }`, `part2Plan`, `part2Frames`), `part2Cues` in `sfxCues.ts` (shared `cuesOf`), `GTA6-P2` in Root. Verify tag = bottom-left, bonus items with `verify` only (B3). Reuses `bannerStart`, `nextRound`, `roundLabel` from Part1. tsc clean for gta6/Root. No render run.
 
 ## Next step
 Supply the task table (docs/gta6-prompts-split.md) so the remaining task IDs can be added to this checklist. Open points from `docs/gta6-context.md`: 2560x1440 at 60 fps is the repo convention, not 1920x1080.
