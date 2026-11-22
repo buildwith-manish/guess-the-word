@@ -66,6 +66,12 @@ Group offsets = `stagger()` (2 ticks by default, clamped to 2-3). Exception: per
 | BonusStage | exit (12 ticks) | prog linear | leave |
 
 
+## Step 2 status: all scene groups converted
+No `spring()` from `src/ios`, `bounceEase`, `slamIn`, `revealIn`, `cssEase*` or `irisEase` is left in `src/states/**` (grep-checked). `src/states/ios-rise.ts` now wraps `enter()`.
+Commits: round, bonus, level card / hook / lockup / reminder / wipe, scoreboard / end screen.
+Not converted on purpose: `VoicePulse` / `VoiceBars` (audio-driven, not curves), the MiniMap pulse and the clock ring (linear by design), the HUD pill (static, so the wipe and the round match).
+Still to do in later steps: glow strengths (Step 4), glass material (Step 3), grain and parallax (Step 6).
+
 ## Done so far
 - Round group (AnswerCard, TimerLead, StateStage slots, StateRound, FlyIn, PixelReveal, EmojiFill): converted.
 - HUD pill made smaller (24 ref px) in the stage and the wipe: at 30 px it overlapped the title on MEDIUM / EXPERT. QA check 10 measures it for every level and number.
