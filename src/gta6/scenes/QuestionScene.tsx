@@ -69,7 +69,7 @@ export type QuestionSceneProps = { item: Item; at: number; /** false = no score 
 
 export const QuestionScene: React.FC<QuestionSceneProps> = ({ item, at, hud = true }) => {
   const body = (
-    <QuestionShell item={item} start={0} showTimer={item.look !== 'safari'} hud={hud} labels={SHELL_LABELS}>
+    <QuestionShell item={item} start={0} showTimer={item.look !== 'safari' && item.look !== 'controlCenter'} hud={hud} labels={SHELL_LABELS}>
       {(ctx) => renderLook(item.look, ctx)}
     </QuestionShell>
   );

@@ -87,13 +87,12 @@ export const SLOTS = {
    *   messages       right of the answer column (chips 1000 wide from SAFE.x, bottom-aligned)
    *   maps           left of the 2x2 tile grid (grid is 824 wide, flush right, bottom-aligned)
    *   photos         right of the centred 2x2 photo grid
-   *   controlCenter  right of the question card, above the slider (the grid, side card and slider fill the right and bottom)
+   *   controlCenter  no ring: the brightness slider is the timer (QuestionScene passes showTimer={false})
    */
   timerBeside: {
     messages: { left: 1206, centerY: FRAME.h - SAFE.bottom - (4 * 112 + 3 * 16) / 2, size: 240 },
     maps: { left: FRAME.w - SAFE.x - 824 - 60 - 240, centerY: FRAME.h - SAFE.bottom - 252, size: 240 },
     photos: { left: 1490, centerY: 612, size: 240 },
-    controlCenter: { left: 1400, centerY: 300, size: 200 },
   },
   /** Left edge for a question card that sits in the top row, right of the score counter in the top-left corner. */
   questionLeft: 56 + 334 * 0.8 + 26,
