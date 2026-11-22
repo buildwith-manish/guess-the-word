@@ -21,8 +21,8 @@ export const GLASS = {
   /** backdrop blur (ref px) and saturation */
   blur: 22,
   saturate: 1.15,
-  /** 1 px inner border, white (14-22%) */
-  borderAlpha: 0.18,
+  /** 1 px hairline border, white (10-14%); the rim light below brightens its top-left edge */
+  borderAlpha: 0.12,
   /** second, faint border in the accent colour (percent of the accent colour) */
   accentRing: 22,
   /** soft large shadow (ref px offset / blur, black alpha) at depth 1 */
@@ -30,6 +30,20 @@ export const GLASS = {
   shadowBlur: 60,
   shadowAlpha: 0.35,
 } as const;
+
+/**
+ * Rim light (round two, Step 5): a brighter 1 px edge at the top-left fading to a faint one at the bottom-right. Built from
+ * two inset shadows (no images, no mask): `start` white at the top-left, `end` white at the bottom-right. Both are 1 px
+ * and sit on the glass edge, never over the text.
+ */
+export const RIM = { start: 0.3, end: 0.08, width: 1 } as const;
+
+/**
+ * Continuous corners (round two, Step 5): `corner-shape: squircle` on panels and cards (not on fully round pills), with the
+ * normal border-radius as the fallback where the property is not supported (an unknown property is simply ignored).
+ * KNOB: set `squircle` to false to keep plain radii.
+ */
+export const CORNERS = { squircle: true } as const;
 
 /** One radius scale (ref px). Cards and panels 28-40; pills are fully round. */
 export const RADIUS = {
@@ -44,12 +58,15 @@ export const RADIUS = {
  * (1 for cards, about 0.4 for small pills and chips so they do not float too far off the backdrop).
  */
 export const glassPanel = (radius: number, accent?: string, depth = 1): CSSProperties => ({
+  ...(CORNERS.squircle && radius < px(RADIUS.pill) * 0.5 ? ({ cornerShape: 'squircle' } as CSSProperties) : {}),
   background: `linear-gradient(180deg, rgba(255,255,255,${GLASS.highlight}) 0%, rgba(255,255,255,0) ${GLASS.highlightEnd * 100}%), rgba(255,255,255,${GLASS.fill})`,
   borderRadius: Math.min(radius, 99999),
   backdropFilter: `blur(${px(GLASS.blur)}px) saturate(${GLASS.saturate})`,
   WebkitBackdropFilter: `blur(${px(GLASS.blur)}px) saturate(${GLASS.saturate})`,
   border: `${px(1)}px solid rgba(255,255,255,${GLASS.borderAlpha})`,
   boxShadow: [
+    `inset ${px(RIM.width)}px ${px(RIM.width)}px 0 rgba(255,255,255,${RIM.start})`,
+    `inset ${-px(RIM.width)}px ${-px(RIM.width)}px 0 rgba(255,255,255,${RIM.end})`,
     accent ? `inset 0 0 0 ${px(1)}px color-mix(in srgb, ${accent} ${GLASS.accentRing}%, transparent)` : undefined,
     `0 ${px(GLASS.shadowY) * depth}px ${px(GLASS.shadowBlur) * depth}px rgba(0,0,0,${GLASS.shadowAlpha})`,
   ]
@@ -169,4 +186,22 @@ export const MAP = {
   unansweredFill: 0.09,
   unansweredEdge: 0.14,
   unansweredEdgeWidth: 0.75,
+} as const;
+
+/**
+ * Glass backdrop blobs (round two, Step 5): 2-3 very soft lights in the level accent (8-14%) so the glass has something to
+ * blur. Positions and sizes are percent of the frame; they sit behind the HUD pill, the shape tile and the answer card.
+ * Drift is a seeded sine of the global frame, at most `driftPx` reference px, on a long loop. No new colours.
+ */
+export const BLOBS = {
+  driftPx: 8,
+  loopSeconds: [41, 53, 67] as const,
+  items: [
+    /** behind the HUD pill (top left) */
+    { x: 14, y: 14, size: 26, alpha: 0.1 },
+    /** behind the shape tile (centre) */
+    { x: 50, y: 56, size: 34, alpha: 0.12 },
+    /** behind the answer card (left, lower) */
+    { x: 24, y: 66, size: 30, alpha: 0.09 },
+  ],
 } as const;
