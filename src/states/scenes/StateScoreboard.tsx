@@ -27,7 +27,7 @@ import { Rich } from '../../Icon';
 import { px } from '../../style';
 import { IOS, IosBackground } from '../../ios';
 import { spr } from '../motion';
-import {RADIUS, glassPanel, COLOR } from '../look';
+import {RADIUS, glassPanel, COLOR, FONT, WEIGHT, TYPE, TRACKING } from '../look';
 import { clamp01 } from '../../anim';
 import { rise } from '../ios-rise';
 import settings from '../states-settings.json';
@@ -148,7 +148,7 @@ export const StateScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
   const spoken = scoreboardVoicePlan().find((v) => frame >= v.start && frame < v.start + v.frames)?.key;
 
   return (
-    <AbsoluteFill style={{ fontFamily: IOS.font }}>
+    <AbsoluteFill style={{ fontFamily: FONT.sans }}>
       <IosBackground accent={last.accent} />
 
       <div
@@ -158,9 +158,9 @@ export const StateScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
           right: 0,
           top: px(L.kickerTop),
           textAlign: 'center',
-          fontWeight: IOS.weight.semibold,
-          fontSize: px(24),
-          letterSpacing: px(2),
+          fontWeight: WEIGHT.strong,
+          fontSize: px(TYPE.sm),
+          letterSpacing: TRACKING.label,
           color: COLOR.text.label,
           opacity: kicker.opacity,
           transform: kicker.transform,
@@ -175,8 +175,8 @@ export const StateScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
           right: 0,
           top: px(L.titleTop),
           textAlign: 'center',
-          fontWeight: IOS.weight.bold,
-          fontSize: px(64),
+          fontWeight: WEIGHT.strong,
+          fontSize: px(TYPE.lg),
           lineHeight: 1.1,
           letterSpacing: px(-1),
           color: COLOR.text.primary,
@@ -226,15 +226,15 @@ export const StateScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
                 transform: `translateY(${(1 - p) * px(28)}px)`,
               }}
             >
-              <span style={{ fontSize: px(34), lineHeight: 1, display: 'inline-flex', alignItems: 'center' }}>
+              <span style={{ fontSize: px(TYPE.md), lineHeight: 1, display: 'inline-flex', alignItems: 'center' }}>
                 <Rich size={px(34)} style={{ verticalAlign: 'middle', margin: 0 }}>
                   {r.emoji}
                 </Rich>
               </span>
-              <span style={{ fontWeight: IOS.weight.semibold, fontSize: px(32), flex: 1, textAlign: 'left', color: COLOR.text.primary, whiteSpace: 'nowrap' }}>
+              <span style={{ fontWeight: WEIGHT.strong, fontSize: px(TYPE.md), flex: 1, textAlign: 'left', color: COLOR.text.primary, whiteSpace: 'nowrap' }}>
                 {r.name}
               </span>
-              <span style={{ fontWeight: IOS.weight.medium, fontSize: px(24), color: COLOR.text.label, whiteSpace: 'nowrap' }}>{r.range}</span>
+              <span style={{ fontWeight: WEIGHT.medium, fontSize: px(TYPE.sm), color: COLOR.text.label, whiteSpace: 'nowrap' }}>{r.range}</span>
             </div>
           );
         })}
@@ -247,8 +247,8 @@ export const StateScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
           right: 0,
           bottom: px(L.footerBottom),
           textAlign: 'center',
-          fontWeight: IOS.weight.medium,
-          fontSize: px(26),
+          fontWeight: WEIGHT.medium,
+          fontSize: px(TYPE.sm),
           color: COLOR.text.hint,
           opacity: footer.opacity,
           transform: footer.transform,

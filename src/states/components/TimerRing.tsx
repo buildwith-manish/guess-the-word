@@ -9,7 +9,7 @@ import React from 'react';
 import { useDesignFrame } from '../../clock';
 import { IOS } from '../../ios';
 import { FPS } from '../state-timing';
-import { COLOR } from '../look';
+import { COLOR, FONT, WEIGHT } from '../look';
 
 export interface TimerRingProps {
   /** tick the clock starts */
@@ -60,8 +60,8 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
     left: 0,
     width: size,
     textAlign: 'center',
-    fontFamily: IOS.font,
-    fontWeight: IOS.weight.semibold,
+    fontFamily: FONT.sans,
+    fontWeight: WEIGHT.strong,
     fontVariantNumeric: 'tabular-nums',
     fontSize: digitPx,
     lineHeight: 1,

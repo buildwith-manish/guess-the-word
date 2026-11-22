@@ -32,7 +32,7 @@ import { AbsoluteFill } from 'remotion';
 import { px } from '../../style';
 import { IOS, IosBackground, iosSurface } from '../../ios';
 import { spr, stagger } from '../motion';
-import {RADIUS, COLOR } from '../look';
+import {RADIUS, COLOR, FONT, WEIGHT, TYPE, TRACKING } from '../look';
 import { clamp01 } from '../../anim';
 import { rise } from '../ios-rise';
 import root from '../../../settings.json';
@@ -128,9 +128,9 @@ const Outlines: React.FC<{ frame: number }> = ({ frame }) => {
             width: px(r.w),
             top: px(r.y - 36),
             textAlign: 'center',
-            fontFamily: IOS.font,
-            fontWeight: IOS.weight.medium,
-            fontSize: px(20),
+            fontFamily: FONT.sans,
+            fontWeight: WEIGHT.medium,
+            fontSize: px(TYPE.xs),
             color: COLOR.text.hint,
             opacity: clamp01(pop),
           }}
@@ -153,7 +153,7 @@ export const StateEndScreen: React.FC<{ frame: number }> = ({ frame }) => {
   const nextLine = next.title ? next.title : '';
 
   return (
-    <AbsoluteFill style={{ fontFamily: IOS.font }}>
+    <AbsoluteFill style={{ fontFamily: FONT.sans }}>
       <IosBackground accent={last.accent} />
       {/* top half only: copy */}
       <div
@@ -173,9 +173,9 @@ export const StateEndScreen: React.FC<{ frame: number }> = ({ frame }) => {
       >
         <div
           style={{
-            fontWeight: IOS.weight.semibold,
-            fontSize: px(24),
-            letterSpacing: px(2),
+            fontWeight: WEIGHT.strong,
+            fontSize: px(TYPE.sm),
+            letterSpacing: TRACKING.label,
             color: COLOR.text.label,
             opacity: e1.opacity,
             transform: e1.transform,
@@ -185,8 +185,8 @@ export const StateEndScreen: React.FC<{ frame: number }> = ({ frame }) => {
         </div>
         <div
           style={{
-            fontWeight: IOS.weight.bold,
-            fontSize: px(92),
+            fontWeight: WEIGHT.strong,
+            fontSize: px(TYPE.xl),
             lineHeight: 1.04,
             letterSpacing: px(-2),
             color: COLOR.text.primary,
@@ -205,20 +205,20 @@ export const StateEndScreen: React.FC<{ frame: number }> = ({ frame }) => {
             borderRadius: px(40),
             background: COLOR.alert,
             color: COLOR.onAlert,
-            fontWeight: IOS.weight.semibold,
-            fontSize: px(26),
+            fontWeight: WEIGHT.strong,
+            fontSize: px(TYPE.sm),
             opacity: e3.opacity,
             transform: e3.transform,
           }}
         >
           {COPY.subscribe}
-          <span style={{ fontWeight: IOS.weight.medium, fontSize: px(18), marginLeft: px(16), opacity: 0.85 }}>{COPY.subscribeSub}</span>
+          <span style={{ fontWeight: WEIGHT.medium, fontSize: px(TYPE.xs), marginLeft: px(16), opacity: 0.85 }}>{COPY.subscribeSub}</span>
         </div>
         {nextLine ? (
           <div
             style={{
-              fontWeight: IOS.weight.medium,
-              fontSize: px(24),
+              fontWeight: WEIGHT.medium,
+              fontSize: px(TYPE.sm),
               color: COLOR.text.primary,
               opacity: e4.opacity,
               transform: e4.transform,

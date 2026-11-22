@@ -283,6 +283,9 @@ const check = (name, fn) => {
     if (!interFonts[weight]) interFonts[weight] = fontkit.openSync(path.join(ROOT, 'public', 'fonts', 'ios', `Inter-${weight}.woff2`));
     return interFonts[weight];
   };
+  // Anton (the display face of the title lockup)
+  const antonFont = fontkit.openSync(path.join(ROOT, 'public', 'fonts', 'Anton-Regular.woff2'));
+  const measureAnton = (text, o) => (antonFont.layout(text).advanceWidth * o.fontSize) / antonFont.unitsPerEm + o.letterSpacing * [...text].length;
   const measure = (text, o) => {
     const f = interFont(o.fontWeight);
     const run = f.layout(text);
@@ -334,7 +337,7 @@ const check = (name, fn) => {
       });
       // key chip vs voice bars: chip is centred, bars sit in the right inset; they must not touch for any key
       D.STATES.forEach((st) => {
-        const chipW = measure(st.key, { fontFamily: body, fontWeight: IOSM.IOS.weight.semibold, fontSize: ST.px(LOOK.chipFont), letterSpacing: ST.px(LOOK.chipSpacing) }) + 2 * ST.px(LOOK.chipPadX);
+        const chipW = measure(st.key, { fontFamily: body, fontWeight: LOOKM.WEIGHT.strong, fontSize: ST.px(LOOK.chipFont), letterSpacing: ST.px(LOOK.chipSpacing) }) + 2 * ST.px(LOOK.chipPadX);
         const b = C.fitVoiceBars(cardW, chipW, ST.px(LOOK.padX * 0.6), ST.px(LOOK.barsW), ST.px(LOOK.barsGap));
         const barsLeft = cardW - ST.px(LOOK.padX * 0.6) - b.width;
         const chipRight = cardW / 2 + chipW / 2;
@@ -389,7 +392,7 @@ const check = (name, fn) => {
     D.STATES.forEach((st) => {
       // any state can be an option of a bonus chip: name, capital (capital bonus) and nickname (nickname bonus)
       [['name', st.name], ['capital', st.capital], ['nickname', st.nickname]].forEach(([kind, text]) => {
-        const f = C.fitTextSize(text, chipTextW, chipMax, chipMin, { fontFamily: fam, fontWeight: IOSM.IOS.weight.semibold }, measure);
+        const f = C.fitTextSize(text, chipTextW, chipMax, chipMin, { fontFamily: fam, fontWeight: LOOKM.WEIGHT.strong }, measure);
         if (f.size < chipMax - 0.01) shrunk++;
         if (!f.fits) problems.push(`chip ${st.key} ${kind} "${text}": ${f.width.toFixed(1)}px > ${chipTextW.toFixed(1)}px even at the minimum size`);
         const r = f.width / chipTextW;
@@ -419,15 +422,15 @@ const check = (name, fn) => {
     // lockup width: Inter bold letters at 62 ref px, -1 px letter-spacing, 2 px between letters, 30 px between words (StateTitleLockup)
     const u = ST.px;
     const words = ['GUESS', 'THE', 'STATE'];
-    const wordW = (w) => [...w].reduce((a, ch) => a + measure(ch, { fontFamily: IOSM.IOS.font, fontWeight: 700, fontSize: u(62), letterSpacing: -u(1) }), 0) + u(2) * (w.length - 1);
+    const wordW = (w) => [...w].reduce((a, ch) => a + measureAnton(ch, { fontSize: u(62), letterSpacing: u(1) }), 0) + u(2) * (w.length - 1);
     const lockupW = words.reduce((a, w) => a + wordW(w), 0) + 2 * u(30);
     const lockupLeft = (T.WIDTH - lockupW) / 2;
     const minGap = u(16);
     let worst = null;
     T.LEVELS.forEach((l) => {
       for (let n = 1; n <= T.TOTAL; n++) {
-        const nameW = measure(l.name, { fontFamily: IOSM.IOS.font, fontWeight: 600, fontSize: u(hud.font), letterSpacing: 0 });
-        const numW = measure(`${n} / ${T.TOTAL}`, { fontFamily: IOSM.IOS.font, fontWeight: 600, fontSize: u(hud.font), letterSpacing: 0 });
+        const nameW = measure(l.name, { fontFamily: IOSM.IOS.font, fontWeight: LOOKM.WEIGHT.strong, fontSize: u(hud.font), letterSpacing: 0 });
+        const numW = measure(`${n} / ${T.TOTAL}`, { fontFamily: IOSM.IOS.font, fontWeight: LOOKM.WEIGHT.strong, fontSize: u(hud.font), letterSpacing: 0 });
         const right = ST.S.hudLeft + 2 * u(hud.padX) + nameW + u(hud.gap) + numW;
         const gap = lockupLeft - right;
         if (!worst || gap < worst.gap) worst = { gap, level: l.name, n };

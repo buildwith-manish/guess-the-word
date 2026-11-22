@@ -29,7 +29,7 @@ export const CAPITAL_LOOK = {
   labelSpacing: 1,
   labelMargin: 14,
   labelWeight: 500,
-  valueWeight: 600,
+  valueWeight: 700,
   /** stacked: label size as a fraction of the normal size, gap between the two lines as a fraction of the value size */
   stackLabelScale: 0.56,
   stackGap: 0.12,

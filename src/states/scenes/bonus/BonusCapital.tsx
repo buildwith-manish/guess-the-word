@@ -24,7 +24,7 @@ import React from 'react';
 import { px } from '../../../style';
 import { IOS } from '../../../ios';
 import { enter, iosOut, settle, sprFit } from '../../motion';
-import {RADIUS, glassPanel, COLOR } from '../../look';
+import {RADIUS, glassPanel, COLOR, FONT, WEIGHT, TYPE } from '../../look';
 import { prog, mix, clamp01 } from '../../../anim';
 import { fitTextSize } from '../../capital-fit';
 import { domMeasure, fallbackMeasure, useFontsReady } from '../../measure-dom';
@@ -151,7 +151,7 @@ const AnswerStamp: React.FC<{ frame: number; puzzle: BonusPuzzle; caption: strin
   const stateName = getState(puzzle.subject).name;
   const L = SHAPE_LAYOUT;
   // measured, so a long nickname shrinks (to a readable minimum) instead of leaving the card
-  const fit = fitTextSize(answer, px(L.stampMaxW) - 2 * px(L.stampPadX), px(L.stampMaxFont), px(L.stampMinFont), { fontFamily: IOS.font, fontWeight: IOS.weight.bold }, ready ? domMeasure : fallbackMeasure);
+  const fit = fitTextSize(answer, px(L.stampMaxW) - 2 * px(L.stampPadX), px(L.stampMaxFont), px(L.stampMinFont), { fontFamily: FONT.sans, fontWeight: WEIGHT.strong }, ready ? domMeasure : fallbackMeasure);
   const e = enter(frame, at, 'normal', 16);
   const pop = settle(frame, at, dur, 1.015);
   return (
@@ -162,7 +162,7 @@ const AnswerStamp: React.FC<{ frame: number; puzzle: BonusPuzzle; caption: strin
           flexDirection: 'column',
           alignItems: 'center',
           gap: px(10),
-          fontFamily: IOS.font,
+          fontFamily: FONT.sans,
           opacity: e.opacity,
           transform: `translateY(${(1 - e.t) * px(16)}px) scale(${(0.97 + 0.03 * e.t) * pop})`,
         }}
@@ -173,8 +173,8 @@ const AnswerStamp: React.FC<{ frame: number; puzzle: BonusPuzzle; caption: strin
             borderRadius: px(30),
             background: accent,
             color: COLOR.onAccent,
-            fontWeight: IOS.weight.semibold,
-            fontSize: px(20),
+            fontWeight: WEIGHT.strong,
+            fontSize: px(TYPE.xs),
             whiteSpace: 'nowrap',
           }}
         >
@@ -184,7 +184,7 @@ const AnswerStamp: React.FC<{ frame: number; puzzle: BonusPuzzle; caption: strin
           style={{
             ...glassPanel(px(RADIUS.card), accent),
             padding: `${px(8)}px ${px(L.stampPadX)}px`,
-            fontWeight: IOS.weight.bold,
+            fontWeight: WEIGHT.strong,
             fontSize: fit.size,
             lineHeight: 1.1,
             letterSpacing: px(-1),

@@ -16,7 +16,7 @@ import React from 'react';
 import { px } from '../../style';
 import { IOS } from '../../ios';
 import { spr } from '../motion';
-import { COLOR } from '../look';
+import { COLOR, FONT, WEIGHT } from '../look';
 import { clamp01, ms } from '../../anim';
 
 const WORDS = [
@@ -99,11 +99,11 @@ export const StateTitleLockup: React.FC<StateTitleLockupProps> = ({ frame, anima
                   style={{
                     opacity: Math.min(1, p * 1.4),
                     transform: `translateY(${rise}px)`,
-                    fontFamily: IOS.font,
-                    fontWeight: IOS.weight.bold,
+                    fontFamily: FONT.display,
+                    fontWeight: WEIGHT.regular,
                     fontSize: font,
                     lineHeight: 1,
-                    letterSpacing: u(-1),
+                    letterSpacing: u(1),
                     // STATE fades from white to the accent
                     color: g > 0 ? `color-mix(in srgb, ${accent} ${Math.round(g * 100)}%, ${COLOR.text.primary})` : COLOR.text.primary,
                   }}

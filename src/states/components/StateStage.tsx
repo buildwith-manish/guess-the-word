@@ -12,7 +12,7 @@ import { useDesignFrame } from '../../clock';
 import { IOS, IosBackground } from '../../ios';
 import { S, SAFE_X, SAFE_Y, px } from '../../style';
 import { enter } from '../motion';
-import {RADIUS, glassPanel, COLOR } from '../look';
+import {RADIUS, glassPanel, COLOR, FONT, WEIGHT } from '../look';
 import { HEIGHT, LEVELS, TOTAL, WIDTH } from '../state-timing';
 import type { Level } from '../states-data';
 import type { Rect } from './MiniMap';
@@ -152,8 +152,8 @@ export const StateStage: React.FC<StateStageProps> = ({ level, number, total = T
           display: 'flex',
           alignItems: 'baseline',
           gap: px(LAYOUT.hudGap),
-          fontFamily: IOS.font,
-          fontWeight: IOS.weight.semibold,
+          fontFamily: FONT.sans,
+          fontWeight: WEIGHT.strong,
           fontSize: px(LAYOUT.hudFont),
           whiteSpace: 'pre',
         }}

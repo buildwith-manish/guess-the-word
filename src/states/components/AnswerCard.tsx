@@ -16,7 +16,7 @@ import { useDesignFrame } from '../../clock';
 import { SAFE_X, SAFE_Y, S, px } from '../../style';
 import { IOS } from '../../ios';
 import { DUR, enter, exitTicks, iosOut, leave, spr, stagger } from '../motion';
-import {RADIUS, glassPanel, COLOR } from '../look';
+import {RADIUS, glassPanel, COLOR, FONT, WEIGHT } from '../look';
 import { VoiceBars } from './VoiceBars';
 import { WIDTH, HEIGHT } from '../state-timing';
 import { getState } from '../states-data';
@@ -55,7 +55,7 @@ const LOOK = {
   padY: 44,
   gap: 20,
   chipFont: 30,
-  chipSpacing: 1,
+  chipSpacing: 3.6,
   chipPadX: 22,
   chipPadY: 4,
   /** gap kept between the voice bars and the key chip */
@@ -73,7 +73,7 @@ const LOOK = {
 const measure_chip = (ready: boolean, key: string): number => {
   const sz = px(LOOK.chipFont);
   const ls = px(LOOK.chipSpacing);
-  const w = ready ? measure(key, { fontFamily: IOS.font, fontWeight: IOS.weight.semibold, fontSize: sz, letterSpacing: ls }) : key.length * sz * 0.8 + key.length * ls;
+  const w = ready ? measure(key, { fontFamily: FONT.sans, fontWeight: WEIGHT.strong, fontSize: sz, letterSpacing: ls }) : key.length * sz * 0.8 + key.length * ls;
   return w + 2 * px(LOOK.chipPadX);
 };
 
@@ -102,14 +102,14 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ stateKey, at, accent, bo
   const name = info.name;
   const m: MeasureFn = fontsReady ? measure : fallback;
   // name: sized from its real width (max NAME_LOOK.max, with headroom for the glow-flash scale)
-  const nameSize = fitNameSize(name, innerW, IOS.font, m, IOS.weight.bold).size;
+  const nameSize = fitNameSize(name, innerW, FONT.sans, m, WEIGHT.strong).size;
 
   // capital row: measured, scaled or stacked so it always sits inside innerW
   const cap = fitCapitalRow({
     label: LABELS.capital,
     capital: info.capital,
     innerW,
-    fontFamily: IOS.font,
+    fontFamily: FONT.sans,
     measure: m,
   });
 
@@ -155,8 +155,8 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ stateKey, at, accent, bo
           style={{
             opacity: chipIn.opacity,
             transform: chipIn.transform,
-            fontFamily: IOS.font,
-            fontWeight: IOS.weight.semibold,
+            fontFamily: FONT.sans,
+            fontWeight: WEIGHT.strong,
             fontSize: px(LOOK.chipFont),
             letterSpacing: px(LOOK.chipSpacing),
             lineHeight: 1.2,
@@ -178,8 +178,8 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ stateKey, at, accent, bo
 
         <div
           style={{
-            fontFamily: IOS.font,
-            fontWeight: IOS.weight.bold,
+            fontFamily: FONT.sans,
+            fontWeight: WEIGHT.strong,
             letterSpacing: -nameSize * 0.02,
             fontSize: nameSize,
             lineHeight: 1,
@@ -195,7 +195,7 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ stateKey, at, accent, bo
         {/* capital: the row's space (cap.height) is reserved from the first frame, so the card never jumps while it fades in */}
         <div
           style={{
-            fontFamily: IOS.font,
+            fontFamily: FONT.sans,
             color: COLOR.text.primary,
             width: '100%',
             height: cap.height,

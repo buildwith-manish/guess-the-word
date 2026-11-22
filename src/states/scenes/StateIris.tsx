@@ -30,7 +30,7 @@ import { S, px } from '../../style';
 import { IOS, IosBackground } from '../../ios';
 import { prog } from '../../anim';
 import { iosOut } from '../motion';
-import {RADIUS, glassPanel, COLOR } from '../look';
+import {RADIUS, glassPanel, COLOR, FONT, WEIGHT } from '../look';
 import rootSettings from '../../../settings.json';
 import { BONUS_THEME, HEIGHT, LEVELS, QUESTIONS, WIDTH } from '../state-timing';
 import type { Hud, IrisVariant, Segment } from '../types';
@@ -99,8 +99,8 @@ export const StateHudPill: React.FC<{ hud: Hud }> = ({ hud }) => {
         display: 'flex',
         alignItems: 'baseline',
         gap: px(HUD_LOOK.gap),
-        fontFamily: IOS.font,
-        fontWeight: IOS.weight.semibold,
+        fontFamily: FONT.sans,
+        fontWeight: WEIGHT.strong,
         fontSize: px(HUD_LOOK.font),
         whiteSpace: 'pre',
       }}

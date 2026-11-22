@@ -19,7 +19,7 @@ import { px } from '../../style';
 import { IOS, IosBackground } from '../../ios';
 import { ms } from '../../anim';
 import { iosOut, spr } from '../motion';
-import {RADIUS, glassPanel, COLOR } from '../look';
+import {RADIUS, glassPanel, COLOR, FONT, WEIGHT, TYPE } from '../look';
 import rootSettings from '../../../settings.json';
 import { BONUS_THEME, HEIGHT, LEVELS } from '../state-timing';
 import type { Segment } from '../types';
@@ -72,11 +72,11 @@ export const StateReminder: React.FC<{ frame: number; seg: ReminderSegment }> = 
         }}
       >
         <Icon name="bell" size={px(56)} />
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: px(8), fontFamily: IOS.font }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: px(8), fontFamily: FONT.sans }}>
           <div
             style={{
-              fontWeight: IOS.weight.semibold,
-              fontSize: px(34),
+              fontWeight: WEIGHT.strong,
+              fontSize: px(TYPE.md),
               lineHeight: 1,
               color: COLOR.onAlert,
               background: COLOR.alert,
@@ -87,7 +87,7 @@ export const StateReminder: React.FC<{ frame: number; seg: ReminderSegment }> = 
           >
             {rootSettings.endScreen.subscribe}
           </div>
-          <div style={{ fontWeight: IOS.weight.medium, fontSize: px(22), color: COLOR.text.label, whiteSpace: 'nowrap' }}>
+          <div style={{ fontWeight: WEIGHT.medium, fontSize: px(TYPE.xs), color: COLOR.text.label, whiteSpace: 'nowrap' }}>
             {rootSettings.endScreen.subscribeSub}
           </div>
         </div>

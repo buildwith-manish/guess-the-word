@@ -6,7 +6,7 @@
  * bottom: loose specimens at real size.
  */
 import React from 'react';
-import { COLORS, FONTS, px } from '../style';
+import { COLORS, px } from '../style';
 import { HEIGHT, WIDTH, LEVELS, buildQuestionPlan } from './state-timing';
 import { STATES, getState } from './states-data';
 import { AnswerCard } from './components/AnswerCard';
@@ -18,6 +18,7 @@ import { PixelReveal } from './components/PixelReveal';
 import { STAGE_LAYOUT, StateStage } from './components/StateStage';
 import { StateShape } from './components/StateShape';
 import { TimerRing } from './components/TimerRing';
+import { FONT } from './look';
 
 /** the four tiers (real data from states-data.ts) */
 const TIER_KEYS = ['TX', 'CO', 'VA', 'IA'] as const;
@@ -35,14 +36,14 @@ const FLIGHT_AT = 0.5;
 const Scaled: React.FC<{ x: number; y: number; caption: string; children: React.ReactNode }> = ({ x, y, caption, children }) => (
   <div style={{ position: 'absolute', left: x, top: y, width: WIDTH * FRAME_SCALE, height: HEIGHT * FRAME_SCALE, overflow: 'hidden' }}>
     <div style={{ position: 'absolute', left: 0, top: 0, width: WIDTH, height: HEIGHT, transform: `scale(${FRAME_SCALE})`, transformOrigin: '0 0' }}>{children}</div>
-    <div style={{ position: 'absolute', left: 8, bottom: 6, fontFamily: FONTS.body, fontWeight: 800, fontSize: 18, color: COLORS.ink, background: 'rgba(0,0,0,0.55)', padding: '2px 10px', borderRadius: 12 }}>{caption}</div>
+    <div style={{ position: 'absolute', left: 8, bottom: 6, fontFamily: FONT.sans, fontWeight: 800, fontSize: 18, color: COLORS.ink, background: 'rgba(0,0,0,0.55)', padding: '2px 10px', borderRadius: 12 }}>{caption}</div>
   </div>
 );
 
 const Specimen: React.FC<{ caption: string; children: React.ReactNode }> = ({ caption, children }) => (
   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
     {children}
-    <div style={{ fontFamily: FONTS.body, fontWeight: 600, fontSize: 20, color: COLORS.muted }}>{caption}</div>
+    <div style={{ fontFamily: FONT.sans, fontWeight: 600, fontSize: 20, color: COLORS.muted }}>{caption}</div>
   </div>
 );
 
@@ -94,7 +95,7 @@ export const ComponentsSheet: React.FC = () => {
         number={info.id}
         frame={qf}
         slots={{
-          title: { children: <div style={{ fontFamily: FONTS.display, fontSize: px(46), color: COLORS.ink, letterSpacing: px(6) }}>{info.level}</div> },
+          title: { children: <div style={{ fontFamily: FONT.display, fontSize: px(46), color: COLORS.ink, letterSpacing: px(6) }}>{info.level}</div> },
           ring: { children: <TimerRing from={plan.timerStart} duration={plan.timerFrames} accent={level.accent} size={L.ring.w} frame={qf} /> },
           shape: { children: body },
           miniMap: { children: <MiniMap answered={answered} current={key} size={L.miniMap.w} frame={qf} /> },

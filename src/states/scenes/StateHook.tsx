@@ -23,7 +23,7 @@ import { prog, clamp01 } from '../../anim';
 import { px } from '../../style';
 import { IOS, IosBackground } from '../../ios';
 import { enter, iosOut, sprFit } from '../motion';
-import {RADIUS, glassPanel, COLOR } from '../look';
+import {RADIUS, glassPanel, COLOR, FONT, WEIGHT, TYPE } from '../look';
 import root from '../../../settings.json';
 import { FPS, HEIGHT, LEVELS, TOTAL, WIDTH, voiceIntro } from '../state-timing';
 import { STATES } from '../states-data';
@@ -197,9 +197,9 @@ export const StateHook: React.FC<{ frame: number }> = ({ frame: f }) => {
             style={{
               maxWidth: WIDTH * 0.86,
               textAlign: 'center',
-              fontFamily: IOS.font,
-              fontWeight: IOS.weight.semibold,
-              fontSize: px(54),
+              fontFamily: FONT.sans,
+              fontWeight: WEIGHT.strong,
+              fontSize: px(TYPE.lg),
               lineHeight: 1.15,
               letterSpacing: px(-1),
               color: COLOR.text.primary,
@@ -220,9 +220,9 @@ export const StateHook: React.FC<{ frame: number }> = ({ frame: f }) => {
                   ...glassPanel(px(RADIUS.pill), LEVELS[0].accent, 0.4),
                   marginTop: px(26),
                   padding: `${px(10)}px ${px(36)}px`,
-                  fontFamily: IOS.font,
-                  fontWeight: IOS.weight.medium,
-                  fontSize: px(30),
+                  fontFamily: FONT.sans,
+                  fontWeight: WEIGHT.medium,
+                  fontSize: px(TYPE.md),
                   color: COLOR.text.label,
                   whiteSpace: 'nowrap',
                   opacity: rulesIn,

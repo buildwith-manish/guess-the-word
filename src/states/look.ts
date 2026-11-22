@@ -111,3 +111,23 @@ export const BACKDROP = { black: '#000000', raised: '#0B0B12' } as const;
 /** Alpha helpers for the atmosphere layers (Step 6): white light and black shade at a given alpha (0..1). */
 export const whiteA = (a: number): string => `rgba(255,255,255,${a})`;
 export const blackA = (a: number): string => `rgba(0,0,0,${a})`;
+
+/**
+ * Typography (Step 7): exactly two families. FONT.display is Anton (titles: the title lockup and the level name),
+ * FONT.sans is Inter (everything else, bundled in public/fonts/ios). Emoji glyphs fall back to the bundled Noto Color
+ * Emoji through the stacks; that is a glyph set, not a third text face. No component names a family: use these.
+ *
+ * KNOB: set FONT.display to FONT.sans to drop Anton and use Inter bold titles again.
+ */
+const SANS = '"Inter", -apple-system, "SF Pro Text", system-ui, "Noto Color Emoji", sans-serif';
+const DISPLAY = '"Anton", Impact, "Arial Narrow", "Noto Color Emoji", sans-serif';
+export const FONT = { sans: SANS, display: DISPLAY } as const;
+
+/** Weights: 700 for labels and values, 500 / 400 for secondary text. Inter ships 400, 500, 600, 700 (no 800). */
+export const WEIGHT = { regular: 400, medium: 500, strong: 700 } as const;
+
+/** Type scale (reference px, pass through px()): caption, label, body, title, hero, display numeral. */
+export const TYPE = { xs: 20, sm: 26, md: 32, lg: 56, xl: 92, xxl: 150 } as const;
+
+/** Letter-spacing: uppercase labels get 0.14em (inside the 0.12-0.2em range); big titles are pulled in a little. */
+export const TRACKING = { label: '0.14em', title: '-0.02em' } as const;

@@ -36,7 +36,7 @@ import { prog, mix } from '../../anim';
 import { S, SAFE_X, SAFE_Y, px } from '../../style';
 import { IOS } from '../../ios';
 import { enter, iosOut, sprFit } from '../motion';
-import {RADIUS, glassPanel, COLOR } from '../look';
+import {RADIUS, glassPanel, COLOR, FONT, WEIGHT, TYPE } from '../look';
 import { Watermark } from '../../Watermark';
 import { HEIGHT, WIDTH, TIME_SCALE, buildQuestionPlan, LEVELS, QUESTIONS } from '../state-timing';
 import type { StateQuestionPlan } from '../state-timing';
@@ -77,16 +77,16 @@ const StreakBanner: React.FC<{ f: number; plan: StateQuestionPlan }> = ({ f, pla
         left: S.hudLeft,
         bottom: SAFE_Y,
         padding: `${px(14)}px ${px(36)}px`,
-        fontFamily: IOS.font,
+        fontFamily: FONT.sans,
         opacity: e.opacity,
         transform: e.transform,
       }}
     >
       <div style={{ display: 'flex', alignItems: 'baseline', gap: px(20) }}>
-        <span style={{ fontWeight: IOS.weight.bold, fontSize: px(84), lineHeight: 1, color: COLOR.text.primary }}>{plan.id}</span>
-        <span style={{ fontWeight: IOS.weight.semibold, fontSize: px(34), color: COLOR.text.primary }}>{settings.streak.label}</span>
+        <span style={{ fontWeight: WEIGHT.strong, fontSize: px(TYPE.xl), lineHeight: 1, color: COLOR.text.primary }}>{plan.id}</span>
+        <span style={{ fontWeight: WEIGHT.strong, fontSize: px(TYPE.md), color: COLOR.text.primary }}>{settings.streak.label}</span>
       </div>
-      <div style={{ fontWeight: IOS.weight.medium, fontSize: px(26), color: COLOR.text.label }}>{settings.streak.cta}</div>
+      <div style={{ fontWeight: WEIGHT.medium, fontSize: px(TYPE.sm), color: COLOR.text.label }}>{settings.streak.cta}</div>
     </div>
   );
 };
@@ -97,9 +97,9 @@ const FastBadge: React.FC = () => (
     style={{
       ...glassPanel(px(RADIUS.pill), undefined, 0.4),
       padding: `${px(10)}px ${px(34)}px`,
-      fontFamily: IOS.font,
-      fontWeight: IOS.weight.semibold,
-      fontSize: px(28),
+      fontFamily: FONT.sans,
+      fontWeight: WEIGHT.strong,
+      fontSize: px(TYPE.sm),
       color: COLOR.text.primary,
       whiteSpace: 'nowrap',
     }}

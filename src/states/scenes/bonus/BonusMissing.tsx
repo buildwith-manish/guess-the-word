@@ -34,7 +34,7 @@ import { IOS, IosBackground } from '../../../ios';
 import { prog, mix, clamp01 } from '../../../anim';
 import { DUR, exitTicks, iosOut, spr, sprFit } from '../../motion';
 import { rise } from '../../ios-rise';
-import {RADIUS, glassPanel, COLOR } from '../../look';
+import {RADIUS, glassPanel, COLOR, FONT, WEIGHT, TYPE, TRACKING } from '../../look';
 import { fitTextSize } from '../../capital-fit';
 import { domMeasure, fallbackMeasure, useFontsReady } from '../../measure-dom';
 import rootSettings from '../../../../settings.json';
@@ -145,7 +145,7 @@ export const BonusStage: React.FC<{ frame: number; puzzle: BonusPuzzle; T: Bonus
   const exitLen = exitTicks(DUR.uiLong);
   const exitP = iosOut((frame - (T.dur - exitLen)) / exitLen);
   return (
-    <AbsoluteFill style={{ fontFamily: IOS.font }}>
+    <AbsoluteFill style={{ fontFamily: FONT.sans }}>
       <IosBackground accent={BONUS_ACCENT} />
       <AbsoluteFill style={{ opacity: 1 - exitP, transform: `scale(${1 - 0.02 * exitP})` }}>{children}</AbsoluteFill>
       <StateHudPill hud={{ label: 'BONUS', number: puzzle.slot + 1, total: BONUS_PUZZLES.length, erases: 0 }} />
@@ -163,7 +163,7 @@ export const BonusBanner: React.FC<{ frame: number; puzzle: BonusPuzzle; pre: nu
   return (
     <AbsoluteFill
       style={{
-        fontFamily: IOS.font,
+        fontFamily: FONT.sans,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -174,15 +174,15 @@ export const BonusBanner: React.FC<{ frame: number; puzzle: BonusPuzzle; pre: nu
       }}
     >
       <IosBackground accent={BONUS_ACCENT} />
-      <div style={{ ...e1, position: 'relative', fontWeight: IOS.weight.semibold, fontSize: px(26), letterSpacing: px(2), color: COLOR.text.label }}>
+      <div style={{ ...e1, position: 'relative', fontWeight: WEIGHT.strong, fontSize: px(TYPE.sm), letterSpacing: TRACKING.label, color: COLOR.text.label }}>
         BONUS {puzzle.slot + 1} / {BONUS_PUZZLES.length}
       </div>
       <div
         style={{
           ...e2,
           position: 'relative',
-          fontWeight: IOS.weight.bold,
-          fontSize: px(140),
+          fontWeight: WEIGHT.strong,
+          fontSize: px(TYPE.xxl),
           lineHeight: 0.98,
           letterSpacing: px(-3),
           color: COLOR.text.primary,
@@ -193,7 +193,7 @@ export const BonusBanner: React.FC<{ frame: number; puzzle: BonusPuzzle; pre: nu
         <br />
         <span style={{ color: BONUS_ACCENT }}>ROUND</span>
       </div>
-      <div style={{ ...e3, position: 'relative', fontWeight: IOS.weight.medium, fontSize: px(30), color: COLOR.text.label }}>{BONUS_KIND_LABEL[puzzle.kind]}</div>
+      <div style={{ ...e3, position: 'relative', fontWeight: WEIGHT.medium, fontSize: px(TYPE.md), color: COLOR.text.label }}>{BONUS_KIND_LABEL[puzzle.kind]}</div>
     </AbsoluteFill>
   );
 };
@@ -212,9 +212,9 @@ export const BonusBadge: React.FC<{ frame: number; puzzle: BonusPuzzle; at: numb
         transform: `translate(-50%, ${(1 - r.t) * -px(16)}px)`,
         opacity: r.opacity,
         padding: `${px(6)}px ${px(26)}px`,
-        fontFamily: IOS.font,
-        fontWeight: IOS.weight.semibold,
-        fontSize: px(26),
+        fontFamily: FONT.sans,
+        fontWeight: WEIGHT.strong,
+        fontSize: px(TYPE.sm),
         color: BONUS_ACCENT,
         whiteSpace: 'nowrap',
       }}
@@ -246,9 +246,9 @@ export const BonusPrompt: React.FC<{ frame: number; text: string; at: number; hi
         style={{
           ...glassPanel(px(RADIUS.chip), undefined, 0.5),
           padding: `${px(10)}px ${px(30)}px`,
-          fontFamily: IOS.font,
-          fontWeight: IOS.weight.semibold,
-          fontSize: px(28),
+          fontFamily: FONT.sans,
+          fontWeight: WEIGHT.strong,
+          fontSize: px(TYPE.sm),
           color: COLOR.text.primary,
           whiteSpace: 'nowrap',
         }}
@@ -337,7 +337,7 @@ export const BonusOptions: React.FC<{
         const win = revealed && i === correctIndex;
         const dim = revealed && i !== correctIndex;
         // long answers (nicknames, capitals) shrink to fit, down to 72% of the normal size, instead of being cut off
-        const fontSize = fitTextSize(text, textW, px(19), px(19) * 0.72, { fontFamily: IOS.font, fontWeight: IOS.weight.semibold }, ready ? domMeasure : fallbackMeasure).size;
+        const fontSize = fitTextSize(text, textW, px(19), px(19) * 0.72, { fontFamily: FONT.sans, fontWeight: WEIGHT.strong }, ready ? domMeasure : fallbackMeasure).size;
         return (
           <div
             key={i}
@@ -349,8 +349,8 @@ export const BonusOptions: React.FC<{
               alignItems: 'center',
               gap: px(12),
               padding: `0 ${px(14)}px`,
-              fontFamily: IOS.font,
-              fontWeight: IOS.weight.semibold,
+              fontFamily: FONT.sans,
+              fontWeight: WEIGHT.strong,
               fontSize,
               color: COLOR.text.primary,
               whiteSpace: 'nowrap',
@@ -368,7 +368,7 @@ export const BonusOptions: React.FC<{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontWeight: IOS.weight.semibold,
+                fontWeight: WEIGHT.strong,
                 fontSize: px(17),
                 background: win ? BONUS_ACCENT : COLOR.fillStrong,
                 color: win ? COLOR.onAccent : COLOR.text.label,
@@ -425,9 +425,9 @@ export const BonusTimer: React.FC<{ frame: number; T: BonusTimes }> = ({ frame, 
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontFamily: IOS.font,
-            fontWeight: IOS.weight.semibold,
-            fontSize: px(30),
+            fontFamily: FONT.sans,
+            fontWeight: WEIGHT.strong,
+            fontSize: px(TYPE.md),
             fontVariantNumeric: 'tabular-nums',
             color: hot ? COLOR.alert : COLOR.text.label,
             borderColor: hot ? COLOR.alert : COLOR.fillStrong,
@@ -458,9 +458,9 @@ export const BonusEraseChip: React.FC<{ frame: number; revealAt: number }> = ({ 
         borderRadius: px(40),
         background: BONUS_ACCENT,
         color: COLOR.onAccent,
-        fontFamily: IOS.font,
-        fontWeight: IOS.weight.semibold,
-        fontSize: px(22),
+        fontFamily: FONT.sans,
+        fontWeight: WEIGHT.strong,
+        fontSize: px(TYPE.xs),
         opacity: r.opacity,
         transform: r.transform,
       }}
@@ -541,10 +541,10 @@ const NameReveal: React.FC<{ frame: number; name: string; at: number; step: numb
         top: px(BONUS_LAYOUT.promptTop - 10),
         display: 'flex',
         justifyContent: 'center',
-        fontFamily: IOS.font,
-        fontWeight: IOS.weight.bold,
-        fontSize: px(60),
-        letterSpacing: px(2),
+        fontFamily: FONT.sans,
+        fontWeight: WEIGHT.strong,
+        fontSize: px(TYPE.lg),
+        letterSpacing: TRACKING.label,
         color: COLOR.text.primary,
         whiteSpace: 'pre',
       }}
