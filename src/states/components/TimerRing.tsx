@@ -44,6 +44,8 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
   const designFrame = useDesignFrame();
   const f = frame ?? designFrame;
 
+  // continuous sweep: f is a fractional design tick (frame / 2 at 60 fps), so the arc angle and the head dot move linearly in time
+  // and advance by 360 / (duration * 2) degrees on every output frame; nothing here steps per second or eases per second
   const elapsed = Math.max(0, Math.min(duration, f - from));
   const remainingTicks = Math.max(0, duration - elapsed);
   const remainingFrac = duration > 0 ? remainingTicks / duration : 0;
