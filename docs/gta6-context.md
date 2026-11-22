@@ -144,3 +144,14 @@ Check by eye (ticks; render frame = tick x 2):
 Open points:
 - `system.ts` (2a) authors in 1920x1080 reference units via `u()`, while an earlier decision was 1280x720 via `px()`. Output is the same 2560x1440 either way; all gta6 components follow `system.ts`.
 - `QuestionShell`: `data.ts` has no spoiler text, so `labels.spoiler` is optional and the badge is not drawn without it. The bonus banner title falls back to `item.n` because `data.ts` has no round name.
+
+## 7. Looks (task 3b)
+
+### `src/gta6/scenes/looks/MapsLook.tsx` (+ `mapsArt.ts`)
+- Use inside the shell: `<QuestionShell item start>{(ctx) => <MapsLook ctx={ctx} />}</QuestionShell>`. Props `{ ctx: ShellContext }`; every string comes from `ctx.item` (`q`, `options`, the answer label).
+- Beats (local ticks; `R` = `phases.read.from`, `Z` = `phases.timer.to` = zero, `H` = `phases.hold.from` = `Z`): question card in at `R + 4`; tiles stagger in from `R + 14` (+4 each); the zoom (2.4 to 1, ease-out so it ends flat) and the route draw (linear) both run `R` to `Z` and are frozen after `Z`; pin drops at `H` (bouncy spring), ripple from `H + 8` for 18 ticks, label slides in from `H + 6`. Reveal grey-out and expand are `RevealEngine` (tiles use its `OptionState`). Exported `MAPS_BEATS` holds the constants.
+- Amber (`colors.medium`) for the route, pin and label whatever the item level; the question card keeps the level tint.
+- Route variant = `item.order % 3` (`ROUTES` in `mapsArt.ts`). The zoom origin is the route start; the pin sits at the route end.
+- **The map is invented art**: a generic Florida-like peninsula from a few SVG paths (`LAND_PATH`, islands, lake, roads, unnamed towns). Not traced from any real map, image or game asset; no real place labels; no Rockstar material.
+- Layout (1920x1080 units): question card left 336, top 160, width 960 (clear of the timer ring slot and the island pill); 2x2 tiles of 400x240 (gap 24) bottom-right inside `SAFE`.
+- Open: the pin position does not depend on the answer (the data has no coordinates); the label carries the answer text. `at` for the tile stagger assumes 4 options.
