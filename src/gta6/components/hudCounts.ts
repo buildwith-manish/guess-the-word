@@ -2,20 +2,19 @@ import { items, levels } from '../data';
 import type { Item } from '../data';
 
 /**
- * What the corner counter (ScoreHud) shows. Only real questions (kind "q") are counted: 42 of them, never the 3 bonuses.
- * This is the same count the score cards use (scenes/ScoreCard.tsx), so the corner and the summary always agree.
- * On a bonus item the counter holds the number of questions played so far (no tween, no step).
+ * What the corner counter (ScoreHud) shows: ALL items count, the 3 bonuses included (n / 45). The counter moves on
+ * every item. This is the same count as the score cards (scenes/ScoreCard.tsx), the final scoreboard ring, the ranks
+ * (0 to 45) and the outro ("out of 45"). Bonus items are marked with a small label (`HUD_TEXT.bonus`).
  */
-const qs = items.filter((i) => i.kind === 'q');
 
-/** Total scored questions and the per-level split, in level order. */
+/** Text of the small label on bonus items. */
+export const HUD_TEXT = { bonus: 'BONUS' } as const;
+
+/** Total items and the per-level split, in level order. */
 export const hudTotals = {
-  total: qs.length,
-  levelTotals: levels.map((l) => qs.filter((i) => i.level === l).length) as [number, number, number],
+  total: items.length,
+  levelTotals: levels.map((l) => items.filter((i) => i.level === l).length) as [number, number, number],
 };
 
 /** ScoreHud `score` / `from` / `total` / `levelTotals` for `item`. */
-export const hudCounts = (item: Item) => {
-  const played = qs.filter((i) => i.order <= item.order).length;
-  return { score: played, from: item.kind === 'q' ? played - 1 : played, ...hudTotals };
-};
+export const hudCounts = (item: Item) => ({ score: item.order, from: item.order - 1, ...hudTotals });

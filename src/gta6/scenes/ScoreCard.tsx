@@ -16,7 +16,7 @@ import { easyPassMark, scoreCardSec, secToTicks } from '../timing';
  *   after  the item the card follows (segment.after)
  *
  * Summary = three activity rings (one per level, outer = first level). A ring fills with the share of that level's
- * questions (kind "q") played up to `after`; the centre shows questions played / all questions. Nothing is scored
+ * items (bonuses included) played up to `after`; the centre shows items played / all 45. Nothing is scored
  * on screen (answers are not tracked), same as ScoreHud. Lines (script):
  *   easy    "If you got {easyPassMark} or more, you're a real fan"
  *   medium  "{N} questions left"   (N = questions after `after`)
@@ -41,12 +41,12 @@ export const scoreCardVariant = (item: Item): Level | undefined => {
   return levels.find((l) => l === key);
 };
 
-const isQ = (i: Item) => i.kind === 'q';
-const totalQ = items.filter(isQ).length;
-const playedQ = (after: Item): number => items.filter((i) => isQ(i) && i.order <= after.order).length;
+// Every item counts, bonuses included (45), the same as ScoreHud, the scoreboard, the ranks and the outro.
+const totalQ = items.length;
+const playedQ = (after: Item): number => items.filter((i) => i.order <= after.order).length;
 const leftQ = (after: Item): number => totalQ - playedQ(after);
 const levelProgress = (level: Level, after: Item): number => {
-  const all = items.filter((i) => isQ(i) && i.level === level);
+  const all = items.filter((i) => i.level === level);
   const done = all.filter((i) => i.order <= after.order);
   return all.length ? done.length / all.length : 0;
 };

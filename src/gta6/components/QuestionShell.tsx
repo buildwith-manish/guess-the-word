@@ -36,7 +36,7 @@ import { EdgeGlow } from './EdgeGlow';
 import { NotificationBanner } from './NotificationBanner';
 import { ScoreHud } from './ScoreHud';
 import { Gta6WatermarkCorner } from './Watermark';
-import { hudCounts } from './hudCounts';
+import { HUD_TEXT, hudCounts } from './hudCounts';
 import { Shake } from './Shake';
 import { TimerRing } from './TimerRing';
 import { URGENT_SECONDS } from './timerMath';
@@ -220,6 +220,12 @@ export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, child
           frame={localFrame}
           at={0}
         />
+      ) : null}
+
+      {hud && item.kind === 'bonus' ? (
+        <div style={{ position: 'absolute', left: u(HUD_CORNER.inset), top: u(SAFE.top + 132 * HUD_CORNER.scale + 14) }}>
+          <SpoilerBadge text={HUD_TEXT.bonus} frame={localFrame} at={phases.banner ? phases.banner.from : phases.read.from} />
+        </div>
       ) : null}
 
       {showTimer && localFrame < phases.reveal.from ? (
