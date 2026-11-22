@@ -79,9 +79,10 @@ export const ControlCenterLook: React.FC<ControlCenterLookProps> = ({ item, loca
       <div style={{ position: 'absolute', left: u(SAFE.x), top: u(GRID_TOP), width: u(GRID_W), height: u(GRID_H) }}>
         {item.options.slice(0, 4).map((text, i) => {
           const enter = springAt(localFrame, tilesAt + i * stagger, 'snappy');
-          const flip = clamp01((localFrame - fromFlip) / flipTicks);
+          const lin = clamp01((localFrame - fromFlip) / flipTicks);
+          const flip = lin * lin * (3 - 2 * lin); // ease in-out
           const correct = i === item.answer;
-          const sw = correct ? springAt(localFrame, onAt, 'snappy') : 0;
+          const sw = correct ? springAt(localFrame, onAt, 'smooth') : 0;
           return (
             <Tile
               key={i}

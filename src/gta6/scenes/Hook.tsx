@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sequence } from 'remotion';
-import { ControlCenterTiles, LOCK_BEATS, LOCK_NOTIFICATION_TICKS, LockNotification, ScoreHud, SpoilerBadge } from '../components';
+import { ControlCenterTiles, LOCK_BEATS, LOCK_NOTIFICATION_TICKS, LockNotification, ScoreHud, SpoilerBadge, hudTotals } from '../components';
 import type { RuleTile } from '../components';
 import { byLevel, items } from '../data';
 import { cue } from '../sfx';
@@ -67,8 +67,7 @@ const Overlays: React.FC = () => {
       <div style={{ position: 'absolute', inset: 0, opacity: counter }}>
         <ScoreHud
           score={0}
-          total={items.length}
-          levelTotals={[byLevel.easy.length, byLevel.medium.length, byLevel.hard.length]}
+          {...hudTotals}
         />
       </div>
       <div style={{ position: 'absolute', left: u(FRAME.w - SAFE.x - tilesW), top: u(LAYOUT.tilesTop) }}>

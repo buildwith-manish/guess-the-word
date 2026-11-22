@@ -73,6 +73,8 @@ export const blurPx = 22;
 export const SPRINGS = {
   gentle: { damping: 22, stiffness: 140, mass: 1 },
   snappy: { damping: 18, stiffness: 260, mass: 0.8 },
+  /** Critically damped (ratio ~1): settles with no overshoot. For the reveal and anything that must feel like iOS. */
+  smooth: { damping: 26, stiffness: 170, mass: 1 },
   bouncy: { damping: 11, stiffness: 190, mass: 0.9 },
 } as const;
 export type SpringName = keyof typeof SPRINGS;

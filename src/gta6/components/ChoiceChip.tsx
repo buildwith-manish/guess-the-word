@@ -39,7 +39,7 @@ export const ChoiceChip: React.FC<ChoiceChipProps> = ({
 }) => {
   const since = frame - (stateAt ?? at);
   const enter = springAt(frame, at, 'snappy');
-  const correct = state === 'correct' ? springAt(frame, stateAt ?? at, 'bouncy') : 0;
+  const correct = state === 'correct' ? springAt(frame, stateAt ?? at, 'smooth') : 0;
   const accent = level ? colors.level[level] : colors.hairline;
 
   // tremble: small deterministic shake, ramps in over 4 ticks, ~7 Hz at 30 fps ticks

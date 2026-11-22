@@ -98,7 +98,7 @@ export const optionStateAt = (item: Item, frame: number, mode: RevealMode): Opti
       const highlightFrom = Math.max(holdSec + elimSec(mode), expandStartSec(mode) - REVEAL.highlightSec);
       const highlight = smooth((t - highlightFrom) / REVEAL.highlightSec);
       if (p <= 0) return { ...idle, phase: 'idle', highlight };
-      const expand = springAt(frame, expandStartTick, 'bouncy');
+      const expand = springAt(frame, expandStartTick, 'smooth');
       return {
         ...idle,
         phase: p < 1 - EPS ? 'expanding' : 'correct',
@@ -115,7 +115,7 @@ export const optionStateAt = (item: Item, frame: number, mode: RevealMode): Opti
     const len = mode === 'full' ? REVEAL.greySec : REVEAL.fadeSec;
     const raw = (t - startSec) / len;
     if (raw <= 0) return { ...idle, phase: 'idle' };
-    const elim = easeOut(raw);
+    const elim = smooth(raw);
     const done = raw >= 1 - EPS;
     return {
       ...idle,

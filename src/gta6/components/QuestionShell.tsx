@@ -35,6 +35,7 @@ import { DidYouKnowCard } from './DidYouKnowCard';
 import { EdgeGlow } from './EdgeGlow';
 import { NotificationBanner } from './NotificationBanner';
 import { ScoreHud } from './ScoreHud';
+import { hudCounts } from './hudCounts';
 import { Shake } from './Shake';
 import { TimerRing } from './TimerRing';
 import { URGENT_SECONDS } from './timerMath';
@@ -174,10 +175,7 @@ export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, child
 
       {hud ? (
         <ScoreHud
-          score={item.order}
-          from={item.order - 1}
-          total={items.length}
-          levelTotals={[byLevel.easy.length, byLevel.medium.length, byLevel.hard.length]}
+          {...hudCounts(item)}
           frame={localFrame}
           at={0}
         />
