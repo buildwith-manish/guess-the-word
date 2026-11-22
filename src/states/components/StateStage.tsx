@@ -76,7 +76,7 @@ const LAYOUT = {
   /** timer ring diameter, ref px (was TIMER_SIZE in StateRound) */
   timer: 190,
   /** gap between the ring and the shape box, ref px (round two, Step 6: the ring sits next to the shape, not at the left margin) */
-  ringGap: 40,
+  ringGap: 76,
   /** the ring + shape group is nudged right by this much (ref px) to balance the empty right side ... */
   groupShift: 47,
   /** ... but never closer than this to the corner mini map (ref px) */
