@@ -99,9 +99,9 @@ Content lives in `src/states/states-data.ts`: `ROWS` become `STATES: readonly St
 - `cue(id, frame, opts?) => SfxCue`, `sfxIds`, `sfxManifest`, `sfxEntry(id)`, `sfxLength(id)`, `sfxFrames(id)`, `sfxSrc(id)` (uses `staticFile`).
 - Regenerate with `python3 scripts/make_gta6_sfx.py` (also rewrites `src/gta6/sfx-ids.ts`).
 
-## 5. Design system and components (task 2a)
+## 5. Components (tasks 2a to 2e)
 
-Units: authored in a 1920x1080 reference frame; `u(v)` scales by `WIDTH / 1920` (2560x1440 composition today, so x1.333). Frames passed to components are local design ticks (30 fps, as `useGta6Frame()`).
+Units: authored in a 1920x1080 reference frame; `u(v)` scales by `WIDTH / 1920` (2560x1440 composition today, so x1.333). Every `frame`, `at`, `dur`, `outAt` is a local design tick (30 per second, as `useGta6Frame()`; render frame = tick x 2). All states are pure functions of those numbers: no internal timers. Text and numbers come from props (or from `item`), never from the component, except the two default labels noted in the table.
 The `src/ios/` layer is not on this branch, so nothing is imported from it: font stack and springs are local equivalents.
 
 ### `src/gta6/system.ts`
@@ -111,31 +111,36 @@ The `src/ios/` layer is not on this branch, so nothing is imported from it: font
 - Motion: `SPRINGS {gentle, snappy, bouncy}`, `SpringName`, `springAt(frame, at, preset='snappy'): number` (0..1).
 - Backgrounds: `levelBackground: Record<Level, string>` (dark radial gradients).
 
-### `src/gta6/components/` (barrel `index.ts`)
-- `FrostCard` props `{ children?, frame?, at=0, level?, width?, height?, padding=32, radius=34, style? }`. No `frame` = static; with `frame` it rises in from `at`.
-- `ChoiceChip` props `{ index (0-3 -> A-D), text, state: 'idle'|'tremble'|'greyed'|'correct', frame, at, stateAt?, level?, width=1100, height=132 }`. All motion derives from `frame`, `at`, `stateAt`; no internal timers. Tremble is a deterministic sine shake; `correct` fills green and springs to 1.06 scale.
-- Neither component contains question content.
+### Shared components (`src/gta6/components/`, all exported from `index.ts`)
 
-## 6. Timer and effect components (task 2b)
+| component | file | props (defaults) | notes |
+|---|---|---|---|
+| `QuestionShell` | `QuestionShell.tsx` | `item`, `start` (absolute design tick the item begins), `children: (ctx: ShellContext) => ReactNode` (the look), `labels? { spoiler?, banner? }`, `showTimer?=true` | Common layout of every look. Layers back to front: `levelBackground`, look inside `Shake`, `ScoreHud`, `TimerRing` slot, `SpoilerBadge`, `DidYouKnowCard`, `NotificationBanner`, `EdgeGlow`. Computes phases from the item's own segment in `timing.ts`, shifted to local ticks. `ctx` = `{ item, level, phase, localFrame, phases, revealFrom, revealMode, urgentFrom }`; `phase` is `banner | read | timer | hold | reveal | dyk`. `revealFrom`/`revealMode` go straight to `RevealEngine` (`from`/`mode`). Last 3 s (`URGENT_SECONDS` back from the end of the timer): `Shake` over the look and `EdgeGlow`; the glow fades out over 8 ticks after the timer. Also exports `SLOTS` (slot positions), `localPhases(item)`, `phaseAt(f, phases)`, types `ShellContext`, `ShellPhase`, `ShellLabels`, `LocalPhases`. Score = `item.order`, tweening from `order - 1`, total `items.length`, `levelTotals` from `byLevel`. |
+| `FrostCard` | `FrostCard.tsx` | `children?`, `frame?`, `at?=0`, `level?`, `width?`, `height?`, `padding?=32`, `radius?=34`, `style?` | Frosted glass card. No `frame` = static; with `frame` it rises in from `at`. |
+| `ChoiceChip` | `ChoiceChip.tsx` | `index` (0-3 = A-D), `text`, `state` (`idle \| tremble \| greyed \| correct`), `frame`, `at`, `stateAt?`, `level?`, `width?=1100`, `height?=132` | Tremble = deterministic sine shake; `correct` fills green and springs to 1.06. |
+| `RevealEngine` | `RevealEngine.tsx` | `item`, `frame`, `from` (start of the hold phase), `mode` (`full \| fast`), `level?`, `enterAt?=0`, `width?`, `height?`, `gap?=20`, `children?: (states: OptionState[]) => ReactNode` | Hold, then wrong options grey out (full: one by one, fast: together), then the correct one expands. Default render uses `ChoiceChip`. Helpers: `optionStateAt`, `optionListHeight`, `revealEndSec`, `revealEndTicks`, `expandStartSec`, `REVEAL`. |
+| `TimerRing` | `TimerRing.tsx` | `frame`, `at`, `dur`, `variant?` (`ring \| island`), `level?`, `size?=200`, `digits?=true` | Draws nothing before `at`. Ring fills over `dur`; red and pulsing in the last 3 s. `island` = black pill with mini ring (Hard). Math: `timerMath(frame, at, dur)`, `URGENT_SECONDS = 3`. |
+| `EdgeGlow` | `EdgeGlow.tsx` | `frame`, `at`, `dur?=90` | Red inset glow, 0 at `at`, full at `at + dur`, then stays full. Fills its parent (absolute). |
+| `Shake` | `Shake.tsx` | `frame`, `at`, `dur`, `amp?=6`, `seed?=1`, `children?`, `style?` | One hash-based offset per tick, fast ramp in, linear fade out, no `Math.random`. Also exports `seeded(n)`. |
+| `LowPowerTint` | `LowPowerTint.tsx` | `frame`, `at`, `dur` | Yellow screen overlay, 6-tick fade at each end. |
+| `LowPowerRing` | `LowPowerTint.tsx` | `frame`, `at`, `dur`, `size?=200`, `digits?=true`, `turnsPerSecond?=2` | Yellow ring filling over `dur` while spinning. `colors.lowPower` = #FFD60A. |
+| `ScoreHud` | `ScoreHud.tsx` | `score`, `total`, `from?`, `frame?`, `at?`, `levelTotals?` (`[easy, medium, hard]`, default thirds of `total`) | Top-right at `SAFE`. "n / total" plus three level rings filling in sequence. The number is the POSSIBLE score and climbs by item index; answers are not scored on screen. `from` + `frame` + `at` tween with the snappy spring. |
+| `StreakChip` | `badges.tsx` | `count`, `unit`, `label`, `frame`, `at`, `outAt?` | Amber pill "N unit label"; the scene supplies every string. |
+| `SpoilerBadge` | `badges.tsx` | `text`, `frame`, `at`, `outAt?` | Green pill. |
+| `FastestBadge` | `badges.tsx` | `text`, `frame`, `at`, `outAt?` | Amber pill with bolt glyph. |
+| `ControlCenterTiles` | `ControlCenterTiles.tsx` | `tiles: RuleTile[]` (`{ value?, label }`), `frame`, `at`, `outAt?`, `stagger?=4`, `tileSize?=250` | Tiles stagger in, all gone by `outAt`. A tile with no `value` shows a ring-check glyph. |
+| `LockNotification` | `LockNotification.tsx` | `frame`, `at`, `appName`, `title`, `body`, `timeLabel`, `options` (4), `level` | Lock-screen banner over a blurred 2x2 answer grid. Renders `null` outside `[at, at + 30]`. Exports `LOCK_NOTIFICATION_TICKS = 30`, `LOCK_BEATS { gridIn 0, bannerIn 4, bannerOut 24, end 30 }`, `lockNotificationEnd(at)`. Put the `notification` SFX at `at + LOCK_BEATS.bannerIn`. |
+| `NotificationBanner` | `NotificationBanner.tsx` | `title`, `frame`, `at`, `dur?=bannerSec`, `level?`, `width?=760`, `height?=120`, `blur?=9` | Slides down from above the top edge to the safe margin over `dur`, then stays until unmounted. Title stays blurred. |
+| `DidYouKnowCard` | `DidYouKnowCard.tsx` | `text`, `frame`, `at`, `dur?=dykSec` (capped under 3 s), `level?`, `left`, `top`, `width?=640`, `label?='Did you know?'` | Springs in, holds, springs out; draws nothing outside `[at, at + dur)`. `label` default is the only built-in text. Exports `DYK_MAX_TICKS`. |
+| `ReminderCard` | `ReminderCard.tsx` | `frame`, `at`, `dur`, `level?`, `x` (centre), `top`, `width?=520`, `text?='Still counting?'` | Pill that springs in, holds, springs out. `timing.ts` has no reminder length, so the scene passes `dur`. `text` default is built in. |
 
-All in `src/gta6/components/` (exported from `index.ts`). `frame`, `at`, `dur` are local design ticks (30 per second). Math comes from `TimerBar` (search-history): `left = dur - elapsed`, `seconds = ceil(left / 30)`, urgent when `left <= 90`; the ring FILLS (`fill = elapsed / dur`) where TimerBar drains.
-- `timerMath(frame, at, dur)` -> `{ started, elapsed, left, fill, seconds, urgent, urgentTicks, tickInSecond, pulse }`; `URGENT_SECONDS = 3`. Pulse is 1 at the start of each urgent second and eases to 0 in 10 ticks.
-- `TimerRing` `{ frame, at, dur, variant?='ring'|'island', level?, size=200, digits=true }`. Draws nothing before `at`. Red and pulsing in the last 3 s. `island` is a black pill with a mini ring and digits.
-- `EdgeGlow` `{ frame, at, dur=90 }`: red inset glow, 0 at `at`, full at `at + dur`, stays full. Fills its parent (position absolute).
-- `Shake` `{ frame, at, dur, amp=6, seed=1, children, style? }` and `seeded(n)`: one offset per tick from a hash, fast ramp in, linear fade out, no `Math.random`.
-- `LowPowerTint` `{ frame, at, dur }`: yellow screen overlay (6 tick fade each end). `LowPowerRing` `{ frame, at, dur, size=200, digits=true, turnsPerSecond=2 }`: yellow ring filling over `dur` while spinning.
-- `system.ts` gained `colors.lowPower` (#FFD60A).
+Helpers (not components): `presence(frame, at, dur, outLen)` (`presence.ts`), `clamp01`, `fadeWindow(frame, at, outAt?, inTicks, outTicks)` (`fade.ts`), `timerMath`, `URGENT_SECONDS` (`timerMath.ts`).
 
-## 7. HUD components (task 2c)
+Check by eye (ticks; render frame = tick x 2):
+- `LockNotification` at +0, +6, +14, +22, +27, +30 (banner overshoot, blur level, clean exit, nothing left at +31).
+- `ScoreHud` tween at +0, +6, +15 (ring hand-off between colours). `ControlCenterTiles` at +0, +4, +8, +16 and just before `outAt`. Badges at +6 (bouncy settle).
+- `QuestionShell`: `timer.to - 90` (shake and glow start), `timer.to` (glow full), `timer.to + 8` (glow gone), `reveal.to` (card appears), a bonus item at `banner.to - 1` and `banner.to` (the banner leaves the screen at once, there is no exit animation).
 
-All in `src/gta6/components/` (exported from `index.ts`). Same conventions as 2a: sizes are literals in the 1920 reference frame scaled with `u()` from `system.ts`; frames are local design ticks (30 fps); every state is a pure function of `frame`, `at` (and `outAt`); no internal timers; text and numbers come from props only.
-
-- `ScoreHud` `{ score, total, from?, frame?, at?, levelTotals? }`: top-right at `SAFE`. Shows "n / total" with three rings (easy green, medium amber, hard red) filling in sequence (thirds of `total`, or `levelTotals`). **Choice: the number is the POSSIBLE score and climbs by item index; answers are not scored on screen.** Documented in the file header. `from` + `frame` + `at` tween with the snappy spring.
-- `StreakChip` `{ count, unit, label, frame, at, outAt? }`, `SpoilerBadge` `{ text, ... }` (green), `FastestBadge` `{ text, ... }` (bolt glyph): in `badges.tsx`. The scene supplies every string (e.g. unit = "IN A ROW").
-- `ControlCenterTiles` `{ tiles: {value?, label}[], frame, at, outAt?, stagger=4, tileSize=250 }`: tiles stagger in, all fade out by `outAt`. A tile with no `value` shows a ring-check glyph (for the "keep score" rule).
-- `LockNotification` `{ frame, at, appName, title, body, timeLabel, options (4), level }`: lock-screen banner over a blurred 2x2 answer grid (uses `ChoiceChip`). Exports `LOCK_NOTIFICATION_TICKS = 30` (1 s), `LOCK_BEATS { gridIn 0, bannerIn 4, bannerOut 24, end 30 }`, `lockNotificationEnd(at)`. Renders `null` outside `[at, at + 30]`, so the same call replays at Q42 by setting `at`. Place the `notification` SFX at `at + LOCK_BEATS.bannerIn`.
-- Helpers in `fade.ts`: `clamp01`, `fadeWindow(frame, at, outAt?, inTicks, outTicks)`.
-
-Check by eye (ticks; render frame = tick x 2): LockNotification at +0, +6, +14, +22, +27, +30 (banner overshoot, blur level, clean exit, nothing left at +31). ScoreHud tween at +0, +6, +15 (ring hand-off between colours). ControlCenterTiles at +0, +4, +8, +16 and just before `outAt`. Badges at +6 (bouncy settle).
-
-Open point: `system.ts` (2a) authors in 1920x1080 reference units via `u()`, while the later decision was 1280x720 via `px()`. Output is the same 2560x1440 either way; 2c follows `system.ts` so all gta6 components share one unit. Convert `system.ts` if the 1280 reference is wanted.
+Open points:
+- `system.ts` (2a) authors in 1920x1080 reference units via `u()`, while an earlier decision was 1280x720 via `px()`. Output is the same 2560x1440 either way; all gta6 components follow `system.ts`.
+- `QuestionShell`: `data.ts` has no spoiler text, so `labels.spoiler` is optional and the badge is not drawn without it. The bonus banner title falls back to `item.n` because `data.ts` has no round name.
