@@ -188,6 +188,12 @@ export const TIMER = {
   headGlowGain: 1.75,
   headGlowBlur: 1.2,
   /** last 3 seconds: ring and head cross-fade to alertSoft over this many ticks; each whole second the timer scales up to alertPeak (<= SETTLE.maxPeak 1.03) and settles back inside the second */
+  /** tick marks: one per second inside the ring (inset and length are fractions of the diameter), dim to tickDim as the head passes, fade tickFade ticks, thinned above tickMax */
+  tickInset: 0.025,
+  tickLen: 0.03,
+  tickDim: 0.25,
+  tickFade: 6,
+  tickMax: 12,
   alertFade: 6,
   alertPeak: 1.025,
   alertSettle: 24,

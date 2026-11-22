@@ -9,7 +9,7 @@ import React from 'react';
 import { useDesignFrame } from '../../clock';
 import { IOS } from '../../ios';
 import { FPS } from '../state-timing';
-import { BACKDROP, COLOR, FONT, SOFT_GLOW, TIMER, WEIGHT, glassPanel } from '../look';
+import { BACKDROP, COLOR, FONT, HAIRLINE, SOFT_GLOW, TIMER, WEIGHT, glassPanel } from '../look';
 import { SETTLE, enter, exitTicks, leave, settle, settleTicks } from '../motion';
 import { cssEaseOut, prog } from '../../anim';
 import { px } from '../../style';
@@ -77,6 +77,19 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
   // faint outer glow, breathes once per second (sin over the second), only in the last 3
   const breathe = inAlert ? Math.sin(Math.PI * Math.min(1, (f - secStart) / FPS)) : 0;
 
+  // tick marks: one per second, at the angle the head has when that second is over (clockwise from 12 o'clock the arc shrinks
+  // back to the top, so second k sits at 360 - k * 360 / N degrees); each dims to tickDim over tickFade ticks as the head arrives
+  const seconds_n = Math.max(1, Math.round(duration / FPS));
+  const tickStep = Math.ceil(seconds_n / LOOK.tickMax);
+  const tickR1 = size / 2 - stroke - size * LOOK.tickInset;
+  const tickR2 = tickR1 - size * LOOK.tickLen;
+  const ticks = Array.from({ length: seconds_n }, (_, i) => i + 1)
+    .filter((k) => k % tickStep === 0 || k === seconds_n)
+    .map((k) => {
+      const dimT = prog(f, from + k * FPS - LOOK.tickFade, LOOK.tickFade, cssEaseOut);
+      return { k, a: ((360 - (k * 360) / seconds_n) * Math.PI) / 180, r1: tickR1, r2: tickR2, opacity: 1 - (1 - LOOK.tickDim) * dimT };
+    });
+
   const digitPx = size * LOOK.digitSize;
   const total = Math.round(duration / FPS);
   // digit d is on screen while remaining ticks are in ((d-1) * FPS, d * FPS], so it starts at from + duration - d * FPS
@@ -134,6 +147,19 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
       )}
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible' }}>
         <circle cx={c} cy={c} r={r} fill="none" stroke={COLOR.fill} strokeWidth={stroke} strokeLinecap="round" />
+        {ticks.map((t) => (
+          <line
+            key={t.k}
+            x1={c + t.r1 * Math.sin(t.a)}
+            y1={c - t.r1 * Math.cos(t.a)}
+            x2={c + t.r2 * Math.sin(t.a)}
+            y2={c - t.r2 * Math.cos(t.a)}
+            stroke={COLOR.text.label}
+            strokeWidth={px(HAIRLINE.width)}
+            strokeLinecap="round"
+            opacity={t.opacity}
+          />
+        ))}
       </svg>
       {arc > 0 && (
         <>
