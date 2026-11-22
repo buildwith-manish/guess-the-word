@@ -35,6 +35,8 @@ export const colors = {
   hairline: 'rgba(255,255,255,0.16)',
   shadow: 'rgba(0,0,0,0.38)',
   onAccent: '#06130A',
+  /** iOS Low Power Mode yellow. */
+  lowPower: '#FFD60A',
 } as const;
 
 /** iOS-style stack (Inter first, as the other iOS videos; SF and system as fallback). Inter must be loaded by the scene. */

@@ -115,3 +115,13 @@ The `src/ios/` layer is not on this branch, so nothing is imported from it: font
 - `FrostCard` props `{ children?, frame?, at=0, level?, width?, height?, padding=32, radius=34, style? }`. No `frame` = static; with `frame` it rises in from `at`.
 - `ChoiceChip` props `{ index (0-3 -> A-D), text, state: 'idle'|'tremble'|'greyed'|'correct', frame, at, stateAt?, level?, width=1100, height=132 }`. All motion derives from `frame`, `at`, `stateAt`; no internal timers. Tremble is a deterministic sine shake; `correct` fills green and springs to 1.06 scale.
 - Neither component contains question content.
+
+## 6. Timer and effect components (task 2b)
+
+All in `src/gta6/components/` (exported from `index.ts`). `frame`, `at`, `dur` are local design ticks (30 per second). Math comes from `TimerBar` (search-history): `left = dur - elapsed`, `seconds = ceil(left / 30)`, urgent when `left <= 90`; the ring FILLS (`fill = elapsed / dur`) where TimerBar drains.
+- `timerMath(frame, at, dur)` -> `{ started, elapsed, left, fill, seconds, urgent, urgentTicks, tickInSecond, pulse }`; `URGENT_SECONDS = 3`. Pulse is 1 at the start of each urgent second and eases to 0 in 10 ticks.
+- `TimerRing` `{ frame, at, dur, variant?='ring'|'island', level?, size=200, digits=true }`. Draws nothing before `at`. Red and pulsing in the last 3 s. `island` is a black pill with a mini ring and digits.
+- `EdgeGlow` `{ frame, at, dur=90 }`: red inset glow, 0 at `at`, full at `at + dur`, stays full. Fills its parent (position absolute).
+- `Shake` `{ frame, at, dur, amp=6, seed=1, children, style? }` and `seeded(n)`: one offset per tick from a hash, fast ramp in, linear fade out, no `Math.random`.
+- `LowPowerTint` `{ frame, at, dur }`: yellow screen overlay (6 tick fade each end). `LowPowerRing` `{ frame, at, dur, size=200, digits=true, turnsPerSecond=2 }`: yellow ring filling over `dur` while spinning.
+- `system.ts` gained `colors.lowPower` (#FFD60A).
