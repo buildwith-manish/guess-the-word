@@ -16,8 +16,8 @@ import { scoreboardSec, secToTicks } from '../timing';
  * Rank names and ranges come from `rankTiers` (data.ts, out of `items.length`); the voiceover line of each rank from `rankLines`
  * (data.ts, empty until the script is pasted). Beats, in local ticks (all derived from `scoreboardSec`):
  *   rings   three activity rings (one per level) close fully, from `BEATS.rings`
- *   stack   rank cards rise in one after another, lowest rank first, so the best rank lands on top
- *   lights  each rank is highlighted in turn, lowest to highest, for an equal share of the time left; the last one (best) stays
+ *   stack   rank cards rise in one after another, best rank first (top to bottom)
+ *   lights  each rank is highlighted in turn, best to lowest (LEGEND, EXPERT, GOOD, BEGINNER, KEEP GOING), for an equal share of the time left; the last one (lowest) stays
  * `scoreboardCues` uses the same beats, so scene and sound cannot drift apart.
  */
 
@@ -31,12 +31,12 @@ const ACCENT: Record<RankName, string> = {
 
 const TOTAL = secToTicks(scoreboardSec);
 export const BEATS = { rings: 6, ringsLen: 36, stack: 12, stagger: 8, light: 90, tail: 30 } as const;
-const ORDER = rankTiers.map((r) => r.name).reverse(); // lowest first
+const ORDER = rankTiers.map((r) => r.name); // best first (rankTiers order, same as the voiceover's rank lines): LEGEND ... KEEP GOING
 const lightLen = Math.floor((TOTAL - BEATS.light - BEATS.tail) / rankTiers.length);
 
-/** Tick a rank card starts rising (lowest rank first). */
+/** Tick a rank card starts rising (best rank first). */
 export const cardStart = (name: RankName): number => BEATS.stack + ORDER.indexOf(name) * BEATS.stagger;
-/** Tick a rank's highlight starts. */
+/** Tick a rank's highlight starts (best rank first). */
 export const lightStart = (name: RankName): number => BEATS.light + ORDER.indexOf(name) * lightLen;
 
 /** Sound cues, `start` = absolute design tick of the scoreboard segment. */
@@ -88,7 +88,7 @@ export const Scoreboard: React.FC<{ frame: number }> = ({ frame }) => {
         </div>
       </div>
 
-      {/* rank cards: best on top, rise in from the lowest */}
+      {/* rank cards: best on top, rise in from the best, top to bottom */}
       <div style={{ position: 'absolute', left: u(FRAME.w - SAFE.x - CARD.w), top: u(CARD.top), display: 'flex', flexDirection: 'column', gap: u(CARD.gap) }}>
         {rankTiers.map((r) => {
           const p = springAt(frame, cardStart(r.name), 'snappy');
