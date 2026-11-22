@@ -51,9 +51,9 @@ const LABELS = { capital: 'Capital' };
 /** Layout proportions (1280x720 reference units go through px()) and stamp timing. */
 const LOOK = {
   radius: 30,
-  padX: 56,
-  padY: 44,
-  gap: 20,
+  padX: 48,
+  padY: 48,
+  gap: 24,
   chipFont: 30,
   chipSpacing: 3.6,
   chipPadX: 22,

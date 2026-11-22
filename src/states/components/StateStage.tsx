@@ -73,6 +73,14 @@ const LAYOUT = {
   hudGap: 12,
   /** slot fade length in ticks */
   fade: 10,
+  /** timer ring diameter, ref px (was TIMER_SIZE in StateRound) */
+  timer: 190,
+  /** gap between the ring and the shape box, ref px (round two, Step 6: the ring sits next to the shape, not at the left margin) */
+  ringGap: 40,
+  /** the ring + shape group is nudged right by this much (ref px) to balance the empty right side ... */
+  groupShift: 47,
+  /** ... but never closer than this to the corner mini map (ref px) */
+  miniClear: 40,
 };
 
 const square = (cx: number, cy: number, side: number): Rect => ({ x: cx - side / 2, y: cy - side / 2, w: side, h: side });
@@ -84,14 +92,21 @@ const computeLayout = () => {
   const miniW = WIDTH * LAYOUT.mini;
   const miniH = miniMapHeight(miniW);
   const titleW = WIDTH * LAYOUT.titleW;
+  const miniMap = { x: WIDTH - SAFE_X - miniW, y: HEIGHT - SAFE_Y - miniH, w: miniW, h: miniH } as Rect;
+  const shape0 = square(cx, cy, ringD * LAYOUT.shapeInRing);
+  const shift = Math.max(0, Math.min(px(LAYOUT.groupShift), miniMap.x - px(LAYOUT.miniClear) - (shape0.x + shape0.w)));
+  const shape = square(cx + shift, cy, ringD * LAYOUT.shapeInRing);
+  const timerD = px(LAYOUT.timer);
   return {
     frame: { x: 0, y: 0, w: WIDTH, h: HEIGHT } as Rect,
+    /** the clock ring, level with the shape and `ringGap` to its left */
+    timer: { x: shape.x - px(LAYOUT.ringGap) - timerD, y: cy - timerD / 2, w: timerD, h: timerD } as Rect,
     /** inside the 5% safe margin */
     safe: { x: SAFE_X, y: SAFE_Y, w: WIDTH - 2 * SAFE_X, h: HEIGHT - 2 * SAFE_Y } as Rect,
     title: { x: (WIDTH - titleW) / 2, y: SAFE_Y, w: titleW, h: px(LAYOUT.titleH) } as Rect,
     ring: square(cx, cy, ringD),
-    shape: square(cx, cy, ringD * LAYOUT.shapeInRing),
-    miniMap: { x: WIDTH - SAFE_X - miniW, y: HEIGHT - SAFE_Y - miniH, w: miniW, h: miniH } as Rect,
+    shape,
+    miniMap,
   };
 };
 

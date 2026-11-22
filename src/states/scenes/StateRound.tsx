@@ -108,11 +108,14 @@ const FastBadge: React.FC = () => (
   </div>
 );
 
-/** answer screen: the card sits in the left column, the map grows into the right one (fractions of the frame width) */
-const REVEAL = { cardW: 0.38, mapW: 0.5 };
+/**
+ * answer screen: the card sits in the left column (cardW, a fraction of the frame width); the map fills the rest of the
+ * safe area, leaving `gap` ref px between the card's right edge and the map (round two, Step 6: was ~26, now 32).
+ */
+const REVEAL = { cardW: 0.38, gap: 32 };
 
-/** left-side clock: diameter in px (1280x720 reference, doubled by px()) */
-const TIMER_SIZE = px(190);
+/** clock: diameter in px, from STAGE_LAYOUT.timer (round two: next to the shape) */
+const TIMER_SIZE = STAGE_LAYOUT.timer.w;
 
 export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, withTitle = false }) => {
   const plan = buildQuestionPlan(index, withTitle);
@@ -134,7 +137,7 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
   const flyDur = plan.duration - plan.exit;
 
   // answer map: grows from the corner map to the right column at the reveal, shrinks back to the corner at flyAt
-  const bigW = WIDTH * REVEAL.mapW;
+  const bigW = WIDTH - 2 * SAFE_X - WIDTH * REVEAL.cardW - px(REVEAL.gap);
   const big = { x: WIDTH - SAFE_X - bigW, y: L.shape.y + L.shape.h / 2 - miniMapHeight(bigW) / 2, w: bigW };
   const mapIn = sprFit(f, plan.revealStart, plan.stamp - plan.revealStart, 'normal');
   const mapOut = sprFit(f, flyAt, flyDur, 'normal');
@@ -242,8 +245,8 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
                 <div
                   style={{
                     position: 'absolute',
-                    left: SAFE_X,
-                    top: (HEIGHT - TIMER_SIZE) / 2,
+                    left: L.timer.x,
+                    top: L.timer.y,
                   }}
                 >
                   <TimerLead
