@@ -25,6 +25,9 @@ The task table (docs/gta6-prompts-split.md) is not in the repo on any branch and
   - `part1Cues` holds only what the scenes export (hook, level card, B1 buzz, banner notification, scorecard); no per-item answer or timer cues exist yet.
   - tsc: no errors in `src/gta6/` or Root (same 3 older errors). No render or `remotion still` run.
 - [x] 5d: `src/gta6/parts/Part2.tsx` (`Part2 { showVerifyTags? }`, `part2Plan`, `part2Frames`), `part2Cues` in `sfxCues.ts` (shared `cuesOf`), `GTA6-P2` in Root. Verify tag = bottom-left, bonus items with `verify` only (B3). Reuses `bannerStart`, `nextRound`, `roundLabel` from Part1. tsc clean for gta6/Root. No render run.
+- [x] 5e: `src/gta6/parts/Part3.tsx` (`Part3`, `part3Plan`, `part3Frames`, `part3Replay`, `part3RingsAt`, `part3NoBanner`), `part3Cues` in `sfxCues.ts` (`cuesOf` got an optional `noBanner` predicate), `GTA6-P3` in Root.
+  - Q42 (`q42Replay`): the hook's `LockNotification` is replayed (same props shape, `HOOK_TEXT`, `LOCK_NOTIFICATION_TICKS`) in a slot INSERTED before the item, so Part3 is 30 ticks longer than `partRanges[2]`; timing.ts is unchanged, so Scoreboard/Outro chapter times are 1 s early in a full build. No end banner on Q41 (the replay announces Q42). Q42 draws its own `ScoreHud` (shell HUD off), tweened at `hold.from + expandStartSec('full')` so the rings close on the answer. No sound on the ring close.
+  - Hard timers are 7 s except item 34 (fastest, 3 s in data). No render run.
 
 ## Next step
 Supply the task table (docs/gta6-prompts-split.md) so the remaining task IDs can be added to this checklist. Open points from `docs/gta6-context.md`: 2560x1440 at 60 fps is the repo convention, not 1920x1080.
