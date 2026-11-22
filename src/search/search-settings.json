@@ -5,7 +5,7 @@
     { "name": "HARD", "accent": "#FB7185", "bg": "#2A0712", "theme": ["#FF4D8D", "#2A0720"] }
   ],
   "searchAt": [0.04, 0.37, 0.7],
-  "recent": { "visible": 2 },
+  "recent": { "visible": 3 },
   "voiceClue": { "typeShare": 0.88, "pauseTicks": 6 },
   "think": { "seconds": 5, "beatTicks": 6, "firstClueTicks": 8, "fallbackClueSeconds": 7 },
   "reveal": { "minHoldSeconds": 2.5, "showName": true },

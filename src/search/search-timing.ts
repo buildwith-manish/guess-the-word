@@ -97,6 +97,9 @@ export const HOLD_CHARS = cfg.bonus.searchHoldChars;
 export const SLIDE_CHARS = 8;
 /** How many finished searches the "Recent searches" list shows at once (settings recent.visible, at least 1). */
 export const RECENT_VISIBLE = Math.max(1, Math.round(cfg.recent.visible));
+/** The bar and list are lifted by this many 1280x720 units, so the taller list keeps its gap above the hint tiles.
+ *  Each row beyond the original two adds about 44 units; lifting by 19 per extra row leaves a gap of about 33. */
+export const RECENT_LIFT = Math.max(0, RECENT_VISIBLE - 2) * 19;
 /** Ticks kept free between the end of the last search's slot and the reveal. Existing constant: the beat between timer end and answer flip. */
 const LAST_SLOT_MARGIN = T.answerFlipsAfterTimer;
 

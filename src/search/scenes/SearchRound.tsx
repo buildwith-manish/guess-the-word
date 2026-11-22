@@ -3,7 +3,7 @@ import { px } from '../../style';
 import { spring, easeOut } from '../../ios';
 import { FPS, TIME_SCALE } from '../../timing';
 import { ROUNDS, getRound } from '../search-data';
-import { LEVELS, RECENT_VISIBLE, buildRoundPlan } from '../search-timing';
+import { LEVELS, RECENT_LIFT, RECENT_VISIBLE, buildRoundPlan } from '../search-timing';
 import answerImages from '../answer-images.json';
 import { SearchStage } from '../components/SearchStage';
 import { SearchBar } from '../components/SearchBar';
@@ -112,7 +112,7 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
               typeTicks={typeTicks}
               accent={level.accent}
               size={rect.w}
-              at={{ x: rect.x, y: rect.y }}
+              at={{ x: rect.x, y: rect.y - RECENT_LIFT }}
               recentCount={RECENT_VISIBLE}
             />
           </div>
