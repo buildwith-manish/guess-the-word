@@ -35,7 +35,7 @@ import { useDesignFrame } from '../../clock';
 import { prog, mix } from '../../anim';
 import { S, SAFE_X, SAFE_Y, px } from '../../style';
 import { IOS } from '../../ios';
-import { enter, sprFit } from '../motion';
+import { FLIGHT, enter, iosOut, sprFit } from '../motion';
 import {RADIUS, glassPanel, COLOR, FONT, WEIGHT, TYPE } from '../look';
 import { StateWatermark } from '../components/StateWatermark';
 import { HEIGHT, WIDTH, TIME_SCALE, buildQuestionPlan, LEVELS, QUESTIONS } from '../state-timing';
@@ -194,6 +194,11 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
   // map rect of THIS frame, so the shape lands exactly where the state sits once the map has finished growing (the flight
   // and the map growth use the same normal spring over the same window, so they end together).
   const flyTo = { x: answerMap.x, y: answerMap.y, w: answerMap.w, h: miniMapHeight(answerMap.w) };
+  // the map's own piece fades to its accent fill over the last (1 - fillAt) of the flight, while the flying copy fades out, so
+  // the hand-over at the stamp is invisible (arrive = 1 at the stamp)
+  const arrive = Math.max(0, Math.min(1, (reveal - FLIGHT.fillAt) / (1 - FLIGHT.fillAt)));
+  // the `current` outline fades in after the stamp and out again after the exit starts (never a hard on / off)
+  const curAlpha = Math.min(iosOut((f - plan.stamp) / FLIGHT.outlineIn), 1 - iosOut((f - flyAt) / FLIGHT.outlineIn));
   const flyCommon = { stateKey: plan.key, from: L.shape, to: flyTo, at: plan.revealStart, dur: plan.stamp - plan.revealStart, accent: level.accent, rotation, frame: f };
   const flying =
     f < plan.revealStart || f >= plan.stamp ? null : q.level === 'EXPERT' ? (
@@ -251,13 +256,15 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
                 <div style={{ position: 'absolute', left: answerMap.x, top: answerMap.y }}>
                   <MiniMap
                     answered={STATES.slice(0, f >= plan.stamp ? index + 1 : index).map((s) => s.key)}
-                    current={f >= plan.stamp && f < flyAt ? plan.key : undefined}
+                    current={f >= plan.stamp && curAlpha > 0 ? plan.key : undefined}
+                    currentAlpha={curAlpha}
+                    arriving={f >= plan.revealStart && f < plan.stamp ? { key: plan.key, p: arrive } : undefined}
                     size={answerMap.w}
                     frame={f}
                   />
                 </div>
               ) : null}
-              {flying}
+              {flying ? <div style={{ opacity: 1 - arrive }}>{flying}</div> : null}
               {f >= timerLeadStart(plan.questionVo, plan.readyStart) && f < plan.revealStart ? (
                 <div
                   style={{

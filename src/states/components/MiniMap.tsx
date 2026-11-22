@@ -26,6 +26,13 @@ export interface MiniMapProps {
   highlightRegion?: Region;
   /** map width in px (use px()); height is miniMapHeight(size) */
   size: number;
+  /**
+   * The state that is landing: while `p` goes 0 -> 1 its piece fades from the dim style to the answered accent fill, so
+   * there is no swap at the stamp. Default undefined (old behaviour). At p = 1 it draws exactly like an answered state.
+   */
+  arriving?: { key: string; p: number };
+  /** 0..1 strength of the `current` outline (halo and stroke); default 1 (old behaviour) */
+  currentAlpha?: number;
   /** optional ticks from the parent; default useDesignFrame() */
   frame?: number;
 }
@@ -69,7 +76,7 @@ const LOOK = {
   ],
 };
 
-export const MiniMap: React.FC<MiniMapProps> = ({ answered = [], current, highlightRegion, size, frame }) => {
+export const MiniMap: React.FC<MiniMapProps> = ({ answered = [], current, highlightRegion, size, arriving, currentAlpha = 1, frame }) => {
   const designFrame = useDesignFrame();
   const f = frame ?? designFrame;
 
@@ -83,13 +90,27 @@ export const MiniMap: React.FC<MiniMapProps> = ({ answered = [], current, highli
 
   return (
     <svg width={size} height={miniMapHeight(size)} viewBox={`0 0 ${MINI_W} ${MINI_H}`} style={{ display: 'block', overflow: 'visible' }}>
-      {paths.map((p) =>
-        done.has(p.key) ? (
-          <path key={p.key} d={p.d} fill={p.accent} fillOpacity={LOOK.answeredFillAlpha} stroke={COLORS.base} strokeOpacity={LOOK.answeredEdgeAlpha} strokeWidth={LOOK.edge} strokeLinejoin="round" />
-        ) : (
-          <path key={p.key} d={p.d} fill={whiteA(MAP.unansweredFill)} stroke={whiteA(MAP.unansweredEdge)} strokeWidth={MAP.unansweredEdgeWidth} strokeLinejoin="round" />
-        ),
-      )}
+      {paths.map((p) => {
+        const answeredPath = (opacity = 1) => (
+          <path key={p.key} d={p.d} opacity={opacity} fill={p.accent} fillOpacity={LOOK.answeredFillAlpha} stroke={COLORS.base} strokeOpacity={LOOK.answeredEdgeAlpha} strokeWidth={LOOK.edge} strokeLinejoin="round" />
+        );
+        const dimPath = (opacity = 1) => (
+          <path key={`${p.key}-dim`} d={p.d} opacity={opacity} fill={whiteA(MAP.unansweredFill)} stroke={whiteA(MAP.unansweredEdge)} strokeWidth={MAP.unansweredEdgeWidth} strokeLinejoin="round" />
+        );
+        if (done.has(p.key)) return answeredPath();
+        if (arriving && arriving.key === p.key) {
+          const a = Math.max(0, Math.min(1, arriving.p));
+          if (a >= 1) return answeredPath();
+          if (a <= 0) return dimPath();
+          return (
+            <React.Fragment key={p.key}>
+              {dimPath(1 - a)}
+              {answeredPath(a)}
+            </React.Fragment>
+          );
+        }
+        return dimPath();
+      })}
 
       {glowing.map((p) =>
         LOOK.halo.map((h, i) => (
@@ -100,13 +121,13 @@ export const MiniMap: React.FC<MiniMapProps> = ({ answered = [], current, highli
       {cur && (
         <>
           {LOOK.halo.map((h, i) => (
-            <path key={`c-${i}`} d={cur.d} fill="none" stroke={COLOR.text.primary} strokeOpacity={h.a * (1 + MINI_PULSE.lift * pulse)} strokeWidth={LOOK.edge * h.k} strokeLinejoin="round" strokeLinecap="round" />
+            <path key={`c-${i}`} d={cur.d} fill="none" stroke={COLOR.text.primary} strokeOpacity={h.a * (1 + MINI_PULSE.lift * pulse) * currentAlpha} strokeWidth={LOOK.edge * h.k} strokeLinejoin="round" strokeLinecap="round" />
           ))}
           <path
             d={cur.d}
             fill="none"
             stroke={COLOR.text.primary}
-            strokeOpacity={1 - LOOK.pulseSwing * (1 - pulse)}
+            strokeOpacity={(1 - LOOK.pulseSwing * (1 - pulse)) * currentAlpha}
             strokeWidth={LOOK.currentStroke * (1 + LOOK.pulseSwing * pulse)}
             strokeLinejoin="round"
           />
