@@ -3,6 +3,7 @@ import root from '../../settings.json';
 import { extraIds, items, levels } from './data';
 import type { Item, Level } from './data';
 import { clipTimings } from './timings.generated';
+import { hookId, itemAudio, levelIds, outroIds, rankIds, scoreCardIds } from './audioMap';
 
 /* ---------- clock (same convention as the other videos) ----------
  * Output is root settings.json (fps 60, 2560x1440). Scenes are authored in 30 fps "design frames"
@@ -73,34 +74,40 @@ export const isFullReveal = (item: Item): boolean => item.level === 'hard' || it
 export const scoreCardLevel = (item: Item): Level | undefined =>
   extraIds(item).some((id) => id.endsWith('ScoreCard')) ? item.level : undefined;
 
+/* ---------- reveal beats (RevealEngine reads these; hold is `holdSec`) ---------- */
+export const revealGapSec = 0.3; // full: start-to-start gap between wrong options
+export const revealGreySec = 0.3; // full: one option's grey-out length
+export const revealFadeSec = 0.3; // fast: all three wrong options together
+export const revealExpandSec = 0.4; // the correct option's expand
+/** Elimination length after the hold: the correct option begins to expand when it ends. */
+export const eliminationSec = (item: Item): number => (isFullReveal(item) ? 2 * revealGapSec + revealGreySec : revealFadeSec);
+
 /* ---------- clip durations (src/gta6/timings.csv via timings.generated.ts; build with scripts/build_gta6_timings.py) ----------
- * Clips are matched by order within their type: question + bonus clips -> items in order, reveal clips -> items in order,
- * dyk clips -> items with didYouKnow in order, level clips -> Medium, Hard, scorecard clips -> score cards in order,
- * rank clips -> scoreboard, outro clips -> outro. If anything does not line up, every constant below stays in force. */
-const clipsOf = (...types: string[]): number[] => clipTimings.filter((c) => types.includes(c.type)).map((c) => c.durSec);
-const itemClips = clipsOf('question', 'bonus');
-const revealClips = clipsOf('reveal');
-const dykClips = clipsOf('dyk');
-const levelClips = clipsOf('level');
-const scoreCardClips = clipsOf('scorecard');
-const rankClips = clipsOf('rank');
-const outroClips = clipsOf('outro');
+ * Which clip belongs where comes from audioMap.ts (scripts/build_gta6_audio_map.ts). If any id is missing from the
+ * measured clips, every constant above stays in force. */
+const durOf = new Map(clipTimings.map((c) => [c.id, c.durSec] as const));
+const fileOf = new Map(clipTimings.map((c) => [c.id, c.file] as const));
+/** Length in seconds of a measured clip, undefined without timings or for an unknown id. */
+export const clipSec = (id: string | undefined): number | undefined => (id ? durOf.get(id) : undefined);
+/** `staticFile` path of a clip, e.g. "gta6/voiceover/clips/g6_002.wav". */
+export const clipPath = (id: string): string => `gta6/voiceover/clips/${fileOf.get(id) ?? `${id}.wav`}`;
 const sum = (a: number[]): number => a.reduce((x, y) => x + y, 0);
 
-/** True when the measured clips cover this video, so phases are built from them instead of the constants. */
-export const useClipTimings: boolean =
-  clipTimings.length > 0 &&
-  itemClips.length === items.length &&
-  revealClips.length === items.length &&
-  dykClips.length === items.filter((i) => i.didYouKnow).length &&
-  levelClips.length === levels.length - 1 &&
-  scoreCardClips.length === items.filter((i) => scoreCardLevel(i)).length &&
-  rankClips.length > 0 &&
-  outroClips.length > 0;
+const neededIds = (): string[] => [
+  hookId,
+  ...itemAudio.flatMap((a) => [a.questionId, a.revealId, ...(a.dykId ? [a.dykId] : [])]),
+  ...Object.values(levelIds),
+  ...Object.values(scoreCardIds),
+  ...rankIds,
+  ...outroIds,
+];
+/** True when every clip of audioMap.ts has a measured length, so phases are built from them instead of the constants. */
+export const useClipTimings: boolean = clipTimings.length > 0 && itemAudio.length === items.length && neededIds().every((id) => durOf.has(id));
+const dur = (id: string | undefined): number => durOf.get(id ?? '') ?? 0;
 
-/** Slot per rank line (clip + cardPadSec) and per outro line, in seconds, in clips order. Empty without clip timings. */
-export const rankSlotSec: number[] = useClipTimings ? rankClips.map((d) => d + cardPadSec) : [];
-export const outroSlotSec: number[] = useClipTimings ? outroClips.map((d) => d + cardPadSec) : [];
+/** Slot per rank line (clip + cardPadSec) and per outro line, in seconds, in audioMap order. Empty without clip timings. */
+export const rankSlotSec: number[] = useClipTimings ? rankIds.map((id) => dur(id) + cardPadSec) : [];
+export const outroSlotSec: number[] = useClipTimings ? outroIds.map((id) => dur(id) + cardPadSec) : [];
 /** Scoreboard length: rank lines back to back. */
 export const scoreboardLenSec: number = useClipTimings ? sum(rankSlotSec) : scoreboardSec;
 /** Outro length: the end screen needs its 15 s, so the outro never goes below `outroSec` even when the three lines are shorter. */
@@ -117,32 +124,27 @@ const buildSegments = (): Segment[] => {
 
   out.push({ kind: 'hook', ...span(hookSec) });
   let lastLevel: Level | undefined;
-  let dykIndex = 0;
-  let scoreCardIndex = 0;
   items.forEach((item, idx) => {
+    const au = itemAudio[idx];
     if (item.level !== lastLevel) {
-      const li = levels.indexOf(item.level);
       // the first level (Easy) has no clip: it keeps levelCardSec
-      const sec = useClipTimings && li > 0 ? levelClips[li - 1] + cardPadSec : levelCardSec;
+      const lid = levelIds[item.level];
+      const sec = useClipTimings && lid ? dur(lid) + cardPadSec : levelCardSec;
       out.push({ kind: 'levelCard', level: item.level, ...span(sec) });
       lastLevel = item.level;
     }
     const from = cur;
     const phases = {} as ItemPhases;
     if (item.kind === 'bonus') phases.banner = span(bannerSec);
-    phases.read = span(useClipTimings ? Math.max(questionMinSec, itemClips[idx] + questionPadSec) : readSec);
+    phases.read = span(useClipTimings ? Math.max(questionMinSec, dur(au.questionId) + questionPadSec) : readSec);
     phases.timer = span(item.timerSec);
     phases.hold = span(holdSec);
-    // elimination, then the reveal clip
-    phases.reveal = span((isFullReveal(item) ? revealFullSec : revealFastSec) + (useClipTimings ? revealClips[idx] : 0));
-    if (item.didYouKnow) {
-      phases.dyk = span(useClipTimings ? dykClips[dykIndex] + dykPadSec : dykSec);
-      dykIndex++;
-    }
+    // elimination, then the reveal clip (it starts when the correct option begins to expand)
+    phases.reveal = span(useClipTimings ? eliminationSec(item) + dur(au.revealId) : isFullReveal(item) ? revealFullSec : revealFastSec);
+    if (item.didYouKnow) phases.dyk = span(useClipTimings ? dur(au.dykId) + dykPadSec : dykSec);
     out.push({ kind: 'item', item, from, to: cur, phases });
     if (scoreCardLevel(item)) {
-      out.push({ kind: 'scoreCard', level: item.level, after: item, ...span(useClipTimings ? scoreCardClips[scoreCardIndex] + cardPadSec : scoreCardSec) });
-      scoreCardIndex++;
+      out.push({ kind: 'scoreCard', level: item.level, after: item, ...span(useClipTimings ? dur(scoreCardIds[item.level]) + cardPadSec : scoreCardSec) });
     }
   });
   out.push({ kind: 'scoreboard', ...span(scoreboardLenSec) });

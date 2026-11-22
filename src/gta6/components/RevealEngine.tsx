@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Item, Level } from '../data';
 import { springAt, u } from '../system';
-import { FPS, holdSec, secToTicks } from '../timing';
+import { FPS, holdSec, revealExpandSec, revealFadeSec, revealGapSec, revealGreySec, secToTicks } from '../timing';
 import { ChoiceChip } from './ChoiceChip';
 import type { ChipState } from './ChoiceChip';
 
@@ -19,12 +19,12 @@ import type { ChipState } from './ChoiceChip';
  */
 export type RevealMode = 'full' | 'fast';
 
-/** Seconds. `holdSec` comes from timing.ts; the rest is written here. */
+/** Seconds. The beat lengths come from timing.ts (it needs them to place the reveal clip); the look constants are here. */
 export const REVEAL = {
-  gapSec: 0.3, // full: start-to-start gap between wrong options
-  greySec: 0.3, // full: one option's grey-out length (equal to the gap: eliminations run back to back)
-  fadeSec: 0.3, // fast: all three wrong options together
-  expandSec: 0.4, // the correct option's expand
+  gapSec: revealGapSec, // full: start-to-start gap between wrong options
+  greySec: revealGreySec, // full: one option's grey-out length (equal to the gap: eliminations run back to back)
+  fadeSec: revealFadeSec, // fast: all three wrong options together
+  expandSec: revealExpandSec, // the correct option's expand
   expandScale: 0.06, // mirrors CORRECT_SCALE in ChoiceChip
   greyedOpacity: 0.35, // mirrors ChoiceChip `greyed`
   greyedSaturate: 0.2, // mirrors ChoiceChip `greyed`
@@ -61,6 +61,9 @@ export const expandStartSec = (mode: RevealMode): number => holdSec + elimSec(mo
 /** Seconds from the reveal start until the correct option has finished expanding. */
 export const revealEndSec = (mode: RevealMode): number => expandStartSec(mode) + REVEAL.expandSec;
 export const revealEndTicks = (mode: RevealMode): number => secToTicks(revealEndSec(mode));
+/** Local tick at which the correct option begins to expand, given the tick the hold starts (`phases.hold.from`).
+ *  The reveal voice clip starts exactly here; timing.ts (`eliminationSec`) sizes the reveal phase to match. */
+export const expandStartTick = (holdFrom: number, mode: RevealMode): number => holdFrom + secToTicks(expandStartSec(mode));
 
 /** Per-option state at `frame` ticks after the reveal start (negative frames count as 0). Pure. */
 export const optionStateAt = (item: Item, frame: number, mode: RevealMode): OptionState[] => {

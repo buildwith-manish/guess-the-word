@@ -5,7 +5,8 @@ import { dykSec, secToTicks } from '../timing';
 import { FrostCard } from './FrostCard';
 import { presence } from './presence';
 
-/** The card must stay under 3 s: 3 s minus one tick. */
+/** 3 s minus one tick. No longer applied to this card (it stays as long as its voice clip, the caller passes `dur`);
+ *  still exported because `extras/shared.ts` uses it for the extras. */
 export const DYK_MAX_TICKS = secToTicks(3) - 1;
 const OUT = secToTicks(0.3);
 
@@ -16,8 +17,10 @@ export type DidYouKnowCardProps = {
   frame: number;
   /** Local frame the card springs in. */
   at: number;
-  /** Ticks on screen including the spring-out (default dykSec, capped under 3 s). */
+  /** Ticks on screen including the spring-out (default dykSec). */
   dur?: number;
+  /** Ticks the spring-out takes at the end of `dur` (default 0.3 s). */
+  outTicks?: number;
   level?: Level;
   /** Position of the card's top-left corner, reference units (1920x1080). */
   left: number;
@@ -28,12 +31,12 @@ export type DidYouKnowCardProps = {
 
 /** Card placed beside the answer: springs in, holds, springs out. Draws nothing outside [at, at + dur). */
 export const DidYouKnowCard: React.FC<DidYouKnowCardProps> = ({
-  text, frame, at, dur = secToTicks(dykSec), level, left, top, width = 640, label = 'Did you know?',
+  text, frame, at, dur = secToTicks(dykSec), outTicks = OUT, level, left, top, width = 640, label = 'Did you know?',
 }) => {
-  const d = Math.min(dur, DYK_MAX_TICKS);
+  const d = dur;
   const f = frame - at;
   if (f < 0 || f >= d) return null;
-  const p = presence(frame, at, d, OUT);
+  const p = presence(frame, at, d, outTicks);
   const accent = level ? colors.level[level] : colors.muted;
   return (
     <div style={{ position: 'absolute', left: u(left), top: u(top), opacity: Math.min(1, p), transform: `translateX(${(1 - p) * u(40)}px) scale(${0.94 + 0.06 * p})` }}>

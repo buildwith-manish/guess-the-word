@@ -11,15 +11,23 @@
  * `start` is the absolute design tick at which the item begins (its segment `from`, or any offset the caller
  * wants). `localFrame` = `useGta6Frame() - start`.
  *
+ * Voice (ids from audioMap.ts, lengths from timing.ts, played only when the clips have been measured):
+ *   question clip   at the start of the read phase (when the look starts bringing the options in); the timer ring
+ *                   starts at `phases.timer.from`, after the question phase
+ *   reveal clip     exactly when the correct option begins to expand (`expandStartTick`: hold + elimination)
+ *   did-you-know    the card and its clip start together; the card stays until the clip ends + 0.2 s (no 3 s limit)
+ *   banner          unchanged: bonus banner at the start of the item, `bannerSec`
+ *
  * Text: question, options, did-you-know and the bonus banner title come from `item`. The spoiler text has no
  * field in data.ts, so it is passed as `labels.spoiler` and the badge is not drawn without it.
  */
 import React from 'react';
-import { AbsoluteFill } from 'remotion';
+import { AbsoluteFill, Audio, Sequence, staticFile } from 'remotion';
+import { audioOf } from '../audioMap';
 import { byLevel, items } from '../data';
 import type { Item, Level } from '../data';
 import { FRAME, SAFE, levelBackground, u } from '../system';
-import { FPS, isFullReveal, segments, useGta6Frame } from '../timing';
+import { FPS, RENDER_FPS, clipPath, clipSec, isFullReveal, secToTicks, segments, ticksToFrames, useGta6Frame } from '../timing';
 import type { ItemPhases, Range } from '../timing';
 import { DidYouKnowCard } from './DidYouKnowCard';
 import { EdgeGlow } from './EdgeGlow';
@@ -29,6 +37,7 @@ import { Shake } from './Shake';
 import { TimerRing } from './TimerRing';
 import { URGENT_SECONDS } from './timerMath';
 import { SpoilerBadge } from './badges';
+import { expandStartTick } from './RevealEngine';
 import type { RevealMode } from './RevealEngine';
 
 export type ShellPhase = 'banner' | 'read' | 'timer' | 'hold' | 'reveal' | 'dyk';
@@ -108,6 +117,20 @@ export const phaseAt = (f: number, p: LocalPhases): ShellPhase => {
 
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 
+/** The did-you-know card stays this long after its clip ends. */
+const DYK_TAIL_SEC = 0.2;
+
+/** One voice clip starting at local tick `at` (the item starts at absolute tick `start`). Nothing without a measured clip. */
+const Voice: React.FC<{ id: string; at: number; start: number }> = ({ id, at, start }) => {
+  const sec = clipSec(id);
+  if (sec === undefined) return null;
+  return (
+    <Sequence from={ticksToFrames(start + at)} durationInFrames={Math.ceil(sec * RENDER_FPS) + 2} layout="none">
+      <Audio src={staticFile(clipPath(id))} />
+    </Sequence>
+  );
+};
+
 export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, children, labels, showTimer = true, hud = true }) => {
   const localFrame = useGta6Frame() - start;
   const phases = localPhases(item);
@@ -130,6 +153,12 @@ export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, child
   // Edge glow builds from urgentFrom and fades out over the first ticks of the hold/reveal.
   const glowOpacity = 1 - clamp01((localFrame - phases.timer.to) / 8);
   const island = level === 'hard';
+
+  const au = audioOf(item);
+  const revealMode = ctx.revealMode;
+  const dykSecLen = clipSec(au.dykId);
+  // card length: the clip plus its tail (the spring-out runs inside the tail); without a measured clip, the dyk phase
+  const dykTicks = phases.dyk ? (dykSecLen !== undefined ? secToTicks(dykSecLen + DYK_TAIL_SEC) : phases.dyk.to - phases.dyk.from) : 0;
 
   return (
     <AbsoluteFill style={{ background: levelBackground[level], overflow: 'hidden' }}>
@@ -180,7 +209,8 @@ export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, child
           text={item.didYouKnow}
           frame={localFrame}
           at={phases.dyk.from}
-          dur={phases.dyk.to - phases.dyk.from}
+          dur={dykTicks}
+          outTicks={dykSecLen !== undefined ? secToTicks(DYK_TAIL_SEC) : undefined}
           level={level}
           left={SLOTS.dyk.left}
           top={SLOTS.dyk.top}
@@ -197,6 +227,10 @@ export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, child
           level={level}
         />
       ) : null}
+
+      <Voice id={au.questionId} at={phases.read.from} start={start} />
+      <Voice id={au.revealId} at={expandStartTick(phases.hold.from, revealMode)} start={start} />
+      {phases.dyk && au.dykId ? <Voice id={au.dykId} at={phases.dyk.from} start={start} /> : null}
 
       {glowOpacity > 0 ? (
         <div style={{ position: 'absolute', inset: 0, opacity: glowOpacity, pointerEvents: 'none' }}>
