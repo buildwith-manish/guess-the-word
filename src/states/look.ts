@@ -96,6 +96,11 @@ export const MINI_PULSE = { lift: 0.2 } as const;
  * grey. GOLD is only the word STATE in the title and rare highlights (the streak banner, the top scoreboard rank);
  * nothing else is gold (the MEDIUM level accent is sky blue for that reason). No hex values in components: use these.
  *
+ * Level accents (round two, Step 7) are the iOS dark-mode system colours, set in states-settings.json: EASY green #30D158,
+ * MEDIUM blue #0A84FF, HARD red #FF453A (the orange #FF9F0A is only 6 degrees from gold, QA check 11), EXPERT purple #BF5AF2.
+ * Each level's bg / theme are dark tints (14% / 62%) of its accent. On HARD the accent equals COLOR.alert, so the last-3-seconds
+ * red is not a visible change there (the digit keeps its alert colour).
+ *
  * Text: primary white at 92%, labels at 60%, hints at 45%. scripts/states-qa.js check 11 measures their contrast over every
  * backdrop colour (primary >= 7:1, labels >= 4.5:1, hints >= 3:1) and checks where gold is used.
  */
