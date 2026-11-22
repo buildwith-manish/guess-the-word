@@ -62,7 +62,7 @@ const Panel: React.FC<PanelDef> = ({ index, red, search }) => {
       ? plan.searchAt[2] + typeTicks[2] * Math.ceil(round.searches[2].length / 2)
       : plan.searchAt[search] + typeTicks[search] * round.searches[search].length;
   // TimerBar: halfway through the clock, or half a second before the end for the red state.
-  const timerTick = red ? plan.revealAt - FPS / 2 : plan.clockStart + plan.clockFrames / 2;
+  const timerTick = red ? plan.revealAt - FPS / 2 : plan.thinkStart + plan.thinkFrames / 2;
   // Hint and answer settled (one second after they land).
   const hintTick = plan.hintAt + FPS;
   const answerTick = plan.revealAt + FPS;
@@ -89,7 +89,7 @@ const Panel: React.FC<PanelDef> = ({ index, red, search }) => {
       timer={{
         children: (r) => (
           <Freeze tick={timerTick}>
-            <TimerBar from={plan.clockStart} duration={plan.clockFrames} accent={accent} size={r.w} at={{ x: r.x, y: r.y }} />
+            <TimerBar from={plan.thinkStart} duration={plan.thinkFrames} accent={accent} size={r.w} at={{ x: r.x, y: r.y }} />
           </Freeze>
         ),
       }}

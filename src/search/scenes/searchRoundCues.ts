@@ -36,10 +36,10 @@ export const searchRoundCues = (index: number): Cue[] => {
   // Check by ear: the card's stamp takes a few ticks to land (STAMP_SECONDS in AnswerCard); move this later if the chime is early.
   add(plan.revealAt, 'ios-chime');
 
-  // Timer: one tick per second of the clock; the last second uses tick-low.
-  const seconds = Math.round(plan.clockFrames / FPS);
+  // Timer: one tick per second of the think phase; the last second uses tick-low.
+  const seconds = Math.round(plan.thinkFrames / FPS);
   for (let k = 0; k < seconds; k++) {
-    add(plan.clockStart + k * FPS, k === seconds - 1 ? 'tick-low' : 'tick');
+    add(plan.thinkStart + k * FPS, k === seconds - 1 ? 'tick-low' : 'tick');
   }
 
   return cues.sort((a, b) => a.frame - b.frame);

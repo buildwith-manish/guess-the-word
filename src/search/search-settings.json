@@ -1,13 +1,13 @@
 {
   "levels": [
-    { "name": "EASY", "time": 7, "accent": "#34D399", "bg": "#05241B", "theme": ["#6D5BFF", "#0B0A2E"] },
-    { "name": "MEDIUM", "time": 8, "accent": "#FBBF24", "bg": "#2B1B04", "theme": ["#00B8D9", "#04202B"] },
-    { "name": "HARD", "time": 9, "accent": "#FB7185", "bg": "#2A0712", "theme": ["#FF4D8D", "#2A0720"] }
+    { "name": "EASY", "accent": "#34D399", "bg": "#05241B", "theme": ["#6D5BFF", "#0B0A2E"] },
+    { "name": "MEDIUM", "accent": "#FBBF24", "bg": "#2B1B04", "theme": ["#00B8D9", "#04202B"] },
+    { "name": "HARD", "accent": "#FB7185", "bg": "#2A0712", "theme": ["#FF4D8D", "#2A0720"] }
   ],
   "searchAt": [0.04, 0.26, 0.48, 0.7],
-  "hintAt": 0.82,
   "recent": { "visible": 2 },
-  "voiceClue": { "typeShare": 0.88, "pauseTicks": 6, "thinkSeconds": 2.5 },
+  "voiceClue": { "typeShare": 0.88, "pauseTicks": 6 },
+  "think": { "seconds": 5, "beatTicks": 6, "firstClueTicks": 8, "fallbackClueSeconds": 8 },
   "reveal": { "minHoldSeconds": 2.5, "showName": true },
   "bonus": {
     "after": [10, 20, 30],

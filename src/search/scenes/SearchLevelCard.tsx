@@ -135,8 +135,8 @@ export const SearchLevelCard: React.FC<{ frame: number; levelIndex: number; dura
         >
           <span style={{ color: IOS.color.label, fontWeight: IOS.weight.semibold }}>{p.count}</span>
           <span> characters · </span>
-          <span style={{ color: IOS.color.label, fontWeight: IOS.weight.semibold }}>{level.time}</span>
-          <span> seconds each</span>
+          <span style={{ color: IOS.color.label, fontWeight: IOS.weight.semibold }}>{cfg.think.seconds}</span>
+          <span> seconds to answer</span>
         </div>
         <div style={{ position: 'absolute', inset: 0, opacity: demoIn }}>
           <SearchBar

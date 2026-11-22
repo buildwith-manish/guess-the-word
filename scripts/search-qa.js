@@ -25,9 +25,29 @@ const stubFonts = {
   },
 };
 
-const load = async (entry) => {
+/** Test fixture, injected only into the QA bundle (never written to the repo): every clue has a 3.3 s clip and every
+ *  reveal a 2.5 s clip, so the voiced layout can be checked while the real manifest is empty. */
+const FIXTURE_CLUE_SECONDS = 3.3;
+const FIXTURE_REVEAL_SECONDS = 2.5;
+const fixtureManifest = () => {
+  const clue = {};
+  const reveal = {};
+  for (let id = 1; id <= 200; id++) {
+    clue[id] = [0, 1, 2, 3].map((k) => ({ file: `fixture-${id}-${k}.mp3`, seconds: FIXTURE_CLUE_SECONDS }));
+    reveal[id] = { file: `fixture-reveal-${id}.mp3`, seconds: FIXTURE_REVEAL_SECONDS };
+  }
+  return { intro: null, level: {}, clue, reveal, bonus: {}, scoreboard: {}, outro: null };
+};
+const fixturePlugin = {
+  name: 'voiceover-fixture',
+  setup(build) {
+    build.onLoad({ filter: /search-voiceover-manifest\.json$/ }, () => ({ contents: JSON.stringify(fixtureManifest()), loader: 'json' }));
+  },
+};
+
+const load = async (entry, { fixture = false } = {}) => {
   const esbuild = require('esbuild');
-  const outfile = path.join(os.tmpdir(), `search-qa-${path.basename(entry, '.ts')}-${process.pid}.mjs`);
+  const outfile = path.join(os.tmpdir(), `search-qa-${fixture ? 'fx-' : ''}${path.basename(entry, '.ts')}-${process.pid}.mjs`);
   await esbuild.build({
     entryPoints: [path.join(ROOT, entry)],
     bundle: true,
@@ -35,7 +55,7 @@ const load = async (entry) => {
     format: 'esm',
     outfile,
     logLevel: 'silent',
-    plugins: [stubFonts],
+    plugins: fixture ? [stubFonts, fixturePlugin] : [stubFonts],
     resolveExtensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
   });
   const mod = await import(`file://${outfile}`);
@@ -60,6 +80,7 @@ const main = async () => {
   const d = await load('src/search/search-data.ts');
   const s = await load('src/search/search-sound.ts');
   const bar = await load('src/search/components/SearchBar.tsx');
+  const fx = await load('src/search/search-timing.ts', { fixture: true });
   const { TIMELINE, LEVELS, TIME_SCALE, RENDER_TOTAL_FRAMES, locate, buildRoundPlan } = t;
   const { ROUNDS, BONUS } = d;
   const segs = TIMELINE.segments;
@@ -246,6 +267,42 @@ const main = async () => {
     if (t.SLIDE_CHARS !== bar.SLIDE_CHARS) p.push(`SLIDE_CHARS timing ${t.SLIDE_CHARS} vs SearchBar ${bar.SLIDE_CHARS}`);
     return Object.assign(p, { note: `hold ${bar.HOLD_CHARS}, slide ${bar.SLIDE_CHARS}` });
   });
+
+  // 12. think phase, real layout (no clips today): a fixed 5 s countdown after the clues (task: think phase)
+  const thinkTicksWanted = Math.round(cfg.think.seconds * t.FPS);
+  const fmt = (ticks) => `${Math.floor(ticks / t.FPS / 60)}:${String(Math.round((ticks / t.FPS) % 60)).padStart(2, '0')}`;
+  const thinkChecks = (T, label, clipTicks) => {
+    const bad = [];
+    const fastest = cfg.typing.fastestTicksPerChar;
+    ROUNDS.forEach((r, i) => {
+      const p = T.buildRoundPlan(i);
+      const tag = `R${r.id}`;
+      if (Math.abs(p.thinkFrames - thinkTicksWanted) > 1) bad.push(`${tag} think ${p.thinkFrames} ticks, wanted ${thinkTicksWanted}`);
+      if (p.revealAt !== p.thinkStart + p.thinkFrames) bad.push(`${tag} reveal != thinkStart + thinkFrames`);
+      if (clipTicks !== undefined && p.thinkStart < p.searchAt[3] + clipTicks) bad.push(`${tag} think starts before the last clip ends`);
+      // all clues are typed before the countdown starts
+      const lastEnd = p.searchAt[3] + p.typeTicks[3] * r.searches[3].length;
+      if (lastEnd > p.thinkStart + 1e-9) bad.push(`${tag} last clue types until ${Math.round(lastEnd)}, think starts ${p.thinkStart}`);
+      r.searches.forEach((text, k) => {
+        const slot = T.searchSlots(i)[k];
+        if (p.typeTicks[k] < fastest - 1e-9) bad.push(`${tag} clue ${k + 1} types faster than ${fastest}`);
+        if (p.typeTicks[k] * text.length > slot + 1e-9) bad.push(`${tag} clue ${k + 1} types past its slot`);
+        if (T.searchUnits(text.length) * p.typeTicks[k] > slot + 1e-9) bad.push(`${tag} clue ${k + 1} does not hold and slide inside its slot`);
+      });
+      if (!(p.hintAt >= p.thinkStart && p.hintAt < p.revealAt)) bad.push(`${tag} hint is outside the think window`);
+      if (p.duration !== p.revealAt + p.holdFrames + p.exitFrames) bad.push(`${tag} duration != reveal + hold + exit`);
+    });
+    const segs2 = T.TIMELINE.segments;
+    let cur = 0;
+    segs2.forEach((g, i) => {
+      if (g.from !== cur) bad.push(`${label} segment #${i} ${g.kind} starts ${g.from}, expected ${cur}`);
+      cur = g.from + g.duration;
+    });
+    if (cur !== T.TIMELINE.totalFrames) bad.push(`${label} durations add up to ${cur}, totalFrames ${T.TIMELINE.totalFrames}`);
+    return Object.assign(bad, { note: `${ROUNDS.length} rounds, video ${fmt(T.TIMELINE.totalFrames)} (${T.TIMELINE.totalFrames} ticks)` });
+  };
+  check('think phase: fixed layout (no clips)', () => thinkChecks(t, 'fixed', undefined));
+  check(`think phase: voiced layout (fixture, ${FIXTURE_CLUE_SECONDS} s clues)`, () => thinkChecks(fx, 'voiced', Math.ceil(FIXTURE_CLUE_SECONDS * fx.FPS)));
 
   const w = Math.max(...rows.map((r) => r.name.length));
   console.log('\n  search:qa\n');

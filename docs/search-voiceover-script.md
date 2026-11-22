@@ -12,14 +12,14 @@ File names are a suggestion; each clip goes into `src/search/search-voiceover-ma
 
 ## Level cards  (key: level 1-3, about 4 s each)
 
-1. **EASY** (level-1.mp3, 7 seconds a round)
-> Level one, easy. Ten characters you already know. You'll have seven seconds each.
+1. **EASY** (level-1.mp3, 5 seconds to answer)
+> Level one, easy. Ten characters you already know. You'll have five seconds to answer.
 
-2. **MEDIUM** (level-2.mp3, 8 seconds a round)
-> Level two, medium. The clues get a little sneakier, and you get eight seconds.
+2. **MEDIUM** (level-2.mp3, 5 seconds to answer)
+> Level two, medium. The clues get a little sneakier. You'll have five seconds to answer.
 
-3. **HARD** (level-3.mp3, 9 seconds a round)
-> Level three, hard. These are the ones that really make you think. Nine seconds. Good luck.
+3. **HARD** (level-3.mp3, 5 seconds to answer)
+> Level three, hard. These are the ones that really make you think. Five seconds to answer. Good luck.
 
 ## Clues  (key: clue > round id > 0-3)
 

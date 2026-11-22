@@ -133,8 +133,8 @@ const buildCues = (): Cue[] => {
         place(base, searchRoundCues(seg.index));
         // each clue is read while it types (clips exist only once the manifest has all four for the round)
         ROUNDS[seg.index].searches.forEach((_, i) => voice(base + plan.searchAt[i], voiceClue(ROUNDS[seg.index].id, i)));
-        // riser into the answer: the last second of the clock
-        add(base + Math.max(plan.clockStart, plan.revealAt - riserFrames), 'riser');
+        // riser into the answer: the last second of the think phase
+        add(base + Math.max(plan.thinkStart, plan.revealAt - riserFrames), 'riser');
         HUSHES.push({ from: Math.round(base + plan.revealAt - HUSH_LEAD), to: Math.round(base + plan.revealAt) });
         voice(base + plan.revealAt + VO_AT, plan.vo);
         break;

@@ -72,6 +72,9 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
   const slideT = clamp01((frame - shift(0)) / Math.max(1, plan.clockStart));
   const slideK = spring(slideT);
 
+  // Think phase: the timer slides in on the same spring at plan.thinkStart (nothing is drawn before it).
+  const timerK = spring(clamp01((frame - shift(plan.thinkStart)) / Math.max(1, plan.clockStart)));
+
   // Reveal: the searches dim from plan.revealAt.
   const revealAt = shift(plan.revealAt);
   const dimK = easeOut((frame - revealAt) / (DIM_SECONDS * FPS));
@@ -83,7 +86,7 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
   // Tension (task 8c): an accent vignette that builds over the clock, scaled by how hard the level is
   // (first level = 0, last level = 1), and gone once the answer lands.
   const levelWeight = LEVELS.length > 1 ? Math.max(0, LEVELS.findIndex((l) => l.name === level.name)) / (LEVELS.length - 1) : 0;
-  const clockProgress = clamp01((frame - shift(plan.clockStart)) / Math.max(1, plan.clockFrames));
+  const clockProgress = clamp01((frame - shift(plan.thinkStart)) / Math.max(1, plan.thinkFrames));
   const tension = levelWeight * clockProgress * clockProgress * (1 - dimK);
 
   return (
@@ -117,10 +120,17 @@ export const SearchRound: React.FC<SearchRoundProps> = ({ frame, index, lead }) 
       }}
       timer={{
         children: (rect) => (
-          <div style={{ position: 'absolute', inset: 0, opacity: 1 - dimK }}>
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              opacity: Math.min(1, timerK) * (1 - dimK),
+              transform: `translateY(${(1 - timerK) * px(SLIDE_IN_DISTANCE)}px)`,
+            }}
+          >
             <TimerBar
-              from={shift(plan.clockStart)}
-              duration={plan.clockFrames}
+              from={shift(plan.thinkStart)}
+              duration={plan.thinkFrames}
               accent={level.accent}
               size={rect.w}
               at={{ x: rect.x, y: rect.y }}

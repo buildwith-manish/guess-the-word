@@ -5,8 +5,6 @@
 
 export type LevelCfg = {
   name: string;
-  /** clock length in seconds */
-  time: number;
   accent: string;
   bg: string;
   /** background theme pair used while this level plays */

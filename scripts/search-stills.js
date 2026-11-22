@@ -62,12 +62,12 @@ const main = async () => {
     const abs = (planTick) => roundSeg.from + (planTick - (roundSeg.lead || 0));
     const len = ROUNDS[roundSeg.index].searches[1].length;
     const typing = plan.searchAt[1] + (plan.typeTicks[1] * len) / 2; // half way through clue 2
-    const mid = plan.clockStart + plan.clockFrames / 2;
-    const hint = plan.hintAt + Math.min(15, (plan.revealAt - plan.hintAt) / 2);
+    const thinkStart = plan.thinkStart;
+    const think2 = plan.thinkStart + 2 * FPS; // two seconds into the countdown
     const reveal = plan.revealAt + plan.holdFrames / 2; // middle of the answer hold
-    stills.push({ label: `${name}-typing`, design: abs(typing) });
-    stills.push({ label: `${name}-midclock`, design: abs(mid) });
-    stills.push({ label: `${name}-hint`, design: abs(hint) });
+    stills.push({ label: `${name}-midclue`, design: abs(typing) });
+    stills.push({ label: `${name}-thinkstart`, design: abs(thinkStart + 3) });
+    stills.push({ label: `${name}-think2s`, design: abs(think2) });
     stills.push({ label: `${name}-reveal`, design: abs(reveal) });
   });
 
