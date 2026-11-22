@@ -16,7 +16,7 @@
  * sequential, 4 ticks apart, only for clips in the manifest). The row of the rank being spoken is lit while its clip
  * plays. The segment length comes from state-timing (it grows with the clips); this scene does not change it.
  *
- * iOS look: calm backdrop, Inter, frosted rows that settle on the shared spring; LEGEND is the brightest row (no glow
+ * iOS look: calm backdrop, Inter, one grouped glass list (rows enter one after another inside it, 1 px hairline separators inset like iOS Settings); LEGEND is the brightest row (no glow
  * pulse, no confetti). Beats, cues and voiceover plan are unchanged.
  *
  * Time: `frame` = design ticks (30 per second) since the segment started. Not rendered or viewed.
@@ -27,7 +27,7 @@ import { Rich } from '../../Icon';
 import { px } from '../../style';
 import { IOS, IosBackground } from '../../ios';
 import { spr } from '../motion';
-import {RADIUS, glassPanel, COLOR, FONT, WEIGHT, TYPE, TRACKING } from '../look';
+import { RADIUS, glassPanel, COLOR, FONT, WEIGHT, TYPE, TRACKING, LIST } from '../look';
 import { clamp01 } from '../../anim';
 import { rise } from '../ios-rise';
 import settings from '../states-settings.json';
@@ -116,8 +116,7 @@ const LAYOUT = {
   mapW: 560,
   tableLeft: 656,
   rowW: 580,
-  rowH: 58,
-  rowGap: 12,
+  rowH: LIST.rowH,
   footerBottom: 52,
 };
 
@@ -138,7 +137,7 @@ export const StateScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
   const answered = ALL_KEYS.slice(0, lit);
   const mapW = px(L.mapW);
   const mapH = miniMapHeight(mapW);
-  const tableH = RANKS.length * L.rowH + (RANKS.length - 1) * L.rowGap;
+  const tableH = RANKS.length * L.rowH;
   // vertical centring of both blocks in the content area
   const areaH = 720 - L.contentTop - 120;
   const mapTop = L.contentTop + Math.max(0, (areaH - mapH / px(1)) / 2);
@@ -203,7 +202,21 @@ export const StateScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
         </div>
       ) : null}
 
-      <div style={{ position: 'absolute', left: px(L.tableLeft), top: px(tableTop), display: 'flex', flexDirection: 'column', gap: px(L.rowGap) }}>
+      {/* one grouped glass list (iOS Settings style): the rows drop in one after another inside a single container */}
+      <div
+        style={{
+          ...glassPanel(px(RADIUS.panel), undefined, 0.8),
+          position: 'absolute',
+          left: px(L.tableLeft),
+          top: px(tableTop),
+          width: px(L.rowW),
+          height: px(tableH),
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          opacity: Math.min(1, spr(frame, rowStart(RANKS.length - 1), 'quick') * 1.4),
+        }}
+      >
         {RANKS.map((r, i) => {
           const at = rowStart(i);
           const p = spr(frame, at, 'quick');
@@ -214,27 +227,42 @@ export const StateScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
             <div
               key={r.id}
               style={{
+                position: 'relative',
                 display: 'flex',
                 alignItems: 'center',
-                gap: px(18),
-                width: px(L.rowW),
+                gap: px(LIST.gap),
                 height: px(L.rowH),
-                padding: `0 ${px(26)}px`,
-                ...glassPanel(px(RADIUS.chip), isTop ? COLOR.gold : undefined, 0.5),
-                borderColor: bright ? (isTop ? COLOR.gold : COLOR.text.hint) : COLOR.fillStrong,
+                flex: 'none',
+                padding: `0 ${px(LIST.padX)}px`,
+                background: bright ? COLOR.fill : 'transparent',
                 opacity: Math.min(1, p * 1.4),
                 transform: `translateY(${(1 - p) * px(28)}px)`,
               }}
             >
+              {i > 0 ? (
+                <div style={{ position: 'absolute', top: 0, right: 0, left: px(LIST.separatorInset), height: px(1), background: COLOR.fill }} />
+              ) : null}
               <span style={{ fontSize: px(TYPE.md), lineHeight: 1, display: 'inline-flex', alignItems: 'center' }}>
-                <Rich size={px(34)} style={{ verticalAlign: 'middle', margin: 0 }}>
+                <Rich size={px(LIST.iconSize)} style={{ verticalAlign: 'middle', margin: 0 }}>
                   {r.emoji}
                 </Rich>
               </span>
-              <span style={{ fontWeight: WEIGHT.strong, fontSize: px(TYPE.md), flex: 1, textAlign: 'left', color: COLOR.text.primary, whiteSpace: 'nowrap' }}>
+              <span style={{ fontWeight: WEIGHT.strong, fontSize: px(TYPE.md), flex: 1, textAlign: 'left', color: isTop ? COLOR.gold : COLOR.text.primary, whiteSpace: 'nowrap' }}>
                 {r.name}
               </span>
-              <span style={{ fontWeight: WEIGHT.medium, fontSize: px(TYPE.sm), color: COLOR.text.label, whiteSpace: 'nowrap' }}>{r.range}</span>
+              <span
+                style={{
+                  fontWeight: WEIGHT.medium,
+                  fontSize: px(TYPE.sm),
+                  fontVariantNumeric: 'tabular-nums',
+                  minWidth: px(LIST.rangeW),
+                  textAlign: 'right',
+                  color: isTop ? COLOR.gold : COLOR.text.label,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {r.range}
+              </span>
             </div>
           );
         })}

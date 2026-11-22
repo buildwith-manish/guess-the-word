@@ -210,3 +210,18 @@ export const BLOBS = {
     { x: 24, y: 66, size: 30, alpha: 0.09 },
   ],
 } as const;
+
+/**
+ * Grouped list (round two, Step 8): the scoreboard rows live in ONE glass container, separated by 1 px hairlines inset from
+ * the left like iOS Settings. Reference px (pass through px()); all on the 8-pt scale. Numbers use tabular-nums.
+ */
+export const LIST = {
+  rowH: 64,
+  padX: 24,
+  gap: 16,
+  iconSize: 34,
+  /** hairline starts here: the row's left padding + the icon + the gap */
+  separatorInset: 24 + 34 + 16,
+  /** fixed width of the score range so the numbers line up in a column */
+  rangeW: 96,
+} as const;
