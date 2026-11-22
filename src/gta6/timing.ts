@@ -27,6 +27,8 @@ export const levelCardSec = 3.5;
 export const scoreCardSec = 5;
 export const scoreboardSec = 25;
 export const outroSec = 20;
+/** Script value for the Easy score card line "If you got N or more, you're a real fan". Not derivable from data.ts. */
+export const easyPassMark = 12;
 /** Target runtime in seconds (11:30 to 12:30). */
 export const targetSec = { min: 11 * 60 + 30, max: 12 * 60 + 30 } as const;
 
