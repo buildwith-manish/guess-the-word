@@ -1,0 +1,322 @@
+name: Render video (120 chunks)
+
+# Renders one composition as N frame-range chunks in parallel (video only), renders the audio once, saves every
+# chunk as an artifact BEFORE merging, merges everything into one mp4, then deletes the chunk artifacts.
+# The same file lives on both branches and picks the composition from the branch / tag name:
+#   us-states      -> GuessTheState
+#   search-history -> SearchHistory
+#
+# Start it:  Actions > "Render video (120 chunks)" > Run workflow > choose the branch
+#   (that button only lists workflows that exist on the default branch; if it is missing, push a tag instead:
+#    git tag render-states-1 && git push origin render-states-1     /     render-search-1)
+# Continue:  if some jobs failed, "Re-run failed jobs" in the same run; finished chunks are kept.
+#   Or start a new run and put the old run id in `resume_from_run`: chunks / audio that already exist there are
+#   reused, only the missing ones are rendered.
+
+on:
+  workflow_dispatch:
+    inputs:
+      composition:
+        description: 'Composition id. Empty = by branch (us-states: GuessTheState, search-history: SearchHistory)'
+        required: false
+        default: ''
+      chunks:
+        description: 'Number of chunks (parallel jobs)'
+        required: false
+        default: '120'
+      resume_from_run:
+        description: 'Run id of an earlier run whose chunk / audio artifacts should be reused'
+        required: false
+        default: ''
+  push:
+    tags: ['render-*']
+
+permissions:
+  contents: read
+  actions: write # the cleanup job deletes this run's chunk artifacts
+
+env:
+  # 2560x1440 @ 60 fps come from the composition itself. Upload-quality encode: PNG frames, H.264, CRF 16,
+  # x264 preset medium, yuv420p (what YouTube wants), BT.709, 4 browser tabs per job.
+  VIDEO_FLAGS: --codec=h264 --image-format=png --pixel-format=yuv420p --color-space=bt709 --crf=16 --x264-preset=medium --concurrency=4 --log=error
+  AUDIO_FLAGS: --codec=aac --audio-bitrate=320k --log=error
+
+jobs:
+  # --------------------------------------------------------------------------------------------
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      comp: ${{ steps.plan.outputs.comp }}
+      total: ${{ steps.plan.outputs.total }}
+      per: ${{ steps.plan.outputs.per }}
+      count: ${{ steps.plan.outputs.count }}
+      chunks: ${{ steps.plan.outputs.chunks }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Work out the composition and the chunk ranges
+        id: plan
+        env:
+          IN_COMP: ${{ inputs.composition }}
+          IN_CHUNKS: ${{ inputs.chunks }}
+          REF: ${{ github.ref_name }}
+        run: |
+          COMP="$IN_COMP"
+          if [ -z "$COMP" ]; then
+            case "$REF" in
+              *search*) COMP=SearchHistory ;;
+              *states*) COMP=GuessTheState ;;
+              *) echo "Cannot tell the composition from '$REF': pass it in the 'composition' input"; exit 1 ;;
+            esac
+          fi
+          CHUNKS="${IN_CHUNKS:-120}"
+
+          npx remotion compositions src/index.ts --json > comps.out 2> comps.err || { cat comps.err comps.out; exit 1; }
+
+          python3 - "$COMP" > total.txt <<'PY'
+          import json, re, sys
+          comp = sys.argv[1]
+          txt = open('comps.out').read()
+          txt = re.sub(r'\x1b\[[0-9;?]*[A-Za-z]', '', txt)  # progress bars may precede the JSON
+          dec = json.JSONDecoder()
+          items = None
+          for m in re.finditer(r'[\[{]', txt):
+              try:
+                  data, _ = dec.raw_decode(txt[m.start():])
+              except ValueError:
+                  continue
+              cand = data.get('compositions') if isinstance(data, dict) else data
+              if isinstance(cand, list) and cand and isinstance(cand[0], dict) and 'id' in cand[0]:
+                  items = cand
+                  break
+          if items is None:
+              sys.exit('could not read the composition list')
+          for c in items:
+              if c['id'] == comp:
+                  print(c['durationInFrames'])
+                  break
+          else:
+              sys.exit('composition not found: ' + comp + ' (have: ' + ', '.join(c['id'] for c in items) + ')')
+          PY
+          TOTAL=$(cat total.txt)
+
+          PER=$(( (TOTAL + CHUNKS - 1) / CHUNKS ))
+          COUNT=$(( (TOTAL + PER - 1) / PER ))
+          LIST=$(python3 -c "import json; print(json.dumps(list(range(1, $COUNT + 1))))")
+          {
+            echo "comp=$COMP"
+            echo "total=$TOTAL"
+            echo "per=$PER"
+            echo "count=$COUNT"
+            echo "chunks=$LIST"
+          } >> "$GITHUB_OUTPUT"
+          echo "$COMP: $TOTAL frames, $COUNT chunks of up to $PER frames"
+
+  # --------------------------------------------------------------------------------------------
+  # One job per chunk. Video only (--muted); the sound is rendered once in the `audio` job so that no audio
+  # seams appear where chunks meet. max-parallel 39 + the audio job = the 40 concurrent jobs of a Pro plan.
+  render:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      max-parallel: 39
+      matrix:
+        chunk: ${{ fromJSON(needs.plan.outputs.chunks) }}
+    steps:
+      - name: Chunk name
+        id: n
+        run: echo "n=$(printf '%03d' ${{ matrix.chunk }})" >> "$GITHUB_OUTPUT"
+
+      # reuse a chunk from an earlier run, if one was given
+      - name: Try the chunk from the earlier run
+        if: ${{ inputs.resume_from_run != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: chunk-${{ steps.n.outputs.n }}
+          path: out/chunks
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ inputs.resume_from_run }}
+        continue-on-error: true
+
+      - name: Is the chunk already there?
+        id: have
+        run: |
+          F="out/chunks/chunk-${{ steps.n.outputs.n }}.mp4"
+          if [ -f "$F" ] && [ "$(stat -c%s "$F")" -gt 20000 ]; then
+            echo "have=true" >> "$GITHUB_OUTPUT"; echo "Reusing $F"
+          else
+            rm -f "$F"; echo "have=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.have.outputs.have != 'true'
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        if: steps.have.outputs.have != 'true'
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        if: steps.have.outputs.have != 'true'
+        run: npm install --no-audit --no-fund
+
+      - name: Render the chunk
+        if: steps.have.outputs.have != 'true'
+        run: |
+          TOTAL=${{ needs.plan.outputs.total }}
+          PER=${{ needs.plan.outputs.per }}
+          START=$(( (${{ matrix.chunk }} - 1) * PER ))
+          END=$(( START + PER - 1 ))
+          if [ $END -ge $TOTAL ]; then END=$(( TOTAL - 1 )); fi
+          mkdir -p out/chunks
+          echo "chunk ${{ matrix.chunk }}: frames $START-$END of $TOTAL"
+          npx remotion render src/index.ts "${{ needs.plan.outputs.comp }}" \
+            "out/chunks/chunk-${{ steps.n.outputs.n }}.mp4" \
+            --frames=$START-$END --muted $VIDEO_FLAGS
+          ls -la out/chunks
+
+      # saved BEFORE the merge, so a failed merge or a failed sibling job never loses this chunk
+      - name: Save the chunk
+        uses: actions/upload-artifact@v4
+        with:
+          name: chunk-${{ steps.n.outputs.n }}
+          path: out/chunks/chunk-${{ steps.n.outputs.n }}.mp4
+          retention-days: 7
+          compression-level: 0 # an mp4 does not compress; skip the wasted CPU
+          overwrite: true
+
+  # --------------------------------------------------------------------------------------------
+  audio:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - name: Try the audio from the earlier run
+        if: ${{ inputs.resume_from_run != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: audio
+          path: out/audio
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ inputs.resume_from_run }}
+        continue-on-error: true
+
+      - name: Is the audio already there?
+        id: have
+        run: |
+          if [ -f out/audio/audio.aac ] && [ "$(stat -c%s out/audio/audio.aac)" -gt 10000 ]; then
+            echo "have=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "have=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.have.outputs.have != 'true'
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        if: steps.have.outputs.have != 'true'
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        if: steps.have.outputs.have != 'true'
+        run: npm install --no-audit --no-fund
+      - name: Render the audio track
+        if: steps.have.outputs.have != 'true'
+        run: |
+          mkdir -p out/audio
+          npx remotion render src/index.ts "${{ needs.plan.outputs.comp }}" out/audio/audio.aac $AUDIO_FLAGS
+          ls -la out/audio
+
+      - name: Save the audio
+        uses: actions/upload-artifact@v4
+        with:
+          name: audio
+          path: out/audio/audio.aac
+          retention-days: 7
+          compression-level: 0
+          overwrite: true
+
+  # --------------------------------------------------------------------------------------------
+  merge:
+    needs: [plan, render, audio]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Download every chunk
+        uses: actions/download-artifact@v4
+        with:
+          path: parts
+          pattern: chunk-*
+          merge-multiple: true
+      - name: Download the audio
+        uses: actions/download-artifact@v4
+        with:
+          name: audio
+          path: parts
+
+      - name: Check that nothing is missing
+        run: |
+          COUNT=${{ needs.plan.outputs.count }}
+          MISSING=0
+          for i in $(seq 1 "$COUNT"); do
+            F=$(printf 'parts/chunk-%03d.mp4' "$i")
+            if [ ! -f "$F" ]; then echo "MISSING $F"; MISSING=$((MISSING + 1)); fi
+          done
+          [ -f parts/audio.aac ] || { echo "MISSING parts/audio.aac"; MISSING=$((MISSING + 1)); }
+          if [ "$MISSING" -ne 0 ]; then echo "$MISSING part(s) missing: re-run the failed jobs, nothing has been deleted"; exit 1; fi
+
+      - name: Join the video chunks (no re-encode)
+        run: |
+          COUNT=${{ needs.plan.outputs.count }}
+          : > list.txt
+          for i in $(seq 1 "$COUNT"); do printf "file 'parts/chunk-%03d.mp4'\n" "$i" >> list.txt; done
+          ffmpeg -y -v error -f concat -safe 0 -i list.txt -c copy video.mp4
+          FRAMES=$(ffprobe -v error -select_streams v:0 -count_packets -show_entries stream=nb_read_packets -of csv=p=0 video.mp4)
+          echo "joined frames: $FRAMES, expected ${{ needs.plan.outputs.total }}"
+          [ "$FRAMES" = "${{ needs.plan.outputs.total }}" ] || { echo "frame count mismatch"; exit 1; }
+
+      - name: Add the audio (no re-encode)
+        run: |
+          ffmpeg -y -v error -i video.mp4 -i parts/audio.aac -map 0:v:0 -map 1:a:0 -c copy -movflags +faststart final.mp4
+          ls -la final.mp4
+          ffprobe -v error -show_entries format=duration,size,bit_rate -of default=nw=1 final.mp4
+          ffprobe -v error -show_entries stream=codec_name,width,height,r_frame_rate,pix_fmt -of default=nw=1 final.mp4
+
+      - name: Save the final video
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-video-${{ needs.plan.outputs.comp }}
+          path: final.mp4
+          retention-days: 14
+          compression-level: 0
+
+  # --------------------------------------------------------------------------------------------
+  # Only after the merge succeeded AND the final video is saved: delete this run's chunk and audio artifacts.
+  cleanup:
+    needs: merge
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete the chunk and audio artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --paginate "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" \
+            --jq '.artifacts[] | select(.name | test("^(chunk-|audio$)")) | .id' |
+          while read -r ID; do
+            echo "deleting artifact $ID"
+            gh api -X DELETE "repos/${{ github.repository }}/actions/artifacts/$ID"
+          done
