@@ -8,6 +8,9 @@ import { scoreCardCues } from './scenes/ScoreCard';
 import { bannerStart, nextRound, part1Plan } from './parts/Part1';
 import type { Placed } from './parts/Part1';
 import { part2Plan } from './parts/Part2';
+import { part4Plan } from './parts/Part4';
+import { outroCues } from './scenes/Outro';
+import { scoreboardCues } from './scenes/Scoreboard';
 import { part3NoBanner, part3Plan, part3ReplayBeats } from './parts/Part3';
 import type { Item } from './data';
 
@@ -47,3 +50,8 @@ export const part3Cues: SfxCue[] = [
   cue('notification', part3ReplayBeats.notification),
   cue('whoosh', part3ReplayBeats.whoosh),
 ].sort((a, b) => a.frame - b.frame);
+
+/** Part4: scoreboard cues, then the outro's (asks, score card, end-screen slots), each at its start tick in the part. */
+export const part4Cues: SfxCue[] = part4Plan
+  .flatMap(({ seg, at }): SfxCue[] => (seg.kind === 'scoreboard' ? scoreboardCues(at) : seg.kind === 'outro' ? outroCues(at) : []))
+  .sort((a, b) => a.frame - b.frame);
