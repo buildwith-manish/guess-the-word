@@ -114,7 +114,7 @@ export const COLOR = {
   fill: 'rgba(255,255,255,0.10)',
   fillStrong: 'rgba(255,255,255,0.16)',
   /** the rare highlight: title word STATE, streak banner, top scoreboard rank */
-  gold: '#F5C84C',
+  gold: '#FFD60A', // iOS system yellow (was #F5C84C)
   /** the bonus rounds' accent (matches their orange backdrop) */
   bonus: '#FF8A3D',
   /** the clock and ring in the last 3 seconds; the subscribe pill */
@@ -137,15 +137,14 @@ export const whiteA = (a: number): string => `rgba(255,255,255,${a})`;
 export const blackA = (a: number): string => `rgba(0,0,0,${a})`;
 
 /**
- * Typography (Step 7): exactly two families. FONT.display is Anton (titles: the title lockup and the level name),
- * FONT.sans is Inter (everything else, bundled in public/fonts/ios). Emoji glyphs fall back to the bundled Noto Color
+ * Typography (Step 7): ONE family. FONT.display and FONT.sans are both Inter (bundled in public/fonts/ios); titles (the title lockup and the
+ * level name) are Inter bold with tight tracking. Emoji glyphs fall back to the bundled Noto Color
  * Emoji through the stacks; that is a glyph set, not a third text face. No component names a family: use these.
  *
- * KNOB: set FONT.display to FONT.sans to drop Anton and use Inter bold titles again.
+ * KNOB: to bring Anton back, set FONT.display to an Anton stack and the title weights back to WEIGHT.regular.
  */
 const SANS = '"Inter", -apple-system, "SF Pro Text", system-ui, "Noto Color Emoji", sans-serif';
-const DISPLAY = '"Anton", Impact, "Arial Narrow", "Noto Color Emoji", sans-serif';
-export const FONT = { sans: SANS, display: DISPLAY } as const;
+export const FONT = { sans: SANS, display: SANS } as const; // one family: Inter (Anton dropped, was the "font fight"); display = bold Inter
 
 /** Weights: 700 for labels and values, 500 / 400 for secondary text. Inter ships 400, 500, 600, 700 (no 800). */
 export const WEIGHT = { regular: 400, medium: 500, strong: 700 } as const;
@@ -223,8 +222,8 @@ export const TIMER = {
  * corner map and the big answer-card map, so the two keep the same relationship. Hairline width is in map units (975 wide).
  */
 export const MAP = {
-  unansweredFill: 0.09,
-  unansweredEdge: 0.14,
+  unansweredFill: 0.16,
+  unansweredEdge: 0.30,
   unansweredEdgeWidth: 0.75,
 } as const;
 

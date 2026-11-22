@@ -160,10 +160,10 @@ export const StateLevelCard: React.FC<{ frame: number; levelIndex: number; durat
           <div
             style={{
               fontFamily: FONT.display,
-              fontWeight: WEIGHT.regular,
-              fontSize: px(TYPE.xxl),
+              fontWeight: WEIGHT.strong,
+              fontSize: px(TYPE.xl),
               lineHeight: 1,
-              letterSpacing: px(2),
+              letterSpacing: TRACKING.title,
               color: level.accent,
               opacity: title.opacity,
               transform: title.transform,
@@ -219,7 +219,7 @@ export const StateLevelCard: React.FC<{ frame: number; levelIndex: number; durat
           >
             <RuleDemo t={frame - LEVEL_BEATS.demoAt} levelIndex={levelIndex} size={demoSize} accent={level.accent} />
           </div>
-          <div style={{ fontFamily: FONT.sans, fontWeight: WEIGHT.medium, fontSize: px(TYPE.sm), color: COLOR.text.hint }}>{TIER_LABEL[tier]}</div>
+          <div style={{ fontFamily: FONT.sans, fontWeight: WEIGHT.medium, fontSize: px(TYPE.sm), color: COLOR.text.label }}>{TIER_LABEL[tier]}</div>
         </div>
       </AbsoluteFill>
     </AbsoluteFill>

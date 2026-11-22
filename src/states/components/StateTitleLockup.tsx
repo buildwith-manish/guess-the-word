@@ -16,7 +16,7 @@ import React from 'react';
 import { px } from '../../style';
 import { IOS } from '../../ios';
 import { spr } from '../motion';
-import { COLOR, FONT, WEIGHT } from '../look';
+import { COLOR, FONT, TRACKING, WEIGHT } from '../look';
 import { clamp01, ms } from '../../anim';
 
 const WORDS = [
@@ -27,7 +27,7 @@ const WORDS = [
 
 /** Tile look and motion, in the units of the GTW title (ms for motion, 1280x720 reference px for size). */
 const LOOK = {
-  textFont: 62,
+  textFont: 46, // Inter bold is wider than Anton: 62 -> 46 keeps the lockup the same width
   flipEveryMs: 40,
   flipMs: 600,
   /** wait after the last tile has landed before STATE starts to ignite */
@@ -100,10 +100,10 @@ export const StateTitleLockup: React.FC<StateTitleLockupProps> = ({ frame, anima
                     opacity: Math.min(1, p * 1.4),
                     transform: `translateY(${rise}px)`,
                     fontFamily: FONT.display,
-                    fontWeight: WEIGHT.regular,
+                    fontWeight: WEIGHT.strong,
                     fontSize: font,
                     lineHeight: 1,
-                    letterSpacing: u(1),
+                    letterSpacing: TRACKING.title,
                     // STATE fades from white to the accent
                     color: g > 0 ? `color-mix(in srgb, ${accent} ${Math.round(g * 100)}%, ${COLOR.text.primary})` : COLOR.text.primary,
                   }}

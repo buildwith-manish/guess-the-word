@@ -354,7 +354,7 @@ export const BonusOptions: React.FC<{
               fontSize,
               color: COLOR.text.primary,
               whiteSpace: 'nowrap',
-              opacity: r.opacity * (dim ? 0.4 : 1),
+              opacity: r.opacity * (dim ? 0.6 : 1),
               transform: r.transform,
               ...(win ? { background: `color-mix(in srgb, ${BONUS_ACCENT} 24%, transparent)`, borderColor: BONUS_ACCENT } : {}),
             }}
