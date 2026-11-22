@@ -166,9 +166,12 @@ export const BADGE = {
   gap: 12,
   padX: 20,
   padY: 10,
-  iconHeight: 30,
-  /** icon stroke in icon-viewBox units (viewBox is 24 wide), so about 1.75 px at the reference size */
-  iconStroke: 1.75,
+  /**
+   * The QUIZ MATRIX logo: the animated bulb (transparent loop, 82 frames at 30 fps) as a sprite sheet,
+   * public/images/states/quiz-matrix-logo.webp (9 columns x 10 rows of 128 px cells, row by row). `size` is the logo box
+   * in ref px; `overhang` lets it stand that many ref px above and below the pill's text row without making the pill taller.
+   */
+  logo: { file: 'images/states/quiz-matrix-logo.webp', cols: 9, rows: 10, frames: 82, fps: 30, size: 52, overhang: 10 },
   /** glassPanel depth for the pill */
   depth: 0.4,
 } as const;
