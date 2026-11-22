@@ -46,7 +46,7 @@ export interface AnswerCardProps {
 }
 
 /** UI words on the card. */
-const LABELS = { capital: 'Capital' };
+const LABELS = { capital: 'CAPITAL' };
 
 /** Layout proportions (1280x720 reference units go through px()) and stamp timing. */
 const LOOK = {

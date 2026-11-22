@@ -176,7 +176,7 @@ export const StateStage: React.FC<StateStageProps> = ({ level, number, total = T
         }}
       >
         <span style={{ color: COLOR.text.label }}>{cfg.name}</span>
-        <span style={{ color: COLOR.text.primary }}>{`${number} / ${total}`}</span>
+        <span style={{ color: COLOR.text.primary, fontVariantNumeric: 'tabular-nums' }}>{`${number} / ${total}`}</span>
       </div>
 
       <SlotBox rect={L.miniMap} slot={slots.miniMap} frame={f} />

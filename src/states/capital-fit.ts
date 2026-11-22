@@ -26,7 +26,8 @@ export const CAPITAL_LOOK = {
   /** smallest scale of the inline row before it stacks */
   minScale: 0.6,
   /** label style (at normal size) */
-  labelSpacing: 1,
+  /** 0.14em at the normal size (44 ref px): uppercase label tracking, same as TRACKING.label */
+  labelSpacing: 6.16,
   labelMargin: 14,
   labelWeight: 500,
   valueWeight: 700,

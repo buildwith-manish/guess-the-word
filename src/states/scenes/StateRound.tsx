@@ -83,7 +83,7 @@ const StreakBanner: React.FC<{ f: number; plan: StateQuestionPlan }> = ({ f, pla
       }}
     >
       <div style={{ display: 'flex', alignItems: 'baseline', gap: px(20) }}>
-        <span style={{ fontWeight: WEIGHT.strong, fontSize: px(TYPE.xl), lineHeight: 1, color: COLOR.text.primary }}>{plan.id}</span>
+        <span style={{ fontWeight: WEIGHT.strong, fontSize: px(TYPE.xl), lineHeight: 1, color: COLOR.text.primary, fontVariantNumeric: 'tabular-nums' }}>{plan.id}</span>
         <span style={{ fontWeight: WEIGHT.strong, fontSize: px(TYPE.md), color: COLOR.text.primary }}>{settings.streak.label}</span>
       </div>
       <div style={{ fontWeight: WEIGHT.medium, fontSize: px(TYPE.sm), color: COLOR.text.label }}>{settings.streak.cta}</div>
