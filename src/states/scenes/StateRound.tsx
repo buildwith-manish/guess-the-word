@@ -258,6 +258,8 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
                     answered={STATES.slice(0, f >= plan.stamp ? index + 1 : index).map((s) => s.key)}
                     current={f >= plan.stamp && curAlpha > 0 ? plan.key : undefined}
                     currentAlpha={curAlpha}
+                    highlightRegion={region}
+                    regionGlow={1 - iosOut((f - plan.revealStart) / FLIGHT.glowFade)}
                     arriving={f >= plan.revealStart && f < plan.stamp ? { key: plan.key, p: arrive } : undefined}
                     size={answerMap.w}
                     frame={f}

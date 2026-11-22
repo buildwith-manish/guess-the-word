@@ -31,6 +31,8 @@ export interface MiniMapProps {
    * there is no swap at the stamp. Default undefined (old behaviour). At p = 1 it draws exactly like an answered state.
    */
   arriving?: { key: string; p: number };
+  /** 0..1 strength of the region glow (highlightRegion); default 1 (old behaviour) */
+  regionGlow?: number;
   /** 0..1 strength of the `current` outline (halo and stroke); default 1 (old behaviour) */
   currentAlpha?: number;
   /** optional ticks from the parent; default useDesignFrame() */
@@ -76,7 +78,7 @@ const LOOK = {
   ],
 };
 
-export const MiniMap: React.FC<MiniMapProps> = ({ answered = [], current, highlightRegion, size, arriving, currentAlpha = 1, frame }) => {
+export const MiniMap: React.FC<MiniMapProps> = ({ answered = [], current, highlightRegion, size, arriving, currentAlpha = 1, regionGlow = 1, frame }) => {
   const designFrame = useDesignFrame();
   const f = frame ?? designFrame;
 
@@ -86,7 +88,7 @@ export const MiniMap: React.FC<MiniMapProps> = ({ answered = [], current, highli
   const period = ms(LOOK.pulseMs);
   const pulse = 0.5 + 0.5 * Math.sin((2 * Math.PI * f) / period);
   const cur = current ? paths.find((p) => p.key === current) : undefined;
-  const glowing = highlightRegion ? paths.filter((p) => p.region === highlightRegion) : [];
+  const glowing = highlightRegion && regionGlow > 0 ? paths.filter((p) => p.region === highlightRegion) : [];
 
   return (
     <svg width={size} height={miniMapHeight(size)} viewBox={`0 0 ${MINI_W} ${MINI_H}`} style={{ display: 'block', overflow: 'visible' }}>
@@ -114,7 +116,7 @@ export const MiniMap: React.FC<MiniMapProps> = ({ answered = [], current, highli
 
       {glowing.map((p) =>
         LOOK.halo.map((h, i) => (
-          <path key={`g-${p.key}-${i}`} d={p.d} fill="none" stroke={COLOR.text.primary} strokeOpacity={h.a} strokeWidth={LOOK.edge * h.k} strokeLinejoin="round" strokeLinecap="round" />
+          <path key={`g-${p.key}-${i}`} d={p.d} fill="none" stroke={COLOR.text.primary} strokeOpacity={h.a * regionGlow} strokeWidth={LOOK.edge * h.k} strokeLinejoin="round" strokeLinecap="round" />
         )),
       )}
 
