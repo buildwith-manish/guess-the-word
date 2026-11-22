@@ -19,6 +19,8 @@ import {
   STATE_VOICE,
   VOICE_DIR,
   clipFrames,
+  cueGain,
+  edgeGain,
   layerAudible,
 } from './state-sound';
 
@@ -54,17 +56,24 @@ export const StateSoundtrack: React.FC = () => {
         }),
       )}
 
-      {STATE_CUES.map((c, i) => (
-        <Sequence key={`s${i}`} from={c.frame * TIME_SCALE} durationInFrames={clipFrames(c.sfx, c.rate ?? 1) * TIME_SCALE} layout="none">
-          <Audio src={staticFile(`sounds/${c.sfx}.wav`)} playbackRate={c.rate ?? 1} volume={c.volume ?? 1} />
-        </Sequence>
-      ))}
+      {STATE_CUES.map((c, i) => {
+        const dur = clipFrames(c.sfx, c.rate ?? 1) * TIME_SCALE;
+        const gain = cueGain(c);
+        return (
+          <Sequence key={`s${i}`} from={c.frame * TIME_SCALE} durationInFrames={dur} layout="none">
+            <Audio src={staticFile(`sounds/${c.sfx}.wav`)} playbackRate={c.rate ?? 1} volume={(f) => gain * edgeGain(f, dur)} />
+          </Sequence>
+        );
+      })}
 
-      {STATE_VOICE.map((v, i) => (
-        <Sequence key={`v${i}`} from={v.frame * TIME_SCALE} durationInFrames={(v.frames + 2) * TIME_SCALE} layout="none">
-          <Audio src={staticFile(`${VOICE_DIR}/${v.file}`)} volume={root.voiceover.volume} />
-        </Sequence>
-      ))}
+      {STATE_VOICE.map((v, i) => {
+        const dur = (v.frames + 2) * TIME_SCALE;
+        return (
+          <Sequence key={`v${i}`} from={v.frame * TIME_SCALE} durationInFrames={dur} layout="none">
+            <Audio src={staticFile(`${VOICE_DIR}/${v.file}`)} volume={(f) => root.voiceover.volume * edgeGain(f, dur)} />
+          </Sequence>
+        );
+      })}
     </>
   );
 };

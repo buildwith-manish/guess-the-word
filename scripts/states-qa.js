@@ -497,6 +497,36 @@ const check = (name, fn) => {
     return { problems, info: `worst contrast primary ${worst.primary.toFixed(1)}:1, label ${worst.label.toFixed(1)}:1, hint ${worst.hint.toFixed(1)}:1 over ${backs.length} backdrops; accents ${accents.map((a) => a.name).join('/')} all >= 20 degrees from gold; gold only in ${allowed.slice(1).join(', ')}; no colour literals in components` };
   });
 
+  check('12 sound polish (no music step, softened whooshes / pops, edge fades)', () => {
+    const problems = [];
+    // the music envelope = layer fade (1 / RAMP per tick) x duck (1 / attack per tick): no tick-to-tick jump bigger than their sum, so no step under a cue, hush or voice clip
+    const limit = 1 / S.DUCK_SLEW.attack + 1 / S.RAMP + 1e-6;
+    let worst = 0;
+    S.STATE_MUSIC_ENVELOPES.forEach((env, layer) => {
+      for (let f = 0; f < env.length - 1; f++) {
+        const d = Math.abs(env[f + 1] - env[f]);
+        if (d > worst) worst = d;
+        if (d > limit) { problems.push(`music layer ${layer}: step ${d.toFixed(3)} at tick ${f} (limit ${limit.toFixed(3)})`); break; }
+      }
+    });
+    // softened by 3 to 6 dB: whoosh and pop at volume 1
+    const dbOf = (sfx) => 20 * Math.log10(S.cueGain({ sfx, volume: 1 }));
+    ['whoosh', 'pop'].forEach((sfx) => {
+      const db = dbOf(sfx);
+      if (db > -3 + 1e-9 || db < -6 - 1e-9) problems.push(`${sfx} trim ${db.toFixed(1)} dB is outside -3..-6 dB`);
+    });
+    // no cue louder than before (trims are <= 0 dB) and none silent
+    S.STATE_CUES.forEach((c) => { const g = S.cueGain(c); if (!(g > 0) || g > (c.volume ?? 1) + 1e-9) problems.push(`cue ${c.sfx} at ${c.frame}: gain ${g}`); });
+    // clips fade in and out: the first and last output frames of a clip are below full volume, the middle is full
+    const d = 60;
+    if (!(S.edgeGain(0, d) < 1 && S.edgeGain(d - 1, d) < 1 && S.edgeGain(30, d) === 1)) problems.push('edge fade does not ramp at the clip ends');
+    const crypto = require('crypto');
+    const h = crypto.createHash('sha1');
+    S.STATE_CUES.forEach((c) => h.update(`${c.frame}|${c.sfx}|${c.rate ?? 1};`));
+    S.STATE_VOICE.forEach((v) => h.update(`${v.frame}|${v.file}|${v.frames};`));
+    return { problems, info: `max music step ${worst.toFixed(3)}/tick (limit ${limit.toFixed(3)}); whoosh ${dbOf('whoosh').toFixed(1)} dB, pop ${dbOf('pop').toFixed(1)} dB; ${S.STATE_CUES.length} cues + ${S.STATE_VOICE.length} clips, timing hash ${h.digest('hex').slice(0, 10)}` };
+  });
+
   // table
   const w = Math.max(...rows.map((r) => r.name.length));
   console.log('\n  states:qa');

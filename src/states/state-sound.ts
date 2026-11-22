@@ -77,6 +77,37 @@ export const questionHasTitle = (index: number): boolean => index === 0 || (sett
 /** A voiceover clip placed on the timeline (absolute design tick, length in ticks). */
 export type StateVoice = { frame: number; file: string; frames: number };
 
+// ------------------------------------------------------------------ cue loudness (Step 8: volumes only, no timing)
+/**
+ * KNOBS. Per-sound trim in dB on top of the cue's own `volume`: whooshes and pops about -4 to -5 dB, the bright pings,
+ * ticks and sweeps about -3 dB; the stamp / boom / thump / chimes are left as they were (the answer moment stays the
+ * loudest thing). -3 dB = x0.71, -6 dB = x0.50. No cue moves in time: only its volume changes.
+ */
+export const SFX_TRIM_DB: Partial<Record<StateSfx, number>> = {
+  whoosh: -5,
+  pop: -4,
+  flip: -3,
+  flare: -3,
+  'rule-sweep': -4,
+  'ping-hi': -3,
+  'ding-hi': -3,
+  tick: -3,
+  'tick-low': -3,
+  blip: -3,
+  letter: -3,
+  row: -3,
+  riser: -3,
+};
+const fromDb = (db: number) => Math.pow(10, db / 20);
+/** Final linear volume of a cue: its own volume x the trim of its sound. */
+export const cueGain = (c: { sfx: StateSfx; volume?: number }): number => (c.volume ?? 1) * fromDb(SFX_TRIM_DB[c.sfx] ?? 0);
+
+/** Every clip (sfx and voice) fades in and out over a couple of output frames, so none starts or stops on a click. */
+export const EDGE_FADE = { inFrames: 2, outFrames: 4 } as const;
+/** Gain 0..1 at output frame `f` of a clip that is `durationFrames` output frames long. */
+export const edgeGain = (f: number, durationFrames: number): number =>
+  Math.max(0, Math.min(1, (f + 1) / EDGE_FADE.inFrames, (durationFrames - f) / EDGE_FADE.outFrames));
+
 // ------------------------------------------------------------------ music bed per level
 /** Layer gains [base, l1, l2] by level index. */
 const LEVEL_BED: number[][] = [
@@ -191,8 +222,10 @@ export const STATE_VOICE: StateVoice[] = PLAN.voice;
 /** First tick with no music (the scoreboard, as in the word quiz). */
 export const MUSIC_END = (TIMELINE.segments.find((s) => s.kind === 'scoreboard') ?? { from: TIMELINE.totalFrames }).from;
 
-const RAMP = 10; // ticks for a layer to fade in / out
+export const RAMP = 10; // ticks for a layer to fade in / out
 const DUCK_FLOOR = 0.44; // every sound dips the music to this
+/** KNOB: ticks a full-range duck move takes (attack = going down, release = coming back up). */
+export const DUCK_SLEW = { attack: 4, release: 10 } as const;
 
 const buildEnvelopes = (): Float32Array[] => {
   const n = Math.max(1, TIMELINE.totalFrames);
@@ -230,6 +263,11 @@ const buildEnvelopes = (): Float32Array[] => {
       if (val < duck[f]) duck[f] = val;
     }
   }
+
+  // smooth the duck curve: no step in the music anywhere. Falling is limited to 1 / DUCK_SLEW.attack per tick (looking
+  // ahead, so the dip starts a few ticks BEFORE the cue and is already down when it lands); rising to 1 / DUCK_SLEW.release.
+  for (let f = n - 2; f >= 0; f--) duck[f] = Math.min(duck[f], duck[f + 1] + 1 / DUCK_SLEW.attack);
+  for (let f = 1; f < n; f++) duck[f] = Math.min(duck[f], duck[f - 1] + 1 / DUCK_SLEW.release);
 
   return [0, 1, 2].map((layer) => {
     const env = new Float32Array(n);
