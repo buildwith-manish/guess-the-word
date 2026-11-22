@@ -18,7 +18,7 @@ export const TIME_SCALE = RENDER_FPS / FPS;
 export const hookSec = 6;
 /** Voiceover reads the question and the four options before the timer starts. */
 export const readSec = 5.5;
-export const holdSec = 0.5;
+export const holdSec = 0.3;
 /** Full elimination reveal, used for hard items and "fastest" items. */
 export const revealFullSec = 2.5;
 export const revealFastSec = 1.5;
@@ -32,10 +32,11 @@ export const outroSec = 20;
 /** Script value for the Easy score card line "If you got N or more, you're a real fan". Not derivable from data.ts. */
 export const easyPassMark = 12;
 /** Voiceover-driven timing (used when timings.csv has been built, see below): padding after a clip, in seconds. */
-export const questionPadSec = 0.3;
+export const questionPadSec = 0.1;
 /** Options are not read aloud, so viewers need time to read them: the question phase never goes below this. */
 export const questionMinSec = 2.2;
-export const dykPadSec = 0.3;
+/** The did-you-know clip starts this long after the reveal clip ends; its phase is lead + clip, nothing after. */
+export const dykLeadSec = 0.1;
 /** Level cards, score cards, rank cards and outro lines last their clip plus this. */
 export const cardPadSec = 0.5;
 /** Target runtime in seconds (11:30 to 12:30). */
@@ -74,13 +75,19 @@ export const isFullReveal = (item: Item): boolean => item.level === 'hard' || it
 export const scoreCardLevel = (item: Item): Level | undefined =>
   extraIds(item).some((id) => id.endsWith('ScoreCard')) ? item.level : undefined;
 
-/* ---------- reveal beats (RevealEngine reads these; hold is `holdSec`) ---------- */
-export const revealGapSec = 0.3; // full: start-to-start gap between wrong options
+/* ---------- reveal beats (RevealEngine reads these; the hold is `holdSec`) ----------
+ * The reveal clip starts when the hold ends, while the elimination plays. The correct option expands at the LATER of
+ * the end of the elimination and `revealClipLeadSec` after the clip starts. */
+export const revealGapSec = 0.15; // full: start-to-start gap between wrong options (their grey-outs overlap)
 export const revealGreySec = 0.3; // full: one option's grey-out length
 export const revealFadeSec = 0.3; // fast: all three wrong options together
 export const revealExpandSec = 0.4; // the correct option's expand
-/** Elimination length after the hold: the correct option begins to expand when it ends. */
-export const eliminationSec = (item: Item): number => (isFullReveal(item) ? 2 * revealGapSec + revealGreySec : revealFadeSec);
+export const revealClipLeadSec = 0.6; // the correct option expands no earlier than this after the reveal clip starts
+/** Elimination length after the hold. */
+export const eliminationFor = (full: boolean): number => (full ? 2 * revealGapSec + revealGreySec : revealFadeSec);
+/** Seconds from the end of the hold (= the reveal clip start) until the correct option begins to expand. */
+export const expandDelayFor = (full: boolean): number => Math.max(eliminationFor(full), revealClipLeadSec);
+export const eliminationSec = (item: Item): number => eliminationFor(isFullReveal(item));
 
 /* ---------- clip durations (src/gta6/timings.csv via timings.generated.ts; build with scripts/build_gta6_timings.py) ----------
  * Which clip belongs where comes from audioMap.ts (scripts/build_gta6_audio_map.ts). If any id is missing from the
@@ -139,9 +146,10 @@ const buildSegments = (): Segment[] => {
     phases.read = span(useClipTimings ? Math.max(questionMinSec, dur(au.questionId) + questionPadSec) : readSec);
     phases.timer = span(item.timerSec);
     phases.hold = span(holdSec);
-    // elimination, then the reveal clip (it starts when the correct option begins to expand)
-    phases.reveal = span(useClipTimings ? eliminationSec(item) + dur(au.revealId) : isFullReveal(item) ? revealFullSec : revealFastSec);
-    if (item.didYouKnow) phases.dyk = span(useClipTimings ? dur(au.dykId) + dykPadSec : dykSec);
+    // the reveal clip starts when the hold ends and plays while the elimination runs: phase = the longer of the two
+    phases.reveal = span(useClipTimings ? Math.max(eliminationSec(item), dur(au.revealId)) : isFullReveal(item) ? revealFullSec : revealFastSec);
+    // did-you-know: dykLeadSec of silence after the reveal clip, then the clip, nothing after it
+    if (item.didYouKnow) phases.dyk = span(useClipTimings ? dykLeadSec + dur(au.dykId) : dykSec);
     out.push({ kind: 'item', item, from, to: cur, phases });
     if (scoreCardLevel(item)) {
       out.push({ kind: 'scoreCard', level: item.level, after: item, ...span(useClipTimings ? dur(scoreCardIds[item.level]) + cardPadSec : scoreCardSec) });

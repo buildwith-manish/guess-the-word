@@ -14,8 +14,10 @@
  * Voice (ids from audioMap.ts, lengths from timing.ts, played only when the clips have been measured):
  *   question clip   at the start of the read phase (when the look starts bringing the options in); the timer ring
  *                   starts at `phases.timer.from`, after the question phase
- *   reveal clip     exactly when the correct option begins to expand (`expandStartTick`: hold + elimination)
- *   did-you-know    the card and its clip start together; the card stays until the clip ends + 0.2 s (no 3 s limit)
+ *   reveal clip     when the hold ends (`revealClipTick`), while the elimination plays; the correct option expands at
+ *                   the later of the elimination end and 0.6 s after the clip starts (`expandStartTick`)
+ *   did-you-know    clip starts `dykLeadSec` after the reveal clip ends, the card with it; the card is meant to stay until
+ *                   the clip ends + 0.2 s (no 3 s limit) but the dyk phase ends with the clip, so the item cuts it there
  *   banner          unchanged: bonus banner at the start of the item, `bannerSec`
  *
  * Text: question, options, did-you-know and the bonus banner title come from `item`. The spoiler text has no
@@ -27,7 +29,7 @@ import { audioOf } from '../audioMap';
 import { byLevel, items } from '../data';
 import type { Item, Level } from '../data';
 import { FRAME, SAFE, levelBackground, u } from '../system';
-import { FPS, RENDER_FPS, clipPath, clipSec, isFullReveal, secToTicks, segments, ticksToFrames, useGta6Frame } from '../timing';
+import { FPS, RENDER_FPS, clipPath, dykLeadSec, clipSec, isFullReveal, secToTicks, segments, ticksToFrames, useGta6Frame } from '../timing';
 import type { ItemPhases, Range } from '../timing';
 import { DidYouKnowCard } from './DidYouKnowCard';
 import { EdgeGlow } from './EdgeGlow';
@@ -37,7 +39,7 @@ import { Shake } from './Shake';
 import { TimerRing } from './TimerRing';
 import { URGENT_SECONDS } from './timerMath';
 import { SpoilerBadge } from './badges';
-import { expandStartTick } from './RevealEngine';
+import { revealClipTick } from './RevealEngine';
 import type { RevealMode } from './RevealEngine';
 
 export type ShellPhase = 'banner' | 'read' | 'timer' | 'hold' | 'reveal' | 'dyk';
@@ -158,6 +160,8 @@ export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, child
   const revealMode = ctx.revealMode;
   const dykSecLen = clipSec(au.dykId);
   // card length: the clip plus its tail (the spring-out runs inside the tail); without a measured clip, the dyk phase
+  // clip and card start together, dykLeadSec after the dyk phase starts (without a measured clip: at the phase start)
+  const dykAt = phases.dyk ? phases.dyk.from + (dykSecLen !== undefined ? secToTicks(dykLeadSec) : 0) : 0;
   const dykTicks = phases.dyk ? (dykSecLen !== undefined ? secToTicks(dykSecLen + DYK_TAIL_SEC) : phases.dyk.to - phases.dyk.from) : 0;
 
   return (
@@ -208,7 +212,7 @@ export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, child
         <DidYouKnowCard
           text={item.didYouKnow}
           frame={localFrame}
-          at={phases.dyk.from}
+          at={dykAt}
           dur={dykTicks}
           outTicks={dykSecLen !== undefined ? secToTicks(DYK_TAIL_SEC) : undefined}
           level={level}
@@ -229,8 +233,8 @@ export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, child
       ) : null}
 
       <Voice id={au.questionId} at={phases.read.from} start={start} />
-      <Voice id={au.revealId} at={expandStartTick(phases.hold.from, revealMode)} start={start} />
-      {phases.dyk && au.dykId ? <Voice id={au.dykId} at={phases.dyk.from} start={start} /> : null}
+      <Voice id={au.revealId} at={revealClipTick(phases.hold.from)} start={start} />
+      {phases.dyk && au.dykId ? <Voice id={au.dykId} at={dykAt} start={start} /> : null}
 
       {glowOpacity > 0 ? (
         <div style={{ position: 'absolute', inset: 0, opacity: glowOpacity, pointerEvents: 'none' }}>

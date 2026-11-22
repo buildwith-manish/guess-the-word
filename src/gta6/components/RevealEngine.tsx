@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Item, Level } from '../data';
 import { springAt, u } from '../system';
-import { FPS, holdSec, revealExpandSec, revealFadeSec, revealGapSec, revealGreySec, secToTicks } from '../timing';
+import { FPS, eliminationFor, expandDelayFor, holdSec, revealExpandSec, revealFadeSec, revealGapSec, revealGreySec, secToTicks } from '../timing';
 import { ChoiceChip } from './ChoiceChip';
 import type { ChipState } from './ChoiceChip';
 
@@ -10,7 +10,8 @@ import type { ChipState } from './ChoiceChip';
  * which is the start of the item's `hold` phase (timing.ts `phases.hold.from`): the hold is part of the engine.
  *
  *   hold   holdSec (timing.ts), options frozen: all idle, no motion, no sound
- *   full   wrong options grey out one at a time, `gapSec` apart, then the correct one expands
+ *   full   wrong options grey out one at a time, `gapSec` apart (overlapping), the correct one expands at the
+ *          later of the elimination end and revealClipLeadSec after the hold (timing.ts)
  *   fast   the three wrong options fade together over `fadeSec`, then the correct one expands
  *
  * Rendering is ChoiceChip. A chip's `greyed` state switches at once, so while an option is still going grey the
@@ -22,7 +23,7 @@ export type RevealMode = 'full' | 'fast';
 /** Seconds. The beat lengths come from timing.ts (it needs them to place the reveal clip); the look constants are here. */
 export const REVEAL = {
   gapSec: revealGapSec, // full: start-to-start gap between wrong options
-  greySec: revealGreySec, // full: one option's grey-out length (equal to the gap: eliminations run back to back)
+  greySec: revealGreySec, // full: one option's grey-out length (longer than the gap: the grey-outs overlap)
   fadeSec: revealFadeSec, // fast: all three wrong options together
   expandSec: revealExpandSec, // the correct option's expand
   expandScale: 0.06, // mirrors CORRECT_SCALE in ChoiceChip
@@ -55,15 +56,19 @@ const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 const EPS = 1e-9; // tick/second rounding noise at phase boundaries
 const easeOut = (t: number) => 1 - Math.pow(1 - clamp01(t), 3);
 
-const elimSec = (mode: RevealMode) => (mode === 'full' ? 2 * REVEAL.gapSec + REVEAL.greySec : REVEAL.fadeSec);
+const elimSec = (mode: RevealMode) => eliminationFor(mode === 'full');
 /** Seconds from the reveal start until the correct option begins to expand. */
-export const expandStartSec = (mode: RevealMode): number => holdSec + elimSec(mode);
+export const expandStartSec = (mode: RevealMode): number => holdSec + expandDelayFor(mode === 'full');
+/** Seconds from the reveal start until the reveal voice clip starts: the end of the hold. */
+export const revealClipStartSec: number = holdSec;
 /** Seconds from the reveal start until the correct option has finished expanding. */
 export const revealEndSec = (mode: RevealMode): number => expandStartSec(mode) + REVEAL.expandSec;
 export const revealEndTicks = (mode: RevealMode): number => secToTicks(revealEndSec(mode));
-/** Local tick at which the correct option begins to expand, given the tick the hold starts (`phases.hold.from`).
- *  The reveal voice clip starts exactly here; timing.ts (`eliminationSec`) sizes the reveal phase to match. */
+/** Local tick at which the correct option begins to expand, given the tick the hold starts (`phases.hold.from`):
+ *  the later of the elimination end and `revealClipLeadSec` after the reveal clip starts (which is the end of the hold). */
 export const expandStartTick = (holdFrom: number, mode: RevealMode): number => holdFrom + secToTicks(expandStartSec(mode));
+/** Local tick at which the reveal voice clip starts: when the hold ends, while the elimination plays. */
+export const revealClipTick = (holdFrom: number): number => holdFrom + secToTicks(revealClipStartSec);
 
 /** Per-option state at `frame` ticks after the reveal start (negative frames count as 0). Pure. */
 export const optionStateAt = (item: Item, frame: number, mode: RevealMode): OptionState[] => {
