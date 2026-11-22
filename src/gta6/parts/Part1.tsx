@@ -17,6 +17,8 @@ import type { Segment } from '../timing';
  * so Part1 starts at 0 whatever the video offset is. The first item (order 1) is played inside Hook, so its own segment
  * (the full Q1 after the level card in timing.ts) is NOT placed here; the cursor skips it. Because of that Part1 is shorter
  * than `partRanges[0].frames` by exactly that segment (see `part1Skipped`).
+ * UPDATE (voice overlap fix): the full Q1 segment is NOW placed after the level card, so Part1 matches `partRanges[0]` and `part1Skipped` is 0.
+ * The hook still shows Q1 as a silent teaser (the hook line plays over it).
  *
  * Banner: on the last `bannerSec` of each item a NotificationBanner names the next round (blurred title). No banner
  * when the next thing is not a round (the score card).
@@ -25,7 +27,6 @@ import type { Segment } from '../timing';
 export type Placed = { seg: Segment; at: number; ticks: number };
 
 const range = partRanges[0];
-const FIRST_ORDER = items[0].order;
 
 /** Segments of Part1 in order, each with its start in Part1 ticks. */
 const buildPlan = (): { placed: Placed[]; skipped: number; total: number } => {
@@ -35,10 +36,6 @@ const buildPlan = (): { placed: Placed[]; skipped: number; total: number } => {
   for (const seg of segments) {
     if (seg.from < range.from || seg.to > range.to) continue;
     const ticks = seg.to - seg.from;
-    if (seg.kind === 'item' && seg.item.order === FIRST_ORDER) {
-      skipped += ticks;
-      continue;
-    }
     placed.push({ seg, at: cur, ticks });
     cur += ticks;
   }

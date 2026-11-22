@@ -2,7 +2,6 @@ import { audioOf, hookId, levelIds, outroIds, rankIds, scoreCardIds } from './au
 import { revealClipTick } from './components/RevealEngine';
 import { localPhases } from './components/QuestionShell';
 import { items } from './data';
-import { hookBeats, hookTicks } from './scenes/Hook';
 import { part1Plan } from './parts/Part1';
 import { part2Plan } from './parts/Part2';
 import { part3Plan } from './parts/Part3';
@@ -74,8 +73,8 @@ plans.forEach((plan, part) => {
     switch (seg.kind) {
       case 'hook':
         add(part, at, hookId, end, 'hook');
-        // Q1 plays inside the hook (Hook mounts QuestionScene at hookBeats.question); its clips are cut where the hook ends
-        addItem(part, at + hookBeats.question, at + hookTicks, items[0], 'Q1 (in hook)');
+        // Q1 is only a teaser under the hook line: it gets no voice there (the hook line would play over its question clip).
+        // Q1 is voiced in its own segment after the level card.
         break;
       case 'levelCard':
         if (levelIds[seg.level]) add(part, at, levelIds[seg.level]!, end, `${seg.level} level card`);
