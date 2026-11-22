@@ -11,6 +11,7 @@
  *   iris       StateIris + the next question springing in during the last `lead` ticks (stateIrisOverlap)
  *   scoreboard StateScoreboard      (camera rig)
  *   endScreen  StateEndScreen       (camera rig)
+ * StateAtmosphere (step 6: parallax glow, vignette, film grain) is mounted once above all scenes on the global frame.
  *
  * Motion blur and the card camera come from root settings.json (motionBlur, camera.cards), like the word quiz.
  * Audio: StateSoundtrack (task 6b) is mounted next to the scenes; the plan is src/states/state-sound.ts.
@@ -38,6 +39,7 @@ import { STATES } from './states-data';
 import { StateSoundtrack } from './StateSoundtrack';
 import { questionHasTitle } from './state-sound';
 import { COLOR } from './look';
+import { StateAtmosphere } from './StateAtmosphere';
 
 const Scenes: React.FC = () => {
   const frame = useDesignFrame();
@@ -124,6 +126,7 @@ const Scenes: React.FC = () => {
 export const StateMain: React.FC = () => (
   <>
     <Scenes />
+    <StateAtmosphere />
     <StateSoundtrack />
   </>
 );

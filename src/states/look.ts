@@ -107,3 +107,7 @@ export const COLOR = {
 
 /** Backdrop colours the text sits on (black, the raised dark, the level backgrounds are added from the settings by the QA). */
 export const BACKDROP = { black: '#000000', raised: '#0B0B12' } as const;
+
+/** Alpha helpers for the atmosphere layers (Step 6): white light and black shade at a given alpha (0..1). */
+export const whiteA = (a: number): string => `rgba(255,255,255,${a})`;
+export const blackA = (a: number): string => `rgba(0,0,0,${a})`;
