@@ -19,9 +19,10 @@
  */
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { prog, cssEaseOut, cssEaseInOut, keyframes, clamp01 } from '../../anim';
+import { prog, clamp01 } from '../../anim';
 import { px } from '../../style';
-import { IOS, IosBackground, iosSurface, spring } from '../../ios';
+import { IOS, IosBackground, iosSurface } from '../../ios';
+import { enter, iosOut, sprFit } from '../motion';
 import root from '../../../settings.json';
 import { FPS, HEIGHT, LEVELS, TOTAL, WIDTH, voiceIntro } from '../state-timing';
 import { STATES } from '../states-data';
@@ -129,7 +130,7 @@ const DropShape: React.FC<{ stateKey: string; map: Rect; f: number; start: numbe
   const box = target.w * Math.min(target.w / probe.w, target.h / probe.h);
   const left = target.x + target.w / 2 - box / 2;
   const top = target.y + target.h / 2 - box / 2;
-  const p = spring((f - start) / HOOK_BEATS.dropFall); // overshoots 1 by about 1.5% = the settle
+  const p = sprFit(f, start, HOOK_BEATS.dropFall, 'normal'); // lands exactly at the end of the fall
   const fallY = -(1 - p) * (top + box);
   return (
     <div style={{ position: 'absolute', left, top, width: box, height: box, transform: `translateY(${fallY}px)`, opacity: fade }}>
@@ -146,15 +147,17 @@ export const StateHook: React.FC<{ frame: number }> = ({ frame: f }) => {
   const mapH = miniMapHeight(mapW);
   const map: Rect = { x: (WIDTH - mapW) / 2, y: HEIGHT * LAYOUT.mapCy - mapH / 2, w: mapW, h: mapH };
 
-  const mapIn = prog(f, P.snapAt, P.mapFade, cssEaseOut);
+  const mapIn = prog(f, P.snapAt, P.mapFade, iosOut);
 
   // question line: fade + rise in, fade out
-  const qIn = prog(f, P.questionIn, P.questionFade, cssEaseOut);
-  const qOut = 1 - prog(f, P.questionOut, P.questionFade, cssEaseInOut);
+  const qE = enter(f, P.questionIn, 'normal', 20);
+  const qIn = qE.opacity;
+  const qOut = 1 - iosOut((f - P.questionOut) / P.questionFade); // gone by lockupAt (same length as before)
   const showQuestion = f >= P.questionIn && f < P.questionOut + P.questionFade;
 
   // rules line: fade + rise in
-  const rulesIn = prog(f, P.rulesAt, P.questionFade, cssEaseOut);
+  const rulesE = enter(f, P.rulesAt, 'quick', 16);
+  const rulesIn = rulesE.opacity;
 
   const textZone: React.CSSProperties = {
     position: 'absolute',
@@ -200,7 +203,7 @@ export const StateHook: React.FC<{ frame: number }> = ({ frame: f }) => {
               letterSpacing: px(-1),
               color: IOS.color.label,
               opacity: qIn * qOut,
-              transform: `translateY(${keyframes(qIn, [0, 1], [px(30), 0])}px)`,
+              transform: qE.transform,
             }}
           >
             {hookQuestionLine()}
@@ -222,7 +225,7 @@ export const StateHook: React.FC<{ frame: number }> = ({ frame: f }) => {
                   color: IOS.color.secondary,
                   whiteSpace: 'nowrap',
                   opacity: rulesIn,
-                  transform: `translateY(${keyframes(rulesIn, [0, 1], [px(24), 0])}px)`,
+                  transform: rulesE.transform,
                 }}
               >
                 {hookRulesLine()}

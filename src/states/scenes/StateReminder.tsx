@@ -16,9 +16,9 @@ import { AbsoluteFill } from 'remotion';
 import { Watermark } from '../../Watermark';
 import { Icon } from '../../Icon';
 import { px } from '../../style';
-import { IOS, IosBackground, iosSurface, spring } from '../../ios';
-import { prog, ms } from '../../anim';
-import { linear } from '../../gsap-helpers';
+import { IOS, IosBackground, iosSurface } from '../../ios';
+import { ms } from '../../anim';
+import { iosOut, spr } from '../motion';
 import rootSettings from '../../../settings.json';
 import { BONUS_THEME, HEIGHT, LEVELS } from '../state-timing';
 import type { Segment } from '../types';
@@ -42,8 +42,8 @@ export const stateReminderCues = (): StateCue[] => [{ frame: 0, sfx: 'remind' }]
 
 export const StateReminder: React.FC<{ frame: number; seg: ReminderSegment }> = ({ frame, seg }) => {
   const t = reminderTimes(seg.duration);
-  const inP = spring(frame / ms(REMINDER_BEATS.inMs));
-  const outP = prog(frame, t.outStart, ms(REMINDER_BEATS.outMs), linear);
+  const inP = spr(frame, 0, 'normal');
+  const outP = iosOut((frame - t.outStart) / ms(REMINDER_BEATS.outMs));
   const opacity = inP * (1 - outP);
 
   return (

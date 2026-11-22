@@ -18,8 +18,9 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
 import { SAFE_X, px } from '../../style';
-import { IOS, IosBackground, iosSurface, spring } from '../../ios';
-import { prog, cssEaseInOut, mix } from '../../anim';
+import { IOS, IosBackground, iosSurface } from '../../ios';
+import { DUR, exitTicks, iosOut, spr, sprFit } from '../motion';
+import { prog, mix } from '../../anim';
 import { linear } from '../../gsap-helpers';
 import { rise } from '../ios-rise';
 import rootSettings from '../../../settings.json';
@@ -75,12 +76,12 @@ export const stateLevelCardVoice = (levelIndex: number): { frame: number; file: 
 const RuleDemo: React.FC<{ t: number; levelIndex: number; size: number; accent: string }> = ({ t, levelIndex, size, accent }) => {
   const s = sampleState(levelIndex);
   const tier = tierOf(levelIndex);
-  const draw = prog(t, 0, DEMO.draw, cssEaseInOut);
+  const draw = sprFit(t, 0, DEMO.draw, 'normal');
 
   if (tier === 'pixel') {
     // blurred silhouette sharpening, then the outline
     const p = prog(t, 0, DEMO.pixelDur, linear);
-    const fade = prog(t, DEMO.fadeAt, DEMO.fadeDur, cssEaseInOut);
+    const fade = prog(t, DEMO.fadeAt, DEMO.fadeDur, iosOut);
     const blur = size * (settings.tiers.blur.start + (settings.tiers.blur.end - settings.tiers.blur.start) * p);
     return (
       <div style={{ position: 'relative', width: size, height: size }}>
@@ -95,11 +96,11 @@ const RuleDemo: React.FC<{ t: number; levelIndex: number; size: number; accent: 
   }
   if (tier === 'crop') {
     // outline traces itself
-    const trace = prog(t, 0, DEMO.cropAt + DEMO.cropDur, cssEaseInOut);
+    const trace = sprFit(t, 0, DEMO.cropAt + DEMO.cropDur, 'normal');
     return <StateShape stateKey={s.key} size={size} progress={trace} glow={0} accent={accent} />;
   }
   if (tier === 'rotate') {
-    const spin = prog(t, 0, DEMO.spin, cssEaseInOut);
+    const spin = sprFit(t, 0, DEMO.spin, 'normal');
     const sway = Math.sin((Math.max(0, t) / 30) * Math.PI * 2 * 0.8) * 4 * spin;
     const rotation = (s.rotation ?? 0) + mix(-180, 0, spin) + sway;
     return <StateShape stateKey={s.key} size={size} progress={draw} glow={0} rotation={rotation} accent={accent} />;
@@ -114,12 +115,14 @@ export const StateLevelCard: React.FC<{ frame: number; levelIndex: number; durat
   duration = settings.levelCardFrames,
 }) => {
   const level = LEVELS[levelIndex] ?? LEVELS[0];
-  const exitP = prog(frame, duration - LEVEL_BEATS.exit, LEVEL_BEATS.exit, linear);
+  // exit: about 70% of an entrance, iosOut, ends with the segment
+  const exitLen = exitTicks(DUR.uiLong);
+  const exitP = iosOut((frame - (duration - exitLen)) / exitLen);
 
   const eyebrow = rise(frame, 2, 14, 16);
-  const title = rise(frame, LEVEL_BEATS.nameAt, 16, 28);
+  const title = rise(frame, LEVEL_BEATS.nameAt, 30, 28, 'slow'); // hero: the level name
   const meta = rise(frame, 34, 16, 20);
-  const pop = spring((frame - 10) / 18);
+  const pop = spr(frame, 10, 'normal');
   const demoIn = rise(frame, LEVEL_BEATS.demoAt, 16, 24);
 
   const demoSize = px(250);

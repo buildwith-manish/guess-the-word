@@ -14,7 +14,8 @@
  */
 import React from 'react';
 import { px } from '../../style';
-import { IOS, spring } from '../../ios';
+import { IOS } from '../../ios';
+import { spr } from '../motion';
 import { clamp01, ms } from '../../anim';
 
 const WORDS = [
@@ -69,7 +70,7 @@ export const StateTitleLockup: React.FC<StateTitleLockupProps> = ({ frame, anima
   const u = (v: number) => px(v) * scale;
   const font = u(LOOK.textFont);
 
-  const ruleP = animate ? spring((frame - ms(LOOK.ruleDelayMs)) / ms(LOOK.ruleMs)) : 1;
+  const ruleP = animate ? spr(frame, ms(LOOK.ruleDelayMs), 'normal') : 1;
   const igniteBase = lockupTimes().igniteAt;
   let running = -1;
   let accentIdx = -1;
@@ -84,7 +85,7 @@ export const StateTitleLockup: React.FC<StateTitleLockupProps> = ({ frame, anima
               if (w.accent) accentIdx += 1;
 
               // plain letters rise and fade in, one after another (no tiles, no boxes)
-              const p = animate ? spring((frame - ms(running * LOOK.flipEveryMs)) / ms(LOOK.flipMs)) : 1;
+              const p = animate ? spr(frame, ms(running * LOOK.flipEveryMs), 'quick') : 1; // per-letter cascade: 1-tick step (exempt from the 2-tick stagger)
               const rise = (1 - p) * u(22);
 
               // STATE ignites to gold, letter by letter

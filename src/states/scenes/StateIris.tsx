@@ -28,7 +28,8 @@ import { AbsoluteFill } from 'remotion';
 import { Watermark } from '../../Watermark';
 import { S, px } from '../../style';
 import { IOS, IosBackground, iosSurface } from '../../ios';
-import { prog, irisEase } from '../../anim';
+import { prog } from '../../anim';
+import { iosOut } from '../motion';
 import rootSettings from '../../../settings.json';
 import { BONUS_THEME, HEIGHT, LEVELS, QUESTIONS, WIDTH } from '../state-timing';
 import type { Hud, IrisVariant, Segment } from '../types';
@@ -61,8 +62,8 @@ export const irisLook = (seg: IrisSegment): StateIrisLook => {
   return seg.variant ?? 'circle';
 };
 
-/** Wipe progress 0..1 at `frame` (irisEase over the whole segment). */
-export const irisProgress = (frame: number, seg: IrisSegment) => prog(frame, 0, seg.duration, irisEase);
+/** Wipe progress 0..1 at `frame` (iosOut over the whole segment). */
+export const irisProgress = (frame: number, seg: IrisSegment) => prog(frame, 0, seg.duration, iosOut);
 
 /**
  * The overlap with the next question: `lead` ticks of it play inside this wipe; it starts being drawn
