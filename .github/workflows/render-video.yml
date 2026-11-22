@@ -296,6 +296,23 @@ jobs:
           ffprobe -v error -show_entries format=duration,size,bit_rate -of default=nw=1 final.mp4
           ffprobe -v error -show_entries stream=codec_name,width,height,r_frame_rate,pix_fmt -of default=nw=1 final.mp4
 
+      # the video check above counts frames; this one makes sure the sound is as long as the picture
+      # (AAC priming / padding is a few hundredths of a second, so 0.15 s is allowed)
+      - name: Check that the audio and video lengths match
+        run: |
+          V=$(ffprobe -v error -select_streams v:0 -show_entries stream=duration -of csv=p=0 final.mp4)
+          A=$(ffprobe -v error -select_streams a:0 -show_entries stream=duration -of csv=p=0 final.mp4)
+          echo "video ${V}s, audio ${A}s"
+          python3 - "$V" "$A" <<'PY'
+          import sys
+          v, a = float(sys.argv[1]), float(sys.argv[2])
+          d = abs(v - a)
+          print(f"difference {d:.3f}s (allowed 0.150s)")
+          if d > 0.15:
+              print("::error title=audio and video lengths differ::video %.3fs, audio %.3fs. The chunks are kept for 7 days; nothing was deleted." % (v, a))
+              sys.exit(1)
+          PY
+
       - name: Save the final video
         uses: actions/upload-artifact@v4
         with:
