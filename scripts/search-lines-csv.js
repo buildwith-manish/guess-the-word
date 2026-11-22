@@ -5,8 +5,8 @@
  *  - clues come from src/search/search-data.ts (exact on-screen text), so re-run this after any clue change
  *  - reveal lines come from docs/search-voiceover-script.md
  *  - everything else (intro, levels, bonus, scoreboard, outro) is written below
- * `text` is plain (no tags). `voice_text` carries emotion tags in [square brackets]: for the AI voice ONLY,
- * never shown on screen. If your voice tool reads tags aloud, use `text` instead.
+ * `text` is the voice text with emotion tags in [square brackets]: for the AI voice ONLY, never shown on
+ * screen. If your voice tool reads tags aloud, strip them with: text.replace(/\\[[^\\]]+\\]\\s*/g, '').
  */
 const fs = require('fs');
 const os = require('os');
@@ -86,9 +86,10 @@ const main = async () => {
   const outro = "How many did you get? Tell me in the comments. If you want more search histories, subscribe, and I'll see you in the next one.";
   add({ file: 'outro.mp3', key: 'outro', type: 'outro', round: '', text: outro, voice: "[warmly] How many did you get? Tell me in the comments. [playfully] If you want more search histories, subscribe, and I'll see you in the next one.", emotion: 'warmly > playfully', pause: 0 });
 
-  const cols = ['file', 'key', 'type', 'round', 'level', 'text', 'voice_text', 'emotion', 'pause_before_s', 'est_seconds', 'note'];
+  // three columns only: id (= file name without .mp3), type, text (= the voice text with its [emotion] tags)
+  const cols = ['id', 'type', 'text'];
   const esc = (v) => { const s = v === undefined || v === null ? '' : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
-  const csv = [cols.join(',')].concat(rows.map((r) => [r.file, r.key, r.type, r.round, r.level || '', r.text, r.voice, r.emotion, r.pause, secs(r.text), r.note || ''].map(esc).join(','))).join('\n') + '\n';
+  const csv = [cols.join(',')].concat(rows.map((r) => [r.file.replace(/\.mp3$/, ''), r.type.replace(' card', '').replace(' answer', ''), r.voice].map(esc).join(','))).join('\n') + '\n';
   fs.mkdirSync(OUT, { recursive: true });
   fs.writeFileSync(path.join(OUT, 'lines.csv'), csv);
   console.log(`lines.csv: ${rows.length} rows, about ${Math.round(rows.reduce((n, r) => n + secs(r.text), 0))} s of speech (estimate)`);

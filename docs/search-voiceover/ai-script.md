@@ -1,9 +1,8 @@
 # AI voiceover: how to use lines.csv
 
 One row = one audio file. Generate each row on its own and save it under the exact `file` name (intro.mp3, level-1.mp3, clue-1-1.mp3, reveal-1.mp3, bonus-1.mp3, scoreboard-*.mp3, outro.mp3).
-- `voice_text` = what you paste into the AI voice. The emotion tag in [square brackets] is a direction for the voice only; it is never on screen. Use a model that supports audio tags (for example ElevenLabs Eleven v3). If your tool reads the tags out loud, paste the `text` column instead and set the style in the tool.
-- `text` = exact plain wording (clues are the on-screen text). Never change a clue wording here; change it in src/search/search-data.ts and run `npm run search:lines`.
-- `est_seconds` is an estimate (words / 2.5 per second); `pause_before_s` is silence to leave before the line (reveals only).
+- Columns: `id` (save the audio as <id>.mp3), `type`, `text`. The `text` is exactly what you paste into the AI voice, with the emotion tag in [square brackets] as a direction for the voice only (never on screen). Use a model that supports audio tags (for example ElevenLabs Eleven v3). If your tool reads the tags out loud, strip them (remove every [..] and the space after it).
+- Clue wording is the on-screen text. Never change a clue here; change it in src/search/search-data.ts and run `npm run search:lines`.
 
 Tags used: calm (clue 1, level 1), curious (clue 2, level 2), amused (clue 3), warmly (reveals, intro, outro), playfully ("Of course." reveals), excited (bonus, legend, intro end), impressed (expert), encouraging (beginner, keep going), serious (level 3).
 
