@@ -57,3 +57,19 @@ export const glassPanel = (radius: number, accent?: string, depth = 1): CSSPrope
     .join(', '),
   boxSizing: 'border-box',
 });
+
+/**
+ * Soft light (Step 4): glow is two wide, low-opacity layers instead of one tight strong one, like
+ * `0 0 40px accent 25%` + `0 0 120px accent 10%`. Sizes are multiples of the shape's crisp core stroke (SVG units), so
+ * the glow scales with the shape. Glow only ever sits behind shapes and map outlines, never behind text, so it cannot
+ * reduce text contrast; the card border is a separate element (look.ts glassPanel) the glow never touches.
+ */
+export const SOFT_GLOW = {
+  /** closer layer: stroke width, Gaussian sigma (x core) and opacity at glow = 1 */
+  near: { width: 4, blur: 8, alpha: 0.2 },
+  /** far, very wide layer */
+  far: { width: 10, blur: 24, alpha: 0.09 },
+} as const;
+
+/** Mini-map "current state" halo: how much the 900 ms pulse lifts the halo (0 = none). Was 1.0 (halo doubled at the peak). */
+export const MINI_PULSE = { lift: 0.2 } as const;

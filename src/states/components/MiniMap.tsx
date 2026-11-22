@@ -13,6 +13,7 @@ import settingsJson from '../states-settings.json';
 import { STATES, getState } from '../states-data';
 import type { Region } from '../states-data';
 import { MINI_BOX, getShape } from '../geo';
+import { MINI_PULSE } from '../look';
 
 export type Rect = { x: number; y: number; w: number; h: number };
 
@@ -101,7 +102,7 @@ export const MiniMap: React.FC<MiniMapProps> = ({ answered = [], current, highli
       {cur && (
         <>
           {LOOK.halo.map((h, i) => (
-            <path key={`c-${i}`} d={cur.d} fill="none" stroke={IOS.color.label} strokeOpacity={h.a * (1 + pulse)} strokeWidth={LOOK.edge * h.k} strokeLinejoin="round" strokeLinecap="round" />
+            <path key={`c-${i}`} d={cur.d} fill="none" stroke={IOS.color.label} strokeOpacity={h.a * (1 + MINI_PULSE.lift * pulse)} strokeWidth={LOOK.edge * h.k} strokeLinejoin="round" strokeLinecap="round" />
           ))}
           <path
             d={cur.d}

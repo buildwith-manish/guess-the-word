@@ -8,6 +8,7 @@ import React, { useId, useMemo } from 'react';
 import { evolvePath, getLength } from '@remotion/paths';
 import { COLORS } from '../../style';
 import { SHAPE_BOX, getShape } from '../geo';
+import { SOFT_GLOW } from '../look';
 
 export type StateShapeMode = 'outline' | 'filled' | 'ghost';
 
@@ -34,10 +35,6 @@ export interface StateShapeProps {
 const LOOK = {
   /** crisp core stroke width, as a fraction of the box */
   core: 0.006,
-  /** soft glow: one wide stroke, Gaussian-blurred (width x core, blur sigma x core, opacity) */
-  glowWidth: 3,
-  glowBlur: 3.2,
-  glowAlpha: 0.28,
   /** gradient: opacity at the top and bottom of the silhouette */
   gradTop: 1,
   gradBottom: 0.35,
@@ -82,6 +79,7 @@ export const StateShape: React.FC<StateShapeProps> = ({
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const gradId = `ss-grad-${uid}`;
   const glowId = `ss-glow-${uid}`;
+  const glowFarId = `ss-glow-far-${uid}`;
   const geo = getShape(stateKey);
 
   // Per-subpath lengths are computed once per state.
@@ -134,8 +132,11 @@ export const StateShape: React.FC<StateShapeProps> = ({
           <stop offset="0" stopColor={accent} stopOpacity={LOOK.gradTop} />
           <stop offset="1" stopColor={accent} stopOpacity={LOOK.gradBottom} />
         </linearGradient>
-        <filter id={glowId} x="-30%" y="-30%" width="160%" height="160%" colorInterpolationFilters="sRGB">
-          <feGaussianBlur stdDeviation={core * LOOK.glowBlur} />
+        <filter id={glowId} x="-50%" y="-50%" width="200%" height="200%" colorInterpolationFilters="sRGB">
+          <feGaussianBlur stdDeviation={core * SOFT_GLOW.near.blur} />
+        </filter>
+        <filter id={glowFarId} x="-120%" y="-120%" width="340%" height="340%" colorInterpolationFilters="sRGB">
+          <feGaussianBlur stdDeviation={core * SOFT_GLOW.far.blur} />
         </filter>
       </defs>
 
@@ -146,9 +147,14 @@ export const StateShape: React.FC<StateShapeProps> = ({
       {mode === 'outline' && (
         <>
           {g > 0 && (
-            <g filter={`url(#${glowId})`} opacity={g}>
-              {strokeParts(core * LOOK.glowWidth, LOOK.glowAlpha, 'glow')}
-            </g>
+            <>
+              <g filter={`url(#${glowFarId})`} opacity={g}>
+                {strokeParts(core * SOFT_GLOW.far.width, SOFT_GLOW.far.alpha, 'glow-far')}
+              </g>
+              <g filter={`url(#${glowId})`} opacity={g}>
+                {strokeParts(core * SOFT_GLOW.near.width, SOFT_GLOW.near.alpha, 'glow')}
+              </g>
+            </>
           )}
           {p > 0 && strokeParts(core, 1, 'core')}
         </>
@@ -157,9 +163,14 @@ export const StateShape: React.FC<StateShapeProps> = ({
       {mode === 'filled' && (
         <>
           {g > 0 && (
-            <g filter={`url(#${glowId})`} opacity={g}>
-              {strokeParts(core * LOOK.glowWidth, LOOK.glowAlpha, 'glow', 1)}
-            </g>
+            <>
+              <g filter={`url(#${glowFarId})`} opacity={g}>
+                {strokeParts(core * SOFT_GLOW.far.width, SOFT_GLOW.far.alpha, 'glow-far', 1)}
+              </g>
+              <g filter={`url(#${glowId})`} opacity={g}>
+                {strokeParts(core * SOFT_GLOW.near.width, SOFT_GLOW.near.alpha, 'glow', 1)}
+              </g>
+            </>
           )}
           {strokeParts(core * LOOK.edge, 1, 'edge', 1)}
         </>
