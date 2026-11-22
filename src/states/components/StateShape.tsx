@@ -8,7 +8,7 @@ import React, { useId, useMemo } from 'react';
 import { evolvePath, getLength } from '@remotion/paths';
 import { COLORS } from '../../style';
 import { SHAPE_BOX, getShape } from '../geo';
-import { SOFT_GLOW } from '../look';
+import { SHAPE_HALO, SOFT_GLOW } from '../look';
 
 export type StateShapeMode = 'outline' | 'filled' | 'ghost';
 
@@ -34,7 +34,7 @@ export interface StateShapeProps {
 /** Layout proportions, in shape-box units (box = SHAPE_BOX). */
 const LOOK = {
   /** crisp core stroke width, as a fraction of the box */
-  core: 0.006,
+  core: 0.008,
   /** gradient: opacity at the top and bottom of the silhouette */
   gradTop: 1,
   gradBottom: 0.35,
@@ -146,12 +146,12 @@ export const StateShape: React.FC<StateShapeProps> = ({
 
       {mode === 'outline' && (
         <>
-          {g > 0 && (
+          {g > 0 && SHAPE_HALO.gain > 0 && (
             <>
-              <g filter={`url(#${glowFarId})`} opacity={g}>
+              <g filter={`url(#${glowFarId})`} opacity={g * SHAPE_HALO.gain}>
                 {strokeParts(core * SOFT_GLOW.far.width, SOFT_GLOW.far.alpha, 'glow-far')}
               </g>
-              <g filter={`url(#${glowId})`} opacity={g}>
+              <g filter={`url(#${glowId})`} opacity={g * SHAPE_HALO.gain}>
                 {strokeParts(core * SOFT_GLOW.near.width, SOFT_GLOW.near.alpha, 'glow')}
               </g>
             </>
@@ -162,12 +162,12 @@ export const StateShape: React.FC<StateShapeProps> = ({
 
       {mode === 'filled' && (
         <>
-          {g > 0 && (
+          {g > 0 && SHAPE_HALO.gain > 0 && (
             <>
-              <g filter={`url(#${glowFarId})`} opacity={g}>
+              <g filter={`url(#${glowFarId})`} opacity={g * SHAPE_HALO.gain}>
                 {strokeParts(core * SOFT_GLOW.far.width, SOFT_GLOW.far.alpha, 'glow-far', 1)}
               </g>
-              <g filter={`url(#${glowId})`} opacity={g}>
+              <g filter={`url(#${glowId})`} opacity={g * SHAPE_HALO.gain}>
                 {strokeParts(core * SOFT_GLOW.near.width, SOFT_GLOW.near.alpha, 'glow', 1)}
               </g>
             </>

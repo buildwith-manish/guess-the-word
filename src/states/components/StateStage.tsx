@@ -12,7 +12,7 @@ import { useDesignFrame } from '../../clock';
 import { IOS, IosBackground } from '../../ios';
 import { S, SAFE_X, SAFE_Y, px } from '../../style';
 import { enter } from '../motion';
-import {RADIUS, glassPanel, COLOR, FONT, WEIGHT } from '../look';
+import {BACKDROP_DIM, RADIUS, glassPanel, COLOR, FONT, WEIGHT } from '../look';
 import { HEIGHT, LEVELS, TOTAL, WIDTH } from '../state-timing';
 import type { Level } from '../states-data';
 import type { Rect } from './MiniMap';
@@ -152,7 +152,7 @@ export const StateStage: React.FC<StateStageProps> = ({ level, number, total = T
 
   return (
     <div style={{ position: 'absolute', left: 0, top: 0, width: WIDTH, height: HEIGHT, overflow: 'hidden' }}>
-      <IosBackground accent={cfg.accent} />
+      <IosBackground accent={`color-mix(in srgb, ${cfg.accent} ${100 - BACKDROP_DIM.blackPercent}%, black)`} />
       <StateBackdrop accent={cfg.accent} />
 
       <SlotBox rect={L.ring} slot={slots.ring} frame={f} />

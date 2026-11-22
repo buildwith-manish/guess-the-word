@@ -88,6 +88,18 @@ export const SOFT_GLOW = {
   far: { width: 10, blur: 24, alpha: 0.09 },
 } as const;
 
+/**
+ * State shape halo (iOS pass): the blurred glow layers around the shape's outline. 0 = none (a crisp line only, no neon).
+ * Only StateShape reads this; the timer ring keeps SOFT_GLOW as it is.
+ */
+export const SHAPE_HALO = { gain: 0 } as const;
+
+/**
+ * Backdrop dimming (iOS pass): the level accent given to the shared IosBackground is mixed with black by this percent, so
+ * the two drifting lights stay the same hue but much quieter. 0 = the plain accent.
+ */
+export const BACKDROP_DIM = { blackPercent: 55 } as const;
+
 /** Mini-map "current state" halo: how much the 900 ms pulse lifts the halo (0 = none). Was 1.0 (halo doubled at the peak). */
 export const MINI_PULSE = { lift: 0.2 } as const;
 
@@ -239,12 +251,10 @@ export const BLOBS = {
   driftPx: 8,
   loopSeconds: [41, 53, 67] as const,
   items: [
-    /** behind the HUD pill (top left) */
-    { x: 14, y: 14, size: 26, alpha: 0.1 },
-    /** behind the shape tile (centre) */
-    { x: 50, y: 56, size: 34, alpha: 0.12 },
-    /** behind the answer card (left, lower) */
-    { x: 24, y: 66, size: 30, alpha: 0.09 },
+    /** behind the HUD pill (top left), very faint */
+    { x: 14, y: 14, size: 26, alpha: 0.04 },
+    /** behind the shape tile (centre): the only light the shape sits on */
+    { x: 50, y: 52, size: 34, alpha: 0.06 },
   ],
 } as const;
 
