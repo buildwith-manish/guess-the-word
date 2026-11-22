@@ -23,6 +23,11 @@ export type ChoiceChipProps = {
    * so the answer lights up smoothly instead of switching. Default: 1 when `state` is 'correct', else 0.
    */
   highlight?: number;
+  /**
+   * 0..1 continuous grey-out (opacity .35, saturate .2 at 1), applied on this one element so a fade never hands over
+   * between a wrapper and the chip (that switch can flicker the backdrop blur). Default: 1 for state 'greyed', else 0.
+   */
+  grey?: number;
   /** Reference units (1920x1080). */
   width?: number;
   height?: number;
@@ -35,11 +40,11 @@ const CORRECT_SCALE = 1.06;
 const mix = (a: string, p: number, b: string) => `color-mix(in srgb, ${a} ${(p * 100).toFixed(2)}%, ${b})`;
 
 export const ChoiceChip: React.FC<ChoiceChipProps> = ({
-  index, text, state, frame, at, stateAt, level, highlight, width = 1100, height = 132,
+  index, text, state, frame, at, stateAt, level, highlight, grey, width = 1100, height = 132,
 }) => {
   const since = frame - (stateAt ?? at);
   const enter = springAt(frame, at, 'snappy');
-  const correct = state === 'correct' ? springAt(frame, stateAt ?? at, 'smooth') : 0;
+  const correct = state === 'correct' ? springAt(frame, stateAt ?? at, 'pop') : 0;
   const accent = level ? colors.level[level] : colors.hairline;
 
   // tremble: small deterministic shake, ramps in over 4 ticks, ~7 Hz at 30 fps ticks
@@ -52,12 +57,12 @@ export const ChoiceChip: React.FC<ChoiceChipProps> = ({
     rot = Math.sin(t * 1.3 + 1) * 0.35 * ramp;
   }
 
-  const greyed = state === 'greyed';
+  const g = Math.max(0, Math.min(1, grey ?? (state === 'greyed' ? 1 : 0)));
   const h = Math.max(0, Math.min(1, highlight ?? (state === 'correct' ? 1 : 0)));
   const scale = 1 + (CORRECT_SCALE - 1) * correct;
-  const baseBorder = level && !greyed ? `${accent}55` : colors.hairline;
-  const baseBadge = level && !greyed ? `${accent}33` : colors.glassStrong;
-  const baseBadgeInk = level && !greyed ? accent : colors.ink;
+  const baseBorder = level ? mix(colors.hairline, g, `${accent}55`) : colors.hairline;
+  const baseBadge = level ? mix(colors.glassStrong, g, `${accent}33`) : colors.glassStrong;
+  const baseBadgeInk = level ? mix(colors.ink, g, accent) : colors.ink;
 
   return (
     <div
@@ -76,8 +81,8 @@ export const ChoiceChip: React.FC<ChoiceChipProps> = ({
         backdropFilter: `blur(${u(22)}px) saturate(1.4)`,
         WebkitBackdropFilter: `blur(${u(22)}px) saturate(1.4)`,
         boxShadow: `0 ${u(14)}px ${u(36)}px ${mix(colors.shadow, 1 - h, 'transparent')}, 0 ${u(20)}px ${u(56)}px ${mix(`${colors.easy}55`, h, 'transparent')}`,
-        opacity: enter * (greyed ? 0.35 : 1),
-        filter: greyed ? 'saturate(0.2)' : undefined,
+        opacity: enter * (1 - 0.65 * g),
+        filter: g > 0 ? `saturate(${1 - 0.8 * g})` : undefined,
         transform: `translate(${dx}px, ${(1 - enter) * u(24)}px) rotate(${rot}deg) scale(${scale})`,
         transformOrigin: 'center',
         color: mix(colors.onAccent, h, colors.ink),

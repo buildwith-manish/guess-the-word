@@ -98,6 +98,22 @@
       "frames": 54,
       "peakDb": -3.0,
       "rmsDb": -19.8
+    },
+    {
+      "id": "reveal-fade",
+      "file": "reveal-fade.wav",
+      "length": 0.5,
+      "frames": 15,
+      "peakDb": -14.2,
+      "rmsDb": -29.0
+    },
+    {
+      "id": "reveal-pop",
+      "file": "reveal-pop.wav",
+      "length": 1.0,
+      "frames": 30,
+      "peakDb": -5.4,
+      "rmsDb": -21.0
     }
   ]
 }

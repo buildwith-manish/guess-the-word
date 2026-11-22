@@ -26,7 +26,9 @@ export const REVEAL = {
   greySec: revealGreySec, // full: one option's grey-out length (longer than the gap: the grey-outs overlap)
   fadeSec: revealFadeSec, // fast: all three wrong options together
   expandSec: revealExpandSec, // the correct option's expand
-  highlightSec: 0.3, // the correct option's colour fade (glass to solid), see `highlight`
+  highlightSec: 0.3, // full: the correct option's colour fade (glass to solid), see `highlight`
+  fastHighlightSec: 0.6, // fast: starts fastHighlightStartSec after the hold and ends 0.1 s after the expand begins, so colour, fade and pop overlap
+  fastHighlightStartSec: 0.1,
   expandScale: 0.06, // mirrors CORRECT_SCALE in ChoiceChip
   greyedOpacity: 0.35, // mirrors ChoiceChip `greyed`
   greyedSaturate: 0.2, // mirrors ChoiceChip `greyed`
@@ -95,10 +97,12 @@ export const optionStateAt = (item: Item, frame: number, mode: RevealMode): Opti
 
     if (correct) {
       const p = (t - expandStartSec(mode)) / REVEAL.expandSec;
-      const highlightFrom = Math.max(holdSec + elimSec(mode), expandStartSec(mode) - REVEAL.highlightSec);
-      const highlight = smooth((t - highlightFrom) / REVEAL.highlightSec);
+      // fast: the colour fade starts 0.1 s into the wrong options' fade and overlaps the pop (iOS-style, one fluid motion)
+      const hlSec = mode === 'fast' ? REVEAL.fastHighlightSec : REVEAL.highlightSec;
+      const highlightFrom = mode === 'fast' ? holdSec + REVEAL.fastHighlightStartSec : Math.max(holdSec + elimSec(mode), expandStartSec(mode) - REVEAL.highlightSec);
+      const highlight = smooth((t - highlightFrom) / hlSec);
       if (p <= 0) return { ...idle, phase: 'idle', highlight };
-      const expand = springAt(frame, expandStartTick, 'smooth');
+      const expand = springAt(frame, expandStartTick, 'pop');
       return {
         ...idle,
         phase: p < 1 - EPS ? 'expanding' : 'correct',
@@ -158,20 +162,15 @@ export const RevealEngine: React.FC<RevealEngineProps> = ({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: u(gap) }}>
       {states.map((s) => (
-        <div
-          key={s.index}
-          style={{
-            opacity: s.phase === 'eliminating' ? s.opacity : undefined,
-            filter: s.phase === 'eliminating' ? `saturate(${s.saturate})` : undefined,
-          }}
-        >
+        <div key={s.index}>
           <ChoiceChip
             index={s.index}
             text={s.text}
-            state={s.chipState}
+            state={s.chipState === 'greyed' ? 'idle' : s.chipState}
+            grey={s.phase === 'eliminated' ? 1 : s.phase === 'eliminating' ? s.elim : 0}
             frame={frame}
             at={enterAt}
-            stateAt={s.chipState === 'idle' ? undefined : from + s.stateAt}
+            stateAt={s.chipState === 'idle' || s.chipState === 'greyed' ? undefined : from + s.stateAt}
             highlight={s.highlight}
             level={level}
             width={width}

@@ -80,7 +80,7 @@ export const scoreCardLevel = (item: Item): Level | undefined =>
  * the end of the elimination and `revealClipLeadSec` after the clip starts. */
 export const revealGapSec = 0.15; // full: start-to-start gap between wrong options (their grey-outs overlap)
 export const revealGreySec = 0.3; // full: one option's grey-out length
-export const revealFadeSec = 0.3; // fast: all three wrong options together
+export const revealFadeSec = 0.5; // fast: all three wrong options together
 export const revealExpandSec = 0.4; // the correct option's expand
 export const revealClipLeadSec = 0.6; // the correct option expands no earlier than this after the reveal clip starts
 /** Elimination length after the hold. */

@@ -1,4 +1,6 @@
 import { localPhases } from './components';
+import { expandStartTick } from './components/RevealEngine';
+import { isFullReveal, secToTicks, holdSec } from './timing';
 import { cue } from './sfx';
 import type { SfxCue } from './sfx';
 import { controlCenterCues } from './scenes/looks/ControlCenterLook';
@@ -13,6 +15,18 @@ import { outroCues } from './scenes/Outro';
 import { scoreboardCues } from './scenes/Scoreboard';
 import { part3NoBanner, part3Plan, part3ReplayBeats } from './parts/Part3';
 import type { Item } from './data';
+
+/**
+ * Easy / medium (fast) reveal: a soft breath while the wrong options fade, a glass ding with a low tap on the pop.
+ * Local ticks of the item. The breath starts 4 ticks after the fade (the reveal voice clip starts on the same tick, and
+ * a cue within 3 ticks of a voice start would be moved 0.2 s later); the ding is on the first tick of the pop.
+ * The control-center look flips its tiles instead (own cue), full-reveal items keep their silent elimination.
+ */
+const fastRevealCues = (item: Item): SfxCue[] => {
+  if (item.look === 'controlCenter' || isFullReveal(item)) return [];
+  const hold = localPhases(item).hold.from;
+  return [cue('reveal-fade', hold + secToTicks(holdSec) + 4), cue('reveal-pop', expandStartTick(hold, 'fast'))];
+};
 
 /**
  * Sound cues per part, absolute design ticks from the start of that part (30 per second).
@@ -30,8 +44,9 @@ const cuesOf = (plan: Placed[], noBanner: (item: Item) => boolean = () => false)
         return levelCardCues(seg.level, at);
       case 'item': {
         const own = seg.item.look === 'controlCenter' ? controlCenterCues(localPhases(seg.item)).map((c) => ({ ...c, frame: c.frame + at })) : [];
+        const reveal = fastRevealCues(seg.item).map((c) => ({ ...c, frame: c.frame + at }));
         const banner = nextRound(seg.item) && !noBanner(seg.item) ? [cue('notification', bannerStart(plan[i]))] : [];
-        return [...own, ...banner];
+        return [...own, ...reveal, ...banner];
       }
       case 'scoreCard':
         return scoreCardCues(at);

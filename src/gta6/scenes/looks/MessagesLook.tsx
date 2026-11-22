@@ -79,20 +79,15 @@ export const MessagesLook: React.FC<MessagesLookProps> = ({ item, phase, localFr
               {states.map((s) => {
                 const tremble = trembling && s.chipState === 'idle';
                 return (
-                  <div
-                    key={s.index}
-                    style={{
-                      opacity: s.phase === 'eliminating' ? s.opacity : undefined,
-                      filter: s.phase === 'eliminating' ? `saturate(${s.saturate})` : undefined,
-                    }}
-                  >
+                  <div key={s.index}>
                     <ChoiceChip
                       index={s.index}
                       text={s.text}
-                      state={tremble ? 'tremble' : s.chipState}
+                      state={tremble ? 'tremble' : s.chipState === 'greyed' ? 'idle' : s.chipState}
+                      grey={s.phase === 'eliminated' ? 1 : s.phase === 'eliminating' ? s.elim : 0}
                       frame={localFrame}
                       at={chipsAt + s.index * stagger}
-                      stateAt={tremble ? trembleAt : s.chipState === 'idle' ? undefined : revealFrom + s.stateAt}
+                      stateAt={tremble ? trembleAt : s.chipState === 'idle' || s.chipState === 'greyed' ? undefined : revealFrom + s.stateAt}
                       highlight={s.highlight}
                       level={GREEN}
                       width={CHIPS.width}

@@ -174,16 +174,37 @@ def build():
     place(b, bell(2093.0, 1.0, 4.5), 0.35)
     place(b, bell(2637.0, 0.9, 4.5) * 0.7, 0.45)
     s["scorecard"] = b
+
+    # reveal-fade (easy reveal, wrong options fading): a soft airy breath that closes down, like an iOS dismiss.
+    # 0.5 s = the fade length (timing.ts revealFadeSec). Very quiet by design (see LEVEL_DB).
+    d = 0.5
+    t = t_axis(d)
+    air = noise_filtered(d, lambda p: 2600 - 1900 * p, q=0.8)
+    s["reveal-fade"] = fade(air * np.sin(np.pi * np.clip(t / d, 0, 1) ** 0.6) ** 2, 0.02, 0.12)
+
+    # reveal-pop (easy reveal, the correct option lights up and pops): glass ding, a soft low body tap on the hit and a
+    # tiny sparkle above. The hit is at t = 0 so the cue sits on the first frame of the pop.
+    b = np.zeros(int(1.0 * SR))
+    place(b, bell(1568.0, 0.9, 5.2, ((1, 1.0), (2.0, 0.18), (3.0, 0.08)), attack=0.002), 0)
+    place(b, bell(2093.0, 0.7, 6.5, ((1, 1.0), (2.0, 0.1)), attack=0.002) * 0.45, 0.05)
+    tt = t_axis(0.12)
+    tap = np.sin(2 * np.pi * (190 - 70 * tt / 0.12).cumsum() / SR) * np.exp(-38 * tt)
+    place(b, fade(tap, 0.002, 0.02) * 0.55, 0)
+    s["reveal-pop"] = b
     return s
 
 
-def normalise(sig):
+# Per-sound level trim in dB on top of the shared loudness target (the reveal sounds sit under the voice).
+LEVEL_DB = {"reveal-fade": -10.0, "reveal-pop": -2.0}
+
+
+def normalise(sig, trim_db=0.0):
     sig = sig - np.mean(sig)
     peak = np.max(np.abs(sig)) + 1e-12
     rms = np.sqrt(np.mean(sig ** 2)) + 1e-12
     g_peak = 10 ** (PEAK_DB / 20) / peak
     g_rms = 10 ** (TARGET_RMS_DB / 20) / rms
-    return sig * min(g_peak, g_rms)
+    return sig * min(g_peak, g_rms) * 10 ** (trim_db / 20)
 
 
 def write_wav(path, sig):
@@ -200,7 +221,7 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     manifest = []
     for sid, sig in build().items():
-        sig = normalise(sig)
+        sig = normalise(sig, LEVEL_DB.get(sid, 0.0))
         write_wav(OUT / f"{sid}.wav", sig)
         sec = len(sig) / SR
         manifest.append({

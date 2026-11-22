@@ -12,4 +12,6 @@ export const SFX_IDS = [
   'shake-thud',
   'streak',
   'scorecard',
+  'reveal-fade',
+  'reveal-pop',
 ] as const;
