@@ -87,5 +87,35 @@ Flight arc and speed, the 70 % fill start, the crossfade at the landing (two ove
 ### Open question: the build plays while the shape moves
 `fill` and the half-open build follow `reveal` over the whole flight, so they run while the shape moves and shrinks and may look rushed. Not changed (window kept). Options if the stills confirm it: (a) finish the build in the first third of the window (`sprFit` over `(stamp - revealStart) / 3`, flight unchanged); (b) build mostly before take-off by starting the build slightly earlier inside the existing clock / hold slack; (c) delay the take-off by a few ticks inside the same window and shorten the flight.
 
+## Timer restyle (base `f9571db`, steps 2-12; step 1 was already on the branch)
+Premium, iOS timer: a big calm digit, a glass disc, a smooth arc with a soft head, restrained alert behaviour. No neon, no gold, no new font.
+
+1. **Digit is the hero** (already committed before this round): 0.40 of the ring, `COLOR.text.primary`, bold, tabular-nums, fixed centred box.
+2. **iOS digit change** (`TimerRing`): both digits are rendered from the clock frame. The old one rises 12 px and blurs 0 -> `TIMER.digitBlur` 4 px over `exitTicks(settleTicks('quick'))` (70 % of the entrance, iosOut, no bounce); the new one springs in (quick: fade + 12 px rise + scale 0.97 -> 1) from the same tick, so they overlap. The first digit is not animated (the get-ready entrance owns it). Digits 3, 2, 1 use `alertSoft`.
+3. **Glass disc**: `glassPanel` with a full radius, depth `TIMER.discDepth` 0.5, built-in rim light; its edge sits `TIMER.discGap` 12 % of the diameter inside the ring.
+4. **Ring**: stroke 0.013 -> 0.0195 (1.5x), round caps, faint `COLOR.fill` track. The arc is a conic gradient (accent mixed 20 % with white at the start -> full accent at the head) cut to the ring by a mask (no seams). Head dot 1.4x the stroke with two soft glow layers derived from `SOFT_GLOW` (`TIMER.headGlowGain`, `headGlowBlur`); it uses the same angle number as the arc end.
+5. **Continuous sweep**: already true. Arc, gradient and head all derive from the fractional design tick, so they advance 360 / (duration x 2) degrees on every 60 fps output frame (checked numerically for 5, 7, 8 and 10 s). Comment only.
+6. **Last 3 seconds**: new `COLOR.alertSoft` `#FF7B72` (same hue family as the alert, about 40 degrees from gold). Ring and head cross-fade accent -> alertSoft over `TIMER.alertFade` 6 ticks, no hard red. On each whole second the timer scales to `TIMER.alertPeak` 1.025 (<= `SETTLE.maxPeak`) with `settle()` and is back inside the second; a faint `SOFT_GLOW.far` glow breathes once per second.
+7. **Tick marks**: one hairline tick per second of the clock (length from the plan), inside the ring, round caps, label colour; second k sits where the head is when it ends and dims to 25 % over 6 ticks as the head arrives; thinned above `TIMER.tickMax` 12.
+8. **Get-ready entrance** (`TimerLead`, `TimerRing ready`): the timer springs in (scale 0.9 -> 1, fade, 14 px rise) with the one small settle (1.015). Inside it: disc first, digit +2 ticks, ring +4 ticks, then the arc sweeps round once and is full one tick before `plan.timerStart`. The 14-tick window is unchanged.
+9. **Time up**: one soft highlight sweeps the ring (70 degrees wide, 8 ticks, from 2 ticks before the clock ends, peak alpha `TIMER.flashAlpha` 0.2; the old code had no flash, so this is a new value, not 60 % of an old one). The digit lands on 0 while the whole timer dissolves (opacity 1 -> 0, scale 1.04) over the existing 6-tick window after the clock, so it is exactly 0 on `plan.revealStart`, where the timer unmounts.
+10. **Bonus clocks**: they do not use `TimerRing`; `BonusTimer` (in `BonusMissing.tsx`) is a thin bar with a glass disc at its head. The same rules were applied to it: hero digit with the iOS change, disc 62 -> 84 ref px, gradient along the bar in `COLOR.bonus`, soft alert, disc settle <= 1.025. No ticks, sweep, entrance or time-up flash were added there; its appear / leave timing is as before.
+11. **Sound**: left alone. I cannot listen here, so I did not touch `SFX_TRIM_DB` (tick and tick-low stay at -3 dB). No cue was added or moved.
+
+### Verified (scripts, git, arithmetic)
+- `tsc`: no new errors; QA 14 / 14 after every step; every step committed and pushed.
+- `git diff f9571db..HEAD --stat` shows only `src/states/**` (`TimerRing`, `TimerLead`, `look.ts`, `StateRound` (one prop), `BonusMissing`); no shared file, no `state-timing.ts`, no `state-sound.ts`.
+- Timing unchanged: QA 4 (28597 ticks), QA 12 (876 cues + 119 clips, timing hash `1c5226973f`) are identical before and after.
+- Sweep: 360 / (duration x 2) degrees per output frame for 5 / 7 / 8 / 10 s clocks.
+
+### NOT checked
+- **No stills, nothing looked at** (no browser here). Not seen in a render: the digit transition, the conic arc and its mask, the head dot, the tick positions, the flash, the dissolve, the bonus bar.
+- Conic gradient + mask rendering in the Remotion Chromium is assumed to work; a seam or a wrong start angle would only show in a frame.
+- Disc and digit contrast over the real backdrops rests on QA 11 (token contrast); the disc itself was not measured.
+- The bonus disc is larger (84 ref px) and was not checked against the chips or the prompt above it.
+
+### Needs a human eye
+Digit transition feel (speed, blur), head dot glow, alert colour (`alertSoft` vs the old red), tick marks (visible but not busy), flash strength (`TIMER.flashAlpha`), the dissolve at the reveal, the 3-second pulse (1.025), the get-ready stagger, and the bigger bonus disc.
+
 ## Knobs
 `motion.ts` (springs, durations, stagger), `look.ts` (glass, radius, glow, colour, type, plus round two: `BADGE`, `TIMER`, `MAP`, `RIM`, `CORNERS`, `BLOBS`, `LIST`, `ICON`, `VOICE`, `HAIRLINE`), `StateAtmosphere.tsx` (`ATMOS`, `GRAIN`), `components/StateStage.tsx` (`LAYOUT`: `timer`, `ringGap`, `groupShift`, `miniClear`), `scenes/StateRound.tsx` (`REVEAL`), `state-sound.ts` (trims, ducking, fades), `motion.ts` `FLIGHT` (hero move).
