@@ -141,7 +141,9 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
   const bigW = WIDTH - 2 * SAFE_X - WIDTH * REVEAL.cardW - px(REVEAL.gap);
   const big = { x: WIDTH - SAFE_X - bigW, y: L.shape.y + L.shape.h / 2 - miniMapHeight(bigW) / 2, w: bigW };
   const mapIn = sprFit(f, plan.revealStart, plan.stamp - plan.revealStart, 'normal');
-  const mapOut = sprFit(f, flyAt, flyDur, 'normal');
+  // the exit window is short (14 ticks), so the spring is fitted to end ON the last frame of the round (flyDur - 1 ticks):
+  // the answer map is then exactly the corner map the next wipe / round draws, with no last-frame jump of about 1% (10 px)
+  const mapOut = sprFit(f, flyAt, flyDur - 1, 'normal');
   const mapK = mapIn * (1 - mapOut);
   const answerMap = { x: mix(L.miniMap.x, big.x, mapK), y: mix(L.miniMap.y, big.y, mapK), w: mix(L.miniMap.w, big.w, mapK) };
 
