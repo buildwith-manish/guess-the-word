@@ -241,7 +241,10 @@ jobs:
         if: steps.have.outputs.have != 'true'
         run: |
           mkdir -p out/audio
-          npx remotion render src/index.ts "${{ needs.plan.outputs.comp }}" out/audio/audio.aac $AUDIO_FLAGS
+          # remotion.config.ts sets a CRF, which Remotion rejects for an audio codec, so this job uses the slim audio config
+          # (the same one render-pixel.yml uses)
+          npx remotion render src/index.ts "${{ needs.plan.outputs.comp }}" out/audio/audio.aac \
+            --config=remotion.audio.config.ts $AUDIO_FLAGS
           ls -la out/audio
 
       - name: Save the audio
