@@ -10,7 +10,7 @@
  *   A-hero  one giant state, "?" badge, 50/50 ribbon   (main)
  *   B-grid  eight tiles of shapes, "GUESS 50 STATES"    (quantity hook)
  *   C-map   the whole map with one state lit, "?"       (alternate)
- *   D-clean one banner + one claim, big shape, arrow     (v2 of A: no repeated title, less text)
+ *   D-clean one banner (GUESS THE US STATE) + one claim, big shape, arrow  (v2 of A: less text)
  *   E-warm  D-clean on a warm purple-to-orange backdrop  (same layout, colours only)
  *
  * Title these are made for: "Guess the US State by Its Shape | Can You Get 50/50?"
@@ -162,6 +162,9 @@ const C_MAP = () => {
 // inside it) and the brief asks for 24 px or more clear of the frame.
 const SAFE = 44;
 
+/** D / E banner, two lines (the column beside the shape is too narrow for one line). One-word alternative: ['GUESS THE', 'STATE']. */
+const CLEAN_BANNER = ['GUESS THE', 'US STATE'];
+
 /** Where a state outline goes: `target` = size in px of its larger visible side (outline included), `left` = left edge
  *  of that visible box, `cy` = vertical centre. The 1000-unit shape box is scaled so the navy outline (60 units wide, 30 each side) fits. */
 const NAVY_STROKE = 60;
@@ -202,17 +205,17 @@ const clean = (theme) => {
   const pl = placeShape('Michigan', 560, SAFE + 12, 360);
   const colLeft = pl.right + 40;
   const tipX = pl.right + 16;
-  const tipY = pl.top + 0.66 * pl.visH; // the lower peninsula's east edge, the widest part of the outline
+  const tipY = pl.top + 0.74 * pl.visH; // the lower peninsula's east edge, the widest part of the outline
   const ribbonRight = 74;
   return shell(
     `
   ${cleanShape(pl, theme.fill, theme.glow, 'gg2')}
-  <div class="banner stroke" data-safe="banner" style="left:${colLeft}px; right:${SAFE + 8}px; top:${SAFE + 4}px; font-size:156px;">NAME IT!</div>
-  <div class="q" style="width:136px; height:136px; left:${colLeft + 34}px; top:208px; font-size:120px; transform: rotate(9deg);" data-safe="badge">?</div>
+  <div class="banner stroke" data-safe="banner" style="left:${colLeft}px; right:${SAFE + 8}px; top:${SAFE + 2}px; font-size:114px; -webkit-text-stroke: 10px ${C.navy};">${CLEAN_BANNER.join('<br>')}</div>
+  <div class="q" style="width:128px; height:128px; left:${colLeft + 40}px; top:290px; font-size:112px; transform: rotate(9deg);" data-safe="badge">?</div>
   ${arrow(tipX, tipY + 6, 270, -4)}
-  <div class="ribbon" data-safe="ribbon" style="right:${ribbonRight}px; top:${tipY - 74}px; transform: rotate(-4deg); text-align:center;">
-    <span class="stroke" style="font-size:66px; padding:10px 34px 0; -webkit-text-stroke: 8px ${C.navy};">CAN YOU GET</span>
-    <span class="stroke" style="font-size:118px; padding:0 34px 12px; -webkit-text-stroke: 10px ${C.navy};">50/50?</span>
+  <div class="ribbon" data-safe="ribbon" style="right:${ribbonRight}px; top:${tipY - 66}px; transform: rotate(-4deg); text-align:center;">
+    <span class="stroke" style="font-size:58px; padding:8px 30px 0; -webkit-text-stroke: 7px ${C.navy};">CAN YOU GET</span>
+    <span class="stroke" style="font-size:104px; padding:0 30px 10px; -webkit-text-stroke: 9px ${C.navy};">50/50?</span>
   </div>
 `,
     theme.css,
