@@ -1,6 +1,7 @@
 name: Render video (120 chunks)
 
-# Renders one composition as N frame-range chunks in parallel (video only), renders the audio once, saves every
+# Renders one composition as N frame-range chunks in parallel (video only), renders the audio as M parallel WAV pieces
+# (joined sample-exactly, encoded to AAC once), saves every
 # chunk as an artifact BEFORE merging, merges everything into one mp4, then deletes the chunk artifacts.
 # The same file lives on both branches and picks the composition from the branch / tag name:
 #   us-states      -> GuessTheState
@@ -24,6 +25,10 @@ on:
         description: 'Number of chunks (parallel jobs)'
         required: false
         default: '120'
+      audio_chunks:
+        description: 'Number of audio pieces (parallel jobs). 1 = one single audio render'
+        required: false
+        default: '30'
       resume_from_run:
         description: 'Run id of an earlier run whose chunk / audio artifacts should be reused'
         required: false
@@ -39,7 +44,7 @@ env:
   # 2560x1440 @ 60 fps come from the composition itself. Upload-quality encode: PNG frames, H.264, CRF 16,
   # x264 preset medium, yuv420p (what YouTube wants), BT.709, 4 browser tabs per job.
   VIDEO_FLAGS: --codec=h264 --image-format=png --pixel-format=yuv420p --color-space=bt709 --crf=16 --x264-preset=medium --concurrency=4 --log=error
-  AUDIO_FLAGS: --codec=aac --audio-bitrate=320k --log=error
+  AUDIO_FLAGS: --codec=wav --log=error
 
 jobs:
   # --------------------------------------------------------------------------------------------
@@ -51,6 +56,9 @@ jobs:
       per: ${{ steps.plan.outputs.per }}
       count: ${{ steps.plan.outputs.count }}
       chunks: ${{ steps.plan.outputs.chunks }}
+      aper: ${{ steps.plan.outputs.aper }}
+      acount: ${{ steps.plan.outputs.acount }}
+      achunks: ${{ steps.plan.outputs.achunks }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -66,6 +74,7 @@ jobs:
         env:
           IN_COMP: ${{ inputs.composition }}
           IN_CHUNKS: ${{ inputs.chunks }}
+          IN_ACHUNKS: ${{ inputs.audio_chunks }}
           REF: ${{ github.ref_name }}
         run: |
           COMP="$IN_COMP"
@@ -115,7 +124,14 @@ jobs:
           PER=$(( (TOTAL + CHUNKS - 1) / CHUNKS ))
           COUNT=$(( (TOTAL + PER - 1) / PER ))
           LIST=$(python3 -c "import json; print(json.dumps(list(range(1, $COUNT + 1))))")
+          ACH="${IN_ACHUNKS:-30}"
+          APER=$(( (TOTAL + ACH - 1) / ACH ))
+          ACOUNT=$(( (TOTAL + APER - 1) / APER ))
+          ALIST=$(python3 -c "import json; print(json.dumps(list(range(1, $ACOUNT + 1))))")
           {
+            echo "aper=$APER"
+            echo "acount=$ACOUNT"
+            echo "achunks=$ALIST"
             echo "comp=$COMP"
             echo "total=$TOTAL"
             echo "per=$PER"
@@ -205,24 +221,34 @@ jobs:
     needs: plan
     runs-on: ubuntu-latest
     timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      max-parallel: 39
+      matrix:
+        piece: ${{ fromJSON(needs.plan.outputs.achunks) }}
     steps:
-      - name: Try the audio from the earlier run
+      - name: Piece name
+        id: n
+        run: echo "n=$(printf '%03d' ${{ matrix.piece }})" >> "$GITHUB_OUTPUT"
+
+      - name: Try the audio piece from the earlier run
         if: ${{ inputs.resume_from_run != '' }}
         uses: actions/download-artifact@v4
         with:
-          name: audio
+          name: audio-${{ steps.n.outputs.n }}
           path: out/audio
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ inputs.resume_from_run }}
         continue-on-error: true
 
-      - name: Is the audio already there?
+      - name: Is the piece already there?
         id: have
         run: |
-          if [ -f out/audio/audio.aac ] && [ "$(stat -c%s out/audio/audio.aac)" -gt 10000 ]; then
-            echo "have=true" >> "$GITHUB_OUTPUT"
+          F="out/audio/a-${{ steps.n.outputs.n }}.wav"
+          if [ -f "$F" ] && [ "$(stat -c%s "$F")" -gt 1000 ]; then
+            echo "have=true" >> "$GITHUB_OUTPUT"; echo "Reusing $F"
           else
-            echo "have=false" >> "$GITHUB_OUTPUT"
+            rm -f "$F"; echo "have=false" >> "$GITHUB_OUTPUT"
           fi
 
       - uses: actions/checkout@v4
@@ -237,21 +263,28 @@ jobs:
       - name: Install dependencies
         if: steps.have.outputs.have != 'true'
         run: npm install --no-audit --no-fund
-      - name: Render the audio track
+      - name: Render the audio piece (WAV, exact frame range)
         if: steps.have.outputs.have != 'true'
         run: |
+          TOTAL=${{ needs.plan.outputs.total }}
+          PER=${{ needs.plan.outputs.aper }}
+          START=$(( (${{ matrix.piece }} - 1) * PER ))
+          END=$(( START + PER - 1 ))
+          if [ $END -ge $TOTAL ]; then END=$(( TOTAL - 1 )); fi
           mkdir -p out/audio
+          echo "audio piece ${{ matrix.piece }}: frames $START-$END of $TOTAL"
           # remotion.config.ts sets a CRF, which Remotion rejects for an audio codec, so this job uses the slim audio config
-          # (the same one render-pixel.yml uses)
-          npx remotion render src/index.ts "${{ needs.plan.outputs.comp }}" out/audio/audio.aac \
-            --config=remotion.audio.config.ts $AUDIO_FLAGS
+          npx remotion render src/index.ts "${{ needs.plan.outputs.comp }}" \
+            "out/audio/a-${{ steps.n.outputs.n }}.wav" \
+            --frames=$START-$END --config=remotion.audio.config.ts $AUDIO_FLAGS
           ls -la out/audio
 
-      - name: Save the audio
+      # saved BEFORE the merge, like the video chunks
+      - name: Save the audio piece
         uses: actions/upload-artifact@v4
         with:
-          name: audio
-          path: out/audio/audio.aac
+          name: audio-${{ steps.n.outputs.n }}
+          path: out/audio/a-${{ steps.n.outputs.n }}.wav
           retention-days: 7
           compression-level: 0
           overwrite: true
@@ -270,11 +303,12 @@ jobs:
           path: parts
           pattern: chunk-*
           merge-multiple: true
-      - name: Download the audio
+      - name: Download the audio pieces
         uses: actions/download-artifact@v4
         with:
-          name: audio
           path: parts
+          pattern: audio-*
+          merge-multiple: true
 
       - name: Check that nothing is missing
         run: |
@@ -284,7 +318,10 @@ jobs:
             F=$(printf 'parts/chunk-%03d.mp4' "$i")
             if [ ! -f "$F" ]; then echo "MISSING $F"; MISSING=$((MISSING + 1)); fi
           done
-          [ -f parts/audio.aac ] || { echo "MISSING parts/audio.aac"; MISSING=$((MISSING + 1)); }
+          for i in $(seq 1 "${{ needs.plan.outputs.acount }}"); do
+            F=$(printf 'parts/a-%03d.wav' "$i")
+            if [ ! -f "$F" ]; then echo "MISSING $F"; MISSING=$((MISSING + 1)); fi
+          done
           if [ "$MISSING" -ne 0 ]; then echo "$MISSING part(s) missing: re-run the failed jobs, nothing has been deleted"; exit 1; fi
 
       - name: Join the video chunks (no re-encode)
@@ -296,6 +333,28 @@ jobs:
           FRAMES=$(ffprobe -v error -select_streams v:0 -count_packets -show_entries stream=nb_read_packets -of csv=p=0 video.mp4)
           echo "joined frames: $FRAMES, expected ${{ needs.plan.outputs.total }}"
           [ "$FRAMES" = "${{ needs.plan.outputs.total }}" ] || { echo "frame count mismatch"; exit 1; }
+
+      # the WAV pieces are cut on whole frames (48000 / 60 = 800 samples each), so joining them is sample-exact;
+      # the AAC encode happens once on the joined track, so no encoder gaps appear where pieces meet
+      - name: Join the audio pieces and encode AAC once
+        run: |
+          COUNT=${{ needs.plan.outputs.acount }}
+          : > alist.txt
+          for i in $(seq 1 "$COUNT"); do printf "file 'parts/a-%03d.wav'\n" "$i" >> alist.txt; done
+          ffmpeg -y -v error -f concat -safe 0 -i alist.txt -c copy joined.wav
+          python3 - "${{ needs.plan.outputs.total }}" <<'PY'
+          import sys, wave
+          total = int(sys.argv[1])
+          w = wave.open('joined.wav')
+          rate, n = w.getframerate(), w.getnframes()
+          want = total * rate // 60
+          print(f"joined wav: {n} samples at {rate} Hz, expected {want}")
+          if rate % 60 or n != want:
+              print("::error title=audio sample count wrong::joined wav has %d samples, expected %d. Nothing was deleted." % (n, want))
+              sys.exit(1)
+          PY
+          ffmpeg -y -v error -i joined.wav -c:a aac -b:a 320k parts/audio.aac
+          ls -la parts/audio.aac
 
       - name: Add the audio (no re-encode)
         run: |
@@ -340,7 +399,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh api --paginate "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" \
-            --jq '.artifacts[] | select(.name | test("^(chunk-|audio$)")) | .id' |
+            --jq '.artifacts[] | select(.name | test("^(chunk-|audio-)")) | .id' |
           while read -r ID; do
             echo "deleting artifact $ID"
             gh api -X DELETE "repos/${{ github.repository }}/actions/artifacts/$ID"

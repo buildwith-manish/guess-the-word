@@ -1,0 +1,73 @@
+name: Audio split test
+
+# Proves that rendering the audio in pieces gives the SAME samples as one single render.
+# For each test range: render it once (reference) and as two pieces cut in the middle, join the pieces,
+# and compare sample by sample. Start it by pushing a tag:  git tag audiotest-1 && git push origin audiotest-1
+on:
+  workflow_dispatch:
+    inputs:
+      composition:
+        description: 'Composition id'
+        required: false
+        default: 'GuessTheState'
+  push:
+    tags: ['audiotest-*']
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm install --no-audit --no-fund
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Render reference and pieces, compare
+        env:
+          COMP: ${{ inputs.composition || 'GuessTheState' }}
+        run: |
+          mkdir -p out/t
+          FAIL=0
+          # start mid end  (mid is where the two pieces are cut; ranges are spread over the video)
+          for R in "1200 1500 1799" "9000 9250 9499" "30000 30300 30599" "52000 52200 52399"; do
+            set -- $R; S=$1; M=$2; E=$3
+            echo "=== range $S-$E, cut at $M ==="
+            F="npx remotion render src/index.ts $COMP"
+            C="--config=remotion.audio.config.ts --codec=wav --log=error"
+            $F out/t/ref-$S.wav --frames=$S-$E $C
+            $F out/t/p1-$S.wav  --frames=$S-$((M-1)) $C
+            $F out/t/p2-$S.wav  --frames=$M-$E $C
+            printf "file 'p1-$S.wav'\nfile 'p2-$S.wav'\n" > out/t/l-$S.txt
+            ffmpeg -y -v error -f concat -safe 0 -i out/t/l-$S.txt -c copy out/t/joined-$S.wav
+            python3 - "$S" "$S" <<'PY' || FAIL=1
+          import sys, wave, array
+          s = sys.argv[1]
+          def load(f):
+              w = wave.open(f)
+              assert w.getsampwidth() == 2, 'not 16 bit'
+              return w.getframerate(), w.getnchannels(), array.array('h', w.readframes(w.getnframes()))
+          r1, c1, a = load(f'out/t/ref-{s}.wav')
+          r2, c2, b = load(f'out/t/joined-{s}.wav')
+          rms = (sum(x * x for x in a) / max(1, len(a))) ** 0.5
+          peak = max((abs(x) for x in a), default=0)
+          print(f'rate {r1}/{r2}, channels {c1}/{c2}, samples {len(a)}/{len(b)}, reference RMS {rms:.1f}, peak {peak}')
+          if (r1, c1, len(a)) != (r2, c2, len(b)):
+              print('::error::length/format differs'); sys.exit(1)
+          diff = max((abs(x - y) for x, y in zip(a, b)), default=0)
+          bad = sum(1 for x, y in zip(a, b) if abs(x - y) > 1)
+          print(f'max sample difference {diff}, samples differing by more than 1: {bad}')
+          if bad:
+              print('::error::pieces do not match the single render'); sys.exit(1)
+          if peak == 0:
+              print('::warning::this range is silent, so it proves little')
+          PY
+          done
+          exit $FAIL
