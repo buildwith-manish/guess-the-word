@@ -98,9 +98,15 @@ const CLUE_LINE_HEIGHT = 1.25;
 /** Typed character: ticks to fade up, rise in em. Motion constants. */
 const POP_TICKS = 3;
 const POP_RISE = 0.07; // a small, calm rise
-/** Part of the slide in which the big clue crossfades into its small list row. */
-const XFADE_FROM = 0.25;
-const XFADE_SPAN = 0.5;
+/**
+ * Hand-off from the big clue (two lines in the bar) to its small list row (one line): the two never share the screen
+ * at half strength, because they wrap differently and would read as doubled text. The big clue fades out first, while
+ * it is still sliding; the small row fades in once the big one is almost gone. Both are fractions of the slide.
+ */
+const GHOST_OUT_FROM = 0.1;
+const GHOST_OUT_SPAN = 0.3;
+const ROW_IN_FROM = 0.4;
+const ROW_IN_SPAN = 0.3;
 
 export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTicks, size, at, heading = 'Recent searches', recentCount }) => {
   const frame = useDesignFrame();
@@ -294,8 +300,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
       </div>
 
       {/* Rows: newest on top. Row i sits below one slot for every later search that has landed.
-          The big clue (ghost) shrinks and moves while it crossfades into the small row, so the text
-          never re-wraps mid-slide. */}
+          The big clue (ghost) shrinks and moves while it fades out, then the small row fades in
+          (see GHOST_OUT_* / ROW_IN_*), so the text never re-wraps mid-slide and is never doubled. */}
       {searches.map((s, i) => {
         if (e[i] <= 0) return null;
         let slot = 0;
@@ -304,7 +310,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
         const h = lerp(barH, rowH, e[i]);
         const x = lerp(barTextX, rowTextX, e[i]);
         const settled = clamp01(e[i]);
-        const f = easeOut((e[i] - XFADE_FROM) / XFADE_SPAN);
+        const ghostOut = easeOut((e[i] - GHOST_OUT_FROM) / GHOST_OUT_SPAN);
+        const rowIn = easeOut((e[i] - ROW_IN_FROM) / ROW_IN_SPAN);
         const shrink = lerp(1, rowFont / barFont, e[i]);
         return (
           <div
@@ -334,7 +341,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
                 height: h,
                 display: 'flex',
                 alignItems: 'center',
-                opacity: 1 - f,
+                opacity: 1 - ghostOut,
               }}
             >
               <div
@@ -366,7 +373,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ searches, starts, typeTick
                 whiteSpace: 'pre-wrap',
                 overflowWrap: 'break-word',
                 color: IOS.color.label,
-                opacity: f,
+                opacity: rowIn,
               }}
             >
               {s}
