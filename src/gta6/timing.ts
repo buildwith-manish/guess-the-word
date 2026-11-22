@@ -2,6 +2,7 @@ import { useCurrentFrame } from 'remotion';
 import root from '../../settings.json';
 import { extraIds, items, levels } from './data';
 import type { Item, Level } from './data';
+import { clipTimings } from './timings.generated';
 
 /* ---------- clock (same convention as the other videos) ----------
  * Output is root settings.json (fps 60, 2560x1440). Scenes are authored in 30 fps "design frames"
@@ -29,6 +30,13 @@ export const scoreboardSec = 25;
 export const outroSec = 20;
 /** Script value for the Easy score card line "If you got N or more, you're a real fan". Not derivable from data.ts. */
 export const easyPassMark = 12;
+/** Voiceover-driven timing (used when timings.csv has been built, see below): padding after a clip, in seconds. */
+export const questionPadSec = 0.3;
+/** Options are not read aloud, so viewers need time to read them: the question phase never goes below this. */
+export const questionMinSec = 2.2;
+export const dykPadSec = 0.3;
+/** Level cards, score cards, rank cards and outro lines last their clip plus this. */
+export const cardPadSec = 0.5;
 /** Target runtime in seconds (11:30 to 12:30). */
 export const targetSec = { min: 11 * 60 + 30, max: 12 * 60 + 30 } as const;
 
@@ -65,6 +73,39 @@ export const isFullReveal = (item: Item): boolean => item.level === 'hard' || it
 export const scoreCardLevel = (item: Item): Level | undefined =>
   extraIds(item).some((id) => id.endsWith('ScoreCard')) ? item.level : undefined;
 
+/* ---------- clip durations (src/gta6/timings.csv via timings.generated.ts; build with scripts/build_gta6_timings.py) ----------
+ * Clips are matched by order within their type: question + bonus clips -> items in order, reveal clips -> items in order,
+ * dyk clips -> items with didYouKnow in order, level clips -> Medium, Hard, scorecard clips -> score cards in order,
+ * rank clips -> scoreboard, outro clips -> outro. If anything does not line up, every constant below stays in force. */
+const clipsOf = (...types: string[]): number[] => clipTimings.filter((c) => types.includes(c.type)).map((c) => c.durSec);
+const itemClips = clipsOf('question', 'bonus');
+const revealClips = clipsOf('reveal');
+const dykClips = clipsOf('dyk');
+const levelClips = clipsOf('level');
+const scoreCardClips = clipsOf('scorecard');
+const rankClips = clipsOf('rank');
+const outroClips = clipsOf('outro');
+const sum = (a: number[]): number => a.reduce((x, y) => x + y, 0);
+
+/** True when the measured clips cover this video, so phases are built from them instead of the constants. */
+export const useClipTimings: boolean =
+  clipTimings.length > 0 &&
+  itemClips.length === items.length &&
+  revealClips.length === items.length &&
+  dykClips.length === items.filter((i) => i.didYouKnow).length &&
+  levelClips.length === levels.length - 1 &&
+  scoreCardClips.length === items.filter((i) => scoreCardLevel(i)).length &&
+  rankClips.length > 0 &&
+  outroClips.length > 0;
+
+/** Slot per rank line (clip + cardPadSec) and per outro line, in seconds, in clips order. Empty without clip timings. */
+export const rankSlotSec: number[] = useClipTimings ? rankClips.map((d) => d + cardPadSec) : [];
+export const outroSlotSec: number[] = useClipTimings ? outroClips.map((d) => d + cardPadSec) : [];
+/** Scoreboard length: rank lines back to back. */
+export const scoreboardLenSec: number = useClipTimings ? sum(rankSlotSec) : scoreboardSec;
+/** Outro length: the end screen needs its 15 s, so the outro never goes below `outroSec` even when the three lines are shorter. */
+export const outroLenSec: number = useClipTimings ? Math.max(outroSec, sum(outroSlotSec)) : outroSec;
+
 const buildSegments = (): Segment[] => {
   const out: Segment[] = [];
   let cur = 0;
@@ -76,24 +117,36 @@ const buildSegments = (): Segment[] => {
 
   out.push({ kind: 'hook', ...span(hookSec) });
   let lastLevel: Level | undefined;
-  for (const item of items) {
+  let dykIndex = 0;
+  let scoreCardIndex = 0;
+  items.forEach((item, idx) => {
     if (item.level !== lastLevel) {
-      out.push({ kind: 'levelCard', level: item.level, ...span(levelCardSec) });
+      const li = levels.indexOf(item.level);
+      // the first level (Easy) has no clip: it keeps levelCardSec
+      const sec = useClipTimings && li > 0 ? levelClips[li - 1] + cardPadSec : levelCardSec;
+      out.push({ kind: 'levelCard', level: item.level, ...span(sec) });
       lastLevel = item.level;
     }
     const from = cur;
     const phases = {} as ItemPhases;
     if (item.kind === 'bonus') phases.banner = span(bannerSec);
-    phases.read = span(readSec);
+    phases.read = span(useClipTimings ? Math.max(questionMinSec, itemClips[idx] + questionPadSec) : readSec);
     phases.timer = span(item.timerSec);
     phases.hold = span(holdSec);
-    phases.reveal = span(isFullReveal(item) ? revealFullSec : revealFastSec);
-    if (item.didYouKnow) phases.dyk = span(dykSec);
+    // elimination, then the reveal clip
+    phases.reveal = span((isFullReveal(item) ? revealFullSec : revealFastSec) + (useClipTimings ? revealClips[idx] : 0));
+    if (item.didYouKnow) {
+      phases.dyk = span(useClipTimings ? dykClips[dykIndex] + dykPadSec : dykSec);
+      dykIndex++;
+    }
     out.push({ kind: 'item', item, from, to: cur, phases });
-    if (scoreCardLevel(item)) out.push({ kind: 'scoreCard', level: item.level, after: item, ...span(scoreCardSec) });
-  }
-  out.push({ kind: 'scoreboard', ...span(scoreboardSec) });
-  out.push({ kind: 'outro', ...span(outroSec) });
+    if (scoreCardLevel(item)) {
+      out.push({ kind: 'scoreCard', level: item.level, after: item, ...span(useClipTimings ? scoreCardClips[scoreCardIndex] + cardPadSec : scoreCardSec) });
+      scoreCardIndex++;
+    }
+  });
+  out.push({ kind: 'scoreboard', ...span(scoreboardLenSec) });
+  out.push({ kind: 'outro', ...span(outroLenSec) });
   return out;
 };
 
