@@ -27,7 +27,7 @@ export const ATMOS = {
   /** loop length of the drift in seconds (long: the motion is felt, not seen) */
   loopSeconds: [47, 61] as const,
   /** white glow strength (alpha of the centre) and size (% of the frame) */
-  glow: 0.045,
+  glow: 0,
   glowSize: 58,
   /** hairline grid alpha and cell (ref px); 0 alpha turns it off */
   gridAlpha: 0,

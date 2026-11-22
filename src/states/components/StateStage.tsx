@@ -17,7 +17,6 @@ import { HEIGHT, LEVELS, TOTAL, WIDTH } from '../state-timing';
 import type { Level } from '../states-data';
 import type { Rect } from './MiniMap';
 import { miniMapHeight } from './MiniMap';
-import { StateBackdrop } from './StateBackdrop';
 
 export interface StageSlot {
   /** tick the slot appears (omit = always) */
@@ -153,7 +152,6 @@ export const StateStage: React.FC<StateStageProps> = ({ level, number, total = T
   return (
     <div style={{ position: 'absolute', left: 0, top: 0, width: WIDTH, height: HEIGHT, overflow: 'hidden' }}>
       <IosBackground accent={`color-mix(in srgb, ${cfg.accent} ${100 - BACKDROP_DIM.blackPercent}%, black)`} />
-      <StateBackdrop accent={cfg.accent} />
 
       <SlotBox rect={L.ring} slot={slots.ring} frame={f} />
       <SlotBox rect={L.shape} slot={slots.shape} frame={f} />

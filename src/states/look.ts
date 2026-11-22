@@ -96,9 +96,9 @@ export const SHAPE_HALO = { gain: 0 } as const;
 
 /**
  * Backdrop dimming (iOS pass): the level accent given to the shared IosBackground is mixed with black by this percent, so
- * the two drifting lights stay the same hue but much quieter. 0 = the plain accent.
+ * the two drifting lights stay the same hue but quieter. 0 = the plain accent, as in the search video (now set to 0 to match it).
  */
-export const BACKDROP_DIM = { blackPercent: 55 } as const;
+export const BACKDROP_DIM = { blackPercent: 0 } as const;
 
 /** Mini-map "current state" halo: how much the 900 ms pulse lifts the halo (0 = none). Was 1.0 (halo doubled at the peak). */
 export const MINI_PULSE = { lift: 0.2 } as const;
