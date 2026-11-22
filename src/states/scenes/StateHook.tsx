@@ -21,8 +21,9 @@ import React from 'react';
 import { AbsoluteFill } from 'remotion';
 import { prog, clamp01 } from '../../anim';
 import { px } from '../../style';
-import { IOS, IosBackground, iosSurface } from '../../ios';
+import { IOS, IosBackground } from '../../ios';
 import { enter, iosOut, sprFit } from '../motion';
+import { RADIUS, glassPanel } from '../look';
 import root from '../../../settings.json';
 import { FPS, HEIGHT, LEVELS, TOTAL, WIDTH, voiceIntro } from '../state-timing';
 import { STATES } from '../states-data';
@@ -216,7 +217,7 @@ export const StateHook: React.FC<{ frame: number }> = ({ frame: f }) => {
             {f >= P.rulesAt ? (
               <div
                 style={{
-                  ...iosSurface(px(IOS.radius.xl), 0.6),
+                  ...glassPanel(px(RADIUS.pill), LEVELS[0].accent, 0.4),
                   marginTop: px(26),
                   padding: `${px(10)}px ${px(36)}px`,
                   fontFamily: IOS.font,

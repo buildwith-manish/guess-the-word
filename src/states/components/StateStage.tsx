@@ -9,9 +9,10 @@
  */
 import React from 'react';
 import { useDesignFrame } from '../../clock';
-import { IOS, IosBackground, iosSurface } from '../../ios';
+import { IOS, IosBackground } from '../../ios';
 import { S, SAFE_X, SAFE_Y, px } from '../../style';
 import { enter } from '../motion';
+import { RADIUS, glassPanel } from '../look';
 import { HEIGHT, LEVELS, TOTAL, WIDTH } from '../state-timing';
 import type { Level } from '../states-data';
 import type { Rect } from './MiniMap';
@@ -143,7 +144,7 @@ export const StateStage: React.FC<StateStageProps> = ({ level, number, total = T
 
       <div
         style={{
-          ...iosSurface(px(40), 0.6),
+          ...glassPanel(px(RADIUS.pill), undefined, 0.4),
           position: 'absolute',
           left: S.hudLeft,
           top: S.hudTop,

@@ -34,8 +34,9 @@ import { AbsoluteFill, Audio, Sequence, staticFile } from 'remotion';
 import { useDesignFrame } from '../../clock';
 import { prog, mix } from '../../anim';
 import { S, SAFE_X, SAFE_Y, px } from '../../style';
-import { IOS, iosSurface } from '../../ios';
+import { IOS } from '../../ios';
 import { enter, iosOut, sprFit } from '../motion';
+import { RADIUS, glassPanel } from '../look';
 import { Watermark } from '../../Watermark';
 import { HEIGHT, WIDTH, TIME_SCALE, buildQuestionPlan, LEVELS, QUESTIONS } from '../state-timing';
 import type { StateQuestionPlan } from '../state-timing';
@@ -71,7 +72,7 @@ const StreakBanner: React.FC<{ f: number; plan: StateQuestionPlan }> = ({ f, pla
   return (
     <div
       style={{
-        ...iosSurface(px(30)),
+        ...glassPanel(px(RADIUS.chip), IOS.color.orange),
         position: 'absolute',
         left: S.hudLeft,
         bottom: SAFE_Y,
@@ -94,7 +95,7 @@ const StreakBanner: React.FC<{ f: number; plan: StateQuestionPlan }> = ({ f, pla
 const FastBadge: React.FC = () => (
   <div
     style={{
-      ...iosSurface(px(40), 0.6),
+      ...glassPanel(px(RADIUS.pill), IOS.color.orange, 0.4),
       padding: `${px(10)}px ${px(34)}px`,
       fontFamily: IOS.font,
       fontWeight: IOS.weight.semibold,

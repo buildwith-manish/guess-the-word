@@ -18,8 +18,9 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
 import { SAFE_X, px } from '../../style';
-import { IOS, IosBackground, iosSurface } from '../../ios';
+import { IOS, IosBackground } from '../../ios';
 import { DUR, exitTicks, iosOut, spr, sprFit } from '../motion';
+import { RADIUS, glassPanel } from '../look';
 import { prog, mix } from '../../anim';
 import { linear } from '../../gsap-helpers';
 import { rise } from '../ios-rise';
@@ -208,7 +209,7 @@ export const StateLevelCard: React.FC<{ frame: number; levelIndex: number; durat
         >
           <div
             style={{
-              ...iosSurface(px(IOS.radius.xl)),
+              ...glassPanel(px(RADIUS.card), level.accent),
               padding: px(24),
               width: demoSize,
               height: demoSize,

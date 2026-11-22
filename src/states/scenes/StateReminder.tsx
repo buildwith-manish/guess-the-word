@@ -16,9 +16,10 @@ import { AbsoluteFill } from 'remotion';
 import { Watermark } from '../../Watermark';
 import { Icon } from '../../Icon';
 import { px } from '../../style';
-import { IOS, IosBackground, iosSurface } from '../../ios';
+import { IOS, IosBackground } from '../../ios';
 import { ms } from '../../anim';
 import { iosOut, spr } from '../motion';
+import { RADIUS, glassPanel } from '../look';
 import rootSettings from '../../../settings.json';
 import { BONUS_THEME, HEIGHT, LEVELS } from '../state-timing';
 import type { Segment } from '../types';
@@ -65,7 +66,7 @@ export const StateReminder: React.FC<{ frame: number; seg: ReminderSegment }> = 
           justifyContent: 'center',
           gap: px(22),
           padding: `${px(18)}px ${px(26)}px`,
-          ...iosSurface(px(IOS.radius.xl)),
+          ...glassPanel(px(RADIUS.card)),
           opacity,
           transform: `translateY(${(1 - inP) * px(24)}px) scale(${0.96 + 0.04 * inP})`,
         }}

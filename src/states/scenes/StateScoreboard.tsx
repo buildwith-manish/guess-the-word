@@ -25,8 +25,9 @@ import React from 'react';
 import { AbsoluteFill } from 'remotion';
 import { Rich } from '../../Icon';
 import { px } from '../../style';
-import { IOS, IosBackground, iosSurface } from '../../ios';
+import { IOS, IosBackground } from '../../ios';
 import { spr } from '../motion';
+import { RADIUS, glassPanel } from '../look';
 import { clamp01 } from '../../anim';
 import { rise } from '../ios-rise';
 import settings from '../states-settings.json';
@@ -219,8 +220,7 @@ export const StateScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
                 width: px(L.rowW),
                 height: px(L.rowH),
                 padding: `0 ${px(26)}px`,
-                ...iosSurface(px(IOS.radius.lg), 0.6),
-                background: bright ? IOS.color.fillStrong : IOS.color.fill,
+                ...glassPanel(px(RADIUS.chip), r.color, 0.5),
                 borderColor: bright ? r.color : IOS.color.fillStrong,
                 opacity: Math.min(1, p * 1.4),
                 transform: `translateY(${(1 - p) * px(28)}px)`,

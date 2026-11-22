@@ -27,9 +27,10 @@ import React from 'react';
 import { AbsoluteFill } from 'remotion';
 import { Watermark } from '../../Watermark';
 import { S, px } from '../../style';
-import { IOS, IosBackground, iosSurface } from '../../ios';
+import { IOS, IosBackground } from '../../ios';
 import { prog } from '../../anim';
 import { iosOut } from '../motion';
+import { RADIUS, glassPanel } from '../look';
 import rootSettings from '../../../settings.json';
 import { BONUS_THEME, HEIGHT, LEVELS, QUESTIONS, WIDTH } from '../state-timing';
 import type { Hud, IrisVariant, Segment } from '../types';
@@ -90,7 +91,7 @@ export const StateHudPill: React.FC<{ hud: Hud }> = ({ hud }) => {
   return (
     <div
       style={{
-        ...iosSurface(px(HUD_LOOK.radius), 0.6),
+        ...glassPanel(px(RADIUS.pill), undefined, 0.4),
         position: 'absolute',
         left: S.hudLeft,
         top: S.hudTop,

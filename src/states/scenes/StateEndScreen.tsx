@@ -32,6 +32,7 @@ import { AbsoluteFill } from 'remotion';
 import { px } from '../../style';
 import { IOS, IosBackground, iosSurface } from '../../ios';
 import { spr, stagger } from '../motion';
+import { RADIUS } from '../look';
 import { clamp01 } from '../../anim';
 import { rise } from '../ios-rise';
 import root from '../../../settings.json';
@@ -106,8 +107,8 @@ const Outlines: React.FC<{ frame: number }> = ({ frame }) => {
   };
   return (
     <>
-      <div style={{ ...common(END_SLOTS.videoLeft, 0), ...iosSurface(px(IOS.radius.lg), 0.3), background: 'transparent' }} />
-      <div style={{ ...common(END_SLOTS.videoRight, stagger(2)), ...iosSurface(px(IOS.radius.lg), 0.3), background: 'transparent' }} />
+      <div style={{ ...common(END_SLOTS.videoLeft, 0), ...iosSurface(px(RADIUS.panel), 0.3), background: 'transparent' }} />
+      <div style={{ ...common(END_SLOTS.videoRight, stagger(2)), ...iosSurface(px(RADIUS.panel), 0.3), background: 'transparent' }} />
       <div
         style={{
           ...slotBox(END_SLOTS.subscribe),

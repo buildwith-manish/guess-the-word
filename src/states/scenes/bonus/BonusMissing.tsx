@@ -30,10 +30,11 @@ import React from 'react';
 import { AbsoluteFill } from 'remotion';
 import { Rich } from '../../../Icon';
 import { S, px } from '../../../style';
-import { IOS, IosBackground, iosSurface } from '../../../ios';
+import { IOS, IosBackground } from '../../../ios';
 import { prog, mix, clamp01 } from '../../../anim';
 import { DUR, exitTicks, iosOut, spr, sprFit } from '../../motion';
 import { rise } from '../../ios-rise';
+import { RADIUS, glassPanel } from '../../look';
 import { fitTextSize } from '../../capital-fit';
 import { domMeasure, fallbackMeasure, useFontsReady } from '../../measure-dom';
 import rootSettings from '../../../../settings.json';
@@ -204,7 +205,7 @@ export const BonusBadge: React.FC<{ frame: number; puzzle: BonusPuzzle; at: numb
   return (
     <div
       style={{
-        ...iosSurface(px(40), 0.6),
+        ...glassPanel(px(RADIUS.pill), BONUS_ACCENT, 0.4),
         position: 'absolute',
         left: '50%',
         top: px(BONUS_LAYOUT.badgeTop),
@@ -243,7 +244,7 @@ export const BonusPrompt: React.FC<{ frame: number; text: string; at: number; hi
     >
       <div
         style={{
-          ...iosSurface(px(IOS.radius.lg), 0.6),
+          ...glassPanel(px(RADIUS.chip), undefined, 0.5),
           padding: `${px(10)}px ${px(30)}px`,
           fontFamily: IOS.font,
           fontWeight: IOS.weight.semibold,
@@ -341,7 +342,7 @@ export const BonusOptions: React.FC<{
           <div
             key={i}
             style={{
-              ...iosSurface(px(IOS.radius.lg), 0.5),
+              ...glassPanel(px(RADIUS.chip), undefined, 0.3),
               width: px(L.chipW),
               height: px(L.chipH),
               display: 'flex',
@@ -418,7 +419,7 @@ export const BonusTimer: React.FC<{ frame: number; T: BonusTimes }> = ({ frame, 
       <div style={{ position: 'absolute', left: -px(31) + (1 - clockP) * S.timerWidth, top: px(4), width: px(62), height: px(62) }}>
         <div
           style={{
-            ...iosSurface(px(31), 0.5),
+            ...glassPanel(px(RADIUS.pill), undefined, 0.3),
             width: px(62),
             height: px(62),
             display: 'flex',

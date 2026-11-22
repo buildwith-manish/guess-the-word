@@ -22,8 +22,9 @@
  */
 import React from 'react';
 import { px } from '../../../style';
-import { IOS, iosSurface } from '../../../ios';
+import { IOS } from '../../../ios';
 import { enter, iosOut, settle, sprFit } from '../../motion';
+import { RADIUS, glassPanel } from '../../look';
 import { prog, mix, clamp01 } from '../../../anim';
 import { fitTextSize } from '../../capital-fit';
 import { domMeasure, fallbackMeasure, useFontsReady } from '../../measure-dom';
@@ -181,7 +182,7 @@ const AnswerStamp: React.FC<{ frame: number; puzzle: BonusPuzzle; caption: strin
         </div>
         <div
           style={{
-            ...iosSurface(px(IOS.radius.xl)),
+            ...glassPanel(px(RADIUS.card), accent),
             padding: `${px(8)}px ${px(L.stampPadX)}px`,
             fontWeight: IOS.weight.bold,
             fontSize: fit.size,

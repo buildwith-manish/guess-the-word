@@ -14,8 +14,9 @@
 import React from 'react';
 import { useDesignFrame } from '../../clock';
 import { SAFE_X, SAFE_Y, S, px } from '../../style';
-import { IOS, iosSurface } from '../../ios';
+import { IOS } from '../../ios';
 import { DUR, enter, exitTicks, iosOut, leave, spr, stagger } from '../motion';
+import { RADIUS, glassPanel } from '../look';
 import { VoiceBars } from './VoiceBars';
 import { WIDTH, HEIGHT } from '../state-timing';
 import { getState } from '../states-data';
@@ -136,7 +137,7 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ stateKey, at, accent, bo
     >
       <div
         style={{
-          ...iosSurface(px(LOOK.radius)),
+          ...glassPanel(px(RADIUS.card), accent),
           width: cardW,
           maxHeight: maxH,
           position: 'relative',
