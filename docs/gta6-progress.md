@@ -15,6 +15,7 @@ The task table (docs/gta6-prompts-split.md) is not in the repo on any branch and
   - No render or `remotion still` was run.
 - [x] 3a: `src/gta6/scenes/looks/MessagesLook.tsx` (props = shell ctx subset: `item, phase, localFrame, phases, revealFrom`). Beat lengths (dots 0.8 s, stagger 0.1 s, tremble 2 s, notes-out 0.3 s) are in a local `MESSAGES` const in seconds. No render run.
 - [x] 3e: `src/gta6/scenes/looks/ControlCenterLook.tsx` (props `item, phase, localFrame, phases`). Also exports `MusicPlayerCard`, `ScoreBadge`, `controlCenterCues(phases)` (buzz cue in LOCAL ticks; caller adds the item start), `switchOnAt`, `CONTROL` (beat seconds). Not yet in `components/index.ts` or the context table. No render run. Not wired into any scene or soundtrack yet.
+- [x] 3d: `src/gta6/scenes/looks/SafariLook.tsx` (props = shell ctx subset: `item, phase, localFrame, phases, revealFrom`). Draws its own `island` TimerRing in the shell slot, so mount it with `QuestionShell showTimer={false}`. Hold (`holdSec`, 0.5 s) is the spinner; reveal uses `RevealEngine mode="full"`; result card starts at `revealFrom + expandStartSec('full')`. Motion constants are in a local `SAFARI` const. tsc: no errors in `src/gta6/` (same 3 older errors as before). No render or `remotion still` run.
 
 ## Next step
 Supply the task table (docs/gta6-prompts-split.md) so the remaining task IDs can be added to this checklist. Open points from `docs/gta6-context.md`: 2560x1440 at 60 fps is the repo convention, not 1920x1080.
