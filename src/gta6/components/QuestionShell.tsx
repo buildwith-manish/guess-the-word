@@ -23,7 +23,7 @@
  * Text: question, options, did-you-know and the bonus banner title come from `item`. The spoiler text has no
  * field in data.ts, so it is passed as `labels.spoiler` and the badge is not drawn without it.
  */
-import React from 'react';
+import React, { useContext } from 'react';
 import { AbsoluteFill, Audio, Sequence, staticFile } from 'remotion';
 import { audioOf } from '../audioMap';
 import { byLevel, items } from '../data';
@@ -40,6 +40,7 @@ import { TimerRing } from './TimerRing';
 import { URGENT_SECONDS } from './timerMath';
 import { SpoilerBadge } from './badges';
 import { revealClipTick } from './RevealEngine';
+import { ShellVoiceContext } from '../voiceContext';
 import type { RevealMode } from './RevealEngine';
 
 export type ShellPhase = 'banner' | 'read' | 'timer' | 'hold' | 'reveal' | 'dyk';
@@ -124,8 +125,9 @@ const DYK_TAIL_SEC = 0.2;
 
 /** One voice clip starting at local tick `at` (the item starts at absolute tick `start`). Nothing without a measured clip. */
 const Voice: React.FC<{ id: string; at: number; start: number }> = ({ id, at, start }) => {
+  const own = useContext(ShellVoiceContext); // false inside GTA6-Full: Gta6Audio places every clip
   const sec = clipSec(id);
-  if (sec === undefined) return null;
+  if (!own || sec === undefined) return null;
   return (
     <Sequence from={ticksToFrames(start + at)} durationInFrames={Math.ceil(sec * RENDER_FPS) + 2} layout="none">
       <Audio src={staticFile(clipPath(id))} />
