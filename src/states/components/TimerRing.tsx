@@ -51,20 +51,22 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
   const arc = len * remainingFrac;
 
   const digitPx = size * LOOK.digitSize;
+  // a fixed-size box (full ring width, one line high) with the digit centred in it: the digit never shifts between numbers
   const digitStyle: React.CSSProperties = {
     position: 'absolute',
     left: 0,
     width: size,
-    textAlign: 'center',
+    height: digitPx,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     fontFamily: FONT.sans,
     fontWeight: WEIGHT.strong,
     fontVariantNumeric: 'tabular-nums',
     fontSize: digitPx,
     lineHeight: 1,
     color: digitColor,
-    ...(digits === 'below'
-      ? { top: size + size * LOOK.digitBelowGap }
-      : { top: c - digitPx / 2 }),
+    ...(digits === 'below' ? { top: size + size * LOOK.digitBelowGap } : { top: c - digitPx / 2 }),
   };
 
   return (

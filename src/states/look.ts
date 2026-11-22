@@ -178,7 +178,8 @@ export const BADGE = {
  */
 export const TIMER = {
   stroke: 0.013,
-  digitSize: 0.312,
+  /** round four: digit is the hero, 1.3x the round-two size (0.312 -> 0.40 of the ring diameter) */
+  digitSize: 0.4,
   digitBelowGap: 0.06,
 } as const;
 
