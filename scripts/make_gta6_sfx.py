@@ -88,6 +88,28 @@ def lowpass(sig, cutoff):
     return np.fft.irfft(spec, len(sig))
 
 
+def highpass_noise(n, cutoff=3500):
+    x = rng.standard_normal(n)
+    return x - lowpass(x, cutoff)
+
+
+def studio(sig, tail, hp, room, wet, comp, width=1.0):
+    """Studio chain on a (channels, samples) array: high-pass, optional gentle compression, soft saturation, room reverb, limiter."""
+    from pedalboard import Compressor, Distortion, Gain, HighpassFilter, Limiter, Pedalboard, Reverb
+    x = np.pad(sig, ((0, 0), (0, int(tail * SR)))).astype(np.float32)
+    x = x / (np.max(np.abs(x)) + 1e-9) * 0.7
+    chain = [HighpassFilter(hp)]
+    if comp:
+        chain.append(Compressor(threshold_db=-16, ratio=2.0, attack_ms=2, release_ms=80))
+    chain += [
+        Distortion(drive_db=2.5),  # soft tanh saturation: a touch of warmth
+        Reverb(room_size=room, damping=0.6, wet_level=wet, dry_level=0.9, width=width),
+        Gain(-1.0),
+        Limiter(threshold_db=-1.0),
+    ]
+    return Pedalboard(chain)(x, SR).T.astype(np.float64)  # -> (samples, channels)
+
+
 def build():
     s = {}
 
@@ -175,22 +197,40 @@ def build():
     place(b, bell(2637.0, 0.9, 4.5) * 0.7, 0.45)
     s["scorecard"] = b
 
+    # ---- premium reveal sounds: layered, detuned, stereo, through a small studio chain (needs `pip install pedalboard`) ----
     # reveal-fade (easy reveal, wrong options fading): a soft airy breath that closes down, like an iOS dismiss.
-    # 0.5 s = the fade length (timing.ts revealFadeSec). Very quiet by design (see LEVEL_DB).
+    # 0.5 s = the fade length (timing.ts revealFadeSec) plus a short room tail. Two independent noise channels = natural width.
     d = 0.5
     t = t_axis(d)
-    air = noise_filtered(d, lambda p: 2600 - 1900 * p, q=0.8)
-    s["reveal-fade"] = fade(air * np.sin(np.pi * np.clip(t / d, 0, 1) ** 0.6) ** 2, 0.02, 0.12)
+    env = np.sin(np.pi * np.clip(t / d, 0, 1) ** 0.6) ** 2
+    chans = [fade(noise_filtered(d, lambda p: 2600 - 1900 * p, q=0.8) * env, 0.02, 0.12) for _ in range(2)]
+    air = np.stack(chans)
+    s["reveal-fade"] = studio(air, tail=0.25, hp=180, room=0.3, wet=0.22, comp=False)
 
-    # reveal-pop (easy reveal, the correct option lights up and pops): glass ding, a soft low body tap on the hit and a
-    # tiny sparkle above. The hit is at t = 0 so the cue sits on the first frame of the pop.
-    b = np.zeros(int(1.0 * SR))
-    place(b, bell(1568.0, 0.9, 5.2, ((1, 1.0), (2.0, 0.18), (3.0, 0.08)), attack=0.002), 0)
-    place(b, bell(2093.0, 0.7, 6.5, ((1, 1.0), (2.0, 0.1)), attack=0.002) * 0.45, 0.05)
-    tt = t_axis(0.12)
-    tap = np.sin(2 * np.pi * (190 - 70 * tt / 0.12).cumsum() / SR) * np.exp(-38 * tt)
-    place(b, fade(tap, 0.002, 0.02) * 0.55, 0)
-    s["reveal-pop"] = b
+    # reveal-pop (easy reveal, the correct option lights up and pops). Layers: (1) a glass bell whose partials are
+    # inharmonic and detuned a little differently left and right (slow beating = real glass), (2) a soft warm body,
+    # (3) a 3 ms click for the "touch", (4) a quiet sparkle panned off-centre. The hit is at t = 0 (cue = first tick of the pop).
+    n = int(1.2 * SR)
+    tt = t_axis(1.2)
+    glass_partials = ((1.0, 1.0, 5.0), (2.32, 0.30, 6.5), (4.25, 0.14, 8.0), (6.63, 0.06, 10.0))  # ratio, amp, decay
+
+    def glass(f0, side):
+        out = np.zeros(n)
+        for r, amp, dec in glass_partials:
+            det = side * (0.5 + 0.25 * r)  # Hz: left and right drift apart, so the partials beat slowly
+            out += amp * np.sin(2 * np.pi * (f0 * r + det) * tt) * np.exp(-dec * tt)
+        return out * np.minimum(1, tt / 0.002)
+
+    body_t = t_axis(0.35)
+    body = np.sin(2 * np.pi * np.cumsum(190 - 80 * np.clip(body_t / 0.12, 0, 1)) / SR) * np.exp(-14 * body_t)
+    body = np.pad(body, (0, n - len(body)))
+    click_t = t_axis(0.004)
+    click = np.pad(highpass_noise(len(click_t)) * np.exp(-900 * click_t), (0, n - len(click_t)))
+    spark = np.zeros(n)
+    place(spark, bell(3136.0, 0.6, 7.0, ((1, 1.0), (2.76, 0.15)), attack=0.002), 0.045)
+    L = glass(1568.0, -1) + 0.5 * body + 0.35 * click + 0.22 * spark
+    R = glass(1568.0, +1) + 0.5 * body + 0.35 * click + 0.42 * spark  # sparkle sits slightly right
+    s["reveal-pop"] = studio(np.stack([L, R]), tail=0.0, hp=110, room=0.35, wet=0.2, comp=True, width=0.5)
     return s
 
 
@@ -199,7 +239,7 @@ LEVEL_DB = {"reveal-fade": -10.0, "reveal-pop": -2.0}
 
 
 def normalise(sig, trim_db=0.0):
-    sig = sig - np.mean(sig)
+    sig = sig - np.mean(sig, axis=0)
     peak = np.max(np.abs(sig)) + 1e-12
     rms = np.sqrt(np.mean(sig ** 2)) + 1e-12
     g_peak = 10 ** (PEAK_DB / 20) / peak
@@ -211,7 +251,7 @@ def write_wav(path, sig):
     pcm = np.clip(sig, -1, 1)
     pcm = (pcm * 32767).astype("<i2")
     with wave.open(str(path), "wb") as w:
-        w.setnchannels(1)
+        w.setnchannels(1 if pcm.ndim == 1 else pcm.shape[1])
         w.setsampwidth(2)
         w.setframerate(SR)
         w.writeframes(pcm.tobytes())
