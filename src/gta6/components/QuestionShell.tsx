@@ -92,7 +92,7 @@ export const SLOTS = {
    *   controlCenter  no ring: the brightness slider is the timer (QuestionScene passes showTimer={false})
    */
   timerBeside: {
-    messages: { left: 1206, centerY: FRAME.h - SAFE.bottom - (4 * 112 + 3 * 16) / 2, size: 240 },
+    messages: { left: 1340, centerY: FRAME.h - SAFE.bottom - (4 * 112 + 3 * 16) / 2, size: 240 },
     maps: { left: FRAME.w - SAFE.x - 824 - 60 - 240, centerY: FRAME.h - SAFE.bottom - 252, size: 240 },
     photos: { left: 1490, centerY: 612, size: 240 },
   },

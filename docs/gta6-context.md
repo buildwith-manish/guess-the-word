@@ -177,6 +177,7 @@ Layout of a question screen (reference units): score counter (`ScoreHud side="le
 - Question cards in the top row start at `SLOTS.questionLeft` (right of the counter): MessagesLook `BUBBLE` and ControlCenterLook `QUESTION` now use it. Maps, Photos and Safari were not changed.
 - Watermark: shared badge from `origin/search-history` (`src/ios/QuizMatrixBadge.tsx`, `badge-motion.ts`, `motion.ts`, `tokens.ts`; their only outside import is `../style`), logo `public/gta6/quiz-matrix-bulb.png`. `src/gta6/components/Watermark.tsx`: `Gta6Watermark`, `Gta6WatermarkCorner` (height 96). Words come from `labels.watermark` (QuestionScene `SHELL_LABELS`). Drawn already settled in every item: the shell clock is local, so a per-video entrance is not possible there.
 - Check by eye: ring on Maps (the route pin can land near it during the hold), Photos and the bonus (ControlCenter) items; the ring against the right edge of the options and the Did-you-know card (timer is gone by then); counter vs the question card on Messages and ControlCenter; Maps, Photos and Safari for anything colliding with the new corners or with the ring beside the options.
+- Messages timer ring: `SLOTS.timerBeside.messages.left` is now 1340 (was 1206), the middle of the free space right of the options (1096 to 1824); `centerY` and `size` (240) unchanged.
 
 ## 10. Scoreboard order (user request)
 
