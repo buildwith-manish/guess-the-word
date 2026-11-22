@@ -55,6 +55,17 @@ export const DUR = {
 /** Soft ease-out for fades and wipes: cubic-bezier(0.22, 1, 0.36, 1). */
 export const IOS_OUT = [0.22, 1, 0.36, 1] as const;
 
+/**
+ * FLIGHT (answer-screen hero move): the stage shape flies into its slot in the growing answer map.
+ *   arc          arc height as a fraction of the travel distance (FlyIn.ARC; 0.25 is the old default)
+ *   fillAt       the map's own piece starts fading to its accent fill at this share (0..1) of the flight
+ *   glowFade     ticks the hint-region glow takes to fade out on the answer map, from plan.revealStart
+ *   outlineIn    ticks the map's `current` outline takes to fade in after the stamp
+ *   settlePeak   scale peak of the landing pulse on the arrived piece (<= SETTLE.maxPeak), settleTicks its length
+ * Every move finishes inside the existing reveal / hold windows; none of these change a duration of the timeline.
+ */
+export const FLIGHT = { arc: 0.25, fillAt: 0.7, glowFade: 6, outlineIn: 4, settlePeak: 1.02, settleTicks: 14 } as const;
+
 /** Largest scale a settle() may reach. */
 export const SETTLE = { maxPeak: 1.03 };
 

@@ -35,7 +35,7 @@ import { useDesignFrame } from '../../clock';
 import { prog, mix } from '../../anim';
 import { S, SAFE_X, SAFE_Y, px } from '../../style';
 import { IOS } from '../../ios';
-import { enter, iosOut, sprFit } from '../motion';
+import { enter, sprFit } from '../motion';
 import {RADIUS, glassPanel, COLOR, FONT, WEIGHT, TYPE } from '../look';
 import { StateWatermark } from '../components/StateWatermark';
 import { HEIGHT, WIDTH, TIME_SCALE, buildQuestionPlan, LEVELS, QUESTIONS } from '../state-timing';
@@ -44,6 +44,7 @@ import { STATES, getState } from '../states-data';
 import settings from '../states-settings.json';
 import { STAGE_LAYOUT, StateStage } from '../components/StateStage';
 import { StateShape } from '../components/StateShape';
+import { FlyIn } from '../components/FlyIn';
 import { StateTitleLockup } from '../components/StateTitleLockup';
 import { TimerLead, timerLeadStart } from '../components/TimerLead';
 import { MiniMap, miniMapHeight } from '../components/MiniMap';
@@ -189,6 +190,26 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
     );
   }
 
+  // hero move: from revealStart to the stamp the stage shape flies into its own slot in the growing answer map. `to` is the
+  // map rect of THIS frame, so the shape lands exactly where the state sits once the map has finished growing (the flight
+  // and the map growth use the same normal spring over the same window, so they end together).
+  const flyTo = { x: answerMap.x, y: answerMap.y, w: answerMap.w, h: miniMapHeight(answerMap.w) };
+  const flyCommon = { stateKey: plan.key, from: L.shape, to: flyTo, at: plan.revealStart, dur: plan.stamp - plan.revealStart, accent: level.accent, rotation, frame: f };
+  const flying =
+    f < plan.revealStart || f >= plan.stamp ? null : q.level === 'EXPERT' ? (
+      // EXPERT: the same blurred-silhouette -> sharp outline cross-fade as on the stage, now on the flying copies
+      <>
+        <div style={{ opacity: draw * (1 - reveal), filter: `blur(${size * tiers.blur.end}px)` }}>
+          <FlyIn {...flyCommon} mode="filled" fill={1} glow={0} />
+        </div>
+        <div style={{ opacity: reveal }}>
+          <FlyIn {...flyCommon} mode="outline" fill={reveal} glow={reveal} />
+        </div>
+      </>
+    ) : (
+      <FlyIn {...flyCommon} mode="outline" progress={shapeProgress} fill={reveal} glow={draw} />
+    );
+
   return (
     <StateStage
       level={level.name}
@@ -197,13 +218,8 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
       slots={{
         // the GUESS THE STATE title stays on screen through the whole question (static, as in the wipes)
         title: { fade: false, children: <StateTitleLockup frame={f} animate={false} /> },
-        // the stage shape fades out as the answer map takes over
-        shape: {
-          children:
-            f < plan.stamp ? (
-              <div style={{ opacity: 1 - iosOut((f - plan.revealStart) / ((plan.stamp - plan.revealStart) * 0.5)) }}>{shapeSlot}</div>
-            ) : null,
-        },
+        // the stage shape stays as it is until revealStart; from that same tick the FlyIn copy (overlay slot) takes over
+        shape: { children: f < plan.revealStart ? shapeSlot : null },
         miniMap: {
           children: (rect) =>
             f < plan.revealStart ? (
@@ -241,6 +257,7 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
                   />
                 </div>
               ) : null}
+              {flying}
               {f >= timerLeadStart(plan.questionVo, plan.readyStart) && f < plan.revealStart ? (
                 <div
                   style={{

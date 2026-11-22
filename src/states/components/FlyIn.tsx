@@ -10,7 +10,7 @@
  */
 import React from 'react';
 import { useDesignFrame } from '../../clock';
-import { sprFit } from '../motion';
+import { FLIGHT, sprFit } from '../motion';
 import { COLORS } from '../../style';
 import { getShape, SHAPE_BOX } from '../geo';
 import { getMiniRect } from './MiniMap';
@@ -37,12 +37,14 @@ export interface FlyInProps {
   /** StateShape fill / glow at take-off (glow fades out during the flight) */
   fill?: number;
   glow?: number;
+  /** outline draw 0..1 (MEDIUM trace); default 1, so existing callers are unchanged */
+  progress?: number;
   /** optional ticks from the parent; default useDesignFrame() */
   frame?: number;
 }
 
-/** Arc height as a fraction of the travel distance. */
-const ARC = 0.25;
+/** Arc height as a fraction of the travel distance (motion.ts FLIGHT.arc). */
+const ARC = FLIGHT.arc;
 
 export const FlyIn: React.FC<FlyInProps> = ({
   stateKey,
@@ -55,6 +57,7 @@ export const FlyIn: React.FC<FlyInProps> = ({
   mode = 'filled',
   fill = 1,
   glow = 1,
+  progress = 1,
   frame,
 }) => {
   const designFrame = useDesignFrame();
@@ -92,7 +95,7 @@ export const FlyIn: React.FC<FlyInProps> = ({
         pointerEvents: 'none',
       }}
     >
-      <StateShape stateKey={stateKey} size={from.w} mode={mode} accent={accent} fill={fill} glow={glow * (1 - p)} rotation={rotation * (1 - p)} />
+      <StateShape stateKey={stateKey} size={from.w} progress={progress} mode={mode} accent={accent} fill={fill} glow={glow * (1 - p)} rotation={rotation * (1 - p)} />
     </div>
   );
 };
