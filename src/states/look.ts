@@ -119,6 +119,8 @@ export const COLOR = {
   bonus: '#FF8A3D',
   /** the clock and ring in the last 3 seconds; the subscribe pill */
   alert: '#FF453A',
+  /** the softer tone the timer ring, head and digit shift to in the last 3 seconds: a lighter alert, same hue family (about 3 degrees, 40 from gold) */
+  alertSoft: '#FF7B72',
   /** the true neighbour on the borders bonus */
   positive: '#30D158',
   /** text on an accent-filled chip (dark) and on the alert pill (white) */
@@ -185,6 +187,13 @@ export const TIMER = {
   headScale: 1.4,
   headGlowGain: 1.75,
   headGlowBlur: 1.2,
+  /** last 3 seconds: ring and head cross-fade to alertSoft over this many ticks; each whole second the timer scales up to alertPeak (<= SETTLE.maxPeak 1.03) and settles back inside the second */
+  alertFade: 6,
+  alertPeak: 1.025,
+  alertSettle: 24,
+  /** the faint outer glow breathes once per second in the last 3: alpha is SOFT_GLOW.far.alpha x this, blur radius in ring diameters */
+  breatheGain: 1.5,
+  breatheBlur: 0.22,
   /** round four: digit is the hero, 1.3x the round-two size (0.312 -> 0.40 of the ring diameter) */
   digitSize: 0.4,
   digitBelowGap: 0.06,

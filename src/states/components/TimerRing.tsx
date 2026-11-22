@@ -10,7 +10,8 @@ import { useDesignFrame } from '../../clock';
 import { IOS } from '../../ios';
 import { FPS } from '../state-timing';
 import { BACKDROP, COLOR, FONT, SOFT_GLOW, TIMER, WEIGHT, glassPanel } from '../look';
-import { enter, exitTicks, leave, settleTicks } from '../motion';
+import { SETTLE, enter, exitTicks, leave, settle, settleTicks } from '../motion';
+import { cssEaseOut, prog } from '../../anim';
 import { px } from '../../style';
 
 export interface TimerRingProps {
@@ -50,8 +51,9 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
   const remainingTicks = Math.max(0, duration - elapsed);
   const remainingFrac = duration > 0 ? remainingTicks / duration : 0;
   const seconds = Math.ceil(remainingTicks / FPS - 1e-6);
-  const red = remainingTicks <= RED_TICKS;
-  const color = red ? COLOR.alert : accent;
+  // last 3 seconds: ring and head cross-fade to the softer alert tone (not a hard switch to red)
+  const alertT = prog(f, from + duration - RED_TICKS, LOOK.alertFade, cssEaseOut);
+  const color = alertT > 0 ? `color-mix(in srgb, ${COLOR.alertSoft} ${alertT * 100}%, ${accent})` : accent;
 
   const stroke = size * LOOK.stroke;
   const r = (size - stroke) / 2;
@@ -67,6 +69,13 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
 
   // glass disc: its edge sits `discGap` of the diameter inside the ring's inner edge (ring inner radius = size / 2 - stroke)
   const discD = size - 2 * stroke - 2 * size * LOOK.discGap;
+
+  // each whole second of the last 3: the whole timer scales up (never above SETTLE.maxPeak) and settles back inside the second
+  const inAlert = seconds >= 1 && seconds * FPS <= RED_TICKS && elapsed < duration;
+  const secStart = from + duration - seconds * FPS;
+  const pulse = inAlert ? settle(f, secStart, LOOK.alertSettle, Math.min(LOOK.alertPeak, SETTLE.maxPeak)) : 1;
+  // faint outer glow, breathes once per second (sin over the second), only in the last 3
+  const breathe = inAlert ? Math.sin(Math.PI * Math.min(1, (f - secStart) / FPS)) : 0;
 
   const digitPx = size * LOOK.digitSize;
   const total = Math.round(duration / FPS);
@@ -90,7 +99,7 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
     lineHeight: 1,
     ...(digits === 'below' ? { top: size + size * LOOK.digitBelowGap } : { top: c - digitPx / 2 }),
   };
-  const colorOf = (d: number) => (d * FPS <= RED_TICKS ? COLOR.alert : COLOR.text.primary);
+  const colorOf = (d: number) => (d * FPS <= RED_TICKS ? COLOR.alertSoft : COLOR.text.primary);
 
   // the digit on screen now: the first one is just there (the entrance is the get-ready step), later ones spring in
   const nowIn = seconds >= total ? null : enter(f, startOf(seconds), 'quick', DIGIT.moveIn, DIGIT.scaleFrom);
@@ -100,7 +109,17 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
   const showPrev = prevLeave !== null && prevLeave.t < 1;
 
   return (
-    <div style={{ position: 'relative', width: size, height: size }}>
+    <div style={{ position: 'relative', width: size, height: size, transform: pulse === 1 ? undefined : `scale(${pulse})` }}>
+      {breathe > 0 && (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            borderRadius: '50%',
+            boxShadow: `0 0 ${size * LOOK.breatheBlur}px color-mix(in srgb, ${COLOR.alertSoft} ${SOFT_GLOW.far.alpha * LOOK.breatheGain * breathe * 100}%, transparent)`,
+          }}
+        />
+      )}
       {digits === 'center' && (
         <div
           style={{
