@@ -88,8 +88,8 @@ def lowpass(sig, cutoff):
     return np.fft.irfft(spec, len(sig))
 
 
-def highpass_noise(n, cutoff=3500):
-    x = rng.standard_normal(n)
+def highpass_noise(n, cutoff=3500, gen=None):
+    x = (gen or rng).standard_normal(n)
     return x - lowpass(x, cutoff)
 
 
@@ -110,30 +110,72 @@ def studio(sig, tail, hp, room, wet, comp, width=1.0):
     return Pedalboard(chain)(x, SR).T.astype(np.float64)  # -> (samples, channels)
 
 
+# Glass-like voice: inharmonic partials (ratio, amp, decay multiplier) that drift apart a little left and right, so the
+# partials beat slowly like real glass. Returns a (2, n) stereo buffer.
+GLASS = ((1.0, 1.0, 1.0), (2.32, 0.30, 1.3), (4.25, 0.14, 1.6), (6.63, 0.06, 2.0))
+
+
+def fade2(sig, a=0.0, r=0.02):
+    return np.stack([fade(ch, a, r) for ch in sig])
+
+
+def glass_st(f0, dur, decay=5.0, amp=1.0, partials=GLASS, drift=0.5):
+    t = t_axis(dur)
+    out = np.zeros((2, len(t)))
+    for ch, side in enumerate((-1, 1)):
+        for r, a, dm in partials:
+            out[ch] += a * np.sin(2 * np.pi * (f0 * r + side * drift * (1 + 0.5 * r)) * t) * np.exp(-decay * dm * t)
+        out[ch] *= np.minimum(1, t / 0.002)
+    return fade2(out * amp)
+
+
+def place2(buf, sig, at):
+    i = int(round(at * SR))
+    n = min(sig.shape[1], buf.shape[1] - i)
+    if n > 0:
+        buf[:, i:i + n] += sig[:, :n]
+
+
+click_rng = np.random.default_rng(66)  # own generator: the clicks must not shift the draws of the other sounds
+
+
+def click2(amp=0.3, dur=0.004):
+    t = t_axis(dur)
+    c = highpass_noise(len(t), gen=click_rng) * np.exp(-900 * t) * amp
+    return np.stack([c, c])
+
+
 def build():
     s = {}
 
-    # chime-easy: soft rising three-note bell
-    b = np.zeros(int(1.1 * SR))
+    # ---- premium level / alert sounds: glass voices, stereo, studio chain (needs `pip install pedalboard`).
+    # Same ids and same hit-at-t=0 as before, so every existing cue (level card launch, banners, score cards) stays in place.
+
+    # chime-easy: soft rising three-note glass chime with a light sparkle on top
+    b = np.zeros((2, int(1.5 * SR)))
     for i, f in enumerate((1046.5, 1318.5, 1568.0)):
-        place(b, bell(f, 0.9, 5.0) * (0.8 + 0.1 * i), i * 0.09)
-    s["chime-easy"] = b
+        place2(b, glass_st(f, 1.2, 4.2, 0.8 + 0.1 * i), i * 0.09)
+    place2(b, glass_st(2093.0, 0.9, 5.5, 0.35), 0.27)
+    s["chime-easy"] = studio(b, tail=0.3, hp=150, room=0.45, wet=0.28, comp=True, width=0.7)
 
-    # ping-medium: system-alert style two-tone ping
-    b = np.zeros(int(0.7 * SR))
-    place(b, bell(880, 0.5, 9.0, ((1, 1), (2, 0.2))), 0)
-    place(b, bell(1174.7, 0.5, 9.0, ((1, 1), (2, 0.2))), 0.12)
-    s["ping-medium"] = b
+    # ping-medium: warmer, woodier two-tone ping (harmonic partials, faster decay), amber to the green chime's glass
+    wood = ((1.0, 1.0, 1.0), (2.0, 0.35, 1.8), (3.0, 0.12, 2.5))
+    b = np.zeros((2, int(1.0 * SR)))
+    place2(b, glass_st(880.0, 0.6, 9.0, 1.0, wood, 0.3), 0)
+    place2(b, glass_st(1174.7, 0.6, 9.0, 0.9, wood, 0.3), 0.12)
+    place2(b, click2(0.25), 0)
+    s["ping-medium"] = studio(b, tail=0.25, hp=150, room=0.25, wet=0.15, comp=True, width=0.6)
 
-    # pulse-hard: timer chime followed by two low pulses
-    b = np.zeros(int(1.3 * SR))
-    place(b, bell(1318.5, 0.6, 7.0), 0)
+    # pulse-hard: dark glass timer chime, then two low pulses with a saturated sub (still audible on phone speakers)
+    b = np.zeros((2, int(1.5 * SR)))
+    place2(b, glass_st(1318.5, 0.8, 7.0, 0.8), 0)
     for at in (0.18, 0.62):
-        t = t_axis(0.4)
+        t = t_axis(0.45)
         f = 55 + 40 * np.exp(-14 * t)
         ph = 2 * np.pi * np.cumsum(f) / SR
-        place(b, fade(np.sin(ph) * np.exp(-7 * t), 0.003, 0.02) * 1.6, at)
-    s["pulse-hard"] = b
+        pulse = fade(np.sin(ph) * np.exp(-7 * t) + 0.35 * np.sin(2 * ph) * np.exp(-10 * t), 0.003, 0.02) * 1.6
+        place2(b, np.stack([pulse, pulse]), at)
+    s["pulse-hard"] = studio(b, tail=0.2, hp=35, room=0.4, wet=0.16, comp=True, width=0.5)
 
     # tick: dry clock tick
     t = t_axis(0.12)
@@ -166,11 +208,15 @@ def build():
     saw = 2 * ((140 * t) % 1) - 1
     s["buzz-small"] = fade(lowpass(saw, 1500) * np.minimum(1, t / 0.01) * np.exp(-4 * t), 0.004, 0.04)
 
-    # notification: glassy two-note
-    b = np.zeros(int(0.9 * SR))
-    place(b, bell(1568.0, 0.6, 8.0, ((1, 1), (3.0, 0.15))), 0)
-    place(b, bell(2093.0, 0.7, 7.0, ((1, 1), (3.0, 0.15))), 0.15)
-    s["notification"] = b
+    # notification: premium glass two-note alert (the most-heard sound in the video: banners, hook, outro asks)
+    b = np.zeros((2, int(1.1 * SR)))
+    place2(b, glass_st(1568.0, 0.7, 7.5, 1.0, GLASS, 0.4), 0)
+    place2(b, glass_st(2093.0, 0.7, 7.0, 0.85, GLASS, 0.4), 0.15)
+    t = t_axis(0.18)
+    warm = np.sin(2 * np.pi * 392.0 * t) * np.exp(-22 * t) * 0.3
+    place2(b, np.stack([warm, warm]), 0)
+    place2(b, click2(0.2), 0)
+    s["notification"] = studio(b, tail=0.3, hp=200, room=0.3, wet=0.2, comp=True, width=0.6)
 
     # shake-thud: low thump plus muffled noise
     d = 0.5
@@ -187,15 +233,19 @@ def build():
         place(b, bell(f, 0.8, 5.5) * (0.7 + 0.07 * i), i * 0.075)
     s["streak"] = b
 
-    # scorecard: swelling major chord with sparkle on top
-    d = 1.8
+    # scorecard: swelling major chord pad (detuned left / right) with glass sparkle on top: the "reward" moment
+    d = 1.9
     t = t_axis(d)
     swell = np.minimum(1, t / 0.35) * np.exp(-1.4 * np.maximum(t - 0.35, 0))
-    chord = sum(np.sin(2 * np.pi * f * t) + 0.2 * np.sin(2 * np.pi * 2 * f * t) for f in (261.6, 329.6, 392.0, 523.3))
-    b = fade(chord * swell * 0.25, 0.01, 0.2)
-    place(b, bell(2093.0, 1.0, 4.5), 0.35)
-    place(b, bell(2637.0, 0.9, 4.5) * 0.7, 0.45)
-    s["scorecard"] = b
+    pad = np.zeros((2, len(t)))
+    for ch, det in enumerate((-0.7, 0.7)):
+        for f in (261.6, 329.6, 392.0, 523.3):
+            pad[ch] += np.sin(2 * np.pi * (f + det) * t) + 0.2 * np.sin(2 * np.pi * (2 * f + 2 * det) * t)
+    b = fade2(pad * swell * 0.25, 0.01, 0.2)
+    place2(b, glass_st(2093.0, 1.2, 4.0, 1.0), 0.35)
+    place2(b, glass_st(2637.0, 1.0, 4.2, 0.7), 0.45)
+    place2(b, glass_st(3136.0, 0.9, 4.6, 0.4), 0.55)
+    s["scorecard"] = studio(b, tail=0.6, hp=90, room=0.5, wet=0.3, comp=True, width=0.8)
 
     # ---- premium reveal sounds: layered, detuned, stereo, through a small studio chain (needs `pip install pedalboard`) ----
     # reveal-fade (easy reveal, wrong options fading): a soft airy breath that closes down, like an iOS dismiss.
@@ -235,7 +285,7 @@ def build():
 
 
 # Per-sound level trim in dB on top of the shared loudness target (the reveal sounds sit under the voice).
-LEVEL_DB = {"reveal-fade": -10.0, "reveal-pop": -2.0}
+LEVEL_DB = {"reveal-fade": -10.0, "reveal-pop": -2.0, "notification": -2.0}
 
 
 def normalise(sig, trim_db=0.0):
