@@ -10,7 +10,7 @@ import { useDesignFrame } from '../../clock';
 import { IOS } from '../../ios';
 import { FPS } from '../state-timing';
 import { BACKDROP, COLOR, FONT, HAIRLINE, SOFT_GLOW, TIMER, WEIGHT, glassPanel } from '../look';
-import { SETTLE, enter, exitTicks, leave, settle, settleTicks } from '../motion';
+import { SETTLE, enter, exitTicks, leave, settle, settleTicks, spr, stagger } from '../motion';
 import { cssEaseOut, prog } from '../../anim';
 import { px } from '../../style';
 
@@ -27,6 +27,8 @@ export interface TimerRingProps {
   digits?: 'center' | 'below' | 'none';
   /** optional ticks from the parent; default useDesignFrame() */
   frame?: number;
+  /** tick the "get ready" entrance starts (before `from`): disc, then digit, then ring (stagger), the arc sweeps round and is full before `from` */
+  ready?: number;
 }
 
 /** Proportions of the ring (fractions of `size`). */
@@ -41,7 +43,7 @@ const RED_TICKS = 3 * FPS;
  */
 const DIGIT = { moveIn: 12, moveOut: 12, blurOut: 4, scaleFrom: 0.97 } as const;
 
-export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, size, digits = 'center', frame }) => {
+export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, size, digits = 'center', frame, ready }) => {
   const designFrame = useDesignFrame();
   const f = frame ?? designFrame;
 
@@ -50,6 +52,16 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
   const elapsed = Math.max(0, Math.min(duration, f - from));
   const remainingTicks = Math.max(0, duration - elapsed);
   const remainingFrac = duration > 0 ? remainingTicks / duration : 0;
+
+  // get-ready entrance (before the clock): disc, then digit, then ring, `stagger` ticks apart; the arc draws round in one smooth
+  // sweep that is full one tick before the clock starts. After `from` all of it is 1, so the clock starts from a finished ring.
+  const rise = (start: number) => (ready === undefined ? 1 : Math.min(1, spr(f, start, 'quick') * 1.4));
+  const discA = rise(ready ?? 0);
+  const digitA = rise((ready ?? 0) + stagger(1));
+  const ringA = rise((ready ?? 0) + stagger(2));
+  const sweepStart = (ready ?? 0) + stagger(2);
+  const sweep = ready === undefined || f >= from ? 1 : prog(f, sweepStart, Math.max(1, from - 1 - sweepStart), cssEaseOut);
+  const shownFrac = Math.min(remainingFrac, sweep);
   const seconds = Math.ceil(remainingTicks / FPS - 1e-6);
   // last 3 seconds: ring and head cross-fade to the softer alert tone (not a hard switch to red)
   const alertT = prog(f, from + duration - RED_TICKS, LOOK.alertFade, cssEaseOut);
@@ -59,9 +71,9 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
   const r = (size - stroke) / 2;
   const c = size / 2;
   const len = 2 * Math.PI * r;
-  const arc = len * remainingFrac;
+  const arc = len * shownFrac;
   // the arc end as an angle clockwise from 12 o'clock; the conic gradient, the head dot and the arc length all use this one number
-  const arcDeg = 360 * remainingFrac;
+  const arcDeg = 360 * shownFrac;
   const arcRad = (arcDeg * Math.PI) / 180;
   const headD = stroke * LOOK.headScale;
   const tint = `color-mix(in srgb, ${color} ${100 - LOOK.arcTint}%, white)`;
@@ -141,11 +153,12 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
             top: c - discD / 2,
             width: discD,
             height: discD,
+            opacity: discA,
             ...glassPanel(discD / 2, undefined, LOOK.discDepth),
           }}
         />
       )}
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible' }}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible', opacity: ringA }}>
         <circle cx={c} cy={c} r={r} fill="none" stroke={COLOR.fill} strokeWidth={stroke} strokeLinecap="round" />
         {ticks.map((t) => (
           <line
@@ -162,7 +175,7 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
         ))}
       </svg>
       {arc > 0 && (
-        <>
+        <div style={{ position: 'absolute', inset: 0, opacity: ringA }}>
           {/* the arc: a conic gradient (tint at the start, full accent at the head) cut to the ring by a mask, so there are no seams */}
           <div
             style={{
@@ -192,7 +205,7 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
               ].join(', '),
             }}
           />
-        </>
+        </div>
       )}
       {digits !== 'none' && showPrev && prevLeave && (
         <div
@@ -208,7 +221,7 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
         </div>
       )}
       {digits !== 'none' && (
-        <div style={{ ...boxStyle, color: colorOf(seconds), ...(nowIn ? { opacity: nowIn.opacity, transform: nowIn.transform } : null) }}>
+        <div style={{ ...boxStyle, color: colorOf(seconds), opacity: nowIn ? nowIn.opacity : digitA, ...(nowIn ? { transform: nowIn.transform } : null) }}>
           {seconds}
         </div>
       )}
