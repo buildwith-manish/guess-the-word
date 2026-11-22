@@ -15,6 +15,7 @@ import { SearchHook } from './scenes/SearchHook';
 import { SearchLevelCard } from './scenes/SearchLevelCard';
 import { SearchReminder } from './scenes/SearchReminder';
 import { SearchIris } from './scenes/SearchIris';
+import { SearchWatermark } from './components/SearchWatermark';
 import { SearchSoundtrack } from './SearchSoundtrack';
 
 /**
@@ -98,10 +99,19 @@ const Scenes: React.FC = () => {
   // hint pair, answer) read the Remotion clock themselves. So each scene sits in a Sequence that starts where it
   // does; without it they read the clock of the whole video and drew every round already finished (timer at 0,
   // all searches typed). ceil = the first frame locate() puts in this scene.
+  // The QUIZ MATRIX watermark sits outside the Sequence on purpose: it reads the clock of the whole video, so its logo
+  // loop and its entrance never restart at a scene change. Shown on the stage scenes (round, reminder, wipes), not on
+  // the hook, cards, bonus, scoreboard or end screen.
+  const showWatermark = seg.kind === 'round' || seg.kind === 'reminder' || seg.kind === 'iris';
+  const watermarkSince = TIMELINE.segments.find((s) => s.kind === 'round' || s.kind === 'reminder' || s.kind === 'iris')?.from ?? 0;
+
   return (
-    <Sequence key={index} from={Math.ceil(seg.from * TIME_SCALE)} layout="none">
-      {scene()}
-    </Sequence>
+    <>
+      <Sequence key={index} from={Math.ceil(seg.from * TIME_SCALE)} layout="none">
+        {scene()}
+      </Sequence>
+      {showWatermark ? <SearchWatermark since={watermarkSince} /> : null}
+    </>
   );
 };
 
