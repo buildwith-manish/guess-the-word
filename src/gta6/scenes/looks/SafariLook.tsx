@@ -17,7 +17,7 @@ import { FPS, holdSec, secToTicks } from '../../timing';
  * Pass `showTimer={false}` to QuestionShell for this look: the island timer is drawn here, in the shell's slot.
  * Reference units 1920x1080 through u(). Frames are local design ticks (30 per second).
  */
-export type SafariLookProps = Pick<ShellContext, 'item' | 'phase' | 'localFrame' | 'phases' | 'revealFrom'>;
+export type SafariLookProps = Pick<ShellContext, 'item' | 'phase' | 'localFrame' | 'phases' | 'revealFrom' | 'dykAt'>;
 
 const ACCENT = colors.hard;
 
@@ -26,6 +26,7 @@ const SAFARI = {
   typeShare: 0.7, // share of the read phase used for typing; the tiles come in after it
   popTicks: 3, // fade-up of one typed character
   tileStagger: 4,
+  swapOutTicks: 6, // result card fade-out before the did-you-know card takes its place
   skeletonTicks: 10, // result card shows grey lines this long, then the text
   skeletonLines: 3,
   spinnerTurnsPerSec: 1.25,
@@ -53,7 +54,7 @@ const Spinner: React.FC<{ s: number; angle: number; opacity: number }> = ({ s, a
   </svg>
 );
 
-export const SafariLook: React.FC<SafariLookProps> = ({ item, localFrame: f, phases, revealFrom }) => {
+export const SafariLook: React.FC<SafariLookProps> = ({ item, localFrame: f, phases, revealFrom, dykAt }) => {
   const q = item.q;
   const readFrom = phases.read.from;
   const readLen = phases.read.to - phases.read.from;
@@ -120,6 +121,9 @@ export const SafariLook: React.FC<SafariLookProps> = ({ item, localFrame: f, pha
   const resultAge = f - resultAt;
   const showText = resultAge >= SAFARI.skeletonTicks;
   const textIn = easeOut((resultAge - SAFARI.skeletonTicks) / SAFARI.fadeTicks);
+  // The did-you-know card takes this card's place (QuestionShell SLOTS.dykByLook.safari): the result card fades out so
+  // that it is gone as the did-you-know card starts to rise in.
+  const resultOut = dykAt === undefined ? 1 : 1 - easeOut((f - (dykAt - SAFARI.swapOutTicks)) / SAFARI.swapOutTicks);
 
   return (
     <div style={{ position: 'absolute', inset: 0 }}>
@@ -249,7 +253,7 @@ export const SafariLook: React.FC<SafariLookProps> = ({ item, localFrame: f, pha
 
       {/* Result card: grey skeleton lines, then the text */}
       {resultAge >= 0 ? (
-        <div style={{ position: 'absolute', left: 0, right: 0, top: u(BOX.cardTop), display: 'flex', justifyContent: 'center' }}>
+        <div style={{ position: 'absolute', left: 0, right: 0, top: u(BOX.cardTop), display: 'flex', justifyContent: 'center', opacity: resultOut }}>
           <FrostCard frame={f} at={resultAt} level="hard" width={BOX.barW} padding={36} radius={radius.lg}>
             <div style={{ ...textStyle('choice'), fontSize: u(40), color: ACCENT, opacity: showText ? textIn : 0, minHeight: u(48) }}>
               {item.options[item.answer]}

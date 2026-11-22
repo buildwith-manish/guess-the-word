@@ -64,6 +64,8 @@ export type ShellContext = {
   revealMode: RevealMode;
   /** Local tick at which the last-3-seconds effects begin. */
   urgentFrom: number;
+  /** Local tick at which the did-you-know card starts (undefined when the item has none). A look that must make room for it reads this. */
+  dykAt?: number;
 };
 
 export type ShellLabels = {
@@ -102,7 +104,7 @@ export const SLOTS = {
   questionLeft: 56 + 334 * 0.8 + 26,
   dyk: { left: FRAME.w - SAFE.x - 640, top: FRAME.h / 2 - 120, width: 640 },
   /**
-   * Did-you-know card where the default `dyk` slot would cover the options (messages and safari keep `dyk`):
+   * Did-you-know card where the default `dyk` slot would cover the options (messages keeps `dyk`):
    *   maps           left of the tile grid, under the route pin
    *   photos         right of the centred photo grid (narrow: the gap is ~400 wide)
    *   controlCenter  top-right band beside the question card (the right column below holds the score badge and slider)
@@ -111,6 +113,9 @@ export const SLOTS = {
     maps: { left: 150, top: 640, width: 640 },
     photos: { left: 1440, top: 470, width: 384 },
     controlCenter: { left: 1380, top: 190, width: 444 },
+    // safari (hard): takes the result card's place, so it never covers the options. Same left / top / width as SafariLook's
+    // result card (BOX.barW 1500 centred, BOX.cardTop 764); the look fades the result card out as this one comes in.
+    safari: { left: (FRAME.w - 1500) / 2, top: 764, width: 1500 },
   },
 } as const;
 
@@ -184,6 +189,13 @@ export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, child
   const urgentFrom = Math.max(phases.timer.from, phases.timer.to - URGENT_SECONDS * FPS);
   const urgentLen = phases.timer.to - urgentFrom;
 
+  const au = audioOf(item);
+  const dykSecLen = clipSec(au.dykId);
+  // card length: the clip plus its tail (the spring-out runs inside the tail); without a measured clip, the dyk phase
+  // clip and card start together, dykLeadSec after the dyk phase starts (without a measured clip: at the phase start)
+  const dykAt = phases.dyk ? phases.dyk.from + (dykSecLen !== undefined ? secToTicks(dykLeadSec) : 0) : 0;
+  const dykTicks = phases.dyk ? (dykSecLen !== undefined ? secToTicks(dykSecLen + DYK_TAIL_SEC) : phases.dyk.to - phases.dyk.from) : 0;
+
   const ctx: ShellContext = {
     item,
     level,
@@ -193,6 +205,7 @@ export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, child
     revealFrom: phases.hold.from,
     revealMode: isFullReveal(item) ? 'full' : 'fast',
     urgentFrom,
+    dykAt: phases.dyk && item.didYouKnow ? dykAt : undefined,
   };
 
   // Edge glow builds from urgentFrom and fades out over the first ticks of the hold/reveal.
@@ -201,14 +214,7 @@ export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, child
   const dykSlot = SLOTS.dykByLook[item.look as keyof typeof SLOTS.dykByLook] ?? SLOTS.dyk;
   const beside = SLOTS.timerBeside[item.look as keyof typeof SLOTS.timerBeside] ?? SLOTS.timerBeside.messages;
 
-  const au = audioOf(item);
   const revealMode = ctx.revealMode;
-  const dykSecLen = clipSec(au.dykId);
-  // card length: the clip plus its tail (the spring-out runs inside the tail); without a measured clip, the dyk phase
-  // clip and card start together, dykLeadSec after the dyk phase starts (without a measured clip: at the phase start)
-  const dykAt = phases.dyk ? phases.dyk.from + (dykSecLen !== undefined ? secToTicks(dykLeadSec) : 0) : 0;
-  const dykTicks = phases.dyk ? (dykSecLen !== undefined ? secToTicks(dykSecLen + DYK_TAIL_SEC) : phases.dyk.to - phases.dyk.from) : 0;
-
   return (
     <AbsoluteFill style={{ background: levelBackground[level], overflow: 'hidden' }}>
       <Shake frame={localFrame} at={urgentFrom} dur={shakeLook ? urgentLen : 0} seed={item.order} style={{ position: 'absolute', inset: 0 }}>
@@ -271,6 +277,7 @@ export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, child
           left={dykSlot.left}
           top={dykSlot.top}
           width={dykSlot.width}
+          swap={item.look === 'safari'}
         />
       ) : null}
 

@@ -27,11 +27,13 @@ export type DidYouKnowCardProps = {
   top: number;
   width?: number;
   label?: string;
+  /** The card takes another card's place (no sideways slide): it rises a little and settles, so it can follow that card's fade-out. */
+  swap?: boolean;
 };
 
 /** Card placed beside the answer: springs in, holds, springs out. Draws nothing outside [at, at + dur). */
 export const DidYouKnowCard: React.FC<DidYouKnowCardProps> = ({
-  text, frame, at, dur = secToTicks(dykSec), outTicks = OUT, level, left, top, width = 640, label = 'Did you know?',
+  text, frame, at, dur = secToTicks(dykSec), outTicks = OUT, level, left, top, width = 640, label = 'Did you know?', swap = false,
 }) => {
   const d = dur;
   const f = frame - at;
@@ -39,7 +41,7 @@ export const DidYouKnowCard: React.FC<DidYouKnowCardProps> = ({
   const p = presence(frame, at, d, outTicks);
   const accent = level ? colors.level[level] : colors.muted;
   return (
-    <div style={{ position: 'absolute', left: u(left), top: u(top), opacity: Math.min(1, p), transform: `translateX(${(1 - p) * u(40)}px) scale(${0.94 + 0.06 * p})` }}>
+    <div style={{ position: 'absolute', left: u(left), top: u(top), opacity: Math.min(1, p), transform: swap ? `translateY(${(1 - p) * u(14)}px) scale(${0.985 + 0.015 * p})` : `translateX(${(1 - p) * u(40)}px) scale(${0.94 + 0.06 * p})` }}>
       <FrostCard level={level} width={width} padding={32} radius={radius.md}>
         <div style={{ ...textStyle('caption'), color: accent, textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}>{label}</div>
         <div style={{ ...textStyle('body'), marginTop: u(12), color: colors.ink }}>{text}</div>
