@@ -125,3 +125,17 @@ All in `src/gta6/components/` (exported from `index.ts`). `frame`, `at`, `dur` a
 - `Shake` `{ frame, at, dur, amp=6, seed=1, children, style? }` and `seeded(n)`: one offset per tick from a hash, fast ramp in, linear fade out, no `Math.random`.
 - `LowPowerTint` `{ frame, at, dur }`: yellow screen overlay (6 tick fade each end). `LowPowerRing` `{ frame, at, dur, size=200, digits=true, turnsPerSecond=2 }`: yellow ring filling over `dur` while spinning.
 - `system.ts` gained `colors.lowPower` (#FFD60A).
+
+## 7. HUD components (task 2c)
+
+All in `src/gta6/components/` (exported from `index.ts`). Same conventions as 2a: sizes are literals in the 1920 reference frame scaled with `u()` from `system.ts`; frames are local design ticks (30 fps); every state is a pure function of `frame`, `at` (and `outAt`); no internal timers; text and numbers come from props only.
+
+- `ScoreHud` `{ score, total, from?, frame?, at?, levelTotals? }`: top-right at `SAFE`. Shows "n / total" with three rings (easy green, medium amber, hard red) filling in sequence (thirds of `total`, or `levelTotals`). **Choice: the number is the POSSIBLE score and climbs by item index; answers are not scored on screen.** Documented in the file header. `from` + `frame` + `at` tween with the snappy spring.
+- `StreakChip` `{ count, unit, label, frame, at, outAt? }`, `SpoilerBadge` `{ text, ... }` (green), `FastestBadge` `{ text, ... }` (bolt glyph): in `badges.tsx`. The scene supplies every string (e.g. unit = "IN A ROW").
+- `ControlCenterTiles` `{ tiles: {value?, label}[], frame, at, outAt?, stagger=4, tileSize=250 }`: tiles stagger in, all fade out by `outAt`. A tile with no `value` shows a ring-check glyph (for the "keep score" rule).
+- `LockNotification` `{ frame, at, appName, title, body, timeLabel, options (4), level }`: lock-screen banner over a blurred 2x2 answer grid (uses `ChoiceChip`). Exports `LOCK_NOTIFICATION_TICKS = 30` (1 s), `LOCK_BEATS { gridIn 0, bannerIn 4, bannerOut 24, end 30 }`, `lockNotificationEnd(at)`. Renders `null` outside `[at, at + 30]`, so the same call replays at Q42 by setting `at`. Place the `notification` SFX at `at + LOCK_BEATS.bannerIn`.
+- Helpers in `fade.ts`: `clamp01`, `fadeWindow(frame, at, outAt?, inTicks, outTicks)`.
+
+Check by eye (ticks; render frame = tick x 2): LockNotification at +0, +6, +14, +22, +27, +30 (banner overshoot, blur level, clean exit, nothing left at +31). ScoreHud tween at +0, +6, +15 (ring hand-off between colours). ControlCenterTiles at +0, +4, +8, +16 and just before `outAt`. Badges at +6 (bouncy settle).
+
+Open point: `system.ts` (2a) authors in 1920x1080 reference units via `u()`, while the later decision was 1280x720 via `px()`. Output is the same 2560x1440 either way; 2c follows `system.ts` so all gta6 components share one unit. Convert `system.ts` if the 1280 reference is wanted.
