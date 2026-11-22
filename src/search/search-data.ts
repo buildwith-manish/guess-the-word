@@ -1,5 +1,5 @@
 // Content for the "Guess the Character from Their Search History" video.
-// Clue order: searches[0] is the hardest clue, searches[3] is the easiest.
+// Clue order: searches[0] is the hardest clue, searches[2] is the easiest (the 2-emoji hint follows them).
 
 export type Level = "EASY" | "MEDIUM" | "HARD";
 
@@ -8,7 +8,7 @@ export type Round = {
   name: string;
   from: string; // the movie, show, game or franchise it comes from
   level: Level;
-  searches: [string, string, string, string];
+  searches: [string, string, string];
   hint: [string, string]; // exactly 2 emoji
 };
 
@@ -32,7 +32,6 @@ export const ROUNDS: Round[] = [
     searches: [
       "how to get sticky stuff off a ceiling",
       "can you swing to work without being late",
-      "my aunt thinks I'm always late for a reason",
       "red and blue suit shrinks in the wash",
     ],
   },
@@ -46,7 +45,6 @@ export const ROUNDS: Round[] = [
       "best black paint that hides in the dark",
       "how to hide a cave under a mansion",
       "my butler keeps asking where I go at night",
-      "do bats ever get tired of the night",
     ],
   },
   {
@@ -57,9 +55,8 @@ export const ROUNDS: Round[] = [
     hint: ["🐭", "🏰"],
     searches: [
       "where to buy white gloves in bulk",
-      "best cheese for a mouse",
       "round ears hair clip size",
-      "how to turn a cartoon mouse into a global brand",
+      "how to turn a 1928 cartoon into a global brand",
     ],
   },
   {
@@ -71,7 +68,6 @@ export const ROUNDS: Round[] = [
     searches: [
       "how to keep a sponge from drying out",
       "can a fry cook get a boating license",
-      "best jobs for a very cheerful sea creature",
       "pineapple house maintenance",
     ],
   },
@@ -84,7 +80,6 @@ export const ROUNDS: Round[] = [
     searches: [
       "how to get letters delivered by owl",
       "can you sleep under the stairs comfortably",
-      "round glasses repair near me",
       "train platform between nine and ten missing",
     ],
   },
@@ -98,7 +93,6 @@ export const ROUNDS: Round[] = [
       "how to stop freezing everything when I'm nervous",
       "best gloves for people who freeze things",
       "ice castle building permit",
-      "how to build a palace out of snow",
     ],
   },
   {
@@ -109,7 +103,6 @@ export const ROUNDS: Round[] = [
     hint: ["🟢", "🧅"],
     searches: [
       "how to get strangers out of a swamp",
-      "swamp real estate prices",
       "best green face cream",
       "how to evict fairy-tale creatures from my house",
     ],
@@ -124,7 +117,6 @@ export const ROUNDS: Round[] = [
       "best plumber near me that jumps",
       "how to get past a pipe full of plants",
       "red cap and mustache combo ideas",
-      "how many coins before I can retire",
     ],
   },
   {
@@ -135,7 +127,6 @@ export const ROUNDS: Round[] = [
     hint: ["⚡", "🐭"],
     searches: [
       "how to charge a yellow thing without a plug",
-      "best ketchup brands",
       "can a mouse have lightning cheeks",
       "why does only my name come out when I talk",
     ],
@@ -150,7 +141,6 @@ export const ROUNDS: Round[] = [
       "how to stop being left behind when kids move",
       "best hats for pull-string toys",
       "my friend from space thinks he can fly",
-      "boots with spurs for cowboy toys",
     ],
   },
 
@@ -165,7 +155,6 @@ export const ROUNDS: Round[] = [
       "how to fix a glowing chest battery",
       "can billionaires patent flying suits",
       "best AI butler software",
-      "metal suit rust prevention",
     ],
   },
   {
@@ -175,7 +164,6 @@ export const ROUNDS: Round[] = [
     level: "MEDIUM",
     hint: ["🌌", "⚔️"],
     searches: [
-      "best black cape dry cleaner",
       "how to breathe less loudly",
       "family reunion advice when it's complicated",
       "red laser sword safety rules",
@@ -189,7 +177,6 @@ export const ROUNDS: Round[] = [
     hint: ["🦁", "🌅"],
     searches: [
       "how to return to a kingdom after running away",
-      "can lions rule from rocks",
       "my uncle is acting suspicious",
       "best friends: a meerkat and a warthog",
     ],
@@ -203,7 +190,6 @@ export const ROUNDS: Round[] = [
     searches: [
       "can toys fly if they believe hard enough",
       "how to charge a laser on my wrist",
-      "space ranger costume reviews",
       "wing buttons keep sticking",
     ],
   },
@@ -215,7 +201,6 @@ export const ROUNDS: Round[] = [
     hint: ["🃏", "🟣"],
     searches: [
       "best white face paint that doesn't crack",
-      "how many card decks does it take to get a laugh",
       "purple suit tailor in Gotham",
       "why does my rival never find it funny",
     ],
@@ -228,7 +213,6 @@ export const ROUNDS: Round[] = [
     hint: ["🏎️", "🏁"],
     searches: [
       "how to explain a fast car to a small town",
-      "best tires for racing",
       "number 95 stickers",
       "what is a Piston Cup",
     ],
@@ -241,7 +225,6 @@ export const ROUNDS: Round[] = [
     hint: ["🔴", "👀"],
     searches: [
       "best red fur shampoo",
-      "how to teach numbers on a busy street",
       "why do I talk about myself in third person",
       "how to get to a street with furry neighbors",
     ],
@@ -255,7 +238,6 @@ export const ROUNDS: Round[] = [
     searches: [
       "fastest shoes for a hedgehog",
       "how to collect gold rings without stopping",
-      "blue hair gel recommendations",
       "how fast is too fast for a speeding ticket",
     ],
   },
@@ -268,7 +250,6 @@ export const ROUNDS: Round[] = [
     searches: [
       "can donuts count as a food group",
       "how to nap at a nuclear power plant",
-      "best way to get my kids to stop arguing",
       "how to avoid my overly nice neighbor",
     ],
   },
@@ -280,7 +261,6 @@ export const ROUNDS: Round[] = [
     hint: ["🌊", "🛶"],
     searches: [
       "how to sail across an ocean with a rooster",
-      "best coconut recipes for an island",
       "how to hire a navigator for a small island",
       "how to bargain with a demigod over fishhooks",
     ],
@@ -296,7 +276,6 @@ export const ROUNDS: Round[] = [
     searches: [
       "how to find a lost ring",
       "cave apartment rentals",
-      "is raw fish good for you",
       "why do I talk to myself in the dark",
     ],
   },
@@ -308,7 +287,6 @@ export const ROUNDS: Round[] = [
     hint: ["🤖", "🗑️"],
     searches: [
       "best trash compactor repair",
-      "how to organize old things I find on the ground",
       "plant care for a lonely robot",
       "can robots fall in love with a visiting probe",
     ],
@@ -321,7 +299,6 @@ export const ROUNDS: Round[] = [
     hint: ["🟢", "🌌"],
     searches: [
       "best swamp planets for retirement",
-      "how to train young students in a swamp",
       "why do I put words in a different order",
       "how to hide pointy green ears",
     ],
@@ -335,7 +312,6 @@ export const ROUNDS: Round[] = [
     searches: [
       "how to make a sandwich bigger than my head",
       "best dog snacks for solving mysteries",
-      "how to scare away haunted-house caretakers",
       "van insurance for four teenagers and a dog",
     ],
   },
@@ -348,7 +324,6 @@ export const ROUNDS: Round[] = [
     searches: [
       "lasagna delivery open 24 hours",
       "why are Mondays so hard for cats",
-      "how to sleep 20 hours a day",
       "how to get my owner's dog to stop being annoying",
     ],
   },
@@ -360,7 +335,6 @@ export const ROUNDS: Round[] = [
     hint: ["🐰", "🥕"],
     searches: [
       "carrot subscription box",
-      "how to dig tunnels that come out in the wrong place",
       "disguise ideas that always fool a hunter",
       "is it rude to chew a carrot while talking",
     ],
@@ -374,7 +348,6 @@ export const ROUNDS: Round[] = [
     searches: [
       "green tunic that never wears out",
       "how many hearts is too many",
-      "best way to open a treasure chest",
       "how to save a princess without talking",
     ],
   },
@@ -388,7 +361,6 @@ export const ROUNDS: Round[] = [
       "how to survive the first night in a square world",
       "best pickaxe for beginners",
       "why is everything around me made of blocks",
-      "how to build a house before it gets dark",
     ],
   },
   {
@@ -399,7 +371,6 @@ export const ROUNDS: Round[] = [
     hint: ["🗺️", "🎒"],
     searches: [
       "how to explore with a talking map",
-      "best backpack with a built-in everything",
       "can a monkey wear red boots",
       "how to stop a sneaky fox from taking things",
     ],
@@ -414,7 +385,6 @@ export const ROUNDS: Round[] = [
       "how to tell someone's job from their hat",
       "best violin for thinking",
       "apartment at 221B rent",
-      "my partner keeps publishing stories about my cases",
     ],
   },
 ];

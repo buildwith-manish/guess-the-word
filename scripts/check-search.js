@@ -54,16 +54,16 @@ const isOneEmoji = (s) => {
   check(`level counts ${Object.values(EXPECT.levels).join(" / ")}`, p);
 }
 
-// 3. four searches + 2-emoji hint
+// 3. three searches + 2-emoji hint
 {
   const p = [];
   ROUNDS.forEach((r) => {
-    if (!Array.isArray(r.searches) || r.searches.length !== 4)
+    if (!Array.isArray(r.searches) || r.searches.length !== 3)
       p.push(`round ${r.id}: ${r.searches && r.searches.length} searches`);
     if (!Array.isArray(r.hint) || r.hint.length !== 2 || !r.hint.every(isOneEmoji))
       p.push(`round ${r.id}: hint is not 2 emoji`);
   });
-  check("every round: 4 searches and a 2-emoji hint", p);
+  check("every round: 3 searches and a 2-emoji hint", p);
 }
 
 // 4. word limit

@@ -45,7 +45,7 @@ const clipOf = (e: VoEntry): VoClip | undefined => {
 const vo = voManifest as unknown as {
   intro: VoEntry;
   level: Record<string, VoEntry>;
-  /** round id -> the four clue clips (clue 1 hardest ... clue 4 easiest) */
+  /** round id -> the three clue clips (clue 1 hardest ... clue 3 easiest) */
   clue?: Record<string, VoEntry[]>;
   reveal: Record<string, VoEntry>;
   bonus: Record<string, VoEntry>;
@@ -103,7 +103,7 @@ export const fitTypeTicks = (length: number, slot: number) =>
 
 /** Think phase: after the last clue has been read, a countdown of think.seconds (always the same, whatever the level).
  *  Layout of one round (absolute ticks from the start of the round scene):
- *  - voiced (all four clue clips are in the manifest): each clue starts typing when its clip starts, spread over
+ *  - voiced (all three clue clips are in the manifest): each clue starts typing when its clip starts, spread over
  *    voiceClue.typeShare of the clip; the next clue starts once this one has landed (and its clip is over) plus
  *    voiceClue.pauseTicks. thinkStart = end of the last clip + think.beatTicks.
  *  - fixed (no clips): the clues use the first think.fallbackClueSeconds of the round (searchAt are fractions of it),
@@ -157,8 +157,8 @@ export type RoundPlan = {
   levelIndex: number;
   /** frames before the search bar is up (it slides in over this window); the first clue starts after it */
   clockStart: number;
-  /** start frame of each of the 4 searches (clue 1 hardest ... clue 4 easiest) */
-  searchAt: [number, number, number, number];
+  /** start frame of each of the 3 searches (clue 1 hardest ... clue 3 easiest) */
+  searchAt: [number, number, number];
   /** ticks per typed character of each search (same order as searchAt), sped up to fit the search's slot */
   typeTicks: number[];
   /** the last clue has been read: the countdown starts and the hint appears */

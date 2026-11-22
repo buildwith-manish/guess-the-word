@@ -1,0 +1,9 @@
+# 3 clues per round, then the 2-emoji hint (done, nothing rendered)
+
+Data (src/search/search-data.ts): every round now has 3 searches (type is a 3-tuple), still ordered hardest to easiest; the 2-emoji hint follows at thinkStart. I kept each round's original relative order and cut one clue per round. Cut (old clue number): R1 3, R2 4, R3 2, R4 3, R5 3, R6 4, R7 2, R8 4, R9 2, R10 4, R11 4, R12 1, R13 2, R14 3, R15 2, R16 2, R17 2, R18 3, R19 3, R20 2, R21 3, R22 2, R23 2, R24 3, R25 3, R26 2, R27 3, R28 4, R29 2, R30 4. Reasons: duplicated another clue's idea (swamp, carrot, nap...), weakest/most generic, or too long (R26's 51-char clue). R3 Mickey Mouse: the two clues with the word "mouse" were cut/rewritten; its last clue is now "how to turn a 1928 cartoon into a global brand" (no answer word; search:check passes).
+Please read the 30 trios yourself: the "vague, specific, nearly gives it away" order is my judgement, not measured. Hard levels kept their vague openers (R21, R24).
+
+Settings: searchAt [0.04, 0.37, 0.7] (fractions of the clue part), fallbackClueSeconds 7 (was 8 with 4 clues). Fixed layout: round 1 = bar up 15 ticks, think starts 225 (7.5 s), reveal 375 (12.5 s), round ends 464 (15.5 s).
+Code: RoundPlan.searchAt is a 3-tuple; comments say three. scripts/check-search.js now requires 3 searches; scripts/search-qa.js uses the last clue (not index 3) and its fixture has 3 clips per round; docs/search-voiceover-script.md clue lines rewritten to the 3 kept clues (clue-N-1..3.mp3, key 0-2); no clip files exist yet.
+Totals: video 9:37 without clips (was 10:07), 12:45 with 3.3 s clips (was 14:58).
+Checks: search:check 10/10 (the Mickey Mouse failure is fixed), search:qa 13/13, tsc only the 4 old errors (src/fontshare/load-fonts.ts 18, 19; src/pixel/pixel-timing.ts 67; src/timing.ts 45). Not verified: anything on screen or by ear.

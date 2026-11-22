@@ -33,7 +33,7 @@ const fixtureManifest = () => {
   const clue = {};
   const reveal = {};
   for (let id = 1; id <= 200; id++) {
-    clue[id] = [0, 1, 2, 3].map((k) => ({ file: `fixture-${id}-${k}.mp3`, seconds: FIXTURE_CLUE_SECONDS }));
+    clue[id] = [0, 1, 2].map((k) => ({ file: `fixture-${id}-${k}.mp3`, seconds: FIXTURE_CLUE_SECONDS }));
     reveal[id] = { file: `fixture-reveal-${id}.mp3`, seconds: FIXTURE_REVEAL_SECONDS };
   }
   return { intro: null, level: {}, clue, reveal, bonus: {}, scoreboard: {}, outro: null };
@@ -257,7 +257,7 @@ const main = async () => {
     if (tooLong.length) {
       problems.push(`${tooLong.length} clues too long at ${fastest} ticks/char: ` + tooLong.map((b) => `R${b.id} clue ${b.clue} (${b.len} chars, slot ${b.slot} ticks, max ${b.maxLen} chars)`).join(', '));
     }
-    return Object.assign(problems, { note: `${ROUNDS.length * 4} clues, slowest fit ${(worst * 100).toFixed(0)}% of its slot, fastest ${fastest} ticks/char` });
+    return Object.assign(problems, { note: `${ROUNDS.reduce((n, r) => n + r.searches.length, 0)} clues, slowest fit ${(worst * 100).toFixed(0)}% of its slot, fastest ${fastest} ticks/char` });
   });
 
   // 11. search-timing.ts mirrors the SearchBar constants it cannot import (the component loads fonts)
@@ -279,9 +279,10 @@ const main = async () => {
       const tag = `R${r.id}`;
       if (Math.abs(p.thinkFrames - thinkTicksWanted) > 1) bad.push(`${tag} think ${p.thinkFrames} ticks, wanted ${thinkTicksWanted}`);
       if (p.revealAt !== p.thinkStart + p.thinkFrames) bad.push(`${tag} reveal != thinkStart + thinkFrames`);
-      if (clipTicks !== undefined && p.thinkStart < p.searchAt[3] + clipTicks) bad.push(`${tag} think starts before the last clip ends`);
+      if (clipTicks !== undefined && p.thinkStart < p.searchAt[p.searchAt.length - 1] + clipTicks) bad.push(`${tag} think starts before the last clip ends`);
       // all clues are typed before the countdown starts
-      const lastEnd = p.searchAt[3] + p.typeTicks[3] * r.searches[3].length;
+      const L = r.searches.length - 1;
+      const lastEnd = p.searchAt[L] + p.typeTicks[L] * r.searches[L].length;
       if (lastEnd > p.thinkStart + 1e-9) bad.push(`${tag} last clue types until ${Math.round(lastEnd)}, think starts ${p.thinkStart}`);
       r.searches.forEach((text, k) => {
         const slot = T.searchSlots(i)[k];

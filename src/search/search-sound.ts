@@ -131,7 +131,7 @@ const buildCues = (): Cue[] => {
         const plan = buildRoundPlan(seg.index);
         const base = f0 - (seg.lead ?? 0); // the first `lead` ticks play inside the previous wipe
         place(base, searchRoundCues(seg.index));
-        // each clue is read while it types (clips exist only once the manifest has all four for the round)
+        // each clue is read while it types (clips exist only once the manifest has all three for the round)
         ROUNDS[seg.index].searches.forEach((_, i) => voice(base + plan.searchAt[i], voiceClue(ROUNDS[seg.index].id, i)));
         // riser into the answer: the last second of the think phase
         add(base + Math.max(plan.thinkStart, plan.revealAt - riserFrames), 'riser');
