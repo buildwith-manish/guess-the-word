@@ -14,7 +14,7 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
 import { StateWatermark } from '../components/StateWatermark';
-import { Icon } from '../../Icon';
+import { StrokeIcon } from '../components/StrokeIcon';
 import { px } from '../../style';
 import { IOS, IosBackground } from '../../ios';
 import { ms } from '../../anim';
@@ -71,7 +71,7 @@ export const StateReminder: React.FC<{ frame: number; seg: ReminderSegment }> = 
           transform: `translateY(${(1 - inP) * px(24)}px) scale(${0.96 + 0.04 * inP})`,
         }}
       >
-        <Icon name="bell" size={px(56)} />
+        <StrokeIcon name="bell" size={px(56)} />
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: px(8), fontFamily: FONT.sans }}>
           <div
             style={{

@@ -10,7 +10,7 @@
 import React from 'react';
 import { IOS } from '../../ios';
 import { voiceLevelAt } from '../state-timing';
-import { COLOR } from '../look';
+import { COLOR, VOICE } from '../look';
 
 export interface VoiceBarsProps {
   file: string;
@@ -37,7 +37,7 @@ export const VoiceBars: React.FC<VoiceBarsProps> = ({ file, tick, color, width, 
         const dist = Math.abs(i - (bars - 1) / 2);
         const level = voiceLevelAt(file, tick - dist * LAG);
         const h = height * Math.min(1, REST + (1 - REST) * Math.pow(level, 0.8));
-        return <div key={i} style={{ width: w, height: h, borderRadius: w, background: color, opacity: 0.85 }} />;
+        return <div key={i} style={{ width: w, height: h, borderRadius: w, background: color, opacity: VOICE.barAlpha }} />;
       })}
     </div>
   );

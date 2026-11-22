@@ -32,7 +32,7 @@ import { AbsoluteFill } from 'remotion';
 import { px } from '../../style';
 import { IOS, IosBackground, iosSurface } from '../../ios';
 import { spr, stagger } from '../motion';
-import {RADIUS, COLOR, FONT, WEIGHT, TYPE, TRACKING } from '../look';
+import {RADIUS, COLOR, FONT, WEIGHT, TYPE, TRACKING, HAIRLINE } from '../look';
 import { clamp01 } from '../../anim';
 import { rise } from '../ios-rise';
 import root from '../../../settings.json';
@@ -113,7 +113,7 @@ const Outlines: React.FC<{ frame: number }> = ({ frame }) => {
         style={{
           ...slotBox(END_SLOTS.subscribe),
           borderRadius: '50%',
-          border: `${px(2)}px solid ${COLOR.alert}`,
+          border: `${px(HAIRLINE.width)}px solid ${COLOR.alert}`,
           opacity: Math.min(1, subOn * 1.4) * (0.6 + 0.4 * pulse),
           transform: `scale(${0.9 + 0.1 * subOn})`,
         }}

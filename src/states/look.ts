@@ -225,3 +225,12 @@ export const LIST = {
   /** fixed width of the score range so the numbers line up in a column */
   rangeW: 96,
 } as const;
+
+/**
+ * Icons and small details (round two, Step 10). ICON: UI icons are thin, rounded SF-Symbols-style strokes (1.75 px at the
+ * reference size, round caps and joins, label colour). VOICE: the speaking bars are rounded and at 70%. HAIRLINE: every
+ * hairline is 1 px at 10-14% white (no 2 px borders); the guide ring for the YouTube subscribe element keeps its alert colour.
+ */
+export const ICON = { stroke: 1.75 } as const;
+export const VOICE = { barAlpha: 0.7 } as const;
+export const HAIRLINE = { width: 1 } as const;
