@@ -1,6 +1,6 @@
 /**
  * TimerRing: a thin ring that shrinks with the clock, the remaining seconds in the centre (or below),
- * level-accent colour. iOS look: no halo, no pulse; the number is a quiet grey, and the ring and number turn
+ * level-accent colour. iOS look: no halo, no pulse; the number is primary white (1.3x larger, bold, tabular), and the ring and number turn
  * red only for the last three seconds.
  * Time comes from useDesignFrame() (design ticks, local to the enclosing Sequence); pass `frame`
  * to drive it from a parent instead. `from` and `duration` are design ticks (30 per second).
@@ -9,7 +9,7 @@ import React from 'react';
 import { useDesignFrame } from '../../clock';
 import { IOS } from '../../ios';
 import { FPS } from '../state-timing';
-import { COLOR, FONT, WEIGHT } from '../look';
+import { COLOR, FONT, TIMER, WEIGHT } from '../look';
 
 export interface TimerRingProps {
   /** tick the clock starts */
@@ -27,11 +27,7 @@ export interface TimerRingProps {
 }
 
 /** Proportions of the ring (fractions of `size`). */
-const LOOK = {
-  stroke: 0.016,
-  digitSize: 0.24,
-  digitBelowGap: 0.06,
-};
+const LOOK = TIMER;
 
 /** the last three seconds of the clock turn red */
 const RED_TICKS = 3 * FPS;
@@ -46,7 +42,7 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
   const seconds = Math.ceil(remainingTicks / FPS - 1e-6);
   const red = remainingTicks <= RED_TICKS;
   const color = red ? COLOR.alert : accent;
-  const digitColor = red ? COLOR.alert : COLOR.text.label;
+  const digitColor = red ? COLOR.alert : COLOR.text.primary;
 
   const stroke = size * LOOK.stroke;
   const r = (size - stroke) / 2;
@@ -74,7 +70,7 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
   return (
     <div style={{ position: 'relative', width: size, height: size }}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible' }}>
-        <circle cx={c} cy={c} r={r} fill="none" stroke={COLOR.fillStrong} strokeWidth={stroke} />
+        <circle cx={c} cy={c} r={r} fill="none" stroke={COLOR.fill} strokeWidth={stroke} strokeLinecap="round" />
         {arc > 0 && (
           <circle
             cx={c}

@@ -149,3 +149,13 @@ export const BADGE = {
   /** glassPanel depth for the pill */
   depth: 0.4,
 } as const;
+
+/**
+ * Timer ring (round two, Step 2), proportions as fractions of the ring diameter. stroke was 0.016; the digit was 0.24 in
+ * label grey and is now 1.3x larger (0.312) in the primary text colour (red only in the last 3 s).
+ */
+export const TIMER = {
+  stroke: 0.013,
+  digitSize: 0.312,
+  digitBelowGap: 0.06,
+} as const;
