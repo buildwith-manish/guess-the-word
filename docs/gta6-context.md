@@ -155,3 +155,15 @@ Open points:
 - **The map is invented art**: a generic Florida-like peninsula from a few SVG paths (`LAND_PATH`, islands, lake, roads, unnamed towns). Not traced from any real map, image or game asset; no real place labels; no Rockstar material.
 - Layout (1920x1080 units): question card left 336, top 160, width 960 (clear of the timer ring slot and the island pill); 2x2 tiles of 400x240 (gap 24) bottom-right inside `SAFE`.
 - Open: the pin position does not depend on the answer (the data has no coordinates); the label carries the answer text. `at` for the tile stagger assumes 4 options.
+
+## 8. Extras (task 4b), `src/gta6/extras/` (barrel `index.ts`)
+
+All pure functions of `frame`, `at` and friends (local ticks, 30 per second), sizes in 1920x1080 units via `u()`. Every string comes from props. Map art is the invented art of `scenes/looks/mapsArt.ts` (new export `COAST_PATH`); icons are plain generic shapes with no logos or brand marks.
+- `PlainMap` `{ width, height, radius?, children?, style? }`: flat street-style backdrop (grid, invented roads and unnamed towns, parks, river). Children are positioned in the box.
+- `DroppedPin` `{ frame, at, color?, scale?, fallAt? }`: pin tip at the parent's (0,0); bouncy drop from `at`, ripple `at + 8` to `at + 26`; with `fallAt` it wiggles 6 ticks then falls with gravity/spin and fades. `PinLabel` `{ text, frame, at, outAt?, color?, greyed? }`. `FALL` constants.
+- `MapPin` `{ frame, at, x, y (0..1 of the box), label?, width=1100, height=620 }`: pin dropping on a plain map; label from `at + 6`. For the `mapPin` extra (items 4 and 14).
+- `MapOutline` `{ frame, at, dur=36, pin {x,y in mapsArt coords}, pinAt?=at+dur, label?, width=760, height=900 }`: Florida-like coast draws itself, land fills in over the last 40%, then the pin drops. Exports `OUTLINE_VIEW`.
+- `MapCrop` `{ frame, at, dur, variant?='wetland', highlightAt?, zoomFrom=1.7, width=1100, height=620 }`: crop of the southern peninsula with a marsh patch, channels, deterministic sawgrass tufts (seeded), lake and keys; slow pull-back from `zoomFrom` to 1 over `dur`, frozen after; `highlightAt` adds a pulsing amber dashed outline (8-tick fade-in). For the `mapCrop` extra (items 16, 18, 19).
+- `MapDropPin` `{ frame, at, labels[4], wrongIndex, dropAt, stagger=6, width=1500, height=700 }`: four pins land `stagger` apart; at `dropAt` the wrong one wiggles then falls off the map and its label fades from `dropAt + 6`. For Bonus 2 (`mapDropPin`).
+- `DeviceIcons` `{ devices: { kind: 'ps5'|'xboxX'|'xboxS'|'pc', label, greyed? }[], frame, at, greyAt?, stagger=5, cardW=360, cardH=380, gap=32 }` and `DeviceGlyph { kind, size }`: four cards stagger in; `greyed` ones fade to grey over 8 ticks from `greyAt`. For item 11 (`deviceIcons`).
+- Open: pin coordinates are passed in by the scene (the data has none). Item 11 asks which device GTA 6 did NOT launch on; the scene must decide which device(s) to flag `greyed`.

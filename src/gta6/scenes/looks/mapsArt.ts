@@ -60,3 +60,11 @@ export const ROUTES: readonly RouteVariant[] = [
     start: { x: 440, y: 250 }, end: { x: 1000, y: 610 },
   },
 ];
+
+/** Coastline only (LAND_PATH without the box edges along the top), for outlines that draw themselves. Added in 4b. */
+export const COAST_PATH =
+  'M 1250 140 ' +
+  'C 1235 260, 1260 340, 1235 440 C 1215 560, 1260 650, 1240 760 C 1225 860, 1190 940, 1150 990 ' +
+  'C 1120 1030, 1085 1030, 1075 985 C 1060 930, 1010 900, 985 840 C 960 780, 990 700, 960 640 ' +
+  'C 930 570, 880 560, 860 500 C 840 440, 880 380, 840 330 ' +
+  'C 800 300, 700 330, 620 345 C 520 360, 380 340, 260 345 C 150 350, 60 330, -50 340';
