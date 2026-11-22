@@ -64,5 +64,28 @@ Branch `us-states`. Base before the restyle: `8cbf549`. Verified from this repo,
 - The ring + shape group position (`STAGE_LAYOUT` knobs `ringGap`, `groupShift`, `miniClear`) against the corner map, and the card / map gap.
 - Capital label (uppercase, 0.14em) on long capitals; the scoreboard list spacing (`LIST`).
 
+## Hero move on the answer screen (base `d8fa837`)
+Current behaviour confirmed by reading the code before the change: stage shape faded over the first half of the reveal, the answer map only got the state at the stamp (gap, then pop), the region glow vanished in one frame at `revealStart`, `FlyIn` was only used by `ComponentsSheet`.
+
+1. **One flying shape** (`StateRound.tsx`): the stage shape stays as is until `plan.revealStart`; from that same tick `FlyIn` (overlay slot, full frame, same origin as `STAGE_LAYOUT`) flies it from `STAGE_LAYOUT.shape` to the answer-map rect recomputed every frame, on the same normal spring over the same window as the map growth (ends at the stamp). Outline mode, `fill = reveal`, `glow = draw`, HARD rotation eased to 0, MEDIUM trace through the new optional `FlyIn.progress` (default 1, `ComponentsSheet` unchanged). EXPERT: the silhouette -> sharp outline cross-fade now runs on two flying copies (it cannot run before the flight: the stage cross-fade used the same reveal window, and the blur has already sharpened to 0.4 % by `revealStart`).
+2. **No swap** (`MiniMap.arriving`, `currentAlpha`): the landing piece crossfades dim -> accent over the last 30 % of the flight (`FLIGHT.fillAt`) while the flying copy fades out; both are exactly 0 / 1 at the stamp, so removing `FlyIn` is invisible in principle. The `current` outline fades in over 4 ticks after the stamp and out over 4 ticks after the exit starts.
+3. **Hint glow** (`MiniMap.regionGlow`): the answer map gets `highlightRegion`; the glow fades out over `FLIGHT.glowFade` = 6 ticks from `revealStart`, starting at full strength (same as the corner map).
+4. **Settle pulse** (`MiniMap.pulse`): only the landed piece and its outline scale (peak 1.02, 14 ticks from the stamp); neighbours do not move. Knobs in `FLIGHT` (`motion.ts`): `arc`, `fillAt`, `glowFade`, `outlineIn`, `settlePeak`, `settleTicks`; `FlyIn.ARC` reads `FLIGHT.arc` (0.25, unchanged).
+5. **Wipes**: the exit spring was fitted to the 14-tick window with `flyDur`, which left the map ~1.4 % (~10 px) short of the corner on the last frame; it is now fitted to `flyDur - 1` and ends exactly on the last frame. The iris draws the corner map at the same rect with the same answered set (this state included), no pulse, no outline, so there is no blink.
+
+### Verified (scripts, git, arithmetic)
+- `tsc`: no new errors; QA 14 / 14 after every step; each step committed and pushed.
+- `git diff d8fa837..HEAD --stat` shows only `src/states/**`; timing unchanged (QA 4: 28597 ticks, QA 12: 876 cues + 119 clips, timing hash `1c5226973f`). The flight uses the existing 36-tick reveal window; hold and exit windows are longer than the 14 / 4 tick moves.
+
+### NOT checked
+- **No stills** (no browser, Chrome cannot be downloaded here): no frames across `revealStart .. stamp`, no stamp-1 vs stamp comparison, nothing looked at for EASY / HARD / EXPERT.
+- Whether `FlyIn`'s landing geometry (end scale from `getMiniRect`) matches the map's own path exactly (the stage `geo.shape` and the map `geo.mini` paths come from separate geometry); if they differ, the crossfade hides a small mismatch instead of removing it.
+
+### Needs a human eye
+Flight arc and speed, the 70 % fill start, the crossfade at the landing (two overlapping copies), the 1.02 pulse, HARD un-rotation, the EXPERT hand-over, and the glow fade.
+
+### Open question: the build plays while the shape moves
+`fill` and the half-open build follow `reveal` over the whole flight, so they run while the shape moves and shrinks and may look rushed. Not changed (window kept). Options if the stills confirm it: (a) finish the build in the first third of the window (`sprFit` over `(stamp - revealStart) / 3`, flight unchanged); (b) build mostly before take-off by starting the build slightly earlier inside the existing clock / hold slack; (c) delay the take-off by a few ticks inside the same window and shorten the flight.
+
 ## Knobs
-`motion.ts` (springs, durations, stagger), `look.ts` (glass, radius, glow, colour, type, plus round two: `BADGE`, `TIMER`, `MAP`, `RIM`, `CORNERS`, `BLOBS`, `LIST`, `ICON`, `VOICE`, `HAIRLINE`), `StateAtmosphere.tsx` (`ATMOS`, `GRAIN`), `components/StateStage.tsx` (`LAYOUT`: `timer`, `ringGap`, `groupShift`, `miniClear`), `scenes/StateRound.tsx` (`REVEAL`), `state-sound.ts` (trims, ducking, fades).
+`motion.ts` (springs, durations, stagger), `look.ts` (glass, radius, glow, colour, type, plus round two: `BADGE`, `TIMER`, `MAP`, `RIM`, `CORNERS`, `BLOBS`, `LIST`, `ICON`, `VOICE`, `HAIRLINE`), `StateAtmosphere.tsx` (`ATMOS`, `GRAIN`), `components/StateStage.tsx` (`LAYOUT`: `timer`, `ringGap`, `groupShift`, `miniClear`), `scenes/StateRound.tsx` (`REVEAL`), `state-sound.ts` (trims, ducking, fades), `motion.ts` `FLIGHT` (hero move).
