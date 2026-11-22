@@ -87,13 +87,15 @@ export const SLOTS = {
    * Timer ring beside the options, per look (centre of the ring; the ring shows until the reveal). Each look keeps its
    * options in a different place, so each gets its own free spot:
    *   messages       right of the answer column (chips 1000 wide from SAFE.x, bottom-aligned)
-   *   maps           left of the 2x2 tile grid (grid is 824 wide, flush right, bottom-aligned)
+   *   maps           in the middle of the free band left of the 2x2 tile grid (grid is 824 wide, flush right, bottom-aligned)
    *   photos         right of the centred 2x2 photo grid
    *   controlCenter  no ring: the brightness slider is the timer (QuestionScene passes showTimer={false})
    */
   timerBeside: {
     messages: { left: 1340, centerY: FRAME.h - SAFE.bottom - (4 * 112 + 3 * 16) / 2, size: 240 },
-    maps: { left: FRAME.w - SAFE.x - 824 - 60 - 240, centerY: FRAME.h - SAFE.bottom - 252, size: 240 },
+    // centred (a little left) in the free band between the left safe edge and the tile grid: x 96 to 1000, so the ring
+    // is ~360 clear of the tiles, below the question card and the score counter, and the sea-side of the map
+    maps: { left: Math.round((SAFE.x + (FRAME.w - SAFE.x - 824)) / 2 - 28 - 120), centerY: FRAME.h - SAFE.bottom - 252, size: 240 },
     photos: { left: 1490, centerY: 612, size: 240 },
   },
   /** Left edge for a question card that sits in the top row, right of the score counter in the top-left corner. */
