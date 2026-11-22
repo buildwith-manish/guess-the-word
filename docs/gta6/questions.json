@@ -53,10 +53,9 @@
    "answer": 1,
    "reveal": "GTA III.",
    "look": "messages",
-   "extra": "factCard",
+   "extra": "plain",
    "timerSec": 6,
    "fastest": false,
-   "didYouKnow": "GTA III is where the 3D era began.",
    "order": 3
   },
   {
@@ -246,11 +245,9 @@
    "answer": 0,
    "reveal": "Lucia.",
    "look": "messages",
-   "extra": "factCard",
+   "extra": "plain",
    "timerSec": 6,
    "fastest": false,
-   "didYouKnow": "She's the series' first non-optional female protagonist.",
-   "verify": "Claim 'first non-optional female protagonist' is not tied to a listed source; confirm or drop the did-you-know line.",
    "order": 13
   },
   {
