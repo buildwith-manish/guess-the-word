@@ -1,5 +1,5 @@
 /**
- * TimerRing: a thin ring that shrinks with the clock, the remaining seconds in the centre (or below),
+ * TimerRing: a glass disc (look.ts glassPanel, round, depth 0.5, rim light) inside a thin ring that shrinks with the clock, the remaining seconds in the centre (or below),
  * level-accent colour. iOS look: no halo, no pulse; the number is primary white (1.3x larger, bold, tabular), and the ring and number turn
  * red only for the last three seconds.
  * Time comes from useDesignFrame() (design ticks, local to the enclosing Sequence); pass `frame`
@@ -9,7 +9,7 @@ import React from 'react';
 import { useDesignFrame } from '../../clock';
 import { IOS } from '../../ios';
 import { FPS } from '../state-timing';
-import { COLOR, FONT, TIMER, WEIGHT } from '../look';
+import { COLOR, FONT, TIMER, WEIGHT, glassPanel } from '../look';
 import { enter, exitTicks, leave, settleTicks } from '../motion';
 import { px } from '../../style';
 
@@ -57,6 +57,9 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
   const len = 2 * Math.PI * r;
   const arc = len * remainingFrac;
 
+  // glass disc: its edge sits `discGap` of the diameter inside the ring's inner edge (ring inner radius = size / 2 - stroke)
+  const discD = size - 2 * stroke - 2 * size * LOOK.discGap;
+
   const digitPx = size * LOOK.digitSize;
   const total = Math.round(duration / FPS);
   // digit d is on screen while remaining ticks are in ((d-1) * FPS, d * FPS], so it starts at from + duration - d * FPS
@@ -90,6 +93,18 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
 
   return (
     <div style={{ position: 'relative', width: size, height: size }}>
+      {digits === 'center' && (
+        <div
+          style={{
+            position: 'absolute',
+            left: c - discD / 2,
+            top: c - discD / 2,
+            width: discD,
+            height: discD,
+            ...glassPanel(discD / 2, undefined, LOOK.discDepth),
+          }}
+        />
+      )}
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible' }}>
         <circle cx={c} cy={c} r={r} fill="none" stroke={COLOR.fill} strokeWidth={stroke} strokeLinecap="round" />
         {arc > 0 && (

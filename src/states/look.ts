@@ -181,6 +181,10 @@ export const TIMER = {
   /** round four: digit is the hero, 1.3x the round-two size (0.312 -> 0.40 of the ring diameter) */
   digitSize: 0.4,
   digitBelowGap: 0.06,
+  /** round four: glass disc inside the ring; clear gap between the disc and the ring's inner edge, fraction of the diameter (10-14%) */
+  discGap: 0.12,
+  /** the disc is a small glass piece: shadow depth (0.5 per the brief) */
+  discDepth: 0.5,
 } as const;
 
 /**
