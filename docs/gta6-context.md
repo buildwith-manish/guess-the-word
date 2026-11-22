@@ -181,3 +181,7 @@ Layout of a question screen (reference units): score counter (`ScoreHud side="le
 ## 10. Scoreboard order (user request)
 
 `src/gta6/scenes/Scoreboard.tsx`: rank cards now rise, and are highlighted, best first: LEGEND, EXPERT, GOOD, BEGINNER, KEEP GOING (the highlight stays on KEEP GOING at the end). This is the same order as the voiceover's rank lines (`rankIds` in audioMap.ts, highest first). Sound cues follow the same order (`chime-easy` stays on LEGEND). Open point: the highlight timing is an equal share of `scoreboardSec`, not the voice slots (`rankSlotSec` in timing.ts); once clip timings are in use, align `lightStart` with the slots.
+
+## 11. Outro end screen (user request)
+
+`src/gta6/scenes/Outro.tsx`: the placeholder outlines for YouTube's next-video slot and subscribe circle are removed (`Slots`, `END_SLOTS`, `OUTRO.endScreenSec`, `OUTRO.subscribePulseSec`, `outroBeats.slots` / `subscribeSlot`, and the `whoosh` cue that went with them). Nothing is drawn in the bottom half; the user places the real end-screen elements in YouTube Studio. Still on screen: the three asks (left column) and the hard score card miniature (top right). Outro length is unchanged (`outroSec`).
