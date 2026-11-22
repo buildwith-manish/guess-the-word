@@ -10,6 +10,8 @@ import { useDesignFrame } from '../../clock';
 import { IOS } from '../../ios';
 import { FPS } from '../state-timing';
 import { COLOR, FONT, TIMER, WEIGHT } from '../look';
+import { enter, exitTicks, leave, settleTicks } from '../motion';
+import { px } from '../../style';
 
 export interface TimerRingProps {
   /** tick the clock starts */
@@ -32,6 +34,12 @@ const LOOK = TIMER;
 /** the last three seconds of the clock turn red */
 const RED_TICKS = 3 * FPS;
 
+/**
+ * Digit change (iOS): the old digit rises `moveOut` px and blurs out, the new one rises in from below with the quick
+ * spring. The exit is 70% of the entrance (exitTicks), iosOut, no bounce; both run from the same tick so they overlap.
+ */
+const DIGIT = { moveIn: 12, moveOut: 12, blurOut: 4, scaleFrom: 0.97 } as const;
+
 export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, size, digits = 'center', frame }) => {
   const designFrame = useDesignFrame();
   const f = frame ?? designFrame;
@@ -42,7 +50,6 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
   const seconds = Math.ceil(remainingTicks / FPS - 1e-6);
   const red = remainingTicks <= RED_TICKS;
   const color = red ? COLOR.alert : accent;
-  const digitColor = red ? COLOR.alert : COLOR.text.primary;
 
   const stroke = size * LOOK.stroke;
   const r = (size - stroke) / 2;
@@ -51,8 +58,13 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
   const arc = len * remainingFrac;
 
   const digitPx = size * LOOK.digitSize;
+  const total = Math.round(duration / FPS);
+  // digit d is on screen while remaining ticks are in ((d-1) * FPS, d * FPS], so it starts at from + duration - d * FPS
+  const startOf = (d: number) => from + duration - d * FPS;
+  const inTicks = settleTicks('quick');
+  const outTicks = exitTicks(inTicks);
   // a fixed-size box (full ring width, one line high) with the digit centred in it: the digit never shifts between numbers
-  const digitStyle: React.CSSProperties = {
+  const boxStyle: React.CSSProperties = {
     position: 'absolute',
     left: 0,
     width: size,
@@ -65,9 +77,16 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
     fontVariantNumeric: 'tabular-nums',
     fontSize: digitPx,
     lineHeight: 1,
-    color: digitColor,
     ...(digits === 'below' ? { top: size + size * LOOK.digitBelowGap } : { top: c - digitPx / 2 }),
   };
+  const colorOf = (d: number) => (d * FPS <= RED_TICKS ? COLOR.alert : COLOR.text.primary);
+
+  // the digit on screen now: the first one is just there (the entrance is the get-ready step), later ones spring in
+  const nowIn = seconds >= total ? null : enter(f, startOf(seconds), 'quick', DIGIT.moveIn, DIGIT.scaleFrom);
+  // the previous digit leaves while the new one comes in, as a pure function of the frame
+  const prev = seconds + 1;
+  const prevLeave = seconds >= total ? null : leave(f, startOf(seconds), outTicks, DIGIT.moveOut);
+  const showPrev = prevLeave !== null && prevLeave.t < 1;
 
   return (
     <div style={{ position: 'relative', width: size, height: size }}>
@@ -87,7 +106,24 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
           />
         )}
       </svg>
-      {digits !== 'none' && <div style={digitStyle}>{seconds}</div>}
+      {digits !== 'none' && showPrev && prevLeave && (
+        <div
+          style={{
+            ...boxStyle,
+            color: colorOf(prev),
+            opacity: prevLeave.opacity,
+            transform: prevLeave.transform,
+            filter: `blur(${prevLeave.t * px(DIGIT.blurOut)}px)`,
+          }}
+        >
+          {prev}
+        </div>
+      )}
+      {digits !== 'none' && (
+        <div style={{ ...boxStyle, color: colorOf(seconds), ...(nowIn ? { opacity: nowIn.opacity, transform: nowIn.transform } : null) }}>
+          {seconds}
+        </div>
+      )}
     </div>
   );
 };
