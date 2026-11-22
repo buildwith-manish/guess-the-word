@@ -26,6 +26,7 @@ export const REVEAL = {
   greySec: revealGreySec, // full: one option's grey-out length (longer than the gap: the grey-outs overlap)
   fadeSec: revealFadeSec, // fast: all three wrong options together
   expandSec: revealExpandSec, // the correct option's expand
+  highlightSec: 0.3, // the correct option's colour fade (glass to solid), see `highlight`
   expandScale: 0.06, // mirrors CORRECT_SCALE in ChoiceChip
   greyedOpacity: 0.35, // mirrors ChoiceChip `greyed`
   greyedSaturate: 0.2, // mirrors ChoiceChip `greyed`
@@ -50,11 +51,21 @@ export type OptionState = {
   scale: number;
   /** 0..1 expand progress of the correct option (same spring as the chip). */
   expand: number;
+  /**
+   * 0..1 colour fade of the correct option (glass to solid accent). Pass to ChoiceChip `highlight`. It starts when the
+   * elimination has ended (or `highlightSec` before the expand, if that is later) and runs `highlightSec`, so the answer
+   * lights up as the others finish dimming instead of snapping on at the expand. The expand (scale pop, voice sync) is unchanged.
+   */
+  highlight: number;
 };
 
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 const EPS = 1e-9; // tick/second rounding noise at phase boundaries
 const easeOut = (t: number) => 1 - Math.pow(1 - clamp01(t), 3);
+const smooth = (t: number) => {
+  const x = clamp01(t);
+  return x * x * (3 - 2 * x);
+};
 
 const elimSec = (mode: RevealMode) => eliminationFor(mode === 'full');
 /** Seconds from the reveal start until the correct option begins to expand. */
@@ -79,12 +90,14 @@ export const optionStateAt = (item: Item, frame: number, mode: RevealMode): Opti
 
   return item.options.map((text, index) => {
     const correct = index === item.answer;
-    const idle = { index, text, correct, chipState: 'idle' as ChipState, stateAt: 0, elim: 0, opacity: 1, saturate: 1, scale: 1, expand: 0 };
+    const idle = { index, text, correct, chipState: 'idle' as ChipState, stateAt: 0, elim: 0, opacity: 1, saturate: 1, scale: 1, expand: 0, highlight: 0 };
     if (t < holdSec) return { ...idle, phase: 'hold' };
 
     if (correct) {
       const p = (t - expandStartSec(mode)) / REVEAL.expandSec;
-      if (p <= 0) return { ...idle, phase: 'idle' };
+      const highlightFrom = Math.max(holdSec + elimSec(mode), expandStartSec(mode) - REVEAL.highlightSec);
+      const highlight = smooth((t - highlightFrom) / REVEAL.highlightSec);
+      if (p <= 0) return { ...idle, phase: 'idle', highlight };
       const expand = springAt(frame, expandStartTick, 'bouncy');
       return {
         ...idle,
@@ -93,6 +106,7 @@ export const optionStateAt = (item: Item, frame: number, mode: RevealMode): Opti
         stateAt: expandStartTick,
         expand,
         scale: 1 + REVEAL.expandScale * expand,
+        highlight,
       };
     }
 
@@ -158,6 +172,7 @@ export const RevealEngine: React.FC<RevealEngineProps> = ({
             frame={frame}
             at={enterAt}
             stateAt={s.chipState === 'idle' ? undefined : from + s.stateAt}
+            highlight={s.highlight}
             level={level}
             width={width}
             height={height}

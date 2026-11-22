@@ -7,6 +7,7 @@ import { HOOK_TEXT } from '../scenes/Hook';
 import { LevelCard } from '../scenes/LevelCard';
 import { QuestionScene, itemFrames } from '../scenes/QuestionScene';
 import { ScoreCard } from '../scenes/ScoreCard';
+import { levelBackground } from '../system';
 import { partRanges, secToTicks, segments, ticksToFrames, useGta6Frame } from '../timing';
 import { bannerStart, nextRound, roundLabel } from './Part1';
 import type { Placed } from './Part1';
@@ -123,6 +124,8 @@ export const Part3: React.FC = () => (
             <React.Fragment key={key}>
               {isReplay && (
                 <Sequence from={ticksToFrames(part3Replay.at)} durationInFrames={ticksToFrames(part3Replay.ticks)} layout="absolute-fill">
+                  {/* opaque base, same reason as in Hook: the notification fades from opacity 0 and nothing else is mounted here */}
+                  <div style={{ position: 'absolute', inset: 0, background: levelBackground[seg.item.level] }} />
                   <ReplayLock item={seg.item} />
                 </Sequence>
               )}

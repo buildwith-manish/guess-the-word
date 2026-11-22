@@ -5,7 +5,7 @@ import type { RuleTile } from '../components';
 import { byLevel, items } from '../data';
 import { cue } from '../sfx';
 import type { SfxCue } from '../sfx';
-import { FRAME, SAFE, springAt, u } from '../system';
+import { FRAME, SAFE, levelBackground, springAt, u } from '../system';
 import { hookSec, secToTicks, ticksToFrames, useGta6Frame } from '../timing';
 import { QuestionScene } from './QuestionScene';
 import { ShellVoiceContext } from '../voiceContext';
@@ -99,6 +99,8 @@ const Lock: React.FC = () => {
 
 export const Hook: React.FC<{ at?: number }> = ({ at = 0 }) => (
   <Sequence from={ticksToFrames(at)} durationInFrames={ticksToFrames(hookTicks)} layout="absolute-fill">
+    {/* opaque base: LockNotification fades in from opacity 0 and Q1 only mounts after it, so without this tick 0 paints nothing (transparent) */}
+    <div style={{ position: 'absolute', inset: 0, background: levelBackground[FIRST.level] }} />
     {/* Q1 runs under everything; it starts when the notification ends. Its own counter is off: the hook draws 0 / total. */}
     {/* the hook is a silent teaser for Q1 (the hook line plays over it); Q1 is voiced in its own segment, never twice */}
     <ShellVoiceContext.Provider value={false}>

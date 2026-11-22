@@ -93,6 +93,7 @@ export const MessagesLook: React.FC<MessagesLookProps> = ({ item, phase, localFr
                       frame={localFrame}
                       at={chipsAt + s.index * stagger}
                       stateAt={tremble ? trembleAt : s.chipState === 'idle' ? undefined : revealFrom + s.stateAt}
+                      highlight={s.highlight}
                       level={GREEN}
                       width={CHIPS.width}
                       height={CHIPS.height}
