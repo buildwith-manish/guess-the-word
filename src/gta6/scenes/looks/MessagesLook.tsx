@@ -28,7 +28,7 @@ export const MESSAGES = {
 } as const;
 
 const GREEN = 'easy' as const;
-const BUBBLE = { left: SAFE.x + 200 + 40, top: SAFE.top, width: 900 }; // right of the timer ring slot
+const BUBBLE = { left: SLOTS.questionLeft, top: SAFE.top, width: 900 }; // right of the score counter (top-left corner)
 const CHIPS = { left: SAFE.x, width: 1000, height: 112, gap: 16 };
 
 const dotsFor = (frame: number, at: number) => {

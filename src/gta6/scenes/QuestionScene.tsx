@@ -62,8 +62,8 @@ const renderLook = (look: string, ctx: ShellContext): React.ReactNode => {
  */
 const FastestWrapper: React.FC<{ item: Item; children: React.ReactNode }> = ({ children }) => <>{children}</>;
 
-/** On-screen words of the shell (same pattern as HOOK_TEXT in Hook.tsx). The number itself is item.n. */
-const SHELL_LABELS = { questionLabel: 'Q', watermark: { quiz: 'QUIZ', matrix: 'MATRIX' } } as const;
+/** On-screen words of the shell (same pattern as HOOK_TEXT in Hook.tsx). */
+const SHELL_LABELS = { watermark: { quiz: 'QUIZ', matrix: 'MATRIX' } } as const;
 
 export type QuestionSceneProps = { item: Item; at: number; /** false = no score counter (the hook draws its own). */ hud?: boolean };
 

@@ -31,5 +31,5 @@ export { presence } from './presence';
 export { QuestionShell, SLOTS, localPhases, phaseAt } from './QuestionShell';
 export type { QuestionShellProps, ShellContext, ShellPhase, ShellLabels, LocalPhases } from './QuestionShell';
 export { hudCounts, hudTotals } from './hudCounts';
-export { QuestionNumber, Gta6Watermark, QuestionTag, GTA6_WATERMARK_LOGO } from './QuestionTag';
-export type { QuestionNumberProps, Gta6WatermarkProps, QuestionTagProps } from './QuestionTag';
+export { Gta6Watermark, Gta6WatermarkCorner, GTA6_WATERMARK_LOGO } from './Watermark';
+export type { Gta6WatermarkProps } from './Watermark';

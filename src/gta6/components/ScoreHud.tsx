@@ -1,5 +1,5 @@
 /**
- * ScoreHud: "n / total" counter in the top-right corner with an activity-ring trio.
+ * ScoreHud: "n / total" counter in a top corner (right by default, `side="left"`) with an activity-ring trio.
  *
  * DESIGN CHOICE (documented on purpose): answers are NOT scored on screen. The number shown is the
  * POSSIBLE score, i.e. it climbs by item index (item 1 -> 1, item 2 -> 2 ...), whether or not the
@@ -27,12 +27,14 @@ export type ScoreHudProps = {
   at?: number;
   /** Items per level [easy, medium, hard]; defaults to thirds of `total`. */
   levelTotals?: readonly [number, number, number];
+  /** Which top corner (default right). */
+  side?: 'left' | 'right';
 };
 
 const RING_W = 9;
 const SIZE = 104;
 
-export const ScoreHud: React.FC<ScoreHudProps> = ({ score, total, from, frame, at = 0, levelTotals }) => {
+export const ScoreHud: React.FC<ScoreHudProps> = ({ score, total, from, frame, at = 0, levelTotals, side = 'right' }) => {
   const shown =
     from !== undefined && frame !== undefined ? from + (score - from) * springAt(frame, at, 'snappy') : score;
 
@@ -69,7 +71,7 @@ export const ScoreHud: React.FC<ScoreHudProps> = ({ score, total, from, frame, a
     <div
       style={{
         position: 'absolute',
-        right: u(SAFE.x),
+        ...(side === 'left' ? { left: u(SAFE.x) } : { right: u(SAFE.x) }),
         top: u(SAFE.top),
         display: 'flex',
         alignItems: 'center',

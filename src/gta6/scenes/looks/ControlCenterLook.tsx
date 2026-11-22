@@ -19,6 +19,7 @@ import { extraIds } from '../../data';
 import { FRAME, SAFE, colors, radius, springAt, textStyle, u, blurPx } from '../../system';
 import { secToTicks } from '../../timing';
 import { FrostCard, timerMath } from '../../components';
+import { SLOTS } from '../../components/QuestionShell';
 import type { ShellContext } from '../../components/QuestionShell';
 import { cue } from '../../sfx';
 import type { SfxCue } from '../../sfx';
@@ -40,7 +41,7 @@ const GRID_H = 2 * TILE.h + TILE.gap;
 const GRID_TOP = FRAME.h - SAFE.bottom - GRID_H;
 const SLIDER = { w: 160, h: GRID_H, left: FRAME.w - SAFE.x - 160 };
 const SIDE = { left: SAFE.x + GRID_W + 40, w: SLIDER.left - 40 - (SAFE.x + GRID_W + 40), h: TILE.h };
-const QUESTION = { left: SAFE.x + 200 + 40, top: SAFE.top, width: 1000 };
+const QUESTION = { left: SLOTS.questionLeft, top: SAFE.top, width: 1000 };
 
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 const mixHex = (a: number, b: number, t: number) => Math.round(a + (b - a) * t);

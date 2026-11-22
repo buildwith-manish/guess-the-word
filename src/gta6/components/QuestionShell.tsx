@@ -35,7 +35,7 @@ import { DidYouKnowCard } from './DidYouKnowCard';
 import { EdgeGlow } from './EdgeGlow';
 import { NotificationBanner } from './NotificationBanner';
 import { ScoreHud } from './ScoreHud';
-import { QuestionTag } from './QuestionTag';
+import { Gta6WatermarkCorner } from './Watermark';
 import { hudCounts } from './hudCounts';
 import { Shake } from './Shake';
 import { TimerRing } from './TimerRing';
@@ -71,9 +71,7 @@ export type ShellLabels = {
   spoiler?: string;
   /** Blurred title in the bonus banner. Default: item.n. */
   banner?: string;
-  /** Small label before the question number (the number is item.n). The number is not drawn when `tag` is false; for bonus items no label is shown. */
-  questionLabel?: string;
-  /** Words of the QUIZ MATRIX watermark. Drawn next to the question number when given. */
+  /** Words of the QUIZ MATRIX watermark, drawn in the top-right corner when given. */
   watermark?: { quiz: string; matrix: string };
 };
 
@@ -81,8 +79,13 @@ export type ShellLabels = {
 export const SLOTS = {
   timerRing: { left: SAFE.x, top: SAFE.top, size: 200 },
   spoiler: { left: SAFE.x, bottom: SAFE.bottom },
-  /** question number + watermark: under the timer ring (ring bottom + 28), or in the corner when there is no ring */
-  tag: { left: SAFE.x, top: SAFE.top + 200 + 28, topNoRing: SAFE.top },
+  /**
+   * Timer ring beside the options (right of the answer column, centred on it). 1000 = chip width and 112 / 16 = chip
+   * height / gap of MessagesLook's CHIPS; the block is bottom-aligned on SAFE.bottom.
+   */
+  timerBeside: { left: SAFE.x + 1000 + 60, centerY: FRAME.h - SAFE.bottom - (4 * 112 + 3 * 16) / 2, size: 240 },
+  /** Left edge for a question card that sits in the top row, right of the score counter in the top-left corner. */
+  questionLeft: SAFE.x + 322 + 36,
   dyk: { left: FRAME.w - SAFE.x - 640, top: FRAME.h / 2 - 120, width: 640 },
 } as const;
 
@@ -184,6 +187,7 @@ export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, child
 
       {hud ? (
         <ScoreHud
+          side="left"
           {...hudCounts(item)}
           frame={localFrame}
           at={0}
@@ -194,10 +198,9 @@ export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, child
         <div
           style={{
             position: 'absolute',
-            top: u(SLOTS.timerRing.top),
             ...(island
-              ? { left: 0, right: 0, display: 'flex', justifyContent: 'center' }
-              : { left: u(SLOTS.timerRing.left) }),
+              ? { top: u(SLOTS.timerRing.top), left: 0, right: 0, display: 'flex', justifyContent: 'center' }
+              : { top: u(SLOTS.timerBeside.centerY - SLOTS.timerBeside.size / 2), left: u(SLOTS.timerBeside.left) }),
           }}
         >
           <TimerRing
@@ -206,27 +209,13 @@ export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, child
             dur={phases.timer.to - phases.timer.from}
             variant={island ? 'island' : 'ring'}
             level={level}
-            size={island ? undefined : SLOTS.timerRing.size}
+            size={island ? undefined : SLOTS.timerBeside.size}
           />
         </div>
       ) : null}
 
-      {labels?.questionLabel !== undefined || labels?.watermark ? (
-        <QuestionTag
-          n={item.n}
-          label={item.kind === 'q' ? labels?.questionLabel : undefined}
-          frame={localFrame}
-          at={phases.read.from}
-          outAt={phases.reveal.from}
-          level={level}
-          // The watermark is shown settled in every item (no entrance replay per question): a `since` far in the past.
-          globalFrame={localFrame}
-          watermarkSince={-300}
-          quiz={labels?.watermark?.quiz}
-          matrix={labels?.watermark?.matrix}
-          left={SLOTS.tag.left}
-          top={island || !showTimer ? SLOTS.tag.topNoRing : SLOTS.tag.top}
-        />
+      {labels?.watermark ? (
+        <Gta6WatermarkCorner globalFrame={localFrame} since={-300} quiz={labels.watermark.quiz} matrix={labels.watermark.matrix} />
       ) : null}
 
       {labels?.spoiler ? (
