@@ -9,7 +9,7 @@ on:
       composition:
         description: 'Composition id'
         required: false
-        default: 'GuessTheState'
+        default: ''
   push:
     tags: ['audiotest-*']
 
@@ -32,13 +32,18 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y ffmpeg
       - name: Render reference and pieces, compare
         env:
-          COMP: ${{ inputs.composition || 'GuessTheState' }}
+          COMP: ${{ inputs.composition || (contains(github.ref_name, 'search') && 'SearchHistory' || 'GuessTheState') }}
         run: |
           mkdir -p out/t
           FAIL=0
-          # start mid end  (mid is where the two pieces are cut; ranges are spread over the video)
-          for R in "1200 1500 1799" "9000 9250 9499" "30000 30300 30599" "52000 52200 52399"; do
-            set -- $R; S=$1; M=$2; E=$3
+          npx remotion compositions src/index.ts > comps.out 2>&1 || { cat comps.out; exit 1; }
+          TOTAL=$(sed 's/\x1b\[[0-9;?]*[A-Za-z]//g' comps.out | grep -E "^$COMP[[:space:]]" | awk '{print $4}' | head -1)
+          [ -n "$TOTAL" ] || { echo "cannot read the length of $COMP"; cat comps.out; exit 1; }
+          echo "$COMP: $TOTAL frames"
+          # four ranges of 400 frames spread over the video (2%, 16%, 52%, 91%), each cut in the middle
+          for P in 2 16 52 91; do
+            S=$(( TOTAL * P / 100 )); M=$(( S + 250 )); E=$(( S + 399 ))
+            [ $E -lt $TOTAL ] || { E=$(( TOTAL - 1 )); }
             echo "=== range $S-$E, cut at $M ==="
             F="npx remotion render src/index.ts $COMP"
             C="--config=remotion.audio.config.ts --codec=wav --log=error"
