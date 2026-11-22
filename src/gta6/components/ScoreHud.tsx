@@ -29,12 +29,16 @@ export type ScoreHudProps = {
   levelTotals?: readonly [number, number, number];
   /** Which top corner (default right). */
   side?: 'left' | 'right';
+  /** Distance from the side edge in reference units (default SAFE.x). */
+  inset?: number;
+  /** Overall size, 1 = full (default). The box shrinks toward its corner. */
+  scale?: number;
 };
 
 const RING_W = 9;
 const SIZE = 104;
 
-export const ScoreHud: React.FC<ScoreHudProps> = ({ score, total, from, frame, at = 0, levelTotals, side = 'right' }) => {
+export const ScoreHud: React.FC<ScoreHudProps> = ({ score, total, from, frame, at = 0, levelTotals, side = 'right', inset = SAFE.x, scale = 1 }) => {
   const shown =
     from !== undefined && frame !== undefined ? from + (score - from) * springAt(frame, at, 'snappy') : score;
 
@@ -71,8 +75,10 @@ export const ScoreHud: React.FC<ScoreHudProps> = ({ score, total, from, frame, a
     <div
       style={{
         position: 'absolute',
-        ...(side === 'left' ? { left: u(SAFE.x) } : { right: u(SAFE.x) }),
+        ...(side === 'left' ? { left: u(inset) } : { right: u(inset) }),
         top: u(SAFE.top),
+        transform: `scale(${scale})`,
+        transformOrigin: side === 'left' ? 'top left' : 'top right',
         display: 'flex',
         alignItems: 'center',
         gap: u(22),

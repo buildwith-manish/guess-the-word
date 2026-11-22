@@ -79,13 +79,24 @@ export type ShellLabels = {
 export const SLOTS = {
   timerRing: { left: SAFE.x, top: SAFE.top, size: 200 },
   spoiler: { left: SAFE.x, bottom: SAFE.bottom },
+  /** Score counter in the top-left corner: distance from the left edge and size (1 = full). */
+  hud: { left: 56, scale: 0.8 },
   /**
-   * Timer ring beside the options (right of the answer column, centred on it). 1000 = chip width and 112 / 16 = chip
-   * height / gap of MessagesLook's CHIPS; the block is bottom-aligned on SAFE.bottom.
+   * Timer ring beside the options, per look (centre of the ring; the ring shows until the reveal). Each look keeps its
+   * options in a different place, so each gets its own free spot:
+   *   messages       right of the answer column (chips 1000 wide from SAFE.x, bottom-aligned)
+   *   maps           left of the 2x2 tile grid (grid is 824 wide, flush right, bottom-aligned)
+   *   photos         right of the centred 2x2 photo grid
+   *   controlCenter  right of the question card, above the slider (the grid, side card and slider fill the right and bottom)
    */
-  timerBeside: { left: SAFE.x + 1000 + 60, centerY: FRAME.h - SAFE.bottom - (4 * 112 + 3 * 16) / 2, size: 240 },
+  timerBeside: {
+    messages: { left: 1206, centerY: FRAME.h - SAFE.bottom - (4 * 112 + 3 * 16) / 2, size: 240 },
+    maps: { left: FRAME.w - SAFE.x - 824 - 60 - 240, centerY: FRAME.h - SAFE.bottom - 252, size: 240 },
+    photos: { left: 1490, centerY: 612, size: 240 },
+    controlCenter: { left: 1400, centerY: 300, size: 200 },
+  },
   /** Left edge for a question card that sits in the top row, right of the score counter in the top-left corner. */
-  questionLeft: SAFE.x + 322 + 36,
+  questionLeft: 56 + 334 * 0.8 + 26,
   dyk: { left: FRAME.w - SAFE.x - 640, top: FRAME.h / 2 - 120, width: 640 },
 } as const;
 
@@ -170,6 +181,7 @@ export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, child
   // Edge glow builds from urgentFrom and fades out over the first ticks of the hold/reveal.
   const glowOpacity = 1 - clamp01((localFrame - phases.timer.to) / 8);
   const island = level === 'hard';
+  const beside = SLOTS.timerBeside[item.look as keyof typeof SLOTS.timerBeside] ?? SLOTS.timerBeside.messages;
 
   const au = audioOf(item);
   const revealMode = ctx.revealMode;
@@ -188,6 +200,8 @@ export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, child
       {hud ? (
         <ScoreHud
           side="left"
+          inset={SLOTS.hud.left}
+          scale={SLOTS.hud.scale}
           {...hudCounts(item)}
           frame={localFrame}
           at={0}
@@ -200,7 +214,7 @@ export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, child
             position: 'absolute',
             ...(island
               ? { top: u(SLOTS.timerRing.top), left: 0, right: 0, display: 'flex', justifyContent: 'center' }
-              : { top: u(SLOTS.timerBeside.centerY - SLOTS.timerBeside.size / 2), left: u(SLOTS.timerBeside.left) }),
+              : { top: u(beside.centerY - beside.size / 2), left: u(beside.left) }),
           }}
         >
           <TimerRing
@@ -209,7 +223,7 @@ export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, child
             dur={phases.timer.to - phases.timer.from}
             variant={island ? 'island' : 'ring'}
             level={level}
-            size={island ? undefined : SLOTS.timerBeside.size}
+            size={island ? undefined : beside.size}
           />
         </div>
       ) : null}
