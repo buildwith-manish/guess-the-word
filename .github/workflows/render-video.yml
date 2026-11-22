@@ -28,7 +28,7 @@ on:
       audio_chunks:
         description: 'Number of audio pieces (parallel jobs). 1 = one single audio render'
         required: false
-        default: '30'
+        default: '120'
       resume_from_run:
         description: 'Run id of an earlier run whose chunk / audio artifacts should be reused'
         required: false
@@ -124,7 +124,7 @@ jobs:
           PER=$(( (TOTAL + CHUNKS - 1) / CHUNKS ))
           COUNT=$(( (TOTAL + PER - 1) / PER ))
           LIST=$(python3 -c "import json; print(json.dumps(list(range(1, $COUNT + 1))))")
-          ACH="${IN_ACHUNKS:-30}"
+          ACH="${IN_ACHUNKS:-120}"
           APER=$(( (TOTAL + ACH - 1) / ACH ))
           ACOUNT=$(( (TOTAL + APER - 1) / APER ))
           ALIST=$(python3 -c "import json; print(json.dumps(list(range(1, $ACOUNT + 1))))")
