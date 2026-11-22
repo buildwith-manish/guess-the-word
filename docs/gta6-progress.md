@@ -13,6 +13,7 @@ The task table (docs/gta6-prompts-split.md) is not in the repo on any branch and
 - [x] 2e: `src/gta6/components/QuestionShell.tsx` (exported from `components/index.ts`); `docs/gta6-context.md` section 5 now has one component table.
   - Verification: `npx tsc --noEmit` reports no errors in `src/gta6/`. It does report 3 errors in earlier files (`src/fontshare/load-fonts.ts`: missing `@remotion/google-fonts/PlusJakartaSans` and `JetBrainsMono`; `src/timing.ts` line 45: type cast). Not touched. `npm ci` fails (package-lock.json out of sync with package.json); deps were installed with `npm install --no-save --no-package-lock`.
   - No render or `remotion still` was run.
+- [x] 3a: `src/gta6/scenes/looks/MessagesLook.tsx` (props = shell ctx subset: `item, phase, localFrame, phases, revealFrom`). Beat lengths (dots 0.8 s, stagger 0.1 s, tremble 2 s, notes-out 0.3 s) are in a local `MESSAGES` const in seconds. No render run.
 
 ## Next step
 Supply the task table (docs/gta6-prompts-split.md) so the remaining task IDs can be added to this checklist. Open points from `docs/gta6-context.md`: 2560x1440 at 60 fps is the repo convention, not 1920x1080.
