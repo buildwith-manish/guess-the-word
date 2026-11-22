@@ -29,10 +29,10 @@ export const GTA6_WATERMARK_LOGO: QuizMatrixLogo = {
 };
 
 export type QuestionNumberProps = {
-  /** The question number to show (from the item's order). */
-  n: number;
-  /** Small label before the number (supplied by the scene). */
-  label: string;
+  /** The number to show: the item's own label ("1" to "42", "B1" for a bonus). */
+  n: string | number;
+  /** Small label before the number (supplied by the scene); omit for none. */
+  label?: string;
   frame: number;
   /** Local start frame. */
   at: number;
@@ -59,9 +59,11 @@ export const QuestionNumber: React.FC<QuestionNumberProps> = ({ n, label, frame,
         whiteSpace: 'nowrap',
       }}
     >
-      <span style={{ ...textStyle('caption'), fontSize: u(30), fontWeight: 700, letterSpacing: u(2), color: colors.muted }}>
-        {label}
-      </span>
+      {label ? (
+        <span style={{ ...textStyle('caption'), fontSize: u(30), fontWeight: 700, letterSpacing: u(2), color: colors.muted }}>
+          {label}
+        </span>
+      ) : null}
       <span style={{ ...textStyle('number'), fontSize: u(56), lineHeight: 1, color: colors.ink }}>{n}</span>
     </div>
   );
@@ -92,8 +94,9 @@ export const Gta6Watermark: React.FC<Gta6WatermarkProps> = ({ globalFrame, since
 export type QuestionTagProps = QuestionNumberProps & {
   globalFrame: number;
   watermarkSince?: number;
-  quiz: string;
-  matrix: string;
+  /** Watermark words; the watermark is not drawn unless both are given. */
+  quiz?: string;
+  matrix?: string;
   /** Position of the cluster's top-left, in reference units. Defaults: left margin, band between question and options. */
   left?: number;
   top?: number;
@@ -119,6 +122,6 @@ export const QuestionTag: React.FC<QuestionTagProps> = ({
     }}
   >
     <QuestionNumber {...number} />
-    <Gta6Watermark globalFrame={globalFrame} since={watermarkSince} quiz={quiz} matrix={matrix} />
+    {quiz && matrix ? <Gta6Watermark globalFrame={globalFrame} since={watermarkSince} quiz={quiz} matrix={matrix} /> : null}
   </div>
 );

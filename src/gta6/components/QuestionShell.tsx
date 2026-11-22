@@ -35,6 +35,7 @@ import { DidYouKnowCard } from './DidYouKnowCard';
 import { EdgeGlow } from './EdgeGlow';
 import { NotificationBanner } from './NotificationBanner';
 import { ScoreHud } from './ScoreHud';
+import { QuestionTag } from './QuestionTag';
 import { hudCounts } from './hudCounts';
 import { Shake } from './Shake';
 import { TimerRing } from './TimerRing';
@@ -70,12 +71,18 @@ export type ShellLabels = {
   spoiler?: string;
   /** Blurred title in the bonus banner. Default: item.n. */
   banner?: string;
+  /** Small label before the question number (the number is item.n). The number is not drawn when `tag` is false; for bonus items no label is shown. */
+  questionLabel?: string;
+  /** Words of the QUIZ MATRIX watermark. Drawn next to the question number when given. */
+  watermark?: { quiz: string; matrix: string };
 };
 
 /** Slot positions, reference units (1920x1080). */
 export const SLOTS = {
   timerRing: { left: SAFE.x, top: SAFE.top, size: 200 },
   spoiler: { left: SAFE.x, bottom: SAFE.bottom },
+  /** question number + watermark: under the timer ring (ring bottom + 28), or in the corner when there is no ring */
+  tag: { left: SAFE.x, top: SAFE.top + 200 + 28, topNoRing: SAFE.top },
   dyk: { left: FRAME.w - SAFE.x - 640, top: FRAME.h / 2 - 120, width: 640 },
 } as const;
 
@@ -202,6 +209,24 @@ export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, child
             size={island ? undefined : SLOTS.timerRing.size}
           />
         </div>
+      ) : null}
+
+      {labels?.questionLabel !== undefined || labels?.watermark ? (
+        <QuestionTag
+          n={item.n}
+          label={item.kind === 'q' ? labels?.questionLabel : undefined}
+          frame={localFrame}
+          at={phases.read.from}
+          outAt={phases.reveal.from}
+          level={level}
+          // The watermark is shown settled in every item (no entrance replay per question): a `since` far in the past.
+          globalFrame={localFrame}
+          watermarkSince={-300}
+          quiz={labels?.watermark?.quiz}
+          matrix={labels?.watermark?.matrix}
+          left={SLOTS.tag.left}
+          top={island || !showTimer ? SLOTS.tag.topNoRing : SLOTS.tag.top}
+        />
       ) : null}
 
       {labels?.spoiler ? (
