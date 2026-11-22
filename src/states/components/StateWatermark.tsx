@@ -1,65 +1,39 @@
 /**
- * StateWatermark (round two, Step 1): the States-only QUIZ MATRIX badge. The shared src/Watermark.tsx is untouched (the
- * word quiz and the pixel video still use it). Same corner and the same entrance (global frame, 0.7 s after a 0.2 s
- * delay), but in the iOS look: Inter, label colour, 0.14em tracking and a glass pill, with the animated QUIZ MATRIX bulb
- * logo (sprite sheet) in place of the old outline glyph. Pure function of the global frame.
+ * StateWatermark: the States QUIZ MATRIX badge, top right. The drawing and the entrance live in the shared
+ * src/ios/QuizMatrixBadge.tsx (same component as the Search History video); this file only places it and says where
+ * the logo sprite is. The shared src/Watermark.tsx is untouched (the word quiz and the pixel video still use it).
+ *
+ * Same corner as before (BADGE.top / BADGE.right) and the same height as the HUD pill, so the two line up. It is
+ * mounted inside several scenes, so it reads the clock of the whole video: the logo loop and the entrance never restart
+ * at a scene change. The entrance (logo alone, then QUIZ over MATRIX) plays from the first stage scene.
  */
 import React from 'react';
-import { Img, staticFile } from 'remotion';
 import { useDesignFrame } from '../../clock';
-import { px, K } from '../../style';
-import { prog, htmlEase, ms } from '../../anim';
+import { px } from '../../style';
 import settings from '../../../settings.json';
-import { BADGE, COLOR, FONT, RADIUS, TRACKING, WEIGHT, glassPanel } from '../look';
+import { QuizMatrixBadge } from '../../ios/QuizMatrixBadge';
+import { BADGE } from '../look';
+import { TIMELINE } from '../state-timing';
 
-/**
- * The logo: one cell of the sprite sheet per design tick (82 frames at 30 fps, looping). Remotion's <Img> holds the render
- * until the sheet has loaded, so the first frame is never empty. A pure function of the frame, so it renders the same in
- * any order.
- */
-const Logo: React.FC<{ frame: number }> = ({ frame }) => {
-  const L = BADGE.logo;
-  const size = px(L.size);
-  const i = Math.floor((frame * L.fps) / 30) % L.frames;
-  const col = i % L.cols;
-  const row = Math.floor(i / L.cols);
-  return (
-    <div style={{ position: 'relative', width: size, height: size, margin: `${-px(L.overhang)}px 0`, flex: 'none', overflow: 'hidden' }}>
-      <Img
-        src={staticFile(L.file)}
-        style={{ position: 'absolute', left: -col * size, top: -row * size, width: size * L.cols, height: size * L.rows, maxWidth: 'none' }}
-      />
-    </div>
-  );
-};
+/** HUD pill height, ref px: 8 + 8 padding around a 24 px Inter line (StateStage). */
+const HEIGHT = 45;
+
+/** The tick the badge first appears: the first scene that shows the stage (question, reminder, or a wipe that keeps it). */
+const SINCE =
+  TIMELINE.segments.find((s) => s.kind === 'question' || s.kind === 'reminder' || (s.kind === 'iris' && s.watermark))?.from ?? 0;
 
 export const StateWatermark: React.FC = () => {
   const frame = useDesignFrame();
-  const entry = prog(frame, ms(200), ms(700), htmlEase);
   return (
-    <div style={{ position: 'absolute', zIndex: 13, top: px(BADGE.top), right: px(BADGE.right), pointerEvents: 'none' }}>
-      <div
-        style={{
-          ...glassPanel(RADIUS.pill, undefined, BADGE.depth),
-          display: 'flex',
-          alignItems: 'center',
-          gap: px(BADGE.gap),
-          padding: `${px(BADGE.padY)}px ${px(BADGE.padX)}px ${px(BADGE.padY)}px ${px(BADGE.padX - 6)}px`,
-          fontFamily: FONT.sans,
-          fontWeight: WEIGHT.strong,
-          fontSize: px(BADGE.fontSize),
-          lineHeight: 1,
-          letterSpacing: TRACKING.label,
-          color: COLOR.text.label,
-          opacity: entry,
-          transform: `translateY(${(1 - entry) * -12 * K}px) scale(${0.92 + 0.08 * entry})`,
-        }}
-      >
-        <Logo frame={frame} />
-        <span>
-          {settings.brand.quiz} {settings.brand.matrix}
-        </span>
-      </div>
+    <div style={{ position: 'absolute', zIndex: 13, top: px(BADGE.top), right: px(BADGE.right), height: px(HEIGHT), pointerEvents: 'none' }}>
+      <QuizMatrixBadge
+        frame={frame}
+        since={SINCE}
+        height={px(HEIGHT)}
+        logo={BADGE.logo}
+        quiz={settings.brand.quiz}
+        matrix={settings.brand.matrix}
+      />
     </div>
   );
 };
