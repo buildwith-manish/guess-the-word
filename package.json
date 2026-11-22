@@ -37,7 +37,8 @@
     "states:voiceover:script": "node scripts/states-voiceover-script.js",
     "states:voiceover:scan": "node scripts/states-voiceover-scan.js",
     "states:dev": "remotion studio",
-    "states:still": "remotion still GuessTheState out/states-still.png --frame=1000"
+    "states:still": "remotion still GuessTheState out/states-still.png --frame=1000",
+    "states:thumbs": "node scripts/make-states-thumbnails.js"
   },
   "dependencies": {
     "@react-three/fiber": "^9.3.0",
