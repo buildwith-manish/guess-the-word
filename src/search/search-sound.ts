@@ -17,7 +17,7 @@ import rootSettings from '../../settings.json';
 import manifest from '../sound-manifest.json';
 import iosFiles from './search-sound-files.json';
 import type { Cue, Sfx, Voice } from '../sound';
-import { FPS, TIMELINE, TIME_SCALE, buildBonusPlan, voiceLevel, voiceIntro, voiceBonus, voiceClue } from './search-timing';
+import { FPS, TIMELINE, TIME_SCALE, buildBonusPlan, voiceLevel, voiceIntro, voiceBonus, voiceBonusIntro, voiceClue, voiceHint } from './search-timing';
 import { buildBonusCues } from './scenes/searchBonusCues';
 import { searchRoundCues } from './scenes/searchRoundCues';
 import { searchHookCues } from './scenes/SearchHook';
@@ -133,6 +133,8 @@ const buildCues = (): Cue[] => {
         place(base, searchRoundCues(seg.index));
         // each clue is read while it types (clips exist only once the manifest has all three for the round)
         ROUNDS[seg.index].searches.forEach((_, i) => voice(base + plan.searchAt[i], voiceClue(ROUNDS[seg.index].id, i)));
+        // the spoken hint, when the hint appears (a short clip: it ends well before the riser)
+        voice(base + plan.hintAt + VO_AT, voiceHint(ROUNDS[seg.index].id));
         // riser into the answer: the last second of the think phase
         add(base + Math.max(plan.thinkStart, plan.revealAt - riserFrames), 'riser');
         HUSHES.push({ from: Math.round(base + plan.revealAt - HUSH_LEAD), to: Math.round(base + plan.revealAt) });
@@ -142,6 +144,7 @@ const buildCues = (): Cue[] => {
       case 'bonus': {
         const plan = buildBonusPlan(seg.index);
         place(0, buildBonusCues(seg.index, f0));
+        voice(f0 + VO_AT, voiceBonusIntro(seg.index + 1));
         add(f0 + Math.max(plan.clockStart, plan.clockStart + plan.clockFrames - riserFrames), 'riser');
         HUSHES.push({ from: Math.round(f0 + plan.revealAt - HUSH_LEAD), to: Math.round(f0 + plan.revealAt) });
         voice(f0 + plan.revealAt + VO_AT, voiceBonus(seg.index + 1));

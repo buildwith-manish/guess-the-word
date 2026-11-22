@@ -48,7 +48,11 @@ const vo = voManifest as unknown as {
   /** round id -> the three clue clips (clue 1 hardest ... clue 3 easiest) */
   clue?: Record<string, VoEntry[]>;
   reveal: Record<string, VoEntry>;
+  /** round id -> the spoken hint (played when the hint appears; must fit the think window) */
+  hint?: Record<string, VoEntry>;
   bonus: Record<string, VoEntry>;
+  /** bonus number -> the bonus intro line (played from the start of the bonus scene) */
+  bonusIntro?: Record<string, VoEntry>;
   scoreboard: Record<string, VoEntry>;
   outro: VoEntry;
 };
@@ -62,8 +66,12 @@ export const voiceLevel = (levelIndex: number) => clipOf(vo.level[String(levelIn
 export const voiceClue = (roundId: number, clueIndex: number) => clipOf(vo.clue?.[String(roundId)]?.[clueIndex]);
 /** round id (1-30) */
 export const voiceReveal = (roundId: number) => clipOf(vo.reveal[String(roundId)]);
-/** bonus number (1-3) */
+/** round id (1-30): the spoken hint */
+export const voiceHint = (roundId: number) => clipOf(vo.hint?.[String(roundId)]);
+/** bonus number (1-3): the answer */
 export const voiceBonus = (bonusNumber: number) => clipOf(vo.bonus[String(bonusNumber)]);
+/** bonus number (1-3): the intro line */
+export const voiceBonusIntro = (bonusNumber: number) => clipOf(vo.bonusIntro?.[String(bonusNumber)]);
 /** rank key: legend, expert, good, beginner, keepgoing */
 export const voiceScoreboard = (rank: string) => clipOf(vo.scoreboard[rank]);
 
@@ -235,11 +243,23 @@ export const buildBonusPlan = (index: number): BonusPlan => {
 
 const hookFrames = () => Math.max(T.hookA + T.hookB, needFor(voiceIntro()));
 const levelCardFrames = (levelIndex: number) => Math.max(cfg.levelCardFrames, needFor(voiceLevel(levelIndex)));
+/** The scoreboard reads its intro line and then one line per rank (best first), back to back, starting after the rows
+ *  have landed (scenes/searchScoreboardCues.ts scoreboardVoice). That file imports this one, so its constants are
+ *  mirrored here; the QA check "every clip starts and ends inside its own scene" fails if they drift apart. */
+const SB_ROW_BASE = 46; // DOTS_AT + DOTS_SPAN + DOTS_TO_ROWS
+const SB_ROW_STEP = 22;
+const SB_VO_AFTER_ROWS = 10;
+const SB_VO_GAP = 4;
+const scoreboardVoiceEndTick = () => {
+  const keys = ['intro', ...cfg.ranks.map((r) => r.name.replace(/\s+/g, '').toLowerCase())];
+  const clips = keys.map((k) => voiceScoreboard(k)).filter((c): c is VoClip => Boolean(c));
+  if (!clips.length) return 0;
+  const start = SB_ROW_BASE + (cfg.ranks.length - 1) * SB_ROW_STEP + SB_ROW_STEP + SB_VO_AFTER_ROWS;
+  return start + clips.reduce((sum, c) => sum + c.frames, 0) + SB_VO_GAP * (clips.length - 1);
+};
+/** The scene runs until the whole sequence of lines has been read (plus the usual tail). */
 const scoreboardFrames = () =>
-  Math.max(
-    rootSettings.scoreboard.frames,
-    ...cfg.ranks.map((r) => needFor(voiceScoreboard(r.name.replace(/\s+/g, '').toLowerCase()))),
-  );
+  Math.max(rootSettings.scoreboard.frames, scoreboardVoiceEndTick() ? scoreboardVoiceEndTick() + VO.tailFrames : 0);
 const endScreenFrames = () => Math.max(rootSettings.endScreen.frames, needFor(voiceOutro()));
 
 // ----------------------------------------------------------------- timeline

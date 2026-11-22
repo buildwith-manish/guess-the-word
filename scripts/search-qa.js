@@ -305,6 +305,41 @@ const main = async () => {
   check('think phase: fixed layout (no clips)', () => thinkChecks(t, 'fixed', undefined));
   check(`think phase: voiced layout (fixture, ${FIXTURE_CLUE_SECONDS} s clues)`, () => thinkChecks(fx, 'voiced', Math.ceil(FIXTURE_CLUE_SECONDS * fx.FPS)));
 
+  // 13-15. real voiceover (manifest from `npm run search:voice`); these pass trivially while the manifest is empty
+  const VO_AT = rootSettings.voiceover.offsetFrames;
+  const secsOf = (e) => (e && Number(e.seconds) > 0 ? Math.ceil(Number(e.seconds) * t.FPS) : null);
+  check('voiceover: each hint clip ends before the riser, inside the think window', () => {
+    const bad = [];
+    const riser = rootSettings.sound.panic.riserFrames;
+    ROUNDS.forEach((r, i) => {
+      const f = secsOf(voManifest.hint && voManifest.hint[r.id]);
+      if (f == null) return;
+      const p = buildRoundPlan(i);
+      if (VO_AT + f > p.thinkFrames - riser) bad.push(`R${r.id} hint ${f} ticks (+${VO_AT}) > ${p.thinkFrames - riser}`);
+    });
+    return Object.assign(bad, { note: `${Object.keys(voManifest.hint || {}).length} hint clips` });
+  });
+  check('voiceover: each bonus intro ends before its bonus clock starts', () => {
+    const bad = [];
+    BONUS.forEach((b, i) => {
+      const f = secsOf(voManifest.bonusIntro && voManifest.bonusIntro[i + 1]);
+      if (f == null) return;
+      const p = t.buildBonusPlan(i);
+      if (VO_AT + f > p.clockStart) bad.push(`bonus ${i + 1} intro ends at ${VO_AT + f}, clock starts ${p.clockStart}`);
+    });
+    return Object.assign(bad, { note: `${Object.keys(voManifest.bonusIntro || {}).length} bonus intros` });
+  });
+  check('voiceover: every clip starts and ends inside its own scene', () => {
+    const bad = [];
+    s.VOICE.forEach((v) => {
+      const seg = segs.find((g) => v.frame >= g.from - (g.lead || 0) && v.frame < g.from + g.duration);
+      if (!seg) { bad.push(`${v.file} starts outside the video`); return; }
+      const end = v.frame + v.frames;
+      if (end > seg.from + seg.duration) bad.push(`${v.file} (${seg.kind}${seg.index !== undefined ? ' ' + (seg.index + 1) : ''}) ends ${end - (seg.from + seg.duration)} ticks after its scene`);
+    });
+    return Object.assign(bad, { note: `${s.VOICE.length} clips` });
+  });
+
   const w = Math.max(...rows.map((r) => r.name.length));
   console.log('\n  search:qa\n');
   rows.forEach((r) => console.log(`  ${r.ok ? 'PASS' : 'FAIL'}  ${r.name.padEnd(w)}  ${r.detail}`));
