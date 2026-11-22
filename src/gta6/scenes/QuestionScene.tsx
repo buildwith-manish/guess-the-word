@@ -62,11 +62,11 @@ const renderLook = (look: string, ctx: ShellContext): React.ReactNode => {
  */
 const FastestWrapper: React.FC<{ item: Item; children: React.ReactNode }> = ({ children }) => <>{children}</>;
 
-export type QuestionSceneProps = { item: Item; at: number };
+export type QuestionSceneProps = { item: Item; at: number; /** false = no score counter (the hook draws its own). */ hud?: boolean };
 
-export const QuestionScene: React.FC<QuestionSceneProps> = ({ item, at }) => {
+export const QuestionScene: React.FC<QuestionSceneProps> = ({ item, at, hud = true }) => {
   const body = (
-    <QuestionShell item={item} start={0} showTimer={item.look !== 'safari'}>
+    <QuestionShell item={item} start={0} showTimer={item.look !== 'safari'} hud={hud}>
       {(ctx) => renderLook(item.look, ctx)}
     </QuestionShell>
   );

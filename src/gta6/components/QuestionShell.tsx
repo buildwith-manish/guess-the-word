@@ -75,6 +75,8 @@ export type QuestionShellProps = {
   labels?: ShellLabels;
   /** Pass false to leave out the timer, e.g. for a look that draws its own. */
   showTimer?: boolean;
+  /** Pass false to leave out the score counter, e.g. when a scene (the hook) draws its own. Default true. */
+  hud?: boolean;
 };
 
 const shift = (r: Range, by: number): Range => ({ from: r.from - by, to: r.to - by });
@@ -106,7 +108,7 @@ export const phaseAt = (f: number, p: LocalPhases): ShellPhase => {
 
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 
-export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, children, labels, showTimer = true }) => {
+export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, children, labels, showTimer = true, hud = true }) => {
   const localFrame = useGta6Frame() - start;
   const phases = localPhases(item);
   const level = item.level;
@@ -135,14 +137,16 @@ export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, child
         {children(ctx)}
       </Shake>
 
-      <ScoreHud
-        score={item.order}
-        from={item.order - 1}
-        total={items.length}
-        levelTotals={[byLevel.easy.length, byLevel.medium.length, byLevel.hard.length]}
-        frame={localFrame}
-        at={0}
-      />
+      {hud ? (
+        <ScoreHud
+          score={item.order}
+          from={item.order - 1}
+          total={items.length}
+          levelTotals={[byLevel.easy.length, byLevel.medium.length, byLevel.hard.length]}
+          frame={localFrame}
+          at={0}
+        />
+      ) : null}
 
       {showTimer && localFrame < phases.reveal.from ? (
         <div
