@@ -9,6 +9,7 @@ import React from 'react';
 import { useDesignFrame } from '../../clock';
 import { IOS } from '../../ios';
 import { FPS } from '../state-timing';
+import { COLOR } from '../look';
 
 export interface TimerRingProps {
   /** tick the clock starts */
@@ -44,8 +45,8 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
   const remainingFrac = duration > 0 ? remainingTicks / duration : 0;
   const seconds = Math.ceil(remainingTicks / FPS - 1e-6);
   const red = remainingTicks <= RED_TICKS;
-  const color = red ? IOS.color.red : accent;
-  const digitColor = red ? IOS.color.red : IOS.color.secondary;
+  const color = red ? COLOR.alert : accent;
+  const digitColor = red ? COLOR.alert : COLOR.text.label;
 
   const stroke = size * LOOK.stroke;
   const r = (size - stroke) / 2;
@@ -73,7 +74,7 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
   return (
     <div style={{ position: 'relative', width: size, height: size }}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible' }}>
-        <circle cx={c} cy={c} r={r} fill="none" stroke={IOS.color.fillStrong} strokeWidth={stroke} />
+        <circle cx={c} cy={c} r={r} fill="none" stroke={COLOR.fillStrong} strokeWidth={stroke} />
         {arc > 0 && (
           <circle
             cx={c}

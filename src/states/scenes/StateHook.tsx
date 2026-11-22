@@ -23,7 +23,7 @@ import { prog, clamp01 } from '../../anim';
 import { px } from '../../style';
 import { IOS, IosBackground } from '../../ios';
 import { enter, iosOut, sprFit } from '../motion';
-import { RADIUS, glassPanel } from '../look';
+import {RADIUS, glassPanel, COLOR } from '../look';
 import root from '../../../settings.json';
 import { FPS, HEIGHT, LEVELS, TOTAL, WIDTH, voiceIntro } from '../state-timing';
 import { STATES } from '../states-data';
@@ -202,7 +202,7 @@ export const StateHook: React.FC<{ frame: number }> = ({ frame: f }) => {
               fontSize: px(54),
               lineHeight: 1.15,
               letterSpacing: px(-1),
-              color: IOS.color.label,
+              color: COLOR.text.primary,
               opacity: qIn * qOut,
               transform: qE.transform,
             }}
@@ -213,7 +213,7 @@ export const StateHook: React.FC<{ frame: number }> = ({ frame: f }) => {
 
         {f >= P.lockupAt ? (
           <>
-            <StateTitleLockup frame={f - P.lockupAt} scale={LAYOUT.lockupScale} accent={LEVELS[0].accent} />
+            <StateTitleLockup frame={f - P.lockupAt} scale={LAYOUT.lockupScale} />
             {f >= P.rulesAt ? (
               <div
                 style={{
@@ -223,7 +223,7 @@ export const StateHook: React.FC<{ frame: number }> = ({ frame: f }) => {
                   fontFamily: IOS.font,
                   fontWeight: IOS.weight.medium,
                   fontSize: px(30),
-                  color: IOS.color.secondary,
+                  color: COLOR.text.label,
                   whiteSpace: 'nowrap',
                   opacity: rulesIn,
                   transform: rulesE.transform,

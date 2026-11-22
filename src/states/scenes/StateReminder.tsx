@@ -19,7 +19,7 @@ import { px } from '../../style';
 import { IOS, IosBackground } from '../../ios';
 import { ms } from '../../anim';
 import { iosOut, spr } from '../motion';
-import { RADIUS, glassPanel } from '../look';
+import {RADIUS, glassPanel, COLOR } from '../look';
 import rootSettings from '../../../settings.json';
 import { BONUS_THEME, HEIGHT, LEVELS } from '../state-timing';
 import type { Segment } from '../types';
@@ -78,8 +78,8 @@ export const StateReminder: React.FC<{ frame: number; seg: ReminderSegment }> = 
               fontWeight: IOS.weight.semibold,
               fontSize: px(34),
               lineHeight: 1,
-              color: '#fff',
-              background: IOS.color.red,
+              color: COLOR.onAlert,
+              background: COLOR.alert,
               borderRadius: px(IOS.radius.sm),
               padding: `${px(8)}px ${px(18)}px`,
               whiteSpace: 'nowrap',
@@ -87,7 +87,7 @@ export const StateReminder: React.FC<{ frame: number; seg: ReminderSegment }> = 
           >
             {rootSettings.endScreen.subscribe}
           </div>
-          <div style={{ fontWeight: IOS.weight.medium, fontSize: px(22), color: IOS.color.secondary, whiteSpace: 'nowrap' }}>
+          <div style={{ fontWeight: IOS.weight.medium, fontSize: px(22), color: COLOR.text.label, whiteSpace: 'nowrap' }}>
             {rootSettings.endScreen.subscribeSub}
           </div>
         </div>

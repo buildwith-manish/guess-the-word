@@ -10,6 +10,7 @@
 import React from 'react';
 import { IOS } from '../../ios';
 import { voiceLevelAt } from '../state-timing';
+import { COLOR } from '../look';
 
 export interface VoiceBarsProps {
   file: string;
@@ -58,7 +59,7 @@ export const VoicePulse: React.FC<VoicePulseProps> = ({ file, tick, accent, size
   return (
     <div style={{ position: 'relative', width: size, height: size, transform: `scale(${1 + 0.06 * level})` }}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible' }}>
-        <circle cx={c} cy={c} r={r} fill="none" stroke={IOS.color.fillStrong} strokeOpacity={1} strokeWidth={stroke} />
+        <circle cx={c} cy={c} r={r} fill="none" stroke={COLOR.fillStrong} strokeOpacity={1} strokeWidth={stroke} />
         <circle cx={c} cy={c} r={r} fill="none" stroke={accent} strokeOpacity={0.07 + 0.2 * level} strokeWidth={stroke * 4.5} />
         <circle cx={c} cy={c} r={r} fill="none" stroke={accent} strokeOpacity={0.4 + 0.6 * level} strokeWidth={stroke} />
       </svg>

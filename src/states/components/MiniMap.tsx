@@ -13,7 +13,7 @@ import settingsJson from '../states-settings.json';
 import { STATES, getState } from '../states-data';
 import type { Region } from '../states-data';
 import { MINI_BOX, getShape } from '../geo';
-import { MINI_PULSE } from '../look';
+import {MINI_PULSE, COLOR } from '../look';
 
 export type Rect = { x: number; y: number; w: number; h: number };
 
@@ -95,19 +95,19 @@ export const MiniMap: React.FC<MiniMapProps> = ({ answered = [], current, highli
 
       {glowing.map((p) =>
         LOOK.halo.map((h, i) => (
-          <path key={`g-${p.key}-${i}`} d={p.d} fill="none" stroke={IOS.color.blue} strokeOpacity={h.a} strokeWidth={LOOK.edge * h.k} strokeLinejoin="round" strokeLinecap="round" />
+          <path key={`g-${p.key}-${i}`} d={p.d} fill="none" stroke={COLOR.text.primary} strokeOpacity={h.a} strokeWidth={LOOK.edge * h.k} strokeLinejoin="round" strokeLinecap="round" />
         )),
       )}
 
       {cur && (
         <>
           {LOOK.halo.map((h, i) => (
-            <path key={`c-${i}`} d={cur.d} fill="none" stroke={IOS.color.label} strokeOpacity={h.a * (1 + MINI_PULSE.lift * pulse)} strokeWidth={LOOK.edge * h.k} strokeLinejoin="round" strokeLinecap="round" />
+            <path key={`c-${i}`} d={cur.d} fill="none" stroke={COLOR.text.primary} strokeOpacity={h.a * (1 + MINI_PULSE.lift * pulse)} strokeWidth={LOOK.edge * h.k} strokeLinejoin="round" strokeLinecap="round" />
           ))}
           <path
             d={cur.d}
             fill="none"
-            stroke={IOS.color.label}
+            stroke={COLOR.text.primary}
             strokeOpacity={1 - LOOK.pulseSwing * (1 - pulse)}
             strokeWidth={LOOK.currentStroke * (1 + LOOK.pulseSwing * pulse)}
             strokeLinejoin="round"

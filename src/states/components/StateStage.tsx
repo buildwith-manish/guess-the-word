@@ -12,7 +12,7 @@ import { useDesignFrame } from '../../clock';
 import { IOS, IosBackground } from '../../ios';
 import { S, SAFE_X, SAFE_Y, px } from '../../style';
 import { enter } from '../motion';
-import { RADIUS, glassPanel } from '../look';
+import {RADIUS, glassPanel, COLOR } from '../look';
 import { HEIGHT, LEVELS, TOTAL, WIDTH } from '../state-timing';
 import type { Level } from '../states-data';
 import type { Rect } from './MiniMap';
@@ -158,8 +158,8 @@ export const StateStage: React.FC<StateStageProps> = ({ level, number, total = T
           whiteSpace: 'pre',
         }}
       >
-        <span style={{ color: IOS.color.secondary }}>{cfg.name}</span>
-        <span style={{ color: IOS.color.label }}>{`${number} / ${total}`}</span>
+        <span style={{ color: COLOR.text.label }}>{cfg.name}</span>
+        <span style={{ color: COLOR.text.primary }}>{`${number} / ${total}`}</span>
       </div>
 
       <SlotBox rect={L.miniMap} slot={slots.miniMap} frame={f} />

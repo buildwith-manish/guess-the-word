@@ -2,7 +2,7 @@
   "_provisional": "Values marked here were NOT given in the task and need your confirmation: levels[].time (EASY/MEDIUM/HARD copied from GTW settings.json, EXPERT guessed), all level colours and themes (EXPERT is new), fastest.questions, reminder.after, reveal.minHoldSeconds. Everything else follows the 1d prompt or copies the GTW value.",
   "levels": [
     { "name": "EASY",   "time": 5,  "accent": "#34D399", "bg": "#05241B", "theme": ["#0FA37A", "#05241B"] },
-    { "name": "MEDIUM", "time": 7,  "accent": "#FBBF24", "bg": "#2B1B04", "theme": ["#D98E04", "#2B1B04"] },
+    { "name": "MEDIUM", "time": 7,  "accent": "#38BDF8", "bg": "#04202B", "theme": ["#0284C7", "#04202B"] },
     { "name": "HARD",   "time": 8,  "accent": "#FB7185", "bg": "#2A0712", "theme": ["#E11D48", "#2A0712"] },
     { "name": "EXPERT", "time": 10, "accent": "#A78BFA", "bg": "#150A33", "theme": ["#7C3AED", "#150A33"] }
   ],

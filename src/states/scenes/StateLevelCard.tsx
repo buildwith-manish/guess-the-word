@@ -20,7 +20,7 @@ import { AbsoluteFill } from 'remotion';
 import { SAFE_X, px } from '../../style';
 import { IOS, IosBackground } from '../../ios';
 import { DUR, exitTicks, iosOut, spr, sprFit } from '../motion';
-import { RADIUS, glassPanel } from '../look';
+import {RADIUS, glassPanel, COLOR } from '../look';
 import { prog, mix } from '../../anim';
 import { linear } from '../../gsap-helpers';
 import { rise } from '../ios-rise';
@@ -150,7 +150,7 @@ export const StateLevelCard: React.FC<{ frame: number; levelIndex: number; durat
               fontWeight: IOS.weight.semibold,
               fontSize: px(26),
               letterSpacing: px(2),
-              color: IOS.color.secondary,
+              color: COLOR.text.label,
               opacity: eyebrow.opacity,
               transform: eyebrow.transform,
             }}
@@ -176,14 +176,14 @@ export const StateLevelCard: React.FC<{ frame: number; levelIndex: number; durat
             style={{
               fontWeight: IOS.weight.medium,
               fontSize: px(36),
-              color: IOS.color.secondary,
+              color: COLOR.text.label,
               opacity: meta.opacity,
               transform: meta.transform,
               whiteSpace: 'nowrap',
             }}
           >
-            <b style={{ color: IOS.color.label, fontWeight: IOS.weight.semibold }}>{countFor(level.name)}</b> states ·{' '}
-            <b style={{ color: IOS.color.label, fontWeight: IOS.weight.semibold }}>{level.time}</b> seconds each
+            <b style={{ color: COLOR.text.primary, fontWeight: IOS.weight.semibold }}>{countFor(level.name)}</b> states ·{' '}
+            <b style={{ color: COLOR.text.primary, fontWeight: IOS.weight.semibold }}>{level.time}</b> seconds each
           </div>
           <div
             style={{
@@ -218,7 +218,7 @@ export const StateLevelCard: React.FC<{ frame: number; levelIndex: number; durat
           >
             <RuleDemo t={frame - LEVEL_BEATS.demoAt} levelIndex={levelIndex} size={demoSize} accent={level.accent} />
           </div>
-          <div style={{ fontFamily: IOS.font, fontWeight: IOS.weight.medium, fontSize: px(28), color: IOS.color.secondary }}>{TIER_LABEL[tier]}</div>
+          <div style={{ fontFamily: IOS.font, fontWeight: IOS.weight.medium, fontSize: px(28), color: COLOR.text.hint }}>{TIER_LABEL[tier]}</div>
         </div>
       </AbsoluteFill>
     </AbsoluteFill>

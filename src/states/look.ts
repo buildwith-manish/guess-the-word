@@ -73,3 +73,37 @@ export const SOFT_GLOW = {
 
 /** Mini-map "current state" halo: how much the 900 ms pulse lifts the halo (0 = none). Was 1.0 (halo doubled at the peak). */
 export const MINI_PULSE = { lift: 0.2 } as const;
+
+/**
+ * Colour tokens (Step 5). One accent per level (states-settings.json levels[].accent), one neutral white, one secondary
+ * grey. GOLD is only the word STATE in the title and rare highlights (the streak banner, the top scoreboard rank);
+ * nothing else is gold (the MEDIUM level accent is sky blue for that reason). No hex values in components: use these.
+ *
+ * Text: primary white at 92%, labels at 60%, hints at 45%. scripts/states-qa.js check 11 measures their contrast over every
+ * backdrop colour (primary >= 7:1, labels >= 4.5:1, hints >= 3:1) and checks where gold is used.
+ */
+export const COLOR = {
+  text: {
+    primary: 'rgba(255,255,255,0.92)',
+    label: 'rgba(255,255,255,0.60)',
+    hint: 'rgba(255,255,255,0.45)',
+  },
+  /** hairline fills for rings, discs and chips */
+  fill: 'rgba(255,255,255,0.10)',
+  fillStrong: 'rgba(255,255,255,0.16)',
+  /** the rare highlight: title word STATE, streak banner, top scoreboard rank */
+  gold: '#F5C84C',
+  /** the bonus rounds' accent (matches their orange backdrop) */
+  bonus: '#FF8A3D',
+  /** the clock and ring in the last 3 seconds; the subscribe pill */
+  alert: '#FF453A',
+  /** the true neighbour on the borders bonus */
+  positive: '#30D158',
+  /** text on an accent-filled chip (dark) and on the alert pill (white) */
+  onAccent: '#0B0B12',
+  onAlert: '#FFFFFF',
+  black: '#000000',
+} as const;
+
+/** Backdrop colours the text sits on (black, the raised dark, the level backgrounds are added from the settings by the QA). */
+export const BACKDROP = { black: '#000000', raised: '#0B0B12' } as const;

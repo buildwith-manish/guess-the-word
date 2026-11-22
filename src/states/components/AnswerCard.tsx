@@ -16,7 +16,7 @@ import { useDesignFrame } from '../../clock';
 import { SAFE_X, SAFE_Y, S, px } from '../../style';
 import { IOS } from '../../ios';
 import { DUR, enter, exitTicks, iosOut, leave, spr, stagger } from '../motion';
-import { RADIUS, glassPanel } from '../look';
+import {RADIUS, glassPanel, COLOR } from '../look';
 import { VoiceBars } from './VoiceBars';
 import { WIDTH, HEIGHT } from '../state-timing';
 import { getState } from '../states-data';
@@ -162,7 +162,7 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ stateKey, at, accent, bo
             lineHeight: 1.2,
             whiteSpace: 'nowrap',
             color: accent,
-            background: IOS.color.fillStrong,
+            background: COLOR.fillStrong,
             borderRadius: px(LOOK.chipFont),
             padding: `${px(LOOK.chipPadY)}px ${px(LOOK.chipPadX)}px`,
           }}
@@ -184,7 +184,7 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ stateKey, at, accent, bo
             fontSize: nameSize,
             lineHeight: 1,
             whiteSpace: 'nowrap',
-            color: IOS.color.label,
+            color: COLOR.text.primary,
             opacity: nameIn.opacity,
             transform: nameIn.transform,
           }}
@@ -196,7 +196,7 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ stateKey, at, accent, bo
         <div
           style={{
             fontFamily: IOS.font,
-            color: IOS.color.label,
+            color: COLOR.text.primary,
             width: '100%',
             height: cap.height,
             display: 'flex',
@@ -211,12 +211,12 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ stateKey, at, accent, bo
         >
           {cap.mode === 'inline' ? (
             <div style={{ fontSize: cap.valueSize, whiteSpace: 'nowrap' }}>
-              <span style={{ fontWeight: CAPITAL_LOOK.labelWeight, color: IOS.color.secondary, letterSpacing: cap.labelSpacing, marginRight: cap.labelMargin }}>{LABELS.capital}</span>
+              <span style={{ fontWeight: CAPITAL_LOOK.labelWeight, color: COLOR.text.label, letterSpacing: cap.labelSpacing, marginRight: cap.labelMargin }}>{LABELS.capital}</span>
               <span style={{ fontWeight: CAPITAL_LOOK.valueWeight, whiteSpace: 'nowrap' }}>{info.capital}</span>
             </div>
           ) : (
             <>
-              <div style={{ fontSize: cap.labelSize, fontWeight: CAPITAL_LOOK.labelWeight, color: IOS.color.secondary, letterSpacing: cap.labelSpacing, whiteSpace: 'nowrap' }}>{LABELS.capital}</div>
+              <div style={{ fontSize: cap.labelSize, fontWeight: CAPITAL_LOOK.labelWeight, color: COLOR.text.label, letterSpacing: cap.labelSpacing, whiteSpace: 'nowrap' }}>{LABELS.capital}</div>
               <div style={{ fontSize: cap.valueSize, fontWeight: CAPITAL_LOOK.valueWeight, marginTop: cap.stackGap, whiteSpace: 'nowrap' }}>{info.capital}</div>
             </>
           )}

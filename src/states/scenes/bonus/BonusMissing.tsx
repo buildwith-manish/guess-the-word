@@ -34,7 +34,7 @@ import { IOS, IosBackground } from '../../../ios';
 import { prog, mix, clamp01 } from '../../../anim';
 import { DUR, exitTicks, iosOut, spr, sprFit } from '../../motion';
 import { rise } from '../../ios-rise';
-import { RADIUS, glassPanel } from '../../look';
+import {RADIUS, glassPanel, COLOR } from '../../look';
 import { fitTextSize } from '../../capital-fit';
 import { domMeasure, fallbackMeasure, useFontsReady } from '../../measure-dom';
 import rootSettings from '../../../../settings.json';
@@ -132,7 +132,7 @@ export const bonusMapRect = () => {
 
 // ------------------------------------------------------------------ shared: parts
 /** The one accent of the bonus screens. */
-export const BONUS_ACCENT = IOS.color.orange;
+export const BONUS_ACCENT = COLOR.bonus;
 
 /** The slate: calm backdrop, HUD pill, exit fade, and the children. */
 export const BonusStage: React.FC<{ frame: number; puzzle: BonusPuzzle; T: BonusTimes; children: React.ReactNode }> = ({
@@ -174,7 +174,7 @@ export const BonusBanner: React.FC<{ frame: number; puzzle: BonusPuzzle; pre: nu
       }}
     >
       <IosBackground accent={BONUS_ACCENT} />
-      <div style={{ ...e1, position: 'relative', fontWeight: IOS.weight.semibold, fontSize: px(26), letterSpacing: px(2), color: IOS.color.secondary }}>
+      <div style={{ ...e1, position: 'relative', fontWeight: IOS.weight.semibold, fontSize: px(26), letterSpacing: px(2), color: COLOR.text.label }}>
         BONUS {puzzle.slot + 1} / {BONUS_PUZZLES.length}
       </div>
       <div
@@ -185,7 +185,7 @@ export const BonusBanner: React.FC<{ frame: number; puzzle: BonusPuzzle; pre: nu
           fontSize: px(140),
           lineHeight: 0.98,
           letterSpacing: px(-3),
-          color: IOS.color.label,
+          color: COLOR.text.primary,
           margin: `${px(12)}px 0 ${px(16)}px`,
         }}
       >
@@ -193,7 +193,7 @@ export const BonusBanner: React.FC<{ frame: number; puzzle: BonusPuzzle; pre: nu
         <br />
         <span style={{ color: BONUS_ACCENT }}>ROUND</span>
       </div>
-      <div style={{ ...e3, position: 'relative', fontWeight: IOS.weight.medium, fontSize: px(30), color: IOS.color.secondary }}>{BONUS_KIND_LABEL[puzzle.kind]}</div>
+      <div style={{ ...e3, position: 'relative', fontWeight: IOS.weight.medium, fontSize: px(30), color: COLOR.text.label }}>{BONUS_KIND_LABEL[puzzle.kind]}</div>
     </AbsoluteFill>
   );
 };
@@ -249,7 +249,7 @@ export const BonusPrompt: React.FC<{ frame: number; text: string; at: number; hi
           fontFamily: IOS.font,
           fontWeight: IOS.weight.semibold,
           fontSize: px(28),
-          color: IOS.color.label,
+          color: COLOR.text.primary,
           whiteSpace: 'nowrap',
         }}
       >
@@ -292,9 +292,9 @@ export const BonusMap: React.FC<{ size: number; marks?: Record<string, MapMark>;
             key={p.key}
             d={p.d}
             opacity={m?.opacity ?? 1}
-            fill={m?.fill ?? IOS.color.label}
+            fill={m?.fill ?? COLOR.text.primary}
             fillOpacity={m?.fillOpacity ?? MAP_LOOK.baseFill}
-            stroke={m?.edge ?? IOS.color.label}
+            stroke={m?.edge ?? COLOR.text.primary}
             strokeOpacity={m?.edgeOpacity ?? MAP_LOOK.baseEdge}
             strokeWidth={MAP_LOOK.edge + (m?.glow ? MAP_LOOK.markEdge * m.glow : 0)}
             strokeLinejoin="round"
@@ -352,7 +352,7 @@ export const BonusOptions: React.FC<{
               fontFamily: IOS.font,
               fontWeight: IOS.weight.semibold,
               fontSize,
-              color: IOS.color.label,
+              color: COLOR.text.primary,
               whiteSpace: 'nowrap',
               opacity: r.opacity * (dim ? 0.4 : 1),
               transform: r.transform,
@@ -370,8 +370,8 @@ export const BonusOptions: React.FC<{
                 justifyContent: 'center',
                 fontWeight: IOS.weight.semibold,
                 fontSize: px(17),
-                background: win ? BONUS_ACCENT : IOS.color.fillStrong,
-                color: win ? '#1A1000' : IOS.color.secondary,
+                background: win ? BONUS_ACCENT : COLOR.fillStrong,
+                color: win ? COLOR.onAccent : COLOR.text.label,
               }}
             >
               {'ABCD'[i]}
@@ -390,7 +390,7 @@ export const BonusTimer: React.FC<{ frame: number; T: BonusTimes }> = ({ frame, 
   const clockP = Math.min(1, Math.max(0, (frame - T.clockStart) / T.clockFrames));
   const secondsLeft = Math.max(1, Math.ceil((T.clockFrames - (frame - T.clockStart)) / FPS));
   const hot = secondsLeft <= 3;
-  const tone = hot ? IOS.color.red : BONUS_ACCENT;
+  const tone = hot ? COLOR.alert : BONUS_ACCENT;
   return (
     <div
       style={{
@@ -410,7 +410,7 @@ export const BonusTimer: React.FC<{ frame: number; T: BonusTimes }> = ({ frame, 
           top: px(32),
           height: px(6),
           borderRadius: px(6),
-          background: IOS.color.fill,
+          background: COLOR.fill,
           overflow: 'hidden',
         }}
       >
@@ -429,8 +429,8 @@ export const BonusTimer: React.FC<{ frame: number; T: BonusTimes }> = ({ frame, 
             fontWeight: IOS.weight.semibold,
             fontSize: px(30),
             fontVariantNumeric: 'tabular-nums',
-            color: hot ? IOS.color.red : IOS.color.secondary,
-            borderColor: hot ? IOS.color.red : IOS.color.fillStrong,
+            color: hot ? COLOR.alert : COLOR.text.label,
+            borderColor: hot ? COLOR.alert : COLOR.fillStrong,
           }}
         >
           {secondsLeft}
@@ -457,7 +457,7 @@ export const BonusEraseChip: React.FC<{ frame: number; revealAt: number }> = ({ 
         padding: `${px(10)}px 0`,
         borderRadius: px(40),
         background: BONUS_ACCENT,
-        color: '#1A1000',
+        color: COLOR.onAccent,
         fontFamily: IOS.font,
         fontWeight: IOS.weight.semibold,
         fontSize: px(22),
@@ -524,7 +524,7 @@ const FlyBack: React.FC<{ stateKey: string; frame: number; at: number; dur: numb
   const dy = mix(-MINI_BOX[1] * 0.55, 0, p);
   return (
     <g transform={`translate(0 ${dy}) translate(${cx} ${cy}) scale(${s}) translate(${-cx} ${-cy})`} opacity={clamp01(p * 3)}>
-      <path d={g.mini} fill={BONUS_ACCENT} fillOpacity={0.85} stroke={IOS.color.label} strokeOpacity={0.9} strokeWidth={MAP_LOOK.edge * 1.6} strokeLinejoin="round" />
+      <path d={g.mini} fill={BONUS_ACCENT} fillOpacity={0.85} stroke={COLOR.text.primary} strokeOpacity={0.9} strokeWidth={MAP_LOOK.edge * 1.6} strokeLinejoin="round" />
     </g>
   );
 };
@@ -545,7 +545,7 @@ const NameReveal: React.FC<{ frame: number; name: string; at: number; step: numb
         fontWeight: IOS.weight.bold,
         fontSize: px(60),
         letterSpacing: px(2),
-        color: IOS.color.label,
+        color: COLOR.text.primary,
         whiteSpace: 'pre',
       }}
     >

@@ -27,7 +27,7 @@ import { Rich } from '../../Icon';
 import { px } from '../../style';
 import { IOS, IosBackground } from '../../ios';
 import { spr } from '../motion';
-import { RADIUS, glassPanel } from '../look';
+import {RADIUS, glassPanel, COLOR } from '../look';
 import { clamp01 } from '../../anim';
 import { rise } from '../ios-rise';
 import settings from '../states-settings.json';
@@ -161,7 +161,7 @@ export const StateScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
           fontWeight: IOS.weight.semibold,
           fontSize: px(24),
           letterSpacing: px(2),
-          color: IOS.color.secondary,
+          color: COLOR.text.label,
           opacity: kicker.opacity,
           transform: kicker.transform,
         }}
@@ -179,7 +179,7 @@ export const StateScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
           fontSize: px(64),
           lineHeight: 1.1,
           letterSpacing: px(-1),
-          color: IOS.color.label,
+          color: COLOR.text.primary,
           opacity: title.opacity,
           transform: title.transform,
         }}
@@ -220,8 +220,8 @@ export const StateScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
                 width: px(L.rowW),
                 height: px(L.rowH),
                 padding: `0 ${px(26)}px`,
-                ...glassPanel(px(RADIUS.chip), r.color, 0.5),
-                borderColor: bright ? r.color : IOS.color.fillStrong,
+                ...glassPanel(px(RADIUS.chip), isTop ? COLOR.gold : undefined, 0.5),
+                borderColor: bright ? (isTop ? COLOR.gold : COLOR.text.hint) : COLOR.fillStrong,
                 opacity: Math.min(1, p * 1.4),
                 transform: `translateY(${(1 - p) * px(28)}px)`,
               }}
@@ -231,10 +231,10 @@ export const StateScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
                   {r.emoji}
                 </Rich>
               </span>
-              <span style={{ fontWeight: IOS.weight.semibold, fontSize: px(32), flex: 1, textAlign: 'left', color: IOS.color.label, whiteSpace: 'nowrap' }}>
+              <span style={{ fontWeight: IOS.weight.semibold, fontSize: px(32), flex: 1, textAlign: 'left', color: COLOR.text.primary, whiteSpace: 'nowrap' }}>
                 {r.name}
               </span>
-              <span style={{ fontWeight: IOS.weight.medium, fontSize: px(24), color: IOS.color.secondary, whiteSpace: 'nowrap' }}>{r.range}</span>
+              <span style={{ fontWeight: IOS.weight.medium, fontSize: px(24), color: COLOR.text.label, whiteSpace: 'nowrap' }}>{r.range}</span>
             </div>
           );
         })}
@@ -249,7 +249,7 @@ export const StateScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
           textAlign: 'center',
           fontWeight: IOS.weight.medium,
           fontSize: px(26),
-          color: IOS.color.secondary,
+          color: COLOR.text.hint,
           opacity: footer.opacity,
           transform: footer.transform,
         }}

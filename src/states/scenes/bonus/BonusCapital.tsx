@@ -24,7 +24,7 @@ import React from 'react';
 import { px } from '../../../style';
 import { IOS } from '../../../ios';
 import { enter, iosOut, settle, sprFit } from '../../motion';
-import { RADIUS, glassPanel } from '../../look';
+import {RADIUS, glassPanel, COLOR } from '../../look';
 import { prog, mix, clamp01 } from '../../../anim';
 import { fitTextSize } from '../../capital-fit';
 import { domMeasure, fallbackMeasure, useFontsReady } from '../../measure-dom';
@@ -172,7 +172,7 @@ const AnswerStamp: React.FC<{ frame: number; puzzle: BonusPuzzle; caption: strin
             padding: `${px(4)}px ${px(20)}px`,
             borderRadius: px(30),
             background: accent,
-            color: '#0B0B12',
+            color: COLOR.onAccent,
             fontWeight: IOS.weight.semibold,
             fontSize: px(20),
             whiteSpace: 'nowrap',
@@ -188,7 +188,7 @@ const AnswerStamp: React.FC<{ frame: number; puzzle: BonusPuzzle; caption: strin
             fontSize: fit.size,
             lineHeight: 1.1,
             letterSpacing: px(-1),
-            color: IOS.color.label,
+            color: COLOR.text.primary,
             whiteSpace: 'nowrap',
           }}
         >

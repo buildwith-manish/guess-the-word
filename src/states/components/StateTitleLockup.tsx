@@ -16,6 +16,7 @@ import React from 'react';
 import { px } from '../../style';
 import { IOS } from '../../ios';
 import { spr } from '../motion';
+import { COLOR } from '../look';
 import { clamp01, ms } from '../../anim';
 
 const WORDS = [
@@ -62,11 +63,11 @@ export interface StateTitleLockupProps {
   animate?: boolean;
   /** multiplies every size, default 1 (the GTW title size) */
   scale?: number;
-  /** colour STATE turns to; default the iOS orange */
+  /** colour STATE turns to; gold (the only place gold is a fixed part of the title) */
   accent?: string;
 }
 
-export const StateTitleLockup: React.FC<StateTitleLockupProps> = ({ frame, animate = true, scale = 1, accent = IOS.color.orange }) => {
+export const StateTitleLockup: React.FC<StateTitleLockupProps> = ({ frame, animate = true, scale = 1, accent = COLOR.gold }) => {
   const u = (v: number) => px(v) * scale;
   const font = u(LOOK.textFont);
 
@@ -104,7 +105,7 @@ export const StateTitleLockup: React.FC<StateTitleLockupProps> = ({ frame, anima
                     lineHeight: 1,
                     letterSpacing: u(-1),
                     // STATE fades from white to the accent
-                    color: g > 0 ? `color-mix(in srgb, ${accent} ${Math.round(g * 100)}%, #FFFFFF)` : '#FFFFFF',
+                    color: g > 0 ? `color-mix(in srgb, ${accent} ${Math.round(g * 100)}%, ${COLOR.text.primary})` : COLOR.text.primary,
                   }}
                 >
                   {ch}
@@ -120,8 +121,7 @@ export const StateTitleLockup: React.FC<StateTitleLockupProps> = ({ frame, anima
           width: u(LOOK.ruleW),
           marginTop: u(10),
           borderRadius: u(3),
-          background: accent,
-          opacity: 0.7,
+          background: COLOR.text.hint,
           transform: `scaleX(${ruleP})`,
         }}
       />

@@ -36,7 +36,7 @@ import { prog, mix } from '../../anim';
 import { S, SAFE_X, SAFE_Y, px } from '../../style';
 import { IOS } from '../../ios';
 import { enter, iosOut, sprFit } from '../motion';
-import { RADIUS, glassPanel } from '../look';
+import {RADIUS, glassPanel, COLOR } from '../look';
 import { Watermark } from '../../Watermark';
 import { HEIGHT, WIDTH, TIME_SCALE, buildQuestionPlan, LEVELS, QUESTIONS } from '../state-timing';
 import type { StateQuestionPlan } from '../state-timing';
@@ -72,7 +72,7 @@ const StreakBanner: React.FC<{ f: number; plan: StateQuestionPlan }> = ({ f, pla
   return (
     <div
       style={{
-        ...glassPanel(px(RADIUS.chip), IOS.color.orange),
+        ...glassPanel(px(RADIUS.chip), COLOR.gold),
         position: 'absolute',
         left: S.hudLeft,
         bottom: SAFE_Y,
@@ -83,10 +83,10 @@ const StreakBanner: React.FC<{ f: number; plan: StateQuestionPlan }> = ({ f, pla
       }}
     >
       <div style={{ display: 'flex', alignItems: 'baseline', gap: px(20) }}>
-        <span style={{ fontWeight: IOS.weight.bold, fontSize: px(84), lineHeight: 1, color: IOS.color.label }}>{plan.id}</span>
-        <span style={{ fontWeight: IOS.weight.semibold, fontSize: px(34), color: IOS.color.label }}>{settings.streak.label}</span>
+        <span style={{ fontWeight: IOS.weight.bold, fontSize: px(84), lineHeight: 1, color: COLOR.text.primary }}>{plan.id}</span>
+        <span style={{ fontWeight: IOS.weight.semibold, fontSize: px(34), color: COLOR.text.primary }}>{settings.streak.label}</span>
       </div>
-      <div style={{ fontWeight: IOS.weight.medium, fontSize: px(26), color: IOS.color.secondary }}>{settings.streak.cta}</div>
+      <div style={{ fontWeight: IOS.weight.medium, fontSize: px(26), color: COLOR.text.label }}>{settings.streak.cta}</div>
     </div>
   );
 };
@@ -95,12 +95,12 @@ const StreakBanner: React.FC<{ f: number; plan: StateQuestionPlan }> = ({ f, pla
 const FastBadge: React.FC = () => (
   <div
     style={{
-      ...glassPanel(px(RADIUS.pill), IOS.color.orange, 0.4),
+      ...glassPanel(px(RADIUS.pill), undefined, 0.4),
       padding: `${px(10)}px ${px(34)}px`,
       fontFamily: IOS.font,
       fontWeight: IOS.weight.semibold,
       fontSize: px(28),
-      color: IOS.color.label,
+      color: COLOR.text.primary,
       whiteSpace: 'nowrap',
     }}
   >

@@ -28,6 +28,8 @@
  *                           capital / nickname stamp (to its minimum size), measured with the same Inter files; prints the tightest
  *  10 HUD pill vs title   the level pill (name + n / 50, measured) ends at least 16 ref px before the GUESS THE STATE lockup starts, for
  *                           every level and number; the stage and the wipe use the same pill size
+ *  11 colour discipline  text tokens (92 / 60 / 45%) keep >= 7 / 4.5 / 3:1 contrast over every backdrop; every accent is >= 20 degrees
+ *                           of hue from gold; gold is used only by the title, streak banner and top rank; no colour literals in components
  *   7 question order        the 50 question segments are indices 0..49 in order, ids 1..50, level = states-data level,
  *                           levels never go back, and a level card comes right before each level's first question
  */
@@ -47,7 +49,7 @@ const load = async () => {
     await esbuild.build({
       stdin: {
         contents:
-          "export * as T from './src/states/state-timing.ts'; export * as S from './src/states/state-sound.ts'; export * as D from './src/states/states-data.ts'; export * as C from './src/states/capital-fit.ts'; export * as ST from './src/style.ts'; export * as IOSM from './src/ios/tokens.ts';",
+          "export * as T from './src/states/state-timing.ts'; export * as S from './src/states/state-sound.ts'; export * as D from './src/states/states-data.ts'; export * as C from './src/states/capital-fit.ts'; export * as ST from './src/style.ts'; export * as IOSM from './src/ios/tokens.ts'; export * as LOOKM from './src/states/look.ts';",
         resolveDir: ROOT,
         loader: 'ts',
       },
@@ -88,7 +90,7 @@ const check = (name, fn) => {
 };
 
 (async () => {
-  const { T, S, D, C, ST, IOSM } = await load();
+  const { T, S, D, C, ST, IOSM, LOOKM } = await load();
   const segs = T.TIMELINE.segments;
   const total = T.TIMELINE.totalFrames;
   const soundDir = path.join(ROOT, 'public', 'sounds');
@@ -433,6 +435,63 @@ const check = (name, fn) => {
       }
     });
     return { problems, info: `title starts ${lockupLeft.toFixed(0)}px; tightest pill: ${worst.level} ${worst.n} / ${T.TOTAL}, gap ${worst.gap.toFixed(0)}px (min ${minGap}px)` };
+  });
+
+  check('11 colour discipline (contrast, gold, no stray hex)', () => {
+    const problems = [];
+    const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+    const rgba = (c) => {
+      const m = /rgba\((\d+),\s*(\d+),\s*(\d+),\s*([0-9.]+)\)/.exec(c);
+      return { rgb: [Number(m[1]), Number(m[2]), Number(m[3])], a: Number(m[4]) };
+    };
+    const lum = (rgb) => {
+      const f = (v) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+      return 0.2126 * f(rgb[0]) + 0.7152 * f(rgb[1]) + 0.0722 * f(rgb[2]);
+    };
+    const contrast = (a, b) => (Math.max(lum(a), lum(b)) + 0.05) / (Math.min(lum(a), lum(b)) + 0.05);
+    const over = (fg, bg) => fg.rgb.map((v, i) => v * fg.a + bg[i] * (1 - fg.a));
+    const hue = (h) => {
+      const [r, g, b] = hex(h).map((v) => v / 255);
+      const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+      if (!d) return 0;
+      const x = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+      return (x * 60 + 360) % 360;
+    };
+    const hueGap = (a, b) => { const d = Math.abs(hue(a) - hue(b)); return Math.min(d, 360 - d); };
+    const COLOR = LOOKM.COLOR;
+    const light = Number(/LIGHT_PERCENT\s*=\s*([0-9.]+)/.exec(fs.readFileSync(path.join(ROOT, 'src', 'ios', 'IosBackground.tsx'), 'utf8'))[1]);
+    // backdrops: black, the raised dark, and the brightest the calm backdrop gets (its accent light over black) for each accent
+    const accents = [...T.LEVELS.map((l) => ({ name: l.name, c: l.accent })), { name: 'BONUS', c: COLOR.bonus }];
+    const backs = [{ name: 'black', rgb: [0, 0, 0] }, { name: 'raised', rgb: hex(LOOKM.BACKDROP.raised) }, ...accents.map((a) => ({ name: a.name + ' light', rgb: hex(a.c).map((v) => v * (light / 100)) }))];
+    let worst = { primary: 99, label: 99, hint: 99 };
+    const need = { primary: 7, label: 4.5, hint: 3 };
+    backs.forEach((b) => {
+      Object.keys(need).forEach((k) => {
+        const fg = rgba(COLOR.text[k]);
+        const cr = contrast(over(fg, b.rgb), b.rgb);
+        worst[k] = Math.min(worst[k], cr);
+        if (cr < need[k]) problems.push(`text.${k} over ${b.name}: contrast ${cr.toFixed(2)}:1 < ${need[k]}:1`);
+      });
+    });
+    // gold: every accent (levels and bonus) must be clearly another hue
+    accents.forEach((a) => { const g = hueGap(COLOR.gold, a.c); if (g < 20) problems.push(`${a.name} accent ${a.c} is too close to gold (${g.toFixed(0)} degrees)`); });
+    // gold is used only by: the title, the streak banner and the scoreboard (top rank)
+    const allowed = ['look.ts', 'StateTitleLockup.tsx', 'StateRound.tsx', 'StateScoreboard.tsx'];
+    const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(dir, e.name)) : [path.join(dir, e.name)]));
+    const files = walk(path.join(ROOT, 'src', 'states')).filter((f) => /\.(tsx|ts)$/.test(f));
+    const stray = [];
+    files.forEach((f) => {
+      const base = path.basename(f);
+      const lines = fs.readFileSync(f, 'utf8').split('\n');
+      lines.forEach((ln, i) => {
+        const code = ln.replace(/\/\/.*$/, '').trim();
+        if (code.startsWith('*') || code.startsWith('/*')) return;
+        if (/COLOR\.gold/.test(code) && !allowed.includes(base)) problems.push(`${base}:${i + 1}: gold used outside the title / streak / top rank`);
+        if (/\.tsx$/.test(f) && base !== 'ComponentsSheet.tsx' && (/#[0-9A-Fa-f]{3,8}\b/.test(code) || /rgba?\(/.test(code))) stray.push(`${base}:${i + 1}`);
+      });
+    });
+    if (stray.length) problems.push(`colour literals in components (use look.ts COLOR): ${stray.slice(0, 6).join(', ')}${stray.length > 6 ? ' ...' : ''}`);
+    return { problems, info: `worst contrast primary ${worst.primary.toFixed(1)}:1, label ${worst.label.toFixed(1)}:1, hint ${worst.hint.toFixed(1)}:1 over ${backs.length} backdrops; accents ${accents.map((a) => a.name).join('/')} all >= 20 degrees from gold; gold only in ${allowed.slice(1).join(', ')}; no colour literals in components` };
   });
 
   // table

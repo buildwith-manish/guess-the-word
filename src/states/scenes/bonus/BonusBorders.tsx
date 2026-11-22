@@ -38,6 +38,7 @@ import {
   sortCues,
 } from './BonusMissing';
 import type { MapMark } from './BonusMissing';
+import { COLOR } from '../../look';
 
 /** Beats of the borders scene in ticks (from the start of the segment). */
 export const bordersTimes = (puzzle: BonusPuzzle, duration?: number) => {
@@ -75,10 +76,10 @@ export const BonusBorders: React.FC<{ frame: number; puzzle: BonusPuzzle; durati
   const glowIn = prog(frame, B.glowAt, 12, iosOut);
   const lit = prog(frame, B.litAt, 10, iosOut);
   const marks: Record<string, MapMark> = {
-    [target]: { fill: accent, fillOpacity: 0.3 + 0.5 * glowIn, edge: IOS.color.orange, edgeOpacity: 0.5 + 0.5 * glowIn, glow: glowIn },
+    [target]: { fill: accent, fillOpacity: 0.3 + 0.5 * glowIn, edge: COLOR.bonus, edgeOpacity: 0.5 + 0.5 * glowIn, glow: glowIn },
   };
   if (lit > 0) {
-    marks[neighbour] = { fill: IOS.color.green, fillOpacity: 0.85 * lit, edge: IOS.color.label, edgeOpacity: lit, glow: lit };
+    marks[neighbour] = { fill: COLOR.positive, fillOpacity: 0.85 * lit, edge: COLOR.text.primary, edgeOpacity: lit, glow: lit };
   }
 
   const a = getShape(target).miniCentroid;
@@ -95,9 +96,9 @@ export const BonusBorders: React.FC<{ frame: number; puzzle: BonusPuzzle; durati
           <BonusMap size={size} marks={marks}>
             {lineP > 0 ? (
               <>
-                <path d={`M ${a[0]} ${a[1]} L ${b[0]} ${b[1]}`} pathLength={1} fill="none" stroke={IOS.color.orange} strokeWidth={3} strokeLinecap="round" strokeDasharray="1" strokeDashoffset={1 - lineP} />
-                <circle cx={a[0]} cy={a[1]} r={4.5} fill={IOS.color.orange} />
-                <circle cx={b[0]} cy={b[1]} r={4.5 * lineP} fill={IOS.color.label} />
+                <path d={`M ${a[0]} ${a[1]} L ${b[0]} ${b[1]}`} pathLength={1} fill="none" stroke={COLOR.bonus} strokeWidth={3} strokeLinecap="round" strokeDasharray="1" strokeDashoffset={1 - lineP} />
+                <circle cx={a[0]} cy={a[1]} r={4.5} fill={COLOR.bonus} />
+                <circle cx={b[0]} cy={b[1]} r={4.5 * lineP} fill={COLOR.text.primary} />
               </>
             ) : null}
           </BonusMap>

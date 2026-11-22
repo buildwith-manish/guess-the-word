@@ -30,7 +30,7 @@ import { S, px } from '../../style';
 import { IOS, IosBackground } from '../../ios';
 import { prog } from '../../anim';
 import { iosOut } from '../motion';
-import { RADIUS, glassPanel } from '../look';
+import {RADIUS, glassPanel, COLOR } from '../look';
 import rootSettings from '../../../settings.json';
 import { BONUS_THEME, HEIGHT, LEVELS, QUESTIONS, WIDTH } from '../state-timing';
 import type { Hud, IrisVariant, Segment } from '../types';
@@ -105,8 +105,8 @@ export const StateHudPill: React.FC<{ hud: Hud }> = ({ hud }) => {
         whiteSpace: 'pre',
       }}
     >
-      <span style={{ color: IOS.color.secondary }}>{name}</span>
-      <span style={{ color: IOS.color.label }}>{`${hud.number} / ${hud.total}`}</span>
+      <span style={{ color: COLOR.text.label }}>{name}</span>
+      <span style={{ color: COLOR.text.primary }}>{`${hud.number} / ${hud.total}`}</span>
     </div>
   );
 };

@@ -37,6 +37,7 @@ import { MiniMap } from './components/MiniMap';
 import { STATES } from './states-data';
 import { StateSoundtrack } from './StateSoundtrack';
 import { questionHasTitle } from './state-sound';
+import { COLOR } from './look';
 
 const Scenes: React.FC = () => {
   const frame = useDesignFrame();
@@ -115,7 +116,7 @@ const Scenes: React.FC = () => {
     case 'endScreen':
       return <AbsoluteFill>{rig(<StateEndScreen frame={local} />)}</AbsoluteFill>;
     default:
-      return <AbsoluteFill style={{ background: '#000' }} />;
+      return <AbsoluteFill style={{ background: COLOR.black }} />;
   }
 };
 

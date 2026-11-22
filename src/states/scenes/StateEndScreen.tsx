@@ -32,7 +32,7 @@ import { AbsoluteFill } from 'remotion';
 import { px } from '../../style';
 import { IOS, IosBackground, iosSurface } from '../../ios';
 import { spr, stagger } from '../motion';
-import { RADIUS } from '../look';
+import {RADIUS, COLOR } from '../look';
 import { clamp01 } from '../../anim';
 import { rise } from '../ios-rise';
 import root from '../../../settings.json';
@@ -113,7 +113,7 @@ const Outlines: React.FC<{ frame: number }> = ({ frame }) => {
         style={{
           ...slotBox(END_SLOTS.subscribe),
           borderRadius: '50%',
-          border: `${px(2)}px solid ${IOS.color.red}`,
+          border: `${px(2)}px solid ${COLOR.alert}`,
           opacity: Math.min(1, subOn * 1.4) * (0.6 + 0.4 * pulse),
           transform: `scale(${0.9 + 0.1 * subOn})`,
         }}
@@ -131,7 +131,7 @@ const Outlines: React.FC<{ frame: number }> = ({ frame }) => {
             fontFamily: IOS.font,
             fontWeight: IOS.weight.medium,
             fontSize: px(20),
-            color: IOS.color.secondary,
+            color: COLOR.text.hint,
             opacity: clamp01(pop),
           }}
         >
@@ -176,7 +176,7 @@ export const StateEndScreen: React.FC<{ frame: number }> = ({ frame }) => {
             fontWeight: IOS.weight.semibold,
             fontSize: px(24),
             letterSpacing: px(2),
-            color: IOS.color.secondary,
+            color: COLOR.text.label,
             opacity: e1.opacity,
             transform: e1.transform,
           }}
@@ -189,7 +189,7 @@ export const StateEndScreen: React.FC<{ frame: number }> = ({ frame }) => {
             fontSize: px(92),
             lineHeight: 1.04,
             letterSpacing: px(-2),
-            color: IOS.color.label,
+            color: COLOR.text.primary,
             opacity: e2.opacity,
             transform: e2.transform,
           }}
@@ -203,8 +203,8 @@ export const StateEndScreen: React.FC<{ frame: number }> = ({ frame }) => {
             marginTop: px(8),
             padding: `${px(10)}px ${px(26)}px`,
             borderRadius: px(40),
-            background: IOS.color.red,
-            color: '#fff',
+            background: COLOR.alert,
+            color: COLOR.onAlert,
             fontWeight: IOS.weight.semibold,
             fontSize: px(26),
             opacity: e3.opacity,
@@ -219,14 +219,14 @@ export const StateEndScreen: React.FC<{ frame: number }> = ({ frame }) => {
             style={{
               fontWeight: IOS.weight.medium,
               fontSize: px(24),
-              color: IOS.color.label,
+              color: COLOR.text.primary,
               opacity: e4.opacity,
               transform: e4.transform,
             }}
           >
-            <span style={{ color: IOS.color.secondary }}>{COPY.nextLabel}: </span>
+            <span style={{ color: COLOR.text.hint }}>{COPY.nextLabel}: </span>
             {nextLine}
-            {next.linkText ? <span style={{ color: IOS.color.secondary }}> {'•'} {next.linkText}</span> : null}
+            {next.linkText ? <span style={{ color: COLOR.text.hint }}> {'•'} {next.linkText}</span> : null}
           </div>
         ) : null}
       </div>
