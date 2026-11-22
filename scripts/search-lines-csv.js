@@ -6,7 +6,7 @@
  *  - reveal lines come from docs/search-voiceover-script.md
  *  - everything else (intro, levels, bonus, scoreboard, outro) is written below
  * `text` is the voice text with emotion tags in [square brackets]: for the AI voice ONLY, never shown on
- * screen. If your voice tool reads tags aloud, strip them with: text.replace(/\\[[^\\]]+\\]\\s*/g, '').
+ * screen. If your voice tool reads tags aloud, strip every [..] and the space after it.
  */
 const fs = require('fs');
 const os = require('os');

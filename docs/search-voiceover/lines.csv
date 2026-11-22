@@ -1,135 +1,135 @@
-file,key,type,round,level,text,voice_text,emotion,pause_before_s,est_seconds,note
-intro.mp3,intro,intro,,,"Everyone has a search history they'd never show anyone. Here are thirty characters. You get three searches, then a hint. Guess who it is before time runs out.","[warmly] Everyone has a search history they'd never show anyone. [playfully] Here are thirty characters. You get three searches, then a hint. [excited] Guess who it is before time runs out.",warmly > playfully > excited,0,11.6,
-level-1.mp3,level.1,level card,,EASY,Level one: easy. Ten characters you already know. Five seconds to answer.,[calm] Level one: easy. Ten characters you already know. Five seconds to answer.,calm,0,5.2,
-level-2.mp3,level.2,level card,,MEDIUM,Level two: medium. The clues get a little sneakier. Five seconds to answer.,[curious] Level two: medium. The clues get a little sneakier. Five seconds to answer.,curious,0,5.6,
-level-3.mp3,level.3,level card,,HARD,Level three: hard. These ones really make you think. Five seconds to answer. Good luck.,[serious] Level three: hard. These ones really make you think. Five seconds to answer. Good luck.,serious,0,6.4,
-clue-1-1.mp3,clue.1.0,clue,1,EASY,how to get sticky stuff off a ceiling,[calm] how to get sticky stuff off a ceiling,calm,0,3.6,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-1-2.mp3,clue.1.1,clue,1,EASY,can you swing to work without being late,[curious] can you swing to work without being late,curious,0,3.6,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-1-3.mp3,clue.1.2,clue,1,EASY,red and blue suit shrinks in the wash,[amused] red and blue suit shrinks in the wash,amused,0,3.6,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-2-1.mp3,clue.2.0,clue,2,EASY,best black paint that hides in the dark,[calm] best black paint that hides in the dark,calm,0,3.6,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-2-2.mp3,clue.2.1,clue,2,EASY,how to hide a cave under a mansion,[curious] how to hide a cave under a mansion,curious,0,3.6,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-2-3.mp3,clue.2.2,clue,2,EASY,my butler keeps asking where I go at night,[amused] my butler keeps asking where I go at night,amused,0,4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-3-1.mp3,clue.3.0,clue,3,EASY,where to buy white gloves in bulk,[calm] where to buy white gloves in bulk,calm,0,3.2,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-3-2.mp3,clue.3.1,clue,3,EASY,round ears hair clip size,[curious] round ears hair clip size,curious,0,2.4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-3-3.mp3,clue.3.2,clue,3,EASY,how to turn a 1928 cartoon into a global brand,[amused] how to turn a 1928 cartoon into a global brand,amused,0,4.4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-4-1.mp3,clue.4.0,clue,4,EASY,how to keep a sponge from drying out,[calm] how to keep a sponge from drying out,calm,0,3.6,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-4-2.mp3,clue.4.1,clue,4,EASY,can a fry cook get a boating license,[curious] can a fry cook get a boating license,curious,0,3.6,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-4-3.mp3,clue.4.2,clue,4,EASY,pineapple house maintenance,[amused] pineapple house maintenance,amused,0,1.6,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-5-1.mp3,clue.5.0,clue,5,EASY,how to get letters delivered by owl,[calm] how to get letters delivered by owl,calm,0,3.2,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-5-2.mp3,clue.5.1,clue,5,EASY,can you sleep under the stairs comfortably,[curious] can you sleep under the stairs comfortably,curious,0,3.2,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-5-3.mp3,clue.5.2,clue,5,EASY,train platform between nine and ten missing,[amused] train platform between nine and ten missing,amused,0,3.2,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-6-1.mp3,clue.6.0,clue,6,EASY,how to stop freezing everything when I'm nervous,[calm] how to stop freezing everything when I'm nervous,calm,0,3.6,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-6-2.mp3,clue.6.1,clue,6,EASY,best gloves for people who freeze things,[curious] best gloves for people who freeze things,curious,0,3.2,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-6-3.mp3,clue.6.2,clue,6,EASY,ice castle building permit,[amused] ice castle building permit,amused,0,2,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-7-1.mp3,clue.7.0,clue,7,EASY,how to get strangers out of a swamp,[calm] how to get strangers out of a swamp,calm,0,3.6,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-7-2.mp3,clue.7.1,clue,7,EASY,best green face cream,[curious] best green face cream,curious,0,2,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-7-3.mp3,clue.7.2,clue,7,EASY,how to evict fairy-tale creatures from my house,[amused] how to evict fairy-tale creatures from my house,amused,0,3.6,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-8-1.mp3,clue.8.0,clue,8,EASY,best plumber near me that jumps,[calm] best plumber near me that jumps,calm,0,2.8,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-8-2.mp3,clue.8.1,clue,8,EASY,how to get past a pipe full of plants,[curious] how to get past a pipe full of plants,curious,0,4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-8-3.mp3,clue.8.2,clue,8,EASY,red cap and mustache combo ideas,[amused] red cap and mustache combo ideas,amused,0,2.8,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-9-1.mp3,clue.9.0,clue,9,EASY,how to charge a yellow thing without a plug,[calm] how to charge a yellow thing without a plug,calm,0,4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-9-2.mp3,clue.9.1,clue,9,EASY,can a mouse have lightning cheeks,[curious] can a mouse have lightning cheeks,curious,0,2.8,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-9-3.mp3,clue.9.2,clue,9,EASY,why does only my name come out when I talk,[amused] why does only my name come out when I talk,amused,0,4.4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-10-1.mp3,clue.10.0,clue,10,EASY,how to stop being left behind when kids move,[calm] how to stop being left behind when kids move,calm,0,4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-10-2.mp3,clue.10.1,clue,10,EASY,best hats for pull-string toys,[curious] best hats for pull-string toys,curious,0,2.4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-10-3.mp3,clue.10.2,clue,10,EASY,my friend from space thinks he can fly,[amused] my friend from space thinks he can fly,amused,0,3.6,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-11-1.mp3,clue.11.0,clue,11,MEDIUM,how to fix a glowing chest battery,[calm] how to fix a glowing chest battery,calm,0,3.2,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-11-2.mp3,clue.11.1,clue,11,MEDIUM,can billionaires patent flying suits,[curious] can billionaires patent flying suits,curious,0,2.4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-11-3.mp3,clue.11.2,clue,11,MEDIUM,best AI butler software,[amused] best AI butler software,amused,0,2,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-12-1.mp3,clue.12.0,clue,12,MEDIUM,how to breathe less loudly,[calm] how to breathe less loudly,calm,0,2.4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-12-2.mp3,clue.12.1,clue,12,MEDIUM,family reunion advice when it's complicated,[curious] family reunion advice when it's complicated,curious,0,2.8,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-12-3.mp3,clue.12.2,clue,12,MEDIUM,red laser sword safety rules,[amused] red laser sword safety rules,amused,0,2.4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-13-1.mp3,clue.13.0,clue,13,MEDIUM,how to return to a kingdom after running away,[calm] how to return to a kingdom after running away,calm,0,4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-13-2.mp3,clue.13.1,clue,13,MEDIUM,my uncle is acting suspicious,[curious] my uncle is acting suspicious,curious,0,2.4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-13-3.mp3,clue.13.2,clue,13,MEDIUM,best friends: a meerkat and a warthog,[amused] best friends: a meerkat and a warthog,amused,0,3.2,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-14-1.mp3,clue.14.0,clue,14,MEDIUM,can toys fly if they believe hard enough,[calm] can toys fly if they believe hard enough,calm,0,3.6,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-14-2.mp3,clue.14.1,clue,14,MEDIUM,how to charge a laser on my wrist,[curious] how to charge a laser on my wrist,curious,0,3.6,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-14-3.mp3,clue.14.2,clue,14,MEDIUM,wing buttons keep sticking,[amused] wing buttons keep sticking,amused,0,2,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-15-1.mp3,clue.15.0,clue,15,MEDIUM,best white face paint that doesn't crack,[calm] best white face paint that doesn't crack,calm,0,3.2,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-15-2.mp3,clue.15.1,clue,15,MEDIUM,purple suit tailor in Gotham,[curious] purple suit tailor in Gotham,curious,0,2.4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-15-3.mp3,clue.15.2,clue,15,MEDIUM,why does my rival never find it funny,[amused] why does my rival never find it funny,amused,0,3.6,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-16-1.mp3,clue.16.0,clue,16,MEDIUM,how to explain a fast car to a small town,[calm] how to explain a fast car to a small town,calm,0,4.4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-16-2.mp3,clue.16.1,clue,16,MEDIUM,number 95 stickers,[curious] number 95 stickers,curious,0,1.6,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-16-3.mp3,clue.16.2,clue,16,MEDIUM,what is a Piston Cup,[amused] what is a Piston Cup,amused,0,2.4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-17-1.mp3,clue.17.0,clue,17,MEDIUM,best red fur shampoo,[calm] best red fur shampoo,calm,0,2,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-17-2.mp3,clue.17.1,clue,17,MEDIUM,why do I talk about myself in third person,[curious] why do I talk about myself in third person,curious,0,4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-17-3.mp3,clue.17.2,clue,17,MEDIUM,how to get to a street with furry neighbors,[amused] how to get to a street with furry neighbors,amused,0,4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-18-1.mp3,clue.18.0,clue,18,MEDIUM,fastest shoes for a hedgehog,[calm] fastest shoes for a hedgehog,calm,0,2.4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-18-2.mp3,clue.18.1,clue,18,MEDIUM,how to collect gold rings without stopping,[curious] how to collect gold rings without stopping,curious,0,3.2,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-18-3.mp3,clue.18.2,clue,18,MEDIUM,how fast is too fast for a speeding ticket,[amused] how fast is too fast for a speeding ticket,amused,0,4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-19-1.mp3,clue.19.0,clue,19,MEDIUM,can donuts count as a food group,[calm] can donuts count as a food group,calm,0,3.2,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-19-2.mp3,clue.19.1,clue,19,MEDIUM,how to nap at a nuclear power plant,[curious] how to nap at a nuclear power plant,curious,0,3.6,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-19-3.mp3,clue.19.2,clue,19,MEDIUM,how to avoid my overly nice neighbor,[amused] how to avoid my overly nice neighbor,amused,0,3.2,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-20-1.mp3,clue.20.0,clue,20,MEDIUM,how to sail across an ocean with a rooster,[calm] how to sail across an ocean with a rooster,calm,0,4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-20-2.mp3,clue.20.1,clue,20,MEDIUM,how to hire a navigator for a small island,[curious] how to hire a navigator for a small island,curious,0,4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-20-3.mp3,clue.20.2,clue,20,MEDIUM,how to bargain with a demigod over fishhooks,[amused] how to bargain with a demigod over fishhooks,amused,0,3.6,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-21-1.mp3,clue.21.0,clue,21,HARD,how to find a lost ring,[calm] how to find a lost ring,calm,0,2.8,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-21-2.mp3,clue.21.1,clue,21,HARD,cave apartment rentals,[curious] cave apartment rentals,curious,0,1.6,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-21-3.mp3,clue.21.2,clue,21,HARD,why do I talk to myself in the dark,[amused] why do I talk to myself in the dark,amused,0,4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-22-1.mp3,clue.22.0,clue,22,HARD,best trash compactor repair,[calm] best trash compactor repair,calm,0,2,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-22-2.mp3,clue.22.1,clue,22,HARD,plant care for a lonely robot,[curious] plant care for a lonely robot,curious,0,2.8,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-22-3.mp3,clue.22.2,clue,22,HARD,can robots fall in love with a visiting probe,[amused] can robots fall in love with a visiting probe,amused,0,4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-23-1.mp3,clue.23.0,clue,23,HARD,best swamp planets for retirement,[calm] best swamp planets for retirement,calm,0,2.4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-23-2.mp3,clue.23.1,clue,23,HARD,why do I put words in a different order,[curious] why do I put words in a different order,curious,0,4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-23-3.mp3,clue.23.2,clue,23,HARD,how to hide pointy green ears,[amused] how to hide pointy green ears,amused,0,2.8,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-24-1.mp3,clue.24.0,clue,24,HARD,how to make a sandwich bigger than my head,[calm] how to make a sandwich bigger than my head,calm,0,4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-24-2.mp3,clue.24.1,clue,24,HARD,best dog snacks for solving mysteries,[curious] best dog snacks for solving mysteries,curious,0,2.8,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-24-3.mp3,clue.24.2,clue,24,HARD,van insurance for four teenagers and a dog,[amused] van insurance for four teenagers and a dog,amused,0,3.6,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-25-1.mp3,clue.25.0,clue,25,HARD,lasagna delivery open 24 hours,[calm] lasagna delivery open 24 hours,calm,0,2.4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-25-2.mp3,clue.25.1,clue,25,HARD,why are Mondays so hard for cats,[curious] why are Mondays so hard for cats,curious,0,3.2,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-25-3.mp3,clue.25.2,clue,25,HARD,how to get my owner's dog to stop being annoying,[amused] how to get my owner's dog to stop being annoying,amused,0,4.4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-26-1.mp3,clue.26.0,clue,26,HARD,carrot subscription box,[calm] carrot subscription box,calm,0,1.6,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-26-2.mp3,clue.26.1,clue,26,HARD,disguise ideas that always fool a hunter,[curious] disguise ideas that always fool a hunter,curious,0,3.2,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-26-3.mp3,clue.26.2,clue,26,HARD,is it rude to chew a carrot while talking,[amused] is it rude to chew a carrot while talking,amused,0,4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-27-1.mp3,clue.27.0,clue,27,HARD,green tunic that never wears out,[calm] green tunic that never wears out,calm,0,2.8,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-27-2.mp3,clue.27.1,clue,27,HARD,how many hearts is too many,[curious] how many hearts is too many,curious,0,2.8,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-27-3.mp3,clue.27.2,clue,27,HARD,how to save a princess without talking,[amused] how to save a princess without talking,amused,0,3.2,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-28-1.mp3,clue.28.0,clue,28,HARD,how to survive the first night in a square world,[calm] how to survive the first night in a square world,calm,0,4.4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-28-2.mp3,clue.28.1,clue,28,HARD,best pickaxe for beginners,[curious] best pickaxe for beginners,curious,0,2,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-28-3.mp3,clue.28.2,clue,28,HARD,why is everything around me made of blocks,[amused] why is everything around me made of blocks,amused,0,3.6,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-29-1.mp3,clue.29.0,clue,29,HARD,how to explore with a talking map,[calm] how to explore with a talking map,calm,0,3.2,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-29-2.mp3,clue.29.1,clue,29,HARD,can a monkey wear red boots,[curious] can a monkey wear red boots,curious,0,2.8,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-29-3.mp3,clue.29.2,clue,29,HARD,how to stop a sneaky fox from taking things,[amused] how to stop a sneaky fox from taking things,amused,0,4,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-30-1.mp3,clue.30.0,clue,30,HARD,how to tell someone's job from their hat,[calm] how to tell someone's job from their hat,calm,0,3.6,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-30-2.mp3,clue.30.1,clue,30,HARD,best violin for thinking,[curious] best violin for thinking,curious,0,2,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-clue-30-3.mp3,clue.30.2,clue,30,HARD,apartment at 221B rent,[amused] apartment at 221B rent,amused,0,2,read exactly as typed; no lead-in; no silence at the start (typing starts with the clip)
-reveal-1.mp3,reveal.1,reveal,1,EASY,It's Spider-Man.,[warmly] It's Spider-Man.,warmly,0.4,1.2,"one beat of silence before; clean end, no tail"
-reveal-2.mp3,reveal.2,reveal,2,EASY,"That's Batman, from DC.","[warmly] That's Batman, from DC.",warmly,0.4,2,"one beat of silence before; clean end, no tail"
-reveal-3.mp3,reveal.3,reveal,3,EASY,Mickey Mouse. Of course.,[playfully] Mickey Mouse. Of course.,playfully,0.4,2,"one beat of silence before; clean end, no tail"
-reveal-4.mp3,reveal.4,reveal,4,EASY,"It was SpongeBob SquarePants, from Nickelodeon.","[warmly] It was SpongeBob SquarePants, from Nickelodeon.",warmly,0.4,2.8,"one beat of silence before; clean end, no tail"
-reveal-5.mp3,reveal.5,reveal,5,EASY,"Yep, it's Harry Potter.","[warmly] Yep, it's Harry Potter.",warmly,0.4,2,"one beat of silence before; clean end, no tail"
-reveal-6.mp3,reveal.6,reveal,6,EASY,That's Elsa.,[warmly] That's Elsa.,warmly,0.4,1.2,"one beat of silence before; clean end, no tail"
-reveal-7.mp3,reveal.7,reveal,7,EASY,It's Shrek.,[warmly] It's Shrek.,warmly,0.4,1.2,"one beat of silence before; clean end, no tail"
-reveal-8.mp3,reveal.8,reveal,8,EASY,"That's Mario, from Super Mario.","[warmly] That's Mario, from Super Mario.",warmly,0.4,2.4,"one beat of silence before; clean end, no tail"
-reveal-9.mp3,reveal.9,reveal,9,EASY,Pikachu. Of course.,[playfully] Pikachu. Of course.,playfully,0.4,1.6,"one beat of silence before; clean end, no tail; Pikachu = PEEK-ah-choo"
-reveal-10.mp3,reveal.10,reveal,10,EASY,"It was Woody, from Toy Story.","[warmly] It was Woody, from Toy Story.",warmly,0.4,2.8,"one beat of silence before; clean end, no tail"
-reveal-11.mp3,reveal.11,reveal,11,MEDIUM,"Yep, it's Iron Man.","[warmly] Yep, it's Iron Man.",warmly,0.4,2,"one beat of silence before; clean end, no tail"
-reveal-12.mp3,reveal.12,reveal,12,MEDIUM,That's Darth Vader.,[warmly] That's Darth Vader.,warmly,0.4,1.6,"one beat of silence before; clean end, no tail"
-reveal-13.mp3,reveal.13,reveal,13,MEDIUM,It's Simba.,[warmly] It's Simba.,warmly,0.4,1.2,"one beat of silence before; clean end, no tail"
-reveal-14.mp3,reveal.14,reveal,14,MEDIUM,"That's Buzz Lightyear, from Toy Story.","[warmly] That's Buzz Lightyear, from Toy Story.",warmly,0.4,2.8,"one beat of silence before; clean end, no tail"
-reveal-15.mp3,reveal.15,reveal,15,MEDIUM,Joker. Of course.,[playfully] Joker. Of course.,playfully,0.4,1.6,"one beat of silence before; clean end, no tail"
-reveal-16.mp3,reveal.16,reveal,16,MEDIUM,"It was Lightning McQueen, from Cars.","[warmly] It was Lightning McQueen, from Cars.",warmly,0.4,2.8,"one beat of silence before; clean end, no tail"
-reveal-17.mp3,reveal.17,reveal,17,MEDIUM,"Yep, it's Elmo.","[warmly] Yep, it's Elmo.",warmly,0.4,1.6,"one beat of silence before; clean end, no tail"
-reveal-18.mp3,reveal.18,reveal,18,MEDIUM,That's Sonic.,[warmly] That's Sonic.,warmly,0.4,1.2,"one beat of silence before; clean end, no tail"
-reveal-19.mp3,reveal.19,reveal,19,MEDIUM,It's Homer Simpson.,[warmly] It's Homer Simpson.,warmly,0.4,1.6,"one beat of silence before; clean end, no tail"
-reveal-20.mp3,reveal.20,reveal,20,MEDIUM,It's Moana.,[warmly] It's Moana.,warmly,0.4,1.2,"one beat of silence before; clean end, no tail; Moana = moh-AH-nah"
-reveal-21.mp3,reveal.21,reveal,21,HARD,Gollum. Of course.,[playfully] Gollum. Of course.,playfully,0.4,1.6,"one beat of silence before; clean end, no tail; Gollum = GAH-lum"
-reveal-22.mp3,reveal.22,reveal,22,HARD,It's WALL-E.,[warmly] It's WALL-E.,warmly,0.4,1.2,"one beat of silence before; clean end, no tail; WALL-E = WALL-ee"
-reveal-23.mp3,reveal.23,reveal,23,HARD,"Yep, it's Yoda.","[warmly] Yep, it's Yoda.",warmly,0.4,1.6,"one beat of silence before; clean end, no tail"
-reveal-24.mp3,reveal.24,reveal,24,HARD,That's Scooby-Doo.,[warmly] That's Scooby-Doo.,warmly,0.4,1.2,"one beat of silence before; clean end, no tail"
-reveal-25.mp3,reveal.25,reveal,25,HARD,It's Garfield.,[warmly] It's Garfield.,warmly,0.4,1.2,"one beat of silence before; clean end, no tail"
-reveal-26.mp3,reveal.26,reveal,26,HARD,"That's Bugs Bunny, from Looney Tunes.","[warmly] That's Bugs Bunny, from Looney Tunes.",warmly,0.4,2.8,"one beat of silence before; clean end, no tail"
-reveal-27.mp3,reveal.27,reveal,27,HARD,Link. Of course.,[playfully] Link. Of course.,playfully,0.4,1.6,"one beat of silence before; clean end, no tail"
-reveal-28.mp3,reveal.28,reveal,28,HARD,"It was Steve, from Minecraft.","[warmly] It was Steve, from Minecraft.",warmly,0.4,2.4,"one beat of silence before; clean end, no tail"
-reveal-29.mp3,reveal.29,reveal,29,HARD,"Yep, it's Dora.","[warmly] Yep, it's Dora.",warmly,0.4,1.6,"one beat of silence before; clean end, no tail"
-reveal-30.mp3,reveal.30,reveal,30,HARD,That's Sherlock Holmes.,[warmly] That's Sherlock Holmes.,warmly,0.4,1.6,"one beat of silence before; clean end, no tail"
-bonus-1.mp3,bonus.1,bonus answer,after 10,,Bonus answer: Winnie the Pooh.,[excited] Bonus answer: Winnie the Pooh.,excited,0.3,2.4,
-bonus-2.mp3,bonus.2,bonus answer,after 20,,Bonus answer: Dory.,[excited] Bonus answer: Dory.,excited,0.3,1.6,
-bonus-3.mp3,bonus.3,bonus answer,after 30,,Bonus answer: Pac-Man.,[excited] Bonus answer: Pac-Man.,excited,0.3,1.6,
-scoreboard-intro.mp3,scoreboard.intro,scoreboard,,,Let's see how you did.,[warmly] Let's see how you did.,warmly,0,2.4,
-scoreboard-legend.mp3,scoreboard.legend,scoreboard,,,Legend. Twenty-seven or more. You know your characters.,[excited] Legend. Twenty-seven or more. You know your characters.,excited,0,3.6,all five play back to back: keep each under about 4 s
-scoreboard-expert.mp3,scoreboard.expert,scoreboard,,,Expert. Twenty-one or more. Just a few slipped past.,[impressed] Expert. Twenty-one or more. Just a few slipped past.,impressed,0,4,all five play back to back: keep each under about 4 s
-scoreboard-good.mp3,scoreboard.good,scoreboard,,,Good. Fifteen or more. More than half right.,[warmly] Good. Fifteen or more. More than half right.,warmly,0,3.6,all five play back to back: keep each under about 4 s
-scoreboard-beginner.mp3,scoreboard.beginner,scoreboard,,,Beginner. Nine or more. A solid start.,[encouraging] Beginner. Nine or more. A solid start.,encouraging,0,3.2,all five play back to back: keep each under about 4 s
-scoreboard-keepgoing.mp3,scoreboard.keepgoing,scoreboard,,,Keep going. Under nine. Everybody starts somewhere.,[encouraging] Keep going. Under nine. Everybody starts somewhere.,encouraging,0,3.2,all five play back to back: keep each under about 4 s
-outro.mp3,outro,outro,,,"How many did you get? Tell me in the comments. If you want more search histories, subscribe, and I'll see you in the next one.","[warmly] How many did you get? Tell me in the comments. [playfully] If you want more search histories, subscribe, and I'll see you in the next one.",warmly > playfully,0,10.4,
+id,type,text
+intro,intro,"[warmly] Everyone has a search history they'd never show anyone. [playfully] Here are thirty characters. You get three searches, then a hint. [excited] Guess who it is before time runs out."
+level-1,level,[calm] Level one: easy. Ten characters you already know. Five seconds to answer.
+level-2,level,[curious] Level two: medium. The clues get a little sneakier. Five seconds to answer.
+level-3,level,[serious] Level three: hard. These ones really make you think. Five seconds to answer. Good luck.
+clue-1-1,clue,[calm] how to get sticky stuff off a ceiling
+clue-1-2,clue,[curious] can you swing to work without being late
+clue-1-3,clue,[amused] red and blue suit shrinks in the wash
+clue-2-1,clue,[calm] best black paint that hides in the dark
+clue-2-2,clue,[curious] how to hide a cave under a mansion
+clue-2-3,clue,[amused] my butler keeps asking where I go at night
+clue-3-1,clue,[calm] where to buy white gloves in bulk
+clue-3-2,clue,[curious] round ears hair clip size
+clue-3-3,clue,[amused] how to turn a 1928 cartoon into a global brand
+clue-4-1,clue,[calm] how to keep a sponge from drying out
+clue-4-2,clue,[curious] can a fry cook get a boating license
+clue-4-3,clue,[amused] pineapple house maintenance
+clue-5-1,clue,[calm] how to get letters delivered by owl
+clue-5-2,clue,[curious] can you sleep under the stairs comfortably
+clue-5-3,clue,[amused] train platform between nine and ten missing
+clue-6-1,clue,[calm] how to stop freezing everything when I'm nervous
+clue-6-2,clue,[curious] best gloves for people who freeze things
+clue-6-3,clue,[amused] ice castle building permit
+clue-7-1,clue,[calm] how to get strangers out of a swamp
+clue-7-2,clue,[curious] best green face cream
+clue-7-3,clue,[amused] how to evict fairy-tale creatures from my house
+clue-8-1,clue,[calm] best plumber near me that jumps
+clue-8-2,clue,[curious] how to get past a pipe full of plants
+clue-8-3,clue,[amused] red cap and mustache combo ideas
+clue-9-1,clue,[calm] how to charge a yellow thing without a plug
+clue-9-2,clue,[curious] can a mouse have lightning cheeks
+clue-9-3,clue,[amused] why does only my name come out when I talk
+clue-10-1,clue,[calm] how to stop being left behind when kids move
+clue-10-2,clue,[curious] best hats for pull-string toys
+clue-10-3,clue,[amused] my friend from space thinks he can fly
+clue-11-1,clue,[calm] how to fix a glowing chest battery
+clue-11-2,clue,[curious] can billionaires patent flying suits
+clue-11-3,clue,[amused] best AI butler software
+clue-12-1,clue,[calm] how to breathe less loudly
+clue-12-2,clue,[curious] family reunion advice when it's complicated
+clue-12-3,clue,[amused] red laser sword safety rules
+clue-13-1,clue,[calm] how to return to a kingdom after running away
+clue-13-2,clue,[curious] my uncle is acting suspicious
+clue-13-3,clue,[amused] best friends: a meerkat and a warthog
+clue-14-1,clue,[calm] can toys fly if they believe hard enough
+clue-14-2,clue,[curious] how to charge a laser on my wrist
+clue-14-3,clue,[amused] wing buttons keep sticking
+clue-15-1,clue,[calm] best white face paint that doesn't crack
+clue-15-2,clue,[curious] purple suit tailor in Gotham
+clue-15-3,clue,[amused] why does my rival never find it funny
+clue-16-1,clue,[calm] how to explain a fast car to a small town
+clue-16-2,clue,[curious] number 95 stickers
+clue-16-3,clue,[amused] what is a Piston Cup
+clue-17-1,clue,[calm] best red fur shampoo
+clue-17-2,clue,[curious] why do I talk about myself in third person
+clue-17-3,clue,[amused] how to get to a street with furry neighbors
+clue-18-1,clue,[calm] fastest shoes for a hedgehog
+clue-18-2,clue,[curious] how to collect gold rings without stopping
+clue-18-3,clue,[amused] how fast is too fast for a speeding ticket
+clue-19-1,clue,[calm] can donuts count as a food group
+clue-19-2,clue,[curious] how to nap at a nuclear power plant
+clue-19-3,clue,[amused] how to avoid my overly nice neighbor
+clue-20-1,clue,[calm] how to sail across an ocean with a rooster
+clue-20-2,clue,[curious] how to hire a navigator for a small island
+clue-20-3,clue,[amused] how to bargain with a demigod over fishhooks
+clue-21-1,clue,[calm] how to find a lost ring
+clue-21-2,clue,[curious] cave apartment rentals
+clue-21-3,clue,[amused] why do I talk to myself in the dark
+clue-22-1,clue,[calm] best trash compactor repair
+clue-22-2,clue,[curious] plant care for a lonely robot
+clue-22-3,clue,[amused] can robots fall in love with a visiting probe
+clue-23-1,clue,[calm] best swamp planets for retirement
+clue-23-2,clue,[curious] why do I put words in a different order
+clue-23-3,clue,[amused] how to hide pointy green ears
+clue-24-1,clue,[calm] how to make a sandwich bigger than my head
+clue-24-2,clue,[curious] best dog snacks for solving mysteries
+clue-24-3,clue,[amused] van insurance for four teenagers and a dog
+clue-25-1,clue,[calm] lasagna delivery open 24 hours
+clue-25-2,clue,[curious] why are Mondays so hard for cats
+clue-25-3,clue,[amused] how to get my owner's dog to stop being annoying
+clue-26-1,clue,[calm] carrot subscription box
+clue-26-2,clue,[curious] disguise ideas that always fool a hunter
+clue-26-3,clue,[amused] is it rude to chew a carrot while talking
+clue-27-1,clue,[calm] green tunic that never wears out
+clue-27-2,clue,[curious] how many hearts is too many
+clue-27-3,clue,[amused] how to save a princess without talking
+clue-28-1,clue,[calm] how to survive the first night in a square world
+clue-28-2,clue,[curious] best pickaxe for beginners
+clue-28-3,clue,[amused] why is everything around me made of blocks
+clue-29-1,clue,[calm] how to explore with a talking map
+clue-29-2,clue,[curious] can a monkey wear red boots
+clue-29-3,clue,[amused] how to stop a sneaky fox from taking things
+clue-30-1,clue,[calm] how to tell someone's job from their hat
+clue-30-2,clue,[curious] best violin for thinking
+clue-30-3,clue,[amused] apartment at 221B rent
+reveal-1,reveal,[warmly] It's Spider-Man.
+reveal-2,reveal,"[warmly] That's Batman, from DC."
+reveal-3,reveal,[playfully] Mickey Mouse. Of course.
+reveal-4,reveal,"[warmly] It was SpongeBob SquarePants, from Nickelodeon."
+reveal-5,reveal,"[warmly] Yep, it's Harry Potter."
+reveal-6,reveal,[warmly] That's Elsa.
+reveal-7,reveal,[warmly] It's Shrek.
+reveal-8,reveal,"[warmly] That's Mario, from Super Mario."
+reveal-9,reveal,[playfully] Pikachu. Of course.
+reveal-10,reveal,"[warmly] It was Woody, from Toy Story."
+reveal-11,reveal,"[warmly] Yep, it's Iron Man."
+reveal-12,reveal,[warmly] That's Darth Vader.
+reveal-13,reveal,[warmly] It's Simba.
+reveal-14,reveal,"[warmly] That's Buzz Lightyear, from Toy Story."
+reveal-15,reveal,[playfully] Joker. Of course.
+reveal-16,reveal,"[warmly] It was Lightning McQueen, from Cars."
+reveal-17,reveal,"[warmly] Yep, it's Elmo."
+reveal-18,reveal,[warmly] That's Sonic.
+reveal-19,reveal,[warmly] It's Homer Simpson.
+reveal-20,reveal,[warmly] It's Moana.
+reveal-21,reveal,[playfully] Gollum. Of course.
+reveal-22,reveal,[warmly] It's WALL-E.
+reveal-23,reveal,"[warmly] Yep, it's Yoda."
+reveal-24,reveal,[warmly] That's Scooby-Doo.
+reveal-25,reveal,[warmly] It's Garfield.
+reveal-26,reveal,"[warmly] That's Bugs Bunny, from Looney Tunes."
+reveal-27,reveal,[playfully] Link. Of course.
+reveal-28,reveal,"[warmly] It was Steve, from Minecraft."
+reveal-29,reveal,"[warmly] Yep, it's Dora."
+reveal-30,reveal,[warmly] That's Sherlock Holmes.
+bonus-1,bonus,[excited] Bonus answer: Winnie the Pooh.
+bonus-2,bonus,[excited] Bonus answer: Dory.
+bonus-3,bonus,[excited] Bonus answer: Pac-Man.
+scoreboard-intro,scoreboard,[warmly] Let's see how you did.
+scoreboard-legend,scoreboard,[excited] Legend. Twenty-seven or more. You know your characters.
+scoreboard-expert,scoreboard,[impressed] Expert. Twenty-one or more. Just a few slipped past.
+scoreboard-good,scoreboard,[warmly] Good. Fifteen or more. More than half right.
+scoreboard-beginner,scoreboard,[encouraging] Beginner. Nine or more. A solid start.
+scoreboard-keepgoing,scoreboard,[encouraging] Keep going. Under nine. Everybody starts somewhere.
+outro,outro,"[warmly] How many did you get? Tell me in the comments. [playfully] If you want more search histories, subscribe, and I'll see you in the next one."
