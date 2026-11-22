@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "search:dev": "remotion studio",
     "search:still": "remotion still SearchHistory out/search-still.png --frame=600",
+    "search:lines": "node scripts/search-lines-csv.js",
     "search:qa": "node scripts/search-qa.js",
     "search:check": "node scripts/check-search.js",
     "search:timeline": "node scripts/search-timeline.js",
