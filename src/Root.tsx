@@ -7,6 +7,8 @@ import { Part1, part1Frames } from './gta6/parts/Part1';
 import { Part2, part2Frames } from './gta6/parts/Part2';
 import { Part3, part3Frames } from './gta6/parts/Part3';
 import { Part4, part4Frames } from './gta6/parts/Part4';
+import { Gta6Full } from './gta6/Full';
+import { RENDER_TOTAL_FRAMES as GTA6_TOTAL_FRAMES } from './gta6/timing';
 import { ALL_FRAMES, Gta6Preview, Gta6PreviewAll, PREVIEW_DEFAULTS, previewFrames } from './gta6/Preview';
 
 /**
@@ -47,6 +49,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="GTA6-P2" component={Part2} durationInFrames={part2Frames} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} defaultProps={{ showVerifyTags: false }} />
       <Composition id="GTA6-P3" component={Part3} durationInFrames={part3Frames} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
       <Composition id="GTA6-P4" component={Part4} durationInFrames={part4Frames} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
+      <Composition id="GTA6-Full" component={Gta6Full} durationInFrames={GTA6_TOTAL_FRAMES} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
     </>
   );
 };
