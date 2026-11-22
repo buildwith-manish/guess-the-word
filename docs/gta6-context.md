@@ -98,3 +98,20 @@ Content lives in `src/states/states-data.ts`: `ROWS` become `STATES: readonly St
 - `SfxId`, `SfxEntry { id, file, length (s), frames (30 fps design frames) }`, `SfxCue { frame, sfx, rate?, volume? }`.
 - `cue(id, frame, opts?) => SfxCue`, `sfxIds`, `sfxManifest`, `sfxEntry(id)`, `sfxLength(id)`, `sfxFrames(id)`, `sfxSrc(id)` (uses `staticFile`).
 - Regenerate with `python3 scripts/make_gta6_sfx.py` (also rewrites `src/gta6/sfx-ids.ts`).
+
+## 5. Design system and components (task 2a)
+
+Units: authored in a 1920x1080 reference frame; `u(v)` scales by `WIDTH / 1920` (2560x1440 composition today, so x1.333). Frames passed to components are local design ticks (30 fps, as `useGta6Frame()`).
+The `src/ios/` layer is not on this branch, so nothing is imported from it: font stack and springs are local equivalents.
+
+### `src/gta6/system.ts`
+- Layout: `FRAME {w:1920,h:1080}`, `UNIT`, `u(v)`, `SAFE {x:96, top:72, bottom:72}`, `safeBox {left,right,top,bottom,w,h}`.
+- `colors`: `easy`, `medium`, `hard` (from `levelColors` in data.ts), `level` (record), `ink`, `muted`, `mutedStrong`, `glass`, `glassStrong`, `hairline`, `shadow`, `onAccent`.
+- Type: `fontStack` (Inter, then SF/system), `tabular` (tabular numerals), `type` roles `caption|body|choice|question|title|number` `{size, weight, lineHeight}`, `TypeRole`, `textStyle(role)` (includes tabular numerals), `radius {sm,md,lg,xl}`, `blurPx`.
+- Motion: `SPRINGS {gentle, snappy, bouncy}`, `SpringName`, `springAt(frame, at, preset='snappy'): number` (0..1).
+- Backgrounds: `levelBackground: Record<Level, string>` (dark radial gradients).
+
+### `src/gta6/components/` (barrel `index.ts`)
+- `FrostCard` props `{ children?, frame?, at=0, level?, width?, height?, padding=32, radius=34, style? }`. No `frame` = static; with `frame` it rises in from `at`.
+- `ChoiceChip` props `{ index (0-3 -> A-D), text, state: 'idle'|'tremble'|'greyed'|'correct', frame, at, stateAt?, level?, width=1100, height=132 }`. All motion derives from `frame`, `at`, `stateAt`; no internal timers. Tremble is a deterministic sine shake; `correct` fills green and springs to 1.06 scale.
+- Neither component contains question content.
