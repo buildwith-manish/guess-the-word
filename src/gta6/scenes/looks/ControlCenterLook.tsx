@@ -36,11 +36,12 @@ export const CONTROL = {
 
 const LETTERS = ['A', 'B', 'C', 'D'];
 const TILE = { w: 560, h: 260, gap: 24 };
+const GRID_LEFT = SAFE.x + 60; // tile grid, moved 60 to the right of the safe margin
 const GRID_W = 2 * TILE.w + TILE.gap;
 const GRID_H = 2 * TILE.h + TILE.gap;
 const GRID_TOP = FRAME.h - SAFE.bottom - GRID_H;
 const SLIDER = { w: 160, h: GRID_H, left: FRAME.w - SAFE.x - 160 };
-const SIDE = { left: SAFE.x + GRID_W + 40, w: SLIDER.left - 40 - (SAFE.x + GRID_W + 40), h: TILE.h };
+const SIDE = { left: GRID_LEFT + GRID_W + 40, w: SLIDER.left - 40 - (GRID_LEFT + GRID_W + 40), h: TILE.h };
 const QUESTION = { left: SLOTS.questionLeft, top: SAFE.top, width: 1000 };
 
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
@@ -77,7 +78,7 @@ export const ControlCenterLook: React.FC<ControlCenterLookProps> = ({ item, loca
         </div>
       ) : null}
 
-      <div style={{ position: 'absolute', left: u(SAFE.x), top: u(GRID_TOP), width: u(GRID_W), height: u(GRID_H) }}>
+      <div style={{ position: 'absolute', left: u(GRID_LEFT), top: u(GRID_TOP), width: u(GRID_W), height: u(GRID_H) }}>
         {item.options.slice(0, 4).map((text, i) => {
           const enter = springAt(localFrame, tilesAt + i * stagger, 'snappy');
           const lin = clamp01((localFrame - fromFlip) / flipTicks);

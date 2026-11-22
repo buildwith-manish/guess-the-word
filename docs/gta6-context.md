@@ -190,3 +190,4 @@ Layout of a question screen (reference units): score counter (`ScoreHud side="le
 ## 12. Counter in the corner everywhere (user request)
 
 `HUD_CORNER` (QuestionShell.tsx, in the components barrel) = `{ side: 'left', inset: SLOTS.hud.left, scale: SLOTS.hud.scale }`. Spread into every `ScoreHud`: QuestionShell, the hook's overlays (`scenes/Hook.tsx`) and the replay-item counter in `parts/Part3.tsx` (`RingsOnAnswer`). The counter is now top-left and 20% smaller in the whole video; the top-right corner belongs to the watermark. New `ScoreHud` uses must spread it too.
+- ControlCenterLook: the 2x2 tile grid left is now `SAFE.x + 60` (`GRID_LEFT`, was `SAFE.x`); the side card (music / score badge) moves with it and is 60 narrower; question card, slider, tile size and vertical positions unchanged.
