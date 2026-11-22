@@ -1,14 +1,14 @@
 import React from 'react';
 import { AbsoluteFill, Sequence } from 'remotion';
-import { HUD_CORNER, LOCK_BEATS, LOCK_NOTIFICATION_TICKS, LockNotification, NotificationBanner, ScoreHud, expandStartSec, hudCounts, localPhases } from '../components';
+import { LOCK_BEATS, LOCK_NOTIFICATION_TICKS, LockNotification, NotificationBanner } from '../components';
 import { byLevel, extraIds, items } from '../data';
 import type { Item, Level } from '../data';
 import { HOOK_TEXT } from '../scenes/Hook';
 import { LevelCard } from '../scenes/LevelCard';
-import { QuestionScene, itemFrames } from '../scenes/QuestionScene';
+import { QuestionScene } from '../scenes/QuestionScene';
 import { ScoreCard } from '../scenes/ScoreCard';
 import { levelBackground } from '../system';
-import { partRanges, secToTicks, segments, ticksToFrames, useGta6Frame } from '../timing';
+import { partRanges, segments, ticksToFrames, useGta6Frame } from '../timing';
 import { bannerStart, nextRound, roundLabel } from './Part1';
 import type { Placed } from './Part1';
 
@@ -27,8 +27,8 @@ import type { Placed } from './Part1';
  *     `partRanges[2].frames`. Nothing else in timing.ts moves, so the chapter times of the Scoreboard and Outro are that much
  *     early in a full-video build (see `part3Replay`).
  *   - No banner into the replay item (the lock notification is its announcement).
- *   - The shell's own score counter is off for this item. A ScoreHud is drawn instead, held at the previous score and
- *     tweened to the new one when the correct option expands, so the rings close on the answer.
+ *   - The shell's own score counter (top-left, HUD_CORNER) stays on for this item like every other one, so it reads 42 from
+ *     the first frame of the question.
  */
 const range = partRanges[2];
 
@@ -67,9 +67,6 @@ export const part3Replay = { item: replayItem, at: plan.replayAt, ticks: LOCK_NO
 /** No end-of-item banner on the item before the replay: the replayed notification announces it. */
 export const part3NoBanner = (item: Item): boolean => nextRound(item)?.order === replayItem.order;
 
-/** Local tick (inside the replay item) at which the correct option starts to expand: the rings close here. */
-export const part3RingsAt = (): number => localPhases(replayItem).hold.from + secToTicks(expandStartSec('full'));
-
 /** Cues of the replay, absolute Part3 ticks, same pair the hook uses (notification on the banner, whoosh when the question starts). */
 export const part3ReplayBeats = { notification: plan.replayAt + LOCK_BEATS.bannerIn, whoosh: plan.replayAt + LOCK_NOTIFICATION_TICKS } as const;
 
@@ -88,16 +85,6 @@ const ReplayLock: React.FC<{ item: Item }> = ({ item }) => (
     timeLabel={HOOK_TEXT.timeLabel}
     options={item.options}
     level={item.level}
-  />
-);
-
-/** Score counter for the replay item: previous score until the answer, then the tween that closes the Hard ring. */
-const RingsOnAnswer: React.FC<{ item: Item }> = ({ item }) => (
-  <ScoreHud
-    {...HUD_CORNER}
-    {...hudCounts(item)}
-    frame={useGta6Frame()}
-    at={part3RingsAt()}
   />
 );
 
@@ -127,12 +114,7 @@ export const Part3: React.FC = () => (
                   <ReplayLock item={seg.item} />
                 </Sequence>
               )}
-              <QuestionScene item={seg.item} at={p.at} hud={!isReplay} />
-              {isReplay && (
-                <Sequence from={ticksToFrames(p.at)} durationInFrames={itemFrames(seg.item)} layout="absolute-fill">
-                  <RingsOnAnswer item={seg.item} />
-                </Sequence>
-              )}
+              <QuestionScene item={seg.item} at={p.at} />
               {next && !part3NoBanner(seg.item) && (
                 <Sequence from={from} durationInFrames={end - from} layout="absolute-fill">
                   <BannerAt title={roundLabel(next)} level={next.level} />
