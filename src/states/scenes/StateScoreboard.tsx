@@ -25,7 +25,8 @@ import React from 'react';
 import { AbsoluteFill } from 'remotion';
 import { Rich } from '../../Icon';
 import { px } from '../../style';
-import { IOS, IosBackground, iosSurface, spring } from '../../ios';
+import { IOS, IosBackground, iosSurface } from '../../ios';
+import { spr } from '../motion';
 import { clamp01 } from '../../anim';
 import { rise } from '../ios-rise';
 import settings from '../states-settings.json';
@@ -131,7 +132,7 @@ export const StateScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
   const footer = rise(frame, legendAt + SB.footerAfter, 16, 18);
 
   // map: states light in order over litDur ticks
-  const mapP = spring((frame - SB.mapAt) / 16);
+  const mapP = spr(frame, SB.mapAt, 'normal');
   const lit = Math.floor(clamp01((frame - SB.litAt) / SB.litDur) * ALL_KEYS.length);
   const answered = ALL_KEYS.slice(0, lit);
   const mapW = px(L.mapW);
@@ -204,7 +205,7 @@ export const StateScoreboard: React.FC<{ frame: number }> = ({ frame }) => {
       <div style={{ position: 'absolute', left: px(L.tableLeft), top: px(tableTop), display: 'flex', flexDirection: 'column', gap: px(L.rowGap) }}>
         {RANKS.map((r, i) => {
           const at = rowStart(i);
-          const p = spring((frame - at) / SB.rowDur);
+          const p = spr(frame, at, 'quick');
           const isTop = i === 0;
           const speaking = spoken === r.id.toLowerCase();
           const bright = (isTop && frame >= legendAt) || speaking;

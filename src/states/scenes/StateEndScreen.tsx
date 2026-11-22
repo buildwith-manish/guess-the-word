@@ -30,7 +30,8 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
 import { px } from '../../style';
-import { IOS, IosBackground, iosSurface, spring } from '../../ios';
+import { IOS, IosBackground, iosSurface } from '../../ios';
+import { spr, stagger } from '../motion';
 import { clamp01 } from '../../anim';
 import { rise } from '../ios-rise';
 import root from '../../../settings.json';
@@ -96,17 +97,17 @@ const slotBox = (r: R): React.CSSProperties => ({ position: 'absolute', left: px
 /** Faint outlines where YouTube's elements go: two video slots and the subscribe circle. Guides only. */
 const Outlines: React.FC<{ frame: number }> = ({ frame }) => {
   if (frame < EB.slotsAt) return null;
-  const pop = spring((frame - EB.slotsAt) / 22);
-  const subOn = spring((frame - EB.subscribeSlotAt) / 16);
+  const pop = spr(frame, EB.slotsAt, 'normal');
+  const subOn = spr(frame, EB.subscribeSlotAt, 'normal');
   const pulse = 0.5 + 0.5 * Math.sin((frame - EB.subscribeSlotAt) / 24); // slow breathing, no glow
   const common = (r: R, delay: number): React.CSSProperties => {
-    const p = spring((frame - EB.slotsAt - delay) / 22);
+    const p = spr(frame, EB.slotsAt + delay, 'normal');
     return { ...slotBox(r), opacity: Math.min(1, p * 1.4), transform: `translateY(${(1 - p) * px(24)}px)` };
   };
   return (
     <>
       <div style={{ ...common(END_SLOTS.videoLeft, 0), ...iosSurface(px(IOS.radius.lg), 0.3), background: 'transparent' }} />
-      <div style={{ ...common(END_SLOTS.videoRight, 4), ...iosSurface(px(IOS.radius.lg), 0.3), background: 'transparent' }} />
+      <div style={{ ...common(END_SLOTS.videoRight, stagger(2)), ...iosSurface(px(IOS.radius.lg), 0.3), background: 'transparent' }} />
       <div
         style={{
           ...slotBox(END_SLOTS.subscribe),
@@ -143,7 +144,7 @@ const Outlines: React.FC<{ frame: number }> = ({ frame }) => {
 // ------------------------------------------------------------------ scene
 export const StateEndScreen: React.FC<{ frame: number }> = ({ frame }) => {
   const e1 = rise(frame, EB.eyebrowAt, 15, 16);
-  const e2 = rise(frame, EB.headAt, 18, 28);
+  const e2 = rise(frame, EB.headAt, 30, 28, 'slow'); // hero: the headline
   const e3 = rise(frame, EB.subscribeAt, 15, 20);
   const e4 = rise(frame, EB.slotsAt, 15, 16);
   const last = LEVELS[LEVELS.length - 1];
