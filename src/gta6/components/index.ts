@@ -28,3 +28,5 @@ export type { ReminderCardProps } from './ReminderCard';
 export { NotificationBanner } from './NotificationBanner';
 export type { NotificationBannerProps } from './NotificationBanner';
 export { presence } from './presence';
+export { QuestionShell, SLOTS, localPhases, phaseAt } from './QuestionShell';
+export type { QuestionShellProps, ShellContext, ShellPhase, ShellLabels, LocalPhases } from './QuestionShell';
