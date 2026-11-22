@@ -11,7 +11,7 @@ import { IOS } from '../../ios';
 import { FPS } from '../state-timing';
 import { BACKDROP, COLOR, FONT, HAIRLINE, SOFT_GLOW, TIMER, WEIGHT, glassPanel } from '../look';
 import { SETTLE, enter, exitTicks, leave, settle, settleTicks, spr, stagger } from '../motion';
-import { cssEaseOut, prog } from '../../anim';
+import { cssEaseInOut, cssEaseOut, prog } from '../../anim';
 import { px } from '../../style';
 
 export interface TimerRingProps {
@@ -29,6 +29,8 @@ export interface TimerRingProps {
   frame?: number;
   /** tick the "get ready" entrance starts (before `from`): disc, then digit, then ring (stagger), the arc sweeps round and is full before `from` */
   ready?: number;
+  /** ticks between the clock's end and the reveal (plan.revealStart - plan.timerStart - plan.timerFrames); the timer is fully gone at its end */
+  after?: number;
 }
 
 /** Proportions of the ring (fractions of `size`). */
@@ -43,7 +45,7 @@ const RED_TICKS = 3 * FPS;
  */
 const DIGIT = { moveIn: 12, moveOut: 12, blurOut: 4, scaleFrom: 0.97 } as const;
 
-export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, size, digits = 'center', frame, ready }) => {
+export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, size, digits = 'center', frame, ready, after = 6 }) => {
   const designFrame = useDesignFrame();
   const f = frame ?? designFrame;
 
@@ -81,6 +83,12 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
 
   // glass disc: its edge sits `discGap` of the diameter inside the ring's inner edge (ring inner radius = size / 2 - stroke)
   const discD = size - 2 * stroke - 2 * size * LOOK.discGap;
+
+  // time up: a soft highlight sweeps round the ring, then everything dissolves; opacity is exactly 0 at the end of the window
+  const clockEnd = from + duration;
+  const dissolve = f <= clockEnd ? 0 : prog(f, clockEnd, Math.max(1, after), cssEaseOut);
+  const flashT = prog(f, clockEnd - LOOK.flashLead, LOOK.flashTicks, cssEaseInOut);
+  const flashAngle = flashT * 360;
 
   // each whole second of the last 3: the whole timer scales up (never above SETTLE.maxPeak) and settles back inside the second
   const inAlert = seconds >= 1 && seconds * FPS <= RED_TICKS && elapsed < duration;
@@ -134,7 +142,7 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
   const showPrev = prevLeave !== null && prevLeave.t < 1;
 
   return (
-    <div style={{ position: 'relative', width: size, height: size, transform: pulse === 1 ? undefined : `scale(${pulse})` }}>
+    <div style={{ position: 'relative', width: size, height: size, opacity: 1 - dissolve, transform: pulse === 1 && dissolve === 0 ? undefined : `scale(${pulse * (1 + LOOK.dissolveScale * dissolve)})` }}>
       {breathe > 0 && (
         <div
           style={{
@@ -142,6 +150,19 @@ export const TimerRing: React.FC<TimerRingProps> = ({ from, duration, accent, si
             inset: 0,
             borderRadius: '50%',
             boxShadow: `0 0 ${size * LOOK.breatheBlur}px color-mix(in srgb, ${COLOR.alertSoft} ${SOFT_GLOW.far.alpha * LOOK.breatheGain * breathe * 100}%, transparent)`,
+          }}
+        />
+      )}
+      {flashT > 0 && flashT < 1 && (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            borderRadius: '50%',
+            opacity: LOOK.flashAlpha,
+            background: `conic-gradient(from ${flashAngle - LOOK.flashWidth / 2}deg, transparent 0deg, ${COLOR.text.primary} ${LOOK.flashWidth / 2}deg, transparent ${LOOK.flashWidth}deg 360deg)`,
+            WebkitMaskImage: ringMask,
+            maskImage: ringMask,
           }}
         />
       )}

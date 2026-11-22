@@ -194,6 +194,12 @@ export const TIMER = {
   tickDim: 0.25,
   tickFade: 6,
   tickMax: 12,
+  /** time up: a single soft highlight sweeps round the ring (flashTicks long, starting flashLead ticks before the clock ends, peak alpha flashAlpha of white), then the whole timer dissolves (opacity to 0, scale to 1 + dissolveScale) over the window up to the reveal */
+  flashTicks: 8,
+  flashLead: 2,
+  flashAlpha: 0.2,
+  flashWidth: 70,
+  dissolveScale: 0.04,
   alertFade: 6,
   alertPeak: 1.025,
   alertSettle: 24,

@@ -284,6 +284,7 @@ export const StateRound: React.FC<StateRoundProps> = ({ frame, index, lead = 0, 
                     readyStart={plan.readyStart}
                     timerStart={plan.timerStart}
                     timerFrames={plan.timerFrames}
+                    revealStart={plan.revealStart}
                     accent={level.accent}
                     size={TIMER_SIZE}
                   />

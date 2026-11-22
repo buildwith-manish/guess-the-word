@@ -20,6 +20,8 @@ export interface TimerLeadProps {
   readyStart: number;
   timerStart: number;
   timerFrames: number;
+  /** plan.revealStart: the timer is gone by then */
+  revealStart: number;
   accent: string;
   /** diameter in px */
   size: number;
@@ -28,7 +30,7 @@ export interface TimerLeadProps {
 /** first plan tick this component draws anything (the slot is empty before) */
 export const timerLeadStart = (voice: TimerLeadProps['voice'], readyStart: number): number => (voice ? voice.start - 6 : readyStart);
 
-export const TimerLead: React.FC<TimerLeadProps> = ({ frame: f, voice, readyStart, timerStart, timerFrames, accent, size }) => {
+export const TimerLead: React.FC<TimerLeadProps> = ({ frame: f, voice, readyStart, timerStart, timerFrames, revealStart, accent, size }) => {
   if (f < timerLeadStart(voice, readyStart)) return null;
 
   // listening: the voice ring, fading in just before the clip and handing over at readyStart
@@ -50,12 +52,12 @@ export const TimerLead: React.FC<TimerLeadProps> = ({ frame: f, voice, readyStar
     return (
       <div style={{ opacity: e.opacity, transform: e.transform, transformOrigin: 'center' }}>
         <div style={{ transform: pop === 1 ? undefined : `scale(${pop})` }}>
-          <TimerRing from={timerStart} duration={timerFrames} accent={accent} size={size} frame={f} ready={readyStart} />
+          <TimerRing from={timerStart} duration={timerFrames} accent={accent} size={size} frame={f} ready={readyStart} after={revealStart - timerStart - timerFrames} />
         </div>
       </div>
     );
   }
 
   // go: the clock runs
-  return <TimerRing from={timerStart} duration={timerFrames} accent={accent} size={size} frame={f} ready={readyStart} />;
+  return <TimerRing from={timerStart} duration={timerFrames} accent={accent} size={size} frame={f} ready={readyStart} after={revealStart - timerStart - timerFrames} />;
 };
