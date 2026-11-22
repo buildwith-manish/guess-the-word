@@ -112,6 +112,9 @@ export const SLOTS = {
   },
 } as const;
 
+/** ScoreHud props for the top-left corner (spread into every ScoreHud so all scenes agree). */
+export const HUD_CORNER = { side: 'left', inset: SLOTS.hud.left, scale: SLOTS.hud.scale } as const;
+
 export type QuestionShellProps = {
   item: Item;
   /** Absolute design tick at which the item starts. */
@@ -212,9 +215,7 @@ export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, child
 
       {hud ? (
         <ScoreHud
-          side="left"
-          inset={SLOTS.hud.left}
-          scale={SLOTS.hud.scale}
+          {...HUD_CORNER}
           {...hudCounts(item)}
           frame={localFrame}
           at={0}

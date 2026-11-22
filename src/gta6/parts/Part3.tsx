@@ -1,6 +1,6 @@
 import React from 'react';
 import { AbsoluteFill, Sequence } from 'remotion';
-import { LOCK_BEATS, LOCK_NOTIFICATION_TICKS, LockNotification, NotificationBanner, ScoreHud, expandStartSec, hudCounts, localPhases } from '../components';
+import { HUD_CORNER, LOCK_BEATS, LOCK_NOTIFICATION_TICKS, LockNotification, NotificationBanner, ScoreHud, expandStartSec, hudCounts, localPhases } from '../components';
 import { byLevel, extraIds, items } from '../data';
 import type { Item, Level } from '../data';
 import { HOOK_TEXT } from '../scenes/Hook';
@@ -94,6 +94,7 @@ const ReplayLock: React.FC<{ item: Item }> = ({ item }) => (
 /** Score counter for the replay item: previous score until the answer, then the tween that closes the Hard ring. */
 const RingsOnAnswer: React.FC<{ item: Item }> = ({ item }) => (
   <ScoreHud
+    {...HUD_CORNER}
     {...hudCounts(item)}
     frame={useGta6Frame()}
     at={part3RingsAt()}

@@ -185,3 +185,7 @@ Layout of a question screen (reference units): score counter (`ScoreHud side="le
 ## 11. Outro end screen (user request)
 
 `src/gta6/scenes/Outro.tsx`: the placeholder outlines for YouTube's next-video slot and subscribe circle are removed (`Slots`, `END_SLOTS`, `OUTRO.endScreenSec`, `OUTRO.subscribePulseSec`, `outroBeats.slots` / `subscribeSlot`, and the `whoosh` cue that went with them). Nothing is drawn in the bottom half; the user places the real end-screen elements in YouTube Studio. Still on screen: the three asks (left column) and the hard score card miniature (top right). Outro length is unchanged (`outroSec`).
+
+## 12. Counter in the corner everywhere (user request)
+
+`HUD_CORNER` (QuestionShell.tsx, in the components barrel) = `{ side: 'left', inset: SLOTS.hud.left, scale: SLOTS.hud.scale }`. Spread into every `ScoreHud`: QuestionShell, the hook's overlays (`scenes/Hook.tsx`) and the replay-item counter in `parts/Part3.tsx` (`RingsOnAnswer`). The counter is now top-left and 20% smaller in the whole video; the top-right corner belongs to the watermark. New `ScoreHud` uses must spread it too.
