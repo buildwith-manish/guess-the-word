@@ -92,8 +92,8 @@ const SOFT_GAIN: Partial<Record<Sfx, number>> = {
   remind: 0.6,
   row: 0.7,
   // iOS clips are peak-normalised to 0.8 (scripts/generate-audio.js), so these are the real levels:
-  // typed-word tick 12 %, row pop 25 %, answer chime 30 %. Change them here.
-  'ios-tick': 0.12,
+  // typed-word tick 8 % (was 12 %, felt irritating), row pop 25 %, answer chime 30 %. Change them here.
+  'ios-tick': 0.08,
   'ios-pop': 0.25,
   'ios-chime': 0.3,
 };
