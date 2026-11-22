@@ -1,7 +1,7 @@
 /**
  * QuestionShell: the layout every look sits inside.
  *
- * Layers, back to front: level background, the look (inside Shake), ScoreHud, TimerRing slot, SpoilerBadge,
+ * Layers, back to front: level background, the look (inside Shake, which is idle unless `shakeLook`), ScoreHud, TimerRing slot, SpoilerBadge,
  * DidYouKnowCard slot, NotificationBanner slot, EdgeGlow.
  *
  * Phases are read from the item's own segment in timing.ts (`segments`), shifted to local ticks (0 = start of
@@ -90,6 +90,8 @@ export type QuestionShellProps = {
   showTimer?: boolean;
   /** Pass false to leave out the score counter, e.g. when a scene (the hook) draws its own. Default true. */
   hud?: boolean;
+  /** Shake the whole look in the last 3 s. Off by default: a still question reads cleaner; urgency comes from the timer ring and the edge glow. */
+  shakeLook?: boolean;
 };
 
 const shift = (r: Range, by: number): Range => ({ from: r.from - by, to: r.to - by });
@@ -136,7 +138,7 @@ const Voice: React.FC<{ id: string; at: number; start: number }> = ({ id, at, st
   );
 };
 
-export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, children, labels, showTimer = true, hud = true }) => {
+export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, children, labels, showTimer = true, hud = true, shakeLook = false }) => {
   const localFrame = useGta6Frame() - start;
   const phases = localPhases(item);
   const level = item.level;
@@ -169,7 +171,7 @@ export const QuestionShell: React.FC<QuestionShellProps> = ({ item, start, child
 
   return (
     <AbsoluteFill style={{ background: levelBackground[level], overflow: 'hidden' }}>
-      <Shake frame={localFrame} at={urgentFrom} dur={urgentLen} seed={item.order} style={{ position: 'absolute', inset: 0 }}>
+      <Shake frame={localFrame} at={urgentFrom} dur={shakeLook ? urgentLen : 0} seed={item.order} style={{ position: 'absolute', inset: 0 }}>
         {children(ctx)}
       </Shake>
 
