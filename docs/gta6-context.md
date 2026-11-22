@@ -167,3 +167,11 @@ All pure functions of `frame`, `at` and friends (local ticks, 30 per second), si
 - `MapDropPin` `{ frame, at, labels[4], wrongIndex, dropAt, stagger=6, width=1500, height=700 }`: four pins land `stagger` apart; at `dropAt` the wrong one wiggles then falls off the map and its label fades from `dropAt + 6`. For Bonus 2 (`mapDropPin`).
 - `DeviceIcons` `{ devices: { kind: 'ps5'|'xboxX'|'xboxS'|'pc', label, greyed? }[], frame, at, greyAt?, stagger=5, cardW=360, cardH=380, gap=32 }` and `DeviceGlyph { kind, size }`: four cards stagger in; `greyed` ones fade to grey over 8 ticks from `greyAt`. For item 11 (`deviceIcons`).
 - Open: pin coordinates are passed in by the scene (the data has none). Item 11 asks which device GTA 6 did NOT launch on; the scene must decide which device(s) to flag `greyed`.
+Open point: `system.ts` (2a) authors in 1920x1080 reference units via `u()`, while the later decision was 1280x720 via `px()`. Output is the same 2560x1440 either way; 2c follows `system.ts` so all gta6 components share one unit. Convert `system.ts` if the 1280 reference is wanted.
+
+## 9. Question number and watermark (user request after 2c)
+
+- Copied from `origin/search-history` (the same files the States branch shares): `src/ios/QuizMatrixBadge.tsx`, `badge-motion.ts`, `motion.ts`, `tokens.ts`. Their only import outside `src/ios` is `../style` (`px`). The rest of `src/ios` was NOT copied. Logo: `public/gta6/quiz-matrix-bulb.png` (still bulb, same asset as `public/search/quiz-matrix-bulb.png`).
+- `src/gta6/components/QuestionTag.tsx`: `QuestionNumber { n, label, frame, at, outAt?, level? }`, `Gta6Watermark { globalFrame, since?, height=76, quiz, matrix }`, `QuestionTag` (both side by side, absolute at `left`/`top` in reference units; defaults `SAFE.x` and 400, a guess for the band between the question and the options). The watermark entrance needs the GLOBAL design frame, not the scene-local one.
+- Not mounted: no GTA 6 question scene exists in the repo yet, so nothing places the tag. Check the position by eye once it is mounted.
+- ScoreHud's "n / total" shows the same number as the question number (it climbs by item index); use both only if the repetition is wanted.
