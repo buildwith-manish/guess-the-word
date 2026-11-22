@@ -12,6 +12,8 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
+// default: plain text, no emotion tags. `npm run search:lines -- --tags` writes the tagged voice text instead.
+const WITH_TAGS = process.argv.includes('--tags');
 const OUT = path.join(ROOT, 'docs/search-voiceover');
 
 const bundle = async (entry) => {
@@ -86,10 +88,10 @@ const main = async () => {
   const outro = "How many did you get? Tell me in the comments. If you want more search histories, subscribe, and I'll see you in the next one.";
   add({ file: 'outro.mp3', key: 'outro', type: 'outro', round: '', text: outro, voice: "[warmly] How many did you get? Tell me in the comments. [playfully] If you want more search histories, subscribe, and I'll see you in the next one.", emotion: 'warmly > playfully', pause: 0 });
 
-  // three columns only: id (= file name without .mp3), type, text (= the voice text with its [emotion] tags)
+  // three columns only: id (= file name without .mp3), type, text (plain; with [emotion] tags only when run with --tags)
   const cols = ['id', 'type', 'text'];
   const esc = (v) => { const s = v === undefined || v === null ? '' : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
-  const csv = [cols.join(',')].concat(rows.map((r) => [r.file.replace(/\.mp3$/, ''), r.type.replace(' card', '').replace(' answer', ''), r.voice].map(esc).join(','))).join('\n') + '\n';
+  const csv = [cols.join(',')].concat(rows.map((r) => [r.file.replace(/\.mp3$/, ''), r.type.replace(' card', '').replace(' answer', ''), WITH_TAGS ? r.voice : r.text].map(esc).join(','))).join('\n') + '\n';
   fs.mkdirSync(OUT, { recursive: true });
   fs.writeFileSync(path.join(OUT, 'lines.csv'), csv);
   console.log(`lines.csv: ${rows.length} rows, about ${Math.round(rows.reduce((n, r) => n + secs(r.text), 0))} s of speech (estimate)`);
