@@ -193,8 +193,8 @@ export const BADGE = {
  * label grey and is now 1.3x larger (0.312) in the primary text colour (red only in the last 3 s).
  */
 export const TIMER = {
-  /** round four: 1.5x thicker (0.013 -> 0.0195 of the diameter) */
-  stroke: 0.0195,
+  /** ring thickness, fraction of the diameter (iOS pass: 0.0195 -> 0.015, closer to the shape outline's weight) */
+  stroke: 0.015,
   /** arc gradient: start of the arc is the accent mixed with this share of white (about 20%), the head is the full accent */
   arcTint: 20,
   /** head dot: diameter as a multiple of the stroke, and the gain on SOFT_GLOW's two layers (blur radius in head diameters) */

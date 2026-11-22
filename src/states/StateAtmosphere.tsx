@@ -30,7 +30,7 @@ export const ATMOS = {
   glow: 0.045,
   glowSize: 58,
   /** hairline grid alpha and cell (ref px); 0 alpha turns it off */
-  gridAlpha: 0.014,
+  gridAlpha: 0,
   gridCell: 64,
   /** vignette: alpha at the corners (0 = off) */
   vignette: 0.32,
