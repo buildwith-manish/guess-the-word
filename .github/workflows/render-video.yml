@@ -334,23 +334,35 @@ jobs:
           echo "joined frames: $FRAMES, expected ${{ needs.plan.outputs.total }}"
           [ "$FRAMES" = "${{ needs.plan.outputs.total }}" ] || { echo "frame count mismatch"; exit 1; }
 
-      # the WAV pieces are cut on whole frames (48000 / 60 = 800 samples each), so joining them is sample-exact;
-      # the AAC encode happens once on the joined track, so no encoder gaps appear where pieces meet
+      # Each WAV piece is cut to exactly its own frames (frames x 800 samples at 48 kHz / 60 fps): a few extra samples
+      # that Remotion may add at the end of a piece are dropped, a piece that is too short fails the job. Then the
+      # pieces are joined and the AAC encode happens once, so no gaps appear where pieces meet.
       - name: Join the audio pieces and encode AAC once
         run: |
-          COUNT=${{ needs.plan.outputs.acount }}
-          : > alist.txt
-          for i in $(seq 1 "$COUNT"); do printf "file 'parts/a-%03d.wav'\n" "$i" >> alist.txt; done
-          ffmpeg -y -v error -f concat -safe 0 -i alist.txt -c copy joined.wav
-          python3 - "${{ needs.plan.outputs.total }}" <<'PY'
+          python3 - "${{ needs.plan.outputs.total }}" "${{ needs.plan.outputs.aper }}" "${{ needs.plan.outputs.acount }}" <<'PY'
           import sys, wave
-          total = int(sys.argv[1])
-          w = wave.open('joined.wav')
-          rate, n = w.getframerate(), w.getnframes()
-          want = total * rate // 60
-          print(f"joined wav: {n} samples at {rate} Hz, expected {want}")
-          if rate % 60 or n != want:
-              print("::error title=audio sample count wrong::joined wav has %d samples, expected %d. Nothing was deleted." % (n, want))
+          total, per, count = (int(x) for x in sys.argv[1:4])
+          out = None
+          extra = 0
+          written = 0
+          for i in range(1, count + 1):
+              frames = min(per, total - (i - 1) * per)
+              w = wave.open('parts/a-%03d.wav' % i)
+              spf = w.getframerate() // 60
+              if out is None:
+                  out = wave.open('joined.wav', 'wb')
+                  out.setnchannels(w.getnchannels()); out.setsampwidth(w.getsampwidth()); out.setframerate(w.getframerate())
+              want, have = frames * spf, w.getnframes()
+              if have < want:
+                  print("::error title=audio piece too short::piece %d has %d samples, needs %d" % (i, have, want))
+                  sys.exit(1)
+              extra += have - want
+              out.writeframes(w.readframes(want))
+              written += want
+          out.close()
+          print(f"joined {count} pieces: {written} samples (expected {total * spf}); trimmed {extra} extra samples in total")
+          if written != total * spf:
+              print("::error title=audio sample count wrong::%d samples, expected %d" % (written, total * spf))
               sys.exit(1)
           PY
           ffmpeg -y -v error -i joined.wav -c:a aac -b:a 320k parts/audio.aac
