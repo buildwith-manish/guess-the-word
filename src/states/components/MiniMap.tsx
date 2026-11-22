@@ -1,6 +1,6 @@
 /**
  * MiniMap: all 50 states from the `mini` paths (975x610 Albers map, AK and HI insets).
- * Unanswered = dim outline; answered = filled in that state's level colour; current = pulsing outline;
+ * Unanswered = lifted white fill + hairline (look.ts MAP); answered = filled in that state's level colour; current = pulsing outline;
  * highlightRegion = soft glow on that Census region. Glow is stacked wide strokes, no SVG filter.
  * Time (pulse) comes from useDesignFrame() unless `frame` is passed.
  */
@@ -13,7 +13,7 @@ import settingsJson from '../states-settings.json';
 import { STATES, getState } from '../states-data';
 import type { Region } from '../states-data';
 import { MINI_BOX, getShape } from '../geo';
-import {MINI_PULSE, COLOR } from '../look';
+import { MINI_PULSE, COLOR, MAP, whiteA } from '../look';
 
 export type Rect = { x: number; y: number; w: number; h: number };
 
@@ -56,8 +56,6 @@ export const getMiniRect = (stateKey: string, map: Rect): Rect => {
 /** Layout proportions, in map units (975 wide). */
 const LOOK = {
   edge: 0.9,
-  dimEdgeAlpha: 0.28,
-  dimFillAlpha: 0.04,
   answeredFillAlpha: 0.9,
   answeredEdgeAlpha: 0.6,
   currentStroke: 2.6,
@@ -89,7 +87,7 @@ export const MiniMap: React.FC<MiniMapProps> = ({ answered = [], current, highli
         done.has(p.key) ? (
           <path key={p.key} d={p.d} fill={p.accent} fillOpacity={LOOK.answeredFillAlpha} stroke={COLORS.base} strokeOpacity={LOOK.answeredEdgeAlpha} strokeWidth={LOOK.edge} strokeLinejoin="round" />
         ) : (
-          <path key={p.key} d={p.d} fill={COLORS.ink} fillOpacity={LOOK.dimFillAlpha} stroke={COLORS.ink} strokeOpacity={LOOK.dimEdgeAlpha} strokeWidth={LOOK.edge} strokeLinejoin="round" />
+          <path key={p.key} d={p.d} fill={whiteA(MAP.unansweredFill)} stroke={whiteA(MAP.unansweredEdge)} strokeWidth={MAP.unansweredEdgeWidth} strokeLinejoin="round" />
         ),
       )}
 

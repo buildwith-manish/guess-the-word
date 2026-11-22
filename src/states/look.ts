@@ -159,3 +159,14 @@ export const TIMER = {
   digitSize: 0.312,
   digitBelowGap: 0.06,
 } as const;
+
+/**
+ * Map readability (round two, Step 3): unanswered states are a lifted white fill (about 9%) with a 0.75 px hairline at 14%
+ * white, so they read on the dark backdrop; answered states keep the level accent. Used by MiniMap, which draws both the
+ * corner map and the big answer-card map, so the two keep the same relationship. Hairline width is in map units (975 wide).
+ */
+export const MAP = {
+  unansweredFill: 0.09,
+  unansweredEdge: 0.14,
+  unansweredEdgeWidth: 0.75,
+} as const;
