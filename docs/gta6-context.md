@@ -76,3 +76,20 @@ Content lives in `src/states/states-data.ts`: `ROWS` become `STATES: readonly St
 8. A 45-item layout of `ProgressDots` / HUD pill (search-history layout sized for 30 + 3).
 9. Per-video voiceover manifest and scan script for the GTA naming.
 10. Known issue carried over from search-history: `searchAt` spacing vs `typing.ticksPerChar` can clear the bar mid-sentence (long searches); fix before reusing `SearchBar` for typed questions.
+
+## 4. GTA 6 modules (added by task 1d)
+
+### `src/gta6/data.ts` exports
+- Types: `Level` = `'easy' | 'medium' | 'hard'`; `Kind` = `'q' | 'bonus'`; `Item` = `{ n: string; order: number; level: Level; kind: Kind; q: string; options: string[]; answer: number; reveal: string; didYouKnow?: string; look: string; extra: string; timerSec: number; fastest: boolean; verify?: string }`.
+- `items: Item[]` (45, sorted by `order`), `levels: Level[]`, `byLevel: Record<Level, Item[]>`, `levelColors: Record<Level, string>`.
+- `rankTiers` (`{ name, min, max }`, LEGEND 41-45 down to KEEP GOING 0-13).
+- `extraIds(item): string[]` splits `item.extra` on commas.
+
+### `src/gta6/timing.ts` exports
+- **File does not exist yet** (task 1c is not in the repo). No signatures to list.
+
+### SFX ids (`src/gta6/sfx.ts`, files in `public/gta6/sfx/`)
+- Ids: `chime-easy`, `ping-medium`, `pulse-hard`, `tick`, `whoosh`, `correct`, `wrong-fade`, `buzz-small`, `notification`, `shake-thud`, `streak`, `scorecard`.
+- `SfxId`, `SfxEntry { id, file, length (s), frames (30 fps design frames) }`, `SfxCue { frame, sfx, rate?, volume? }`.
+- `cue(id, frame, opts?) => SfxCue`, `sfxIds`, `sfxManifest`, `sfxEntry(id)`, `sfxLength(id)`, `sfxFrames(id)`, `sfxSrc(id)` (uses `staticFile`).
+- Regenerate with `python3 scripts/make_gta6_sfx.py` (also rewrites `src/gta6/sfx-ids.ts`).

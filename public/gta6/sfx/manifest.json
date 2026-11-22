@@ -1,0 +1,103 @@
+{
+  "sampleRate": 48000,
+  "lengthUnit": "seconds",
+  "framesUnit": "design frames at 30 fps (ceil)",
+  "sfx": [
+    {
+      "id": "chime-easy",
+      "file": "chime-easy.wav",
+      "length": 1.1,
+      "frames": 33,
+      "peakDb": -3.0,
+      "rmsDb": -19.3
+    },
+    {
+      "id": "ping-medium",
+      "file": "ping-medium.wav",
+      "length": 0.7,
+      "frames": 21,
+      "peakDb": -5.4,
+      "rmsDb": -19.0
+    },
+    {
+      "id": "pulse-hard",
+      "file": "pulse-hard.wav",
+      "length": 1.3,
+      "frames": 39,
+      "peakDb": -6.0,
+      "rmsDb": -19.0
+    },
+    {
+      "id": "tick",
+      "file": "tick.wav",
+      "length": 0.12,
+      "frames": 4,
+      "peakDb": -3.0,
+      "rmsDb": -21.7
+    },
+    {
+      "id": "whoosh",
+      "file": "whoosh.wav",
+      "length": 0.75,
+      "frames": 23,
+      "peakDb": -4.3,
+      "rmsDb": -19.0
+    },
+    {
+      "id": "correct",
+      "file": "correct.wav",
+      "length": 0.9,
+      "frames": 27,
+      "peakDb": -4.0,
+      "rmsDb": -19.0
+    },
+    {
+      "id": "wrong-fade",
+      "file": "wrong-fade.wav",
+      "length": 1.0,
+      "frames": 30,
+      "peakDb": -7.5,
+      "rmsDb": -19.0
+    },
+    {
+      "id": "buzz-small",
+      "file": "buzz-small.wav",
+      "length": 0.28,
+      "frames": 9,
+      "peakDb": -10.2,
+      "rmsDb": -19.0
+    },
+    {
+      "id": "notification",
+      "file": "notification.wav",
+      "length": 0.9,
+      "frames": 27,
+      "peakDb": -6.7,
+      "rmsDb": -19.0
+    },
+    {
+      "id": "shake-thud",
+      "file": "shake-thud.wav",
+      "length": 0.5,
+      "frames": 15,
+      "peakDb": -6.4,
+      "rmsDb": -19.0
+    },
+    {
+      "id": "streak",
+      "file": "streak.wav",
+      "length": 1.4,
+      "frames": 42,
+      "peakDb": -3.0,
+      "rmsDb": -19.6
+    },
+    {
+      "id": "scorecard",
+      "file": "scorecard.wav",
+      "length": 1.8,
+      "frames": 54,
+      "peakDb": -3.0,
+      "rmsDb": -19.8
+    }
+  ]
+}
