@@ -11,14 +11,13 @@ import { cardByN, cards } from './data';
 import { CardScene, cardFrames, cardTicks } from './scenes/CardScene';
 import { segments, ticksToFrames } from './timing';
 
-export type NflCardPreviewProps = { n: number; /** 3D hero card (WebGL). Default false = the 2D card. */ hero3d?: boolean };
-export const PREVIEW_DEFAULTS: NflCardPreviewProps = { n: cards[0].n, hero3d: false };
-export const PREVIEW_3D_DEFAULTS: NflCardPreviewProps = { n: cards[0].n, hero3d: true };
+export type NflCardPreviewProps = { n: number };
+export const PREVIEW_DEFAULTS: NflCardPreviewProps = { n: cards[0].n };
 
 /** Duration of one card in render frames. */
 export const previewFrames = (n: number): number => cardFrames(cardByN(n));
 
-export const NflCardPreview: React.FC<NflCardPreviewProps> = ({ n, hero3d = false }) => <CardScene card={cardByN(n)} at={0} hero3d={hero3d} />;
+export const NflCardPreview: React.FC<NflCardPreviewProps> = ({ n }) => <CardScene card={cardByN(n)} at={0} />;
 
 /** Render frame (at 60 fps) where each phase of card `n` starts, local to the card. For scrubbing by number. */
 export const cardMarks = (n: number) => {
