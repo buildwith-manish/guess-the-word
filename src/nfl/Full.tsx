@@ -1,6 +1,7 @@
 import React from 'react';
 import { Sequence } from 'remotion';
 import { NflAudio } from './Audio';
+import { Captions } from './components/Captions';
 import { FinishLayer } from './components/FinishLayer';
 import { WatermarkOverlay } from './components/Watermark';
 import { Part1 } from './parts/Part1';
@@ -26,6 +27,8 @@ export const NflFull: React.FC<{ musicSrc?: string | null; finish?: number }> = 
     })}
     {/* finish layer: above the parts, below the watermark (never over it), off for the end-screen slot */}
     <FinishLayer strength={finish} />
+    {/* word-timed captions for the clips not shown as text; in the strip below the card */}
+    <Captions />
     {/* one watermark, above every Sequence */}
     <WatermarkOverlay />
     <NflAudio musicSrc={musicSrc} />

@@ -145,3 +145,11 @@ Fill `picks.json`, set `meta.sourceName`, then render `NFL-Full` where Chromium 
 - Layers at strength 1: bloom (screen, 60%), grain (overlay, 2%, new seed each design tick), vignette (50% at corners, centre 58% clear), 2 unit red/blue split for one design tick (2 render frames) at the `name-reveal` tick of each of the 30 cards. At the default 0.5 everything is half, the split is the same 2 units.
 - Off for the end screen: strength ramps to 0 over 36 render frames (`SPRINGS.slow`) and is 0 from the outro's `endScreenFrom` (render frame 59752 in the measured timeline) to the end.
 - Not rendered (Chromium cannot download here). Unverified: that Chromium's `backdrop-filter` with `mix-blend-mode: screen` gives the bloom, and that `backdrop-filter: url(#svg)` gives the split.
+
+## B4 notes (captions)
+
+- `scripts/make_nfl_captions.py` (Whisper, word timestamps) -> `src/nfl/captions.json`. Captions only hook, level, reveal, dyk, scorecard, prediction, rank, outro (61 clips; clue and cardintro skipped). The caption shows the words of `lines.csv`; Whisper only gives timing; words it heard differently are printed in the report. `captions.json` is committed EMPTY (`clips: {}`), so no caption draws until the script is run. NOT RUN: the sandbox cannot download the Whisper model. Run `pip install openai-whisper && python3 scripts/make_nfl_captions.py`, read the diff report, commit the json.
+- `components/Captions.tsx` (`Captions`, `CAPTION_BOX`), mounted in `Full.tsx` between FinishLayer and the watermark. Clip placement comes from `voiceEvents` (voiceTimeline.ts). Pages of up to 8 words, split at punctuation; current word gets the snappy spring (scale 1.12), spoken words stay bright.
+- Place: strip below the card, y 650 to 716, x inside the centre 80%. The card fills the whole safe box, so there is no free space inside it. This is below the 80% safe line (648): decide by eye.
+- Frames to check once captions.json exists: first word of the hook clip (voice at tick 0 of hook), a reveal clip (name on screen, caption below it), a dyk clip (DYK card at centre, caption below), the rank clips, the last outro line (end-screen half stays free).
+- Not rendered. `npx tsc --noEmit` passes.
