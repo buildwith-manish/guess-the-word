@@ -42,7 +42,7 @@ export const voiceClip = (kind: 'q' | 'qq' | 'bonus' | 'bonusq', n: number): VoC
 /** Single-clip voiceover (intro, outro): manifest stores it as a top-level object, not keyed by number. */
 export const voiceClipNamed = (kind: 'intro' | 'outro'): VoClip | undefined => {
   if (!VO.enabled) return undefined;
-  const e = (voManifest as Record<string, { file: string; seconds: string | number }>)[kind];
+  const e = (voManifest as unknown as Record<string, { file: string; seconds: string | number }>)[kind];
   const namedSecs = Number(e?.seconds); return e && Number.isFinite(namedSecs) && namedSecs > 0 ? { file: e.file, frames: Math.ceil(namedSecs * FPS) } : undefined;
 };
 
