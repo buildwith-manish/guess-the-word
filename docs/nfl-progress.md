@@ -151,3 +151,10 @@ Fill `picks.json`, set `meta.sourceName`, then render `NFL-Full` where Chromium 
 - Place: strip below the card, y 650 to 716, x inside the centre 80%. The card fills the whole safe box, so there is no free space inside it. This is below the 80% safe line (648): decide by eye.
 - Frames to check once captions.json exists: first word of the hook clip (voice at tick 0 of hook), a reveal clip (name on screen, caption below it), a dyk clip (DYK card at centre, caption below), the rank clips, the last outro line (end-screen half stays free).
 - Not rendered. `npx tsc --noEmit` passes.
+
+## iOS-4 notes (contrast)
+
+- `node scripts/nfl_contrast.mjs` prints "element, level, size, need, ratio" for clue text (newest and older ranks 1-4), point chips, name, reveal line, source line, did-you-know text and label, and the Two-Minute Warning tint (yellow 0.16 peak, drawn above the content). Needs 4.5, or 3.0 at 24 reference units or larger. Light text is judged on the lightest surface (white 20% card + glass row).
+- Before: 21 of 48 below (all older clues and their chips: row opacity faded text with its surface). After: 0 of 48.
+- `ClueStack.tsx`: older rows fade only their surface (`dimOf`); their text keeps `textDimOf` (floor `TEXT_DIM_FLOOR` 0.86); dark `ROW_BASE` under every row; older clue text 22 -> 24 units, chip text 20 -> 24 (chips 46 x 34), compact row padY 3 so the tallest stack (406) still fits the 408 field. Newest clue now 31 to 40 (was 34 to 40). Level accent colours unchanged.
+- Not rendered: layout was checked with clueFit's Inter metrics only, no still.

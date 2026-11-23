@@ -26,14 +26,14 @@ export type ClueStackProps = {
  * wrap does not depend on the DOM. Text is left-aligned beside the points chip, so lines get the whole row width.
  * When a new clue arrives, rows glide to their new slot and each row cross-fades between its two layouts.
  */
-const GAP = 6;
-const ACTIVE = { max: 40, min: 30, padY: 8 } as const;
-const COMPACT = { max: 22, min: 18, padY: 4 } as const;
-const CHIP = { activeW: 56, activeH: 44, compactW: 40, compactH: 30, col: 56 } as const;
+export const GAP = 6;
+export const ACTIVE = { max: 40, min: 30, padY: 8 } as const;
+export const COMPACT = { max: 24, min: 24, padY: 3 } as const; // iOS-4: never below type.caption (24): older clues stay phone-readable
+export const CHIP = { activeW: 56, activeH: 44, compactW: 46, compactH: 34, col: 56, activeFont: 28, compactFont: 24 } as const;
 const ENTER_DROP = 28; // the new row starts this far above its slot
-const DIM_STEP = 0.14;
-const DIM_FIRST = 0.8;
-const DIM_FLOOR = 0.35;
+export const DIM_STEP = 0.14;
+export const DIM_FIRST = 0.8;
+export const DIM_FLOOR = 0.35;
 const SHRINK_STEP = 0.02; // older rows are a touch narrower
 
 type Text = { size: number; lines: string[] };
@@ -70,7 +70,12 @@ const geomOf = (L: Layout, m: number, j: number): Geom => {
 };
 
 const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
-const dimOf = (rank: number): number => (rank === 0 ? 1 : Math.max(DIM_FLOOR, DIM_FIRST - DIM_STEP * (rank - 1)));
+export const dimOf = (rank: number): number => (rank === 0 ? 1 : Math.max(DIM_FLOOR, DIM_FIRST - DIM_STEP * (rank - 1)));
+/** iOS-4: older rows fade their SURFACE with dimOf, but their text only down to this opacity, so contrast stays above 4.5:1 (scripts/nfl_contrast.mjs). */
+export const TEXT_DIM_FLOOR = 0.86;
+export const textDimOf = (rank: number): number => (rank <= 0 ? 1 : Math.max(TEXT_DIM_FLOOR, 1 - 0.035 * rank));
+/** iOS-4: dark base under the glass of each row, so light text sits on a darker surface than the bare glass would give. */
+export const ROW_BASE = 'rgba(0,0,0,0.34)';
 const sameText = (a: Text, b: Text): boolean => a.size === b.size && a.lines.length === b.lines.length && a.lines.every((l, i) => l === b.lines[i]);
 
 const TextBlock: React.FC<{ t: Text; opacity: number }> = ({ t, opacity }) => (
@@ -129,6 +134,7 @@ export const ClueStack: React.FC<ClueStackProps> = ({ card, frame, starts, box =
         const chipW = lerp(CHIP.compactW, CHIP.activeW, act);
         const chipH = lerp(CHIP.compactH, CHIP.activeH, act);
         const scale = 1 - SHRINK_STEP * Math.min(rank, 4);
+        const textOp = isNew ? Math.min(1, p * 2) : lerp(textDimOf(g0!.rank), textDimOf(g1.rank), p);
         const crossfade = g0 !== undefined && !sameText(g0.text, g1.text);
         return (
           <div
@@ -141,13 +147,22 @@ export const ClueStack: React.FC<ClueStackProps> = ({ card, frame, starts, box =
               height: px(h),
               boxSizing: 'border-box',
               borderRadius: px(radius.lg),
-              background: `linear-gradient(160deg, ${colors.glassStrong}, ${colors.glass})`,
-              border: `${px(1.5)}px solid ${act > 0.5 ? accent : colors.hairline}`,
-              opacity,
               transformOrigin: '50% 0%',
               transform: `scale(${scale})`,
             }}
           >
+            {/* surface: only this layer fades with age */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                borderRadius: px(radius.lg),
+                background: `linear-gradient(160deg, ${colors.glassStrong}, ${colors.glass}), ${ROW_BASE}`,
+                border: `${px(1.5)}px solid ${act > 0.5 ? accent : colors.hairline}`,
+                boxSizing: 'border-box',
+                opacity,
+              }}
+            />
             <div
               style={{
                 position: 'absolute',
@@ -159,6 +174,7 @@ export const ClueStack: React.FC<ClueStackProps> = ({ card, frame, starts, box =
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                opacity: textOp,
               }}
             >
               <div
@@ -171,7 +187,7 @@ export const ClueStack: React.FC<ClueStackProps> = ({ card, frame, starts, box =
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: px(lerp(20, 28, act)),
+                  fontSize: px(lerp(CHIP.compactFont, CHIP.activeFont, act)),
                   fontWeight: 700,
                   lineHeight: 1,
                   color: colors.ink,
@@ -182,8 +198,8 @@ export const ClueStack: React.FC<ClueStackProps> = ({ card, frame, starts, box =
                 {card.points[j]}
               </div>
             </div>
-            {crossfade ? <TextBlock t={g0!.text} opacity={1 - p} /> : null}
-            <TextBlock t={g1.text} opacity={crossfade ? p : 1} />
+            {crossfade ? <TextBlock t={g0!.text} opacity={(1 - p) * textOp} /> : null}
+            <TextBlock t={g1.text} opacity={(crossfade ? p : 1) * textOp} />
           </div>
         );
       })}
