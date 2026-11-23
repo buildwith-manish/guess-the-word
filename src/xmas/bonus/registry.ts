@@ -1,6 +1,8 @@
 import type React from 'react';
 import type { BonusSlot } from '../data';
 import { UI } from '../ui';
+import { CleanUp } from './CleanUp';
+import { Focus } from './Focus';
 import { PlaceholderRound } from './PlaceholderRound';
 
 /**
@@ -13,7 +15,8 @@ import { PlaceholderRound } from './PlaceholderRound';
  *     which play starts, `playFrames` is how many ticks play lasts (despite the name: ticks, like every frame number in
  *     src/xmas). Read the time with useXmasFrame().
  *   - Enter during the last 8 ticks of the intro or at playFrom, be fully on screen by playFrom + 8, and keep the final
- *     picture through the reveal (the scene dims the box when the answers stack over it).
+ *     picture through the reveal (the scene dims the box when the answers stack over it). One allowed exception: a round
+ *     may animate a restore once play has ended and the timer has flashed (Clean Up brings the erased parts back).
  *   - It draws NO timer, banner, bulbs, counter, answer pill or pass rule: BonusScene owns all of those.
  *   - All text and images come from the slot (data.ts), clue image ids through ClueImage / GlassTile, UI strings from ui.ts.
  *   - A round that uses a sound exports its own cue list; BonusScene does not know about it.
@@ -28,11 +31,11 @@ export const PLAY_AREA = { x: 218, y: 138, w: 844, h: 400 } as const;
 /** bonus number (1..10, `slot.bonus`) -> round component. Every entry is a placeholder until its task replaces it. */
 export const rounds: Readonly<Record<number, RoundComponent>> = {
   1: PlaceholderRound, // 4a Spotlight
-  2: PlaceholderRound, // 4b Focus
+  2: Focus, // 4b Focus
   3: PlaceholderRound, // 4c Odd One Out
   4: PlaceholderRound, // 4d Double Feature
   5: PlaceholderRound, // 4a Autocomplete
-  6: PlaceholderRound, // 4b Clean Up
+  6: CleanUp, // 4b Clean Up
   7: PlaceholderRound, // 4c Count the Lights
   8: PlaceholderRound, // 4c Control Center
   9: PlaceholderRound, // 4d Speed Round

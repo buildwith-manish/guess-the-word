@@ -33,6 +33,8 @@ export type GlassTileProps = {
   frosted?: boolean;
   /** Draw the tile's own light zone behind it (default true). A scene that draws the two ambient zones itself passes false. */
   light?: boolean;
+  /** Extra style on the image box only (a blur filter or a mask for a bonus round). Never changes the glass. */
+  imageStyle?: React.CSSProperties;
 };
 
 /** Motion constants. Distances are fractions of the tile size so they scale with `size`. */
@@ -71,7 +73,7 @@ export const glassTileState = (t: number, enterFrame?: number, glideFrame?: numb
 
 const glowColor = (side: GlassTileSide): string => (side === 'left' ? colors.green : side === 'right' ? colors.red : side === 'bonus' ? colors.gold : '#FFFFFF');
 
-export const GlassTile: React.FC<GlassTileProps> = ({ imageId, side, size = LAYOUT.tile.size, enterFrame, glideFrame, pulseFrame, frosted, light = true }) => {
+export const GlassTile: React.FC<GlassTileProps> = ({ imageId, side, size = LAYOUT.tile.size, enterFrame, glideFrame, pulseFrame, frosted, light = true, imageStyle }) => {
   const t = useXmasFrame();
   const s = glassTileState(t, enterFrame, glideFrame, pulseFrame);
   const P = GLASS_TILE.pulse;
@@ -120,7 +122,7 @@ export const GlassTile: React.FC<GlassTileProps> = ({ imageId, side, size = LAYO
       <div style={{ position: 'absolute', inset: 0, ...glass }}>
         <div style={glossStyle(size)} />
         {imageId ? (
-          <div style={{ position: 'absolute', left: `${((1 - box) / 2) * 100}%`, top: `${((1 - box) / 2) * 100}%`, width: `${box * 100}%`, height: `${box * 100}%` }}>
+          <div style={{ position: 'absolute', left: `${((1 - box) / 2) * 100}%`, top: `${((1 - box) / 2) * 100}%`, width: `${box * 100}%`, height: `${box * 100}%`, ...imageStyle }}>
             <ClueImage id={imageId} radius={0} />
           </div>
         ) : null}
