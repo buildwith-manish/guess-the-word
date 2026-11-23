@@ -14,6 +14,9 @@ import { Hook, hookFrames } from './xmas/scenes/Hook';
 import { MOVIE_PREVIEW_DEFAULTS, MOVIES_ALL_FRAMES, XmasMovie, XmasMoviesAll, movieDurationFor } from './xmas/Preview';
 import { BonusSceneById, bonusSceneFramesById } from './xmas/scenes/BonusScene';
 import { Outro as XmasOutro, outroFrames } from './xmas/scenes/Outro';
+import { Part1 as XmasPart1, part1Frames as xmasPart1Frames } from './xmas/parts/Part1';
+import { Part2 as XmasPart2, part2Frames as xmasPart2Frames } from './xmas/parts/Part2';
+import { Part3 as XmasPart3, part3Frames as xmasPart3Frames } from './xmas/parts/Part3';
 import { RENDER_TOTAL_FRAMES as GTA6_TOTAL_FRAMES } from './gta6/timing';
 import { ScoreScene } from './xmas/scenes/ScoreScene';
 import { scoreBeats, ticksToFrames as xmasTicksToFrames } from './xmas/timing';
@@ -93,6 +96,9 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={{ bonus: 1 }}
         calculateMetadata={({ props }) => ({ durationInFrames: bonusSceneFramesById(props.bonus) })}
       />
+      <Composition id="XMAS-P1" component={XmasPart1} durationInFrames={xmasPart1Frames} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
+      <Composition id="XMAS-P2" component={XmasPart2} durationInFrames={xmasPart2Frames} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
+      <Composition id="XMAS-P3" component={XmasPart3} durationInFrames={xmasPart3Frames} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
     </>
   );
 };
