@@ -1,20 +1,20 @@
 {
- "note": "Fill from the official NFL schedule just before recording: the three games that kick off in the 7 days after upload (one marquee, one divisional, one underdog). QA fails while any field is null.",
+ "note": "Filled from CBS Sports Week 13 schedule (times US Eastern). Re-check on NFL.com on upload day; QA fails while any field is null.",
  "picks": [
   {
    "pick": 1,
-   "matchup": null,
-   "kickoffET": null
+   "matchup": "Kansas City at L.A. Rams",
+   "kickoffET": "Thu Dec 3, 8:15 PM ET"
   },
   {
    "pick": 2,
-   "matchup": null,
-   "kickoffET": null
+   "matchup": "Buffalo at New England",
+   "kickoffET": "Sun Dec 6, 4:25 PM ET"
   },
   {
    "pick": 3,
-   "matchup": null,
-   "kickoffET": null
+   "matchup": "Houston at Pittsburgh",
+   "kickoffET": "Sun Dec 6, 8:20 PM ET"
   }
  ]
 }
