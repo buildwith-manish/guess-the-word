@@ -3,7 +3,9 @@ import { AbsoluteFill } from 'remotion';
 import { bonuses, showPassRule } from '../data';
 import type { BonusSlot } from '../data';
 import { BonusReveal, BONUS_REVEAL, revealLayout } from '../components/BonusReveal';
+import { FrameShimmer } from '../components/FrameShimmer';
 import { LightString, bulbCues } from '../components/LightString';
+import { Snow } from '../components/Snow';
 import { TIMER, TimerToPill, defaultMorphFrame, timerCues, timerPropsOf } from '../components/TimerToPill';
 import { PLAY_AREA, passRuleText, roundOf } from '../bonus/registry';
 import { cue } from '../sfx';
@@ -23,6 +25,7 @@ import {
   useXmasFonts,
   useXmasFrame,
 } from '../system';
+import { bokehParallax } from './MovieScene';
 import { segmentOfSlot, ticksToFrames } from '../timing';
 import { UI } from '../ui';
 
@@ -99,15 +102,18 @@ export const BonusScene: React.FC<{ slot: BonusSlot }> = ({ slot }) => {
   return (
     <AbsoluteFill style={backgroundStyle()}>
       {/* warm light: gold behind both halves, gold bokeh, gold frame border */}
-      {BOKEH.map((d, i) => (
-        <div
-          key={i}
-          style={{
-            ...bokehStyle(d, seconds),
-            background: `radial-gradient(circle at 50% 50%, rgba(255,200,87,${d.alpha}) 0%, rgba(255,200,87,${d.alpha * 0.8}) 55%, rgba(255,200,87,0) 100%)`,
-          }}
-        />
-      ))}
+      <div style={bokehParallax(t, b.total)}>
+        {BOKEH.map((d, i) => (
+          <div
+            key={i}
+            style={{
+              ...bokehStyle(d, seconds),
+              background: `radial-gradient(circle at 50% 50%, rgba(255,200,87,${d.alpha}) 0%, rgba(255,200,87,${d.alpha * 0.8}) 55%, rgba(255,200,87,0) 100%)`,
+            }}
+          />
+        ))}
+      </div>
+      <Snow />
       <div style={lightZoneStyle('left', 0.9, 'gold')} />
       <div style={lightZoneStyle('right', 0.9, 'gold')} />
       <div
@@ -116,6 +122,7 @@ export const BonusScene: React.FC<{ slot: BonusSlot }> = ({ slot }) => {
           background: `linear-gradient(135deg, ${colors.gold} 0%, rgba(255,200,87,0.85) 40%, ${colors.orange} 100%)`,
         }}
       />
+      <FrameShimmer rgb="255,240,200" />
 
       <LightString litUpTo={lit} pulseSlot={slot.slot} pulseFrame={t - b.answersFrom} counter={slot.slot} />
 
