@@ -5,6 +5,7 @@ import { scoreAudio } from '../audioMap';
 import { LightString } from '../components/LightString';
 import { cue } from '../sfx';
 import type { SfxCue } from '../sfx';
+import { rimLightStyle } from '../shared/glass';
 import { springAt } from '../shared/springs';
 import {
   BOKEH,
@@ -38,18 +39,21 @@ import { UI, rankRange } from '../ui';
 /** The one rank card, reference units (1280x720). Inside the safe band (y 72..648, x 128..1152). */
 export const CARD = {
   x: 240,
-  y: 108,
+  y: 106,
   w: 800,
-  h: 532,
-  radius: 40,
-  pad: 28,
+  h: 536,
+  radius: 44,
+  pad: 20,
+  /** extra space above the title */
+  titleTop: 10,
   titleH: 30,
-  titleGap: 14,
+  titleGap: 18,
   rowH: 78,
-  rowGap: 10,
-  rowRadius: 26,
+  rowGap: 12,
+  /** concentric corners: outer radius minus the padding between the card edge and the row (44 - 20) */
+  rowRadius: 24,
   rowPadX: 24,
-  dot: 26,
+  dot: 22,
   fontSize: 40,
 } as const;
 
@@ -90,10 +94,12 @@ export const ScoreScene: React.FC = () => {
           transformOrigin: '50% 50%',
           padding: px(CARD.pad),
           boxSizing: 'border-box',
-          ...glassSurface(CARD.radius, { edge: 1 + 0.35 * holdK, depth: 1, base: colors.glassBase }),
+          ...glassSurface(CARD.radius, { edge: 1, depth: 1, base: colors.glassBase, rim: 'none' }),
         }}
       >
-        <div style={{ ...textStyle('label'), height: px(CARD.titleH), display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '0.14em' }}>
+        {/* the same top-left edge light as the tiles (one light source for all the glass) */}
+        <div style={rimLightStyle(CARD.radius, { strength: 1 + 0.35 * holdK })} />
+        <div style={{ ...textStyle('label'), marginTop: px(CARD.titleTop), height: px(CARD.titleH), display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: '0.14em' }}>
           {UI.rankCard}
         </div>
 
@@ -118,9 +124,11 @@ export const ScoreScene: React.FC = () => {
                   padding: `0 ${px(CARD.rowPadX)}px`,
                   borderRadius: px(CARD.rowRadius),
                   boxSizing: 'border-box',
-                  background: `color-mix(in srgb, ${tier} ${pct(k * 0.2)}, rgba(255,255,255,0.05))`,
-                  border: `${px(1)}px solid color-mix(in srgb, ${tier} ${pct(k * 0.5)}, rgba(255,255,255,0.10))`,
-                  boxShadow: k > 0 ? `0 0 ${px(18 * glow)}px color-mix(in srgb, ${tier} ${pct(0.45)}, transparent)` : 'none',
+                  // colour lives in the dot; the row only gets a faint tint and a neutral hairline
+                  background: `color-mix(in srgb, ${tier} ${pct(k * 0.09)}, rgba(255,255,255,0.05))`,
+                  border: `${px(1)}px solid rgba(255,255,255,${(0.1 + 0.04 * k).toFixed(3)})`,
+                  // a soft glow only while this tier is the one lighting
+                  boxShadow: current > 0.01 ? `0 0 ${px(16 * current)}px color-mix(in srgb, ${tier} ${pct(0.22 * current)}, transparent)` : 'none',
                   transform: `scale(${1 + 0.025 * current * Math.min(1.15, lit)})`,
                   transformOrigin: '50% 50%',
                   opacity: 0.5 + 0.5 * k,
@@ -133,7 +141,7 @@ export const ScoreScene: React.FC = () => {
                     borderRadius: '50%',
                     flex: '0 0 auto',
                     background: `color-mix(in srgb, ${tier} ${pct(k)}, ${colors.bulbOff})`,
-                    boxShadow: k > 0 ? `0 0 ${px(12 * glow)}px ${tier}` : 'none',
+                    boxShadow: k > 0 ? `0 0 ${px(10 * glow)}px color-mix(in srgb, ${tier} ${pct(current > 0.01 ? 0.9 : 0.35)}, transparent)` : 'none',
                   }}
                 />
                 <div
@@ -154,10 +162,11 @@ export const ScoreScene: React.FC = () => {
                     flex: '0 0 auto',
                     fontFamily: fontStack,
                     fontSize: px(CARD.fontSize),
-                    fontWeight: weights.bold,
+                    fontWeight: weights.semibold,
                     fontVariantNumeric: 'tabular-nums',
                     letterSpacing: '0.02em',
-                    color: `color-mix(in srgb, ${tier} ${pct(k)}, ${colors.muted})`,
+                    // the range is secondary: dim white, so the tier name leads
+                    color: colors.muted,
                     whiteSpace: 'nowrap',
                   }}
                 >

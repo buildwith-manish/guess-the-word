@@ -28,6 +28,13 @@ export type LightStringProps = {
   counter?: number;
 };
 
+/**
+ * The ending (mode 'all'): all 50 bulbs are lit at once, so each one is quieter than in the quiz, where a few bulbs are lit
+ * and each is an event. Glow 1.0 (was 1.35), bloom half as big and half as strong, the travelling ripple at half strength.
+ */
+const ALL_MODE = { glow: 1, bloomSize: 0.7, bloomAlpha: 0.5, ripple: 0.5 } as const;
+const hex2 = (v: number): string => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, '0');
+
 /** ticks the glow pop lasts */
 const POP_TICKS = 14;
 
@@ -79,15 +86,16 @@ export const LightString: React.FC<LightStringProps> = ({ litUpTo, pulseSlot, pu
         const isPulse = !all && n === pulseSlot;
         const lit = all || n <= litUpTo || (isPulse && pulseFrame >= 0);
         // pop: the pulsing bulb; in 'all' mode a ripple that travels along the string (pulseFrame advances)
-        const p = isPulse ? pop(pulseFrame) : all ? pop(pulseFrame - b.i * 0.8) : 0;
+        const p = isPulse ? pop(pulseFrame) : all ? ALL_MODE.ripple * pop(pulseFrame - b.i * 0.8) : 0;
         const gold = slot.kind === 'bonus';
-        const glow = (all ? 1.35 : 1) * (1 + (gold ? 1.9 : 1.4) * p);
+        const glow = (all ? ALL_MODE.glow : 1) * (1 + (gold ? 1.9 : 1.4) * p);
         const dy = swayAt(b.x, frame);
         const sb = { ...b, color, wireY: b.wireY + dy, top: b.top + dy };
         const base = bulbStyle(sb, lit, glow * 1.15);
         const haloSize = (gold ? 64 : 48) * p;
         // steady bloom of every lit bulb: soft radial gradient behind the glass
-        const bloomSize = gold ? 46 : 40;
+        const bloomSize = (gold ? 46 : 40) * (all ? ALL_MODE.bloomSize : 1);
+        const bloomA = all ? ALL_MODE.bloomAlpha : 1;
         return (
           <React.Fragment key={b.i}>
             {lit ? (
@@ -99,7 +107,7 @@ export const LightString: React.FC<LightStringProps> = ({ litUpTo, pulseSlot, pu
                   width: px(bloomSize),
                   height: px(bloomSize),
                   borderRadius: '50%',
-                  background: `radial-gradient(circle, ${color}66 0%, ${color}2e 38%, ${color}00 72%)`,
+                  background: `radial-gradient(circle, ${color}${hex2(0x66 * bloomA)} 0%, ${color}${hex2(0x2e * bloomA)} 38%, ${color}00 72%)`,
                 }}
               />
             ) : null}
