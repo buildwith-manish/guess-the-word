@@ -40,7 +40,9 @@ export const levelCardSec = 3.5; // Starter and Hall of Fame (Rookie has a banne
 export const scoreCardSec = 5;
 export const predictionsSec = 25;
 export const scoreboardSec = 20;
-export const rankHoldSec = 4; // each rank card holds at least this long
+export const scoreboardRingsSec = 2; // scoreboard: the activity rings fill before the first rank lights
+export const rankStepSec = 2.8; // scoreboard: minimum per rank step (the rank lights and its clip plays); 2 + 5 x 2.8 + 4 = 20 s
+export const rankFinalHoldSec = 4; // scoreboard: the final card (all five tiers on one card) holds at least this long
 export const outroSec = 30;
 export const endScreenSec = 15; // the end screen is the last part of the outro
 export const clipPadSec = 0.3; // added to a clip's length when it sets a slot
@@ -124,11 +126,33 @@ const slotOf = (minSec: number, clipLenSec: number): number => (useClipTimings ?
 
 /** Seconds per slot, in order. Prediction and outro lists are empty without clip timings. */
 export const predictionSlotSec: number[] = useClipTimings ? range(PREDICTION_CLIPS).map((i) => dur('prediction', String(i)) + clipPadSec) : [];
-export const rankSlotSec: number[] = ranks.map((_, i) => slotOf(rankHoldSec, dur('rank', String(i + 1))));
+/** Per rank, in the order of `ranks` (best first); clip key is the position in `ranks` + 1 (best = '1'). */
+export const rankSlotSec: number[] = ranks.map((_, i) => slotOf(rankStepSec, dur('rank', String(i + 1))));
 export const outroSlotSec: number[] = useClipTimings ? range(OUTRO_CLIPS).map((i) => dur('outro', String(i)) + clipPadSec) : [];
 export const predictionsLenSec: number = Math.max(predictionsSec, sum(predictionSlotSec));
-/** Rank cards back to back, never below `scoreboardSec`. */
-export const scoreboardLenSec: number = Math.max(scoreboardSec, sum(rankSlotSec));
+/** One rank step of the scoreboard: `rank` is the index in `ranks` (0 = best), `key` its clip key, `from` / `to` ticks from the scoreboard start. */
+export type ScoreboardStep = { rank: number; key: string; from: number; to: number };
+/**
+ * Scoreboard plan in ticks from the segment start: the rings fill, the ranks light from the lowest to the highest (each with
+ * its clip), then the final card holds with all five tiers lit. Never shorter than `scoreboardSec`; any extra goes to the hold.
+ */
+const buildScoreboard = () => {
+  let cur = secToTicks(scoreboardRingsSec);
+  const rings: Range = { from: 0, to: cur };
+  const steps: ScoreboardStep[] = ranks
+    .map((_, i) => i)
+    .reverse()
+    .map((i) => {
+      const from = cur;
+      cur += secToTicks(rankSlotSec[i]);
+      return { rank: i, key: String(i + 1), from, to: cur };
+    });
+  const len = Math.max(secToTicks(scoreboardSec), cur + secToTicks(rankFinalHoldSec));
+  const hold: Range = { from: cur, to: len };
+  return { rings, steps, hold, len };
+};
+export const scoreboardPlan = buildScoreboard();
+export const scoreboardLenSec: number = ticksToSec(scoreboardPlan.len);
 /** The end screen needs its last `endScreenSec`, so the outro never goes below `outroSec`. */
 export const outroLenSec: number = Math.max(outroSec, sum(outroSlotSec));
 
