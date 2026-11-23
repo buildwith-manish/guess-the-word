@@ -1,0 +1,116 @@
+# Guess the Christmas Movie by Emoji: voiceover lines WITH emotion tags, one clip per line, in play order.
+# Format: <id> | [emotion tag] text. Record each as <id>.wav. Same voice and settings for every clip.
+# Tags are written for ElevenLabs v3 audio tags. If your voice model does not support tags, use lines.csv (no tags) instead.
+# Tag vocabulary used: excited, playful, cheerful, curious, whispers, mischievously, dramatic, sarcastic, laughs, sighs, warmly, confident.
+# Say the line, not the tag. The tag is never spoken.
+
+xmas_001 | [excited] Fifty Christmas questions. Forty movies and ten bonus rounds. Name them before the timer fills.
+xmas_002 | [playful] Cozy house, and nobody's home. Almost.
+xmas_003 | [excited] Yes! Home Alone!
+xmas_004 | [playful] Pointy hat, pointy shoes. Easy one.
+xmas_005 | [cheerful] Elf! Buddy approves.
+xmas_006 | [cheerful] Polar bear, steam train. Choo choo!
+xmas_007 | [excited] All aboard! The Polar Express.
+xmas_008 | [mischievously] Big green grin, and a very full sack.
+xmas_009 | [playful] The Grinch! Stolen points.
+xmas_010 | [playful] Bonus one. Spotlight. Name the movie as the letters appear.
+xmas_011 | [excited] Arthur Christmas! Nice.
+xmas_012 | [playful] Put on the hat. Read the fine print.
+xmas_013 | [cheerful] Sign here! The Santa Clause.
+xmas_014 | [curious] Cold one. Just don't let him melt.
+xmas_015 | [cheerful] Frosty the Snowman! Stay cool.
+xmas_016 | [playful] Somebody's nose is very bright tonight.
+xmas_017 | [excited] Rudolph! Nose on.
+xmas_018 | [curious] A tree, a book, and one very big leg lamp.
+xmas_019 | [excited] Leg lamp! A Christmas Story.
+xmas_020 | [playful] Bonus two. Focus. Name the movie before the picture sharpens.
+xmas_021 | [excited] The Polar Express! Sharp eyes.
+xmas_022 | [excited] Quick, the shops close tonight!
+xmas_023 | [excited] Jingle All the Way! Turbo-Man.
+xmas_024 | [playful] Packed bags, and way too many lights.
+xmas_025 | [cheerful] Christmas Vacation! Griswolds.
+xmas_026 | [whispers] Spooky or festive? Somehow both.
+xmas_027 | [dramatic] Spooky! The Nightmare Before Christmas.
+xmas_028 | [playful] A tree and a tune. Sing it out.
+xmas_029 | [dramatic] Bah, humbug! A Christmas Carol.
+xmas_030 | [playful] Bonus three. Odd one out. Find the different tree.
+xmas_031 | [excited] There it is! Sneaky.
+xmas_032 | [warmly] Sparkles, and a street you can believe in.
+xmas_033 | [warmly] Believe! Miracle on 34th Street.
+xmas_034 | [warmly] Stars in his eyes, and a very big heart.
+xmas_035 | [warmly] It's a Wonderful Life! Ring, ring.
+xmas_036 | [warmly] Snow on the tree. Pretty classic.
+xmas_037 | [cheerful] White Christmas! Pure classic.
+xmas_038 | [playful] Cue cards, hearts, and awkward feelings.
+xmas_039 | [cheerful] Love Actually! Awkward cards.
+xmas_040 | [playful] Bonus four. Double feature. Name both movies.
+xmas_041 | [excited] Elf, and The Polar Express! Double win.
+xmas_042 | [curious] Swap houses, swap lives. Snow for sun.
+xmas_043 | [cheerful] Pack up! The Holiday.
+xmas_044 | [sarcastic] Thumbs down. This Santa is not nice.
+xmas_045 | [sarcastic] Naughty list! Bad Santa.
+xmas_046 | [sarcastic] Grabby fist, old TV, terrible attitude.
+xmas_047 | [playful] Scrooged! Ghosts on TV.
+xmas_048 | [laughs] Santa has a brother. Awkward.
+xmas_049 | [cheerful] Fred Claus! Santa's brother.
+xmas_050 | [playful] Bonus five. Autocomplete. Pick the missing word.
+xmas_051 | [excited] Alone. Home Alone.
+xmas_052 | [whispers] Horns and chains. Somebody's naughty.
+xmas_053 | [dramatic] Run! Krampus.
+xmas_054 | [laughs] One couple. Four families. Good luck.
+xmas_055 | [playful] Four Christmases! Four families.
+xmas_056 | [playful] Cards, holly, and a very big light war.
+xmas_057 | [excited] Light war! Deck the Halls.
+xmas_058 | [curious] Hoofprints in the snow. Follow them.
+xmas_059 | [cheerful] Prancer! Nice hooves.
+xmas_060 | [playful] Bonus six. Clean up. Name the movie from what is left.
+xmas_061 | [excited] The Santa Clause! Good eye.
+xmas_062 | [curious] Cold card, colder heart. Or a snowman.
+xmas_063 | [playful] Jack Frost! Snowman dad.
+xmas_064 | [excited] A stocking, a scroll, and one wild sleigh ride.
+xmas_065 | [excited] The Christmas Chronicles! Sleigh time.
+xmas_066 | [curious] Gold star, bright coat. Family business.
+xmas_067 | [cheerful] Noelle! Santa's daughter.
+xmas_068 | [sighs] Last page of the calendar. Sweet and sad.
+xmas_069 | [warmly] Tissues out! Last Christmas.
+xmas_070 | [playful] Bonus seven. Count the red lights.
+xmas_071 | [excited] Six red lights! Did you get it?
+xmas_072 | [dramatic] Sledgehammer, night sky. Not so silent.
+xmas_073 | [dramatic] Hammer time! Violent Night.
+xmas_074 | [playful] Ghosts who sing. Yes, really.
+xmas_075 | [cheerful] Spirited! Ghosts sing.
+xmas_076 | [confident] Roll the dice. Grab a hard hat.
+xmas_077 | [excited] Die Hard! Yes, Christmas.
+xmas_078 | [whispers] Cute and furry. Mind the clock.
+xmas_079 | [dramatic] Midnight! Gremlins.
+xmas_080 | [playful] Bonus eight. Which icon was never a clue?
+xmas_081 | [excited] The snow globe! Sneaky.
+xmas_082 | [sarcastic] One cranky couple. Zero Christmas.
+xmas_083 | [playful] Skip it! Christmas with the Kranks.
+xmas_084 | [playful] Life ring! Somebody needs rescuing.
+xmas_085 | [cheerful] Hired family! Surviving Christmas.
+xmas_086 | [curious] Perfect family. Imperfect dinner.
+xmas_087 | [cheerful] The Family Stone! Awkward dinner.
+xmas_088 | [playful] Circle the date. Book a room.
+xmas_089 | [cheerful] Check in! Holiday Inn.
+xmas_090 | [playful] Bonus nine. Speed round. Name all three.
+xmas_091 | [excited] Die Hard. Surviving Christmas. The Family Stone. Speedy!
+xmas_092 | [warmly] Gold star. One very brave donkey.
+xmas_093 | [cheerful] The Star! Brave donkey.
+xmas_094 | [excited] Sunrise, shield. Santa with swords.
+xmas_095 | [excited] Team Santa! Rise of the Guardians.
+xmas_096 | [mischievously] Santa hat, same finish line. Different movie.
+xmas_097 | [playful] Single All the Way! Same clue.
+xmas_098 | [excited] Last movie! Tumble right in.
+xmas_099 | [excited] Falling for Christmas! Swoon.
+xmas_100 | [playful] Final bonus. Name as many as you can.
+xmas_101 | [excited] Krampus. Prancer. Noelle. Gremlins. Bravo!
+xmas_102 | [warmly] That was all fifty. Time to count your score.
+xmas_103 | [excited] Zero to ten: Coal in the Stocking.
+xmas_104 | [excited] Eleven to twenty: Elf in Training.
+xmas_105 | [excited] Twenty-one to thirty: Reindeer.
+xmas_106 | [excited] Thirty-one to forty: Santa's Helper.
+xmas_107 | [excited] Forty-one or more: Santa's Favorite.
+xmas_108 | [warmly] Comment your score out of fifty, and screenshot your rank card.
+xmas_109 | [warmly] Which question beat you? Tell me the number.
+xmas_110 | [warmly] Subscribe so you do not miss the next quiz.

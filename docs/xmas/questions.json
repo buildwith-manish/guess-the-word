@@ -1,0 +1,1161 @@
+{
+  "meta": {
+    "title": "Guess the Christmas Movie by Emoji",
+    "totalSlots": 50,
+    "movieSlots": 40,
+    "bonusSlots": 10,
+    "bonusEvery": 5,
+    "maxScore": 50,
+    "starMeaning": "hard (10 s timer); unconfirmed",
+    "musicLicenseText": null,
+    "disclaimer": "This channel is not affiliated with any film studio. Movie titles are the property of their owners.",
+    "pinnedComment": "Drop your score out of 50 and the question that beat you.",
+    "titles": [
+      "Can You Guess 40 Christmas Movies From Emojis? (Plus 10 Bonus Rounds)",
+      "Christmas Movie Emoji Quiz: 50 Questions, 10 Bonus Rounds",
+      "Christmas Movie Emoji Quiz: What's Your Score Out of 50?"
+    ]
+  },
+  "slots": [
+    {
+      "slot": 1,
+      "kind": "movie",
+      "movieIndex": 1,
+      "star": false,
+      "clue1": {
+        "id": "s01_c1",
+        "label": "Cozy snowy house",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s01_c2",
+        "label": "Faceless person alone on a huge empty tile",
+        "bakedText": null
+      },
+      "answer": "Home Alone",
+      "voice": {
+        "intro": "Cozy house, and nobody's home. Almost.",
+        "reveal": "Yes! Home Alone!"
+      }
+    },
+    {
+      "slot": 2,
+      "kind": "movie",
+      "movieIndex": 2,
+      "star": false,
+      "clue1": {
+        "id": "s02_c1",
+        "label": "Elf hat",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s02_c2",
+        "label": "Elf shoes",
+        "bakedText": null
+      },
+      "answer": "Elf",
+      "voice": {
+        "intro": "Pointy hat, pointy shoes. Easy one.",
+        "reveal": "Elf! Buddy approves."
+      }
+    },
+    {
+      "slot": 3,
+      "kind": "movie",
+      "movieIndex": 3,
+      "star": false,
+      "clue1": {
+        "id": "s03_c1",
+        "label": "Polar bear",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s03_c2",
+        "label": "Steam train",
+        "bakedText": null
+      },
+      "answer": "The Polar Express",
+      "voice": {
+        "intro": "Polar bear, steam train. Choo choo!",
+        "reveal": "All aboard! The Polar Express."
+      }
+    },
+    {
+      "slot": 4,
+      "kind": "movie",
+      "movieIndex": 4,
+      "star": false,
+      "clue1": {
+        "id": "s04_c1",
+        "label": "Wide grin",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s04_c2",
+        "label": "Sack of presents",
+        "bakedText": null
+      },
+      "answer": "The Grinch",
+      "voice": {
+        "intro": "Big green grin, and a very full sack.",
+        "reveal": "The Grinch! Stolen points."
+      }
+    },
+    {
+      "slot": 5,
+      "kind": "bonus",
+      "bonus": 1,
+      "star": false,
+      "key": "spotlight",
+      "name": "Spotlight",
+      "ios": "Spotlight search",
+      "title": "Arthur Christmas",
+      "lettersPerSec": 1,
+      "intro": "Bonus one. Spotlight. Name the movie as the letters appear.",
+      "reveal": "Arthur Christmas! Nice.",
+      "answers": [
+        "Arthur Christmas"
+      ],
+      "newContent": "text only"
+    },
+    {
+      "slot": 6,
+      "kind": "movie",
+      "movieIndex": 5,
+      "star": false,
+      "clue1": {
+        "id": "s06_c1",
+        "label": "Santa hat",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s06_c2",
+        "label": "Contract scroll",
+        "bakedText": null
+      },
+      "answer": "The Santa Clause",
+      "voice": {
+        "intro": "Put on the hat. Read the fine print.",
+        "reveal": "Sign here! The Santa Clause."
+      }
+    },
+    {
+      "slot": 7,
+      "kind": "movie",
+      "movieIndex": 6,
+      "star": false,
+      "clue1": {
+        "id": "s07_c1",
+        "label": "Snowflake",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s07_c2",
+        "label": "Snowman",
+        "bakedText": null
+      },
+      "answer": "Frosty the Snowman",
+      "voice": {
+        "intro": "Cold one. Just don't let him melt.",
+        "reveal": "Frosty the Snowman! Stay cool."
+      }
+    },
+    {
+      "slot": 8,
+      "kind": "movie",
+      "movieIndex": 7,
+      "star": false,
+      "clue1": {
+        "id": "s08_c1",
+        "label": "Glowing red nose",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s08_c2",
+        "label": "Reindeer antlers",
+        "bakedText": null
+      },
+      "answer": "Rudolph",
+      "voice": {
+        "intro": "Somebody's nose is very bright tonight.",
+        "reveal": "Rudolph! Nose on."
+      }
+    },
+    {
+      "slot": 9,
+      "kind": "movie",
+      "movieIndex": 8,
+      "star": false,
+      "clue1": {
+        "id": "s09_c1",
+        "label": "Christmas tree",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s09_c2",
+        "label": "Open storybook",
+        "bakedText": null
+      },
+      "answer": "A Christmas Story",
+      "voice": {
+        "intro": "A tree, a book, and one very big leg lamp.",
+        "reveal": "Leg lamp! A Christmas Story."
+      }
+    },
+    {
+      "slot": 10,
+      "kind": "bonus",
+      "bonus": 2,
+      "star": false,
+      "key": "focus",
+      "name": "Focus",
+      "ios": "Camera autofocus",
+      "tiles": [
+        {
+          "slot": 3,
+          "clue": 1
+        },
+        {
+          "slot": 3,
+          "clue": 2
+        }
+      ],
+      "sharpenSec": 6,
+      "intro": "Bonus two. Focus. Name the movie before the picture sharpens.",
+      "reveal": "The Polar Express! Sharp eyes.",
+      "answers": [
+        "The Polar Express"
+      ]
+    },
+    {
+      "slot": 11,
+      "kind": "movie",
+      "movieIndex": 9,
+      "star": false,
+      "clue1": {
+        "id": "s11_c1",
+        "label": "Jingle bell",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s11_c2",
+        "label": "Road to a finish line",
+        "bakedText": null
+      },
+      "answer": "Jingle All the Way",
+      "voice": {
+        "intro": "Quick, the shops close tonight!",
+        "reveal": "Jingle All the Way! Turbo-Man."
+      }
+    },
+    {
+      "slot": 12,
+      "kind": "movie",
+      "movieIndex": 10,
+      "star": false,
+      "clue1": {
+        "id": "s12_c1",
+        "label": "Christmas tree",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s12_c2",
+        "label": "Suitcase",
+        "bakedText": null
+      },
+      "answer": "Christmas Vacation",
+      "voice": {
+        "intro": "Packed bags, and way too many lights.",
+        "reveal": "Christmas Vacation! Griswolds."
+      }
+    },
+    {
+      "slot": 13,
+      "kind": "movie",
+      "movieIndex": 11,
+      "star": false,
+      "clue1": {
+        "id": "s13_c1",
+        "label": "Nightmare cloud",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s13_c2",
+        "label": "Pumpkin in a Santa hat",
+        "bakedText": null
+      },
+      "answer": "The Nightmare Before Christmas",
+      "voice": {
+        "intro": "Spooky or festive? Somehow both.",
+        "reveal": "Spooky! The Nightmare Before Christmas."
+      }
+    },
+    {
+      "slot": 14,
+      "kind": "movie",
+      "movieIndex": 12,
+      "star": false,
+      "clue1": {
+        "id": "s14_c1",
+        "label": "Christmas tree",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s14_c2",
+        "label": "Singing mouth with notes",
+        "bakedText": null
+      },
+      "answer": "A Christmas Carol",
+      "voice": {
+        "intro": "A tree and a tune. Sing it out.",
+        "reveal": "Bah, humbug! A Christmas Carol."
+      }
+    },
+    {
+      "slot": 15,
+      "kind": "bonus",
+      "bonus": 3,
+      "star": false,
+      "key": "oddOneOut",
+      "name": "Odd One Out",
+      "ios": "Emoji keyboard",
+      "grid": {
+        "cols": 6,
+        "rows": 4,
+        "common": "🎄",
+        "odd": "🌲",
+        "oddIndex": 17
+      },
+      "intro": "Bonus three. Odd one out. Find the different tree.",
+      "reveal": "There it is! Sneaky.",
+      "answers": [
+        "The different tree"
+      ],
+      "newContent": "code only"
+    },
+    {
+      "slot": 16,
+      "kind": "movie",
+      "movieIndex": 13,
+      "star": false,
+      "clue1": {
+        "id": "s16_c1",
+        "label": "Sparkle star",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s16_c2",
+        "label": "Blank street sign",
+        "bakedText": "34"
+      },
+      "answer": "Miracle on 34th Street",
+      "voice": {
+        "intro": "Sparkles, and a street you can believe in.",
+        "reveal": "Believe! Miracle on 34th Street."
+      }
+    },
+    {
+      "slot": 17,
+      "kind": "movie",
+      "movieIndex": 14,
+      "star": false,
+      "clue1": {
+        "id": "s17_c1",
+        "label": "Star-struck face",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s17_c2",
+        "label": "Heart with heartbeat line",
+        "bakedText": null
+      },
+      "answer": "It's a Wonderful Life",
+      "voice": {
+        "intro": "Stars in his eyes, and a very big heart.",
+        "reveal": "It's a Wonderful Life! Ring, ring."
+      }
+    },
+    {
+      "slot": 18,
+      "kind": "movie",
+      "movieIndex": 15,
+      "star": false,
+      "clue1": {
+        "id": "s18_c1",
+        "label": "Snowflake",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s18_c2",
+        "label": "Christmas tree",
+        "bakedText": null
+      },
+      "answer": "White Christmas",
+      "voice": {
+        "intro": "Snow on the tree. Pretty classic.",
+        "reveal": "White Christmas! Pure classic."
+      }
+    },
+    {
+      "slot": 19,
+      "kind": "movie",
+      "movieIndex": 16,
+      "star": false,
+      "clue1": {
+        "id": "s19_c1",
+        "label": "Heart",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s19_c2",
+        "label": "Handwritten cue cards",
+        "bakedText": null
+      },
+      "answer": "Love Actually",
+      "voice": {
+        "intro": "Cue cards, hearts, and awkward feelings.",
+        "reveal": "Love Actually! Awkward cards."
+      }
+    },
+    {
+      "slot": 20,
+      "kind": "bonus",
+      "bonus": 4,
+      "star": false,
+      "key": "doubleFeature",
+      "name": "Double Feature",
+      "ios": "App switcher",
+      "left": {
+        "slot": 2,
+        "clue": 1
+      },
+      "right": {
+        "slot": 3,
+        "clue": 2
+      },
+      "intro": "Bonus four. Double feature. Name both movies.",
+      "reveal": "Elf, and The Polar Express! Double win.",
+      "answers": [
+        "Elf",
+        "The Polar Express"
+      ],
+      "passRule": "both"
+    },
+    {
+      "slot": 21,
+      "kind": "movie",
+      "movieIndex": 17,
+      "star": false,
+      "clue1": {
+        "id": "s21_c1",
+        "label": "Snowy house and sunny house",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s21_c2",
+        "label": "Swap arrows",
+        "bakedText": null
+      },
+      "answer": "The Holiday",
+      "voice": {
+        "intro": "Swap houses, swap lives. Snow for sun.",
+        "reveal": "Pack up! The Holiday."
+      }
+    },
+    {
+      "slot": 22,
+      "kind": "movie",
+      "movieIndex": 18,
+      "star": false,
+      "clue1": {
+        "id": "s22_c1",
+        "label": "Thumbs-down",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s22_c2",
+        "label": "Santa hat",
+        "bakedText": null
+      },
+      "answer": "Bad Santa",
+      "voice": {
+        "intro": "Thumbs down. This Santa is not nice.",
+        "reveal": "Naughty list! Bad Santa."
+      }
+    },
+    {
+      "slot": 23,
+      "kind": "movie",
+      "movieIndex": 19,
+      "star": false,
+      "clue1": {
+        "id": "s23_c1",
+        "label": "Fist clutching coins and money bag",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s23_c2",
+        "label": "Retro TV",
+        "bakedText": null
+      },
+      "answer": "Scrooged",
+      "voice": {
+        "intro": "Grabby fist, old TV, terrible attitude.",
+        "reveal": "Scrooged! Ghosts on TV."
+      }
+    },
+    {
+      "slot": 24,
+      "kind": "movie",
+      "movieIndex": 20,
+      "star": false,
+      "clue1": {
+        "id": "s24_c1",
+        "label": "Blank name tag",
+        "bakedText": "FRED"
+      },
+      "clue2": {
+        "id": "s24_c2",
+        "label": "Santa hat and beard",
+        "bakedText": null
+      },
+      "answer": "Fred Claus",
+      "voice": {
+        "intro": "Santa has a brother. Awkward.",
+        "reveal": "Fred Claus! Santa's brother."
+      }
+    },
+    {
+      "slot": 25,
+      "kind": "bonus",
+      "bonus": 5,
+      "star": false,
+      "key": "autocomplete",
+      "name": "Autocomplete",
+      "ios": "Keyboard predictions",
+      "prefix": "Home",
+      "chips": [
+        "Alone",
+        "Safe",
+        "Sweet"
+      ],
+      "correct": "Alone",
+      "intro": "Bonus five. Autocomplete. Pick the missing word.",
+      "reveal": "Alone. Home Alone.",
+      "answers": [
+        "Home Alone"
+      ],
+      "newContent": "text only"
+    },
+    {
+      "slot": 26,
+      "kind": "movie",
+      "movieIndex": 21,
+      "star": true,
+      "clue1": {
+        "id": "s26_c1",
+        "label": "Goat horns",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s26_c2",
+        "label": "Chain and birch sticks",
+        "bakedText": null
+      },
+      "answer": "Krampus",
+      "voice": {
+        "intro": "Horns and chains. Somebody's naughty.",
+        "reveal": "Run! Krampus."
+      }
+    },
+    {
+      "slot": 27,
+      "kind": "movie",
+      "movieIndex": 22,
+      "star": false,
+      "clue1": {
+        "id": "s27_c1",
+        "label": "Number 4",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s27_c2",
+        "label": "Four Christmas trees",
+        "bakedText": null
+      },
+      "answer": "Four Christmases",
+      "voice": {
+        "intro": "One couple. Four families. Good luck.",
+        "reveal": "Four Christmases! Four families."
+      }
+    },
+    {
+      "slot": 28,
+      "kind": "movie",
+      "movieIndex": 23,
+      "star": false,
+      "clue1": {
+        "id": "s28_c1",
+        "label": "Deck of cards",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s28_c2",
+        "label": "Holly",
+        "bakedText": null
+      },
+      "answer": "Deck the Halls",
+      "voice": {
+        "intro": "Cards, holly, and a very big light war.",
+        "reveal": "Light war! Deck the Halls."
+      }
+    },
+    {
+      "slot": 29,
+      "kind": "movie",
+      "movieIndex": 24,
+      "star": true,
+      "clue1": {
+        "id": "s29_c1",
+        "label": "Leaping reindeer",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s29_c2",
+        "label": "Hoofprints in snow",
+        "bakedText": null
+      },
+      "answer": "Prancer",
+      "voice": {
+        "intro": "Hoofprints in the snow. Follow them.",
+        "reveal": "Prancer! Nice hooves."
+      }
+    },
+    {
+      "slot": 30,
+      "kind": "bonus",
+      "bonus": 6,
+      "star": false,
+      "key": "cleanUp",
+      "name": "Clean Up",
+      "ios": "Photos Clean Up",
+      "tiles": [
+        {
+          "slot": 6,
+          "clue": 1
+        },
+        {
+          "slot": 6,
+          "clue": 2
+        }
+      ],
+      "intro": "Bonus six. Clean up. Name the movie from what is left.",
+      "reveal": "The Santa Clause! Good eye.",
+      "answers": [
+        "The Santa Clause"
+      ]
+    },
+    {
+      "slot": 31,
+      "kind": "movie",
+      "movieIndex": 25,
+      "star": false,
+      "clue1": {
+        "id": "s31_c1",
+        "label": "Jack playing card",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s31_c2",
+        "label": "Frost crystals",
+        "bakedText": null
+      },
+      "answer": "Jack Frost",
+      "voice": {
+        "intro": "Cold card, colder heart. Or a snowman.",
+        "reveal": "Jack Frost! Snowman dad."
+      }
+    },
+    {
+      "slot": 32,
+      "kind": "movie",
+      "movieIndex": 26,
+      "star": false,
+      "clue1": {
+        "id": "s32_c1",
+        "label": "Stocking",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s32_c2",
+        "label": "Scroll",
+        "bakedText": null
+      },
+      "answer": "The Christmas Chronicles",
+      "voice": {
+        "intro": "A stocking, a scroll, and one wild sleigh ride.",
+        "reveal": "The Christmas Chronicles! Sleigh time."
+      }
+    },
+    {
+      "slot": 33,
+      "kind": "movie",
+      "movieIndex": 27,
+      "star": true,
+      "clue1": {
+        "id": "s33_c1",
+        "label": "Gold star",
+        "bakedText": "NOEL"
+      },
+      "clue2": {
+        "id": "s33_c2",
+        "label": "Woman in a Santa-style coat and hat",
+        "bakedText": null
+      },
+      "answer": "Noelle",
+      "voice": {
+        "intro": "Gold star, bright coat. Family business.",
+        "reveal": "Noelle! Santa's daughter."
+      }
+    },
+    {
+      "slot": 34,
+      "kind": "movie",
+      "movieIndex": 28,
+      "star": false,
+      "clue1": {
+        "id": "s34_c1",
+        "label": "Last calendar page",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s34_c2",
+        "label": "Candy cane",
+        "bakedText": null
+      },
+      "answer": "Last Christmas",
+      "voice": {
+        "intro": "Last page of the calendar. Sweet and sad.",
+        "reveal": "Tissues out! Last Christmas."
+      }
+    },
+    {
+      "slot": 35,
+      "kind": "bonus",
+      "bonus": 7,
+      "star": false,
+      "key": "countLights",
+      "name": "Count the Lights",
+      "ios": "The light string",
+      "flashSec": 5,
+      "sequence": [
+        "r",
+        "g",
+        "r",
+        "r",
+        "g",
+        "g",
+        "r",
+        "g",
+        "r",
+        "r"
+      ],
+      "redCount": 6,
+      "intro": "Bonus seven. Count the red lights.",
+      "reveal": "Six red lights! Did you get it?",
+      "answers": [
+        "6 red bulbs"
+      ],
+      "newContent": "code only"
+    },
+    {
+      "slot": 36,
+      "kind": "movie",
+      "movieIndex": 29,
+      "star": false,
+      "clue1": {
+        "id": "s36_c1",
+        "label": "Sledgehammer",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s36_c2",
+        "label": "Night sky with moon",
+        "bakedText": null
+      },
+      "answer": "Violent Night",
+      "voice": {
+        "intro": "Sledgehammer, night sky. Not so silent.",
+        "reveal": "Hammer time! Violent Night."
+      }
+    },
+    {
+      "slot": 37,
+      "kind": "movie",
+      "movieIndex": 30,
+      "star": false,
+      "clue1": {
+        "id": "s37_c1",
+        "label": "Ghost",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s37_c2",
+        "label": "Music notes",
+        "bakedText": null
+      },
+      "answer": "Spirited",
+      "voice": {
+        "intro": "Ghosts who sing. Yes, really.",
+        "reveal": "Spirited! Ghosts sing."
+      }
+    },
+    {
+      "slot": 38,
+      "kind": "movie",
+      "movieIndex": 31,
+      "star": false,
+      "clue1": {
+        "id": "s38_c1",
+        "label": "Die",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s38_c2",
+        "label": "Hard hat",
+        "bakedText": null
+      },
+      "answer": "Die Hard",
+      "voice": {
+        "intro": "Roll the dice. Grab a hard hat.",
+        "reveal": "Die Hard! Yes, Christmas."
+      }
+    },
+    {
+      "slot": 39,
+      "kind": "movie",
+      "movieIndex": 32,
+      "star": true,
+      "clue1": {
+        "id": "s39_c1",
+        "label": "Gear with green ears",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s39_c2",
+        "label": "Clock at midnight",
+        "bakedText": null
+      },
+      "answer": "Gremlins",
+      "voice": {
+        "intro": "Cute and furry. Mind the clock.",
+        "reveal": "Midnight! Gremlins."
+      }
+    },
+    {
+      "slot": 40,
+      "kind": "bonus",
+      "bonus": 8,
+      "star": false,
+      "key": "controlCenter",
+      "name": "Control Center",
+      "ios": "Control Center toggles",
+      "icons": [
+        {
+          "slot": 36,
+          "clue": 1
+        },
+        {
+          "slot": 37,
+          "clue": 1
+        },
+        {
+          "slot": 39,
+          "clue": 1
+        },
+        {
+          "new": "bonus08_snowglobe"
+        }
+      ],
+      "decoy": "bonus08_snowglobe",
+      "intro": "Bonus eight. Which icon was never a clue?",
+      "reveal": "The snow globe! Sneaky.",
+      "answers": [
+        "The snow globe"
+      ]
+    },
+    {
+      "slot": 41,
+      "kind": "movie",
+      "movieIndex": 33,
+      "star": true,
+      "clue1": {
+        "id": "s41_c1",
+        "label": "Crossed-out tree",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s41_c2",
+        "label": "Cranky face",
+        "bakedText": null
+      },
+      "answer": "Christmas with the Kranks",
+      "voice": {
+        "intro": "One cranky couple. Zero Christmas.",
+        "reveal": "Skip it! Christmas with the Kranks."
+      }
+    },
+    {
+      "slot": 42,
+      "kind": "movie",
+      "movieIndex": 34,
+      "star": false,
+      "clue1": {
+        "id": "s42_c1",
+        "label": "Life ring",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s42_c2",
+        "label": "Gift box",
+        "bakedText": null
+      },
+      "answer": "Surviving Christmas",
+      "voice": {
+        "intro": "Life ring! Somebody needs rescuing.",
+        "reveal": "Hired family! Surviving Christmas."
+      }
+    },
+    {
+      "slot": 43,
+      "kind": "movie",
+      "movieIndex": 35,
+      "star": false,
+      "clue1": {
+        "id": "s43_c1",
+        "label": "Family of four",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s43_c2",
+        "label": "Stone",
+        "bakedText": null
+      },
+      "answer": "The Family Stone",
+      "voice": {
+        "intro": "Perfect family. Imperfect dinner.",
+        "reveal": "The Family Stone! Awkward dinner."
+      }
+    },
+    {
+      "slot": 44,
+      "kind": "movie",
+      "movieIndex": 36,
+      "star": false,
+      "clue1": {
+        "id": "s44_c1",
+        "label": "Calendar with a circled date",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s44_c2",
+        "label": "Hotel with a bed sign",
+        "bakedText": null
+      },
+      "answer": "Holiday Inn",
+      "voice": {
+        "intro": "Circle the date. Book a room.",
+        "reveal": "Check in! Holiday Inn."
+      }
+    },
+    {
+      "slot": 45,
+      "kind": "bonus",
+      "bonus": 9,
+      "star": false,
+      "key": "speedRound",
+      "name": "Speed Round",
+      "ios": "Shortcuts",
+      "tiles": [
+        {
+          "slot": 38,
+          "clue": 1
+        },
+        {
+          "slot": 42,
+          "clue": 1
+        },
+        {
+          "slot": 43,
+          "clue": 1
+        }
+      ],
+      "perTileSec": 2,
+      "passRule": "all three",
+      "intro": "Bonus nine. Speed round. Name all three.",
+      "reveal": "Die Hard. Surviving Christmas. The Family Stone. Speedy!",
+      "answers": [
+        "Die Hard",
+        "Surviving Christmas",
+        "The Family Stone"
+      ]
+    },
+    {
+      "slot": 46,
+      "kind": "movie",
+      "movieIndex": 37,
+      "star": false,
+      "clue1": {
+        "id": "s46_c1",
+        "label": "Gold star",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s46_c2",
+        "label": "Donkey",
+        "bakedText": null
+      },
+      "answer": "The Star",
+      "voice": {
+        "intro": "Gold star. One very brave donkey.",
+        "reveal": "The Star! Brave donkey."
+      }
+    },
+    {
+      "slot": 47,
+      "kind": "movie",
+      "movieIndex": 38,
+      "star": false,
+      "clue1": {
+        "id": "s47_c1",
+        "label": "Sunrise with an up arrow",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s47_c2",
+        "label": "Shield",
+        "bakedText": null
+      },
+      "answer": "Rise of the Guardians",
+      "voice": {
+        "intro": "Sunrise, shield. Santa with swords.",
+        "reveal": "Team Santa! Rise of the Guardians."
+      }
+    },
+    {
+      "slot": 48,
+      "kind": "movie",
+      "movieIndex": 39,
+      "star": true,
+      "clue1": {
+        "id": "s48_c1",
+        "label": "Lone faceless person in a Santa hat",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s48_c2",
+        "label": "Road to a finish line",
+        "bakedText": null
+      },
+      "answer": "Single All the Way",
+      "voice": {
+        "intro": "Santa hat, same finish line. Different movie.",
+        "reveal": "Single All the Way! Same clue."
+      }
+    },
+    {
+      "slot": 49,
+      "kind": "movie",
+      "movieIndex": 40,
+      "star": false,
+      "clue1": {
+        "id": "s49_c1",
+        "label": "Tumbling heart",
+        "bakedText": null
+      },
+      "clue2": {
+        "id": "s49_c2",
+        "label": "Ornament ball",
+        "bakedText": null
+      },
+      "answer": "Falling for Christmas",
+      "voice": {
+        "intro": "Last movie! Tumble right in.",
+        "reveal": "Falling for Christmas! Swoon."
+      }
+    },
+    {
+      "slot": 50,
+      "kind": "bonus",
+      "bonus": 10,
+      "star": false,
+      "key": "finale",
+      "name": "Finale",
+      "ios": "Widget stack",
+      "tiles": [
+        {
+          "slot": 26,
+          "clue": 1
+        },
+        {
+          "slot": 29,
+          "clue": 1
+        },
+        {
+          "slot": 33,
+          "clue": 1
+        },
+        {
+          "slot": 39,
+          "clue": 1
+        }
+      ],
+      "passRule": "at least three of four",
+      "intro": "Final bonus. Name as many as you can.",
+      "reveal": "Krampus. Prancer. Noelle. Gremlins. Bravo!",
+      "answers": [
+        "Krampus",
+        "Prancer",
+        "Noelle",
+        "Gremlins"
+      ]
+    }
+  ],
+  "ranks": [
+    {
+      "name": "Coal in the Stocking",
+      "min": 0,
+      "max": 10,
+      "voice": "Zero to ten: Coal in the Stocking."
+    },
+    {
+      "name": "Elf in Training",
+      "min": 11,
+      "max": 20,
+      "voice": "Eleven to twenty: Elf in Training."
+    },
+    {
+      "name": "Reindeer",
+      "min": 21,
+      "max": 30,
+      "voice": "Twenty-one to thirty: Reindeer."
+    },
+    {
+      "name": "Santa's Helper",
+      "min": 31,
+      "max": 40,
+      "voice": "Thirty-one to forty: Santa's Helper."
+    },
+    {
+      "name": "Santa's Favorite",
+      "min": 41,
+      "max": 50,
+      "voice": "Forty-one or more: Santa's Favorite."
+    }
+  ],
+  "outro": [
+    "Comment your score out of fifty, and screenshot your rank card.",
+    "Which question beat you? Tell me the number.",
+    "Subscribe so you do not miss the next quiz."
+  ]
+}

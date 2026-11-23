@@ -1,0 +1,111 @@
+id,type,text
+xmas_001,hook,Fifty Christmas questions. Forty movies and ten bonus rounds. Name them before the timer fills.
+xmas_002,quip,"Cozy house, and nobody's home. Almost."
+xmas_003,reveal,Yes! Home Alone!
+xmas_004,quip,"Pointy hat, pointy shoes. Easy one."
+xmas_005,reveal,Elf! Buddy approves.
+xmas_006,quip,"Polar bear, steam train. Choo choo!"
+xmas_007,reveal,All aboard! The Polar Express.
+xmas_008,quip,"Big green grin, and a very full sack."
+xmas_009,reveal,The Grinch! Stolen points.
+xmas_010,bonusintro,Bonus one. Spotlight. Name the movie as the letters appear.
+xmas_011,bonusreveal,Arthur Christmas! Nice.
+xmas_012,quip,Put on the hat. Read the fine print.
+xmas_013,reveal,Sign here! The Santa Clause.
+xmas_014,quip,Cold one. Just don't let him melt.
+xmas_015,reveal,Frosty the Snowman! Stay cool.
+xmas_016,quip,Somebody's nose is very bright tonight.
+xmas_017,reveal,Rudolph! Nose on.
+xmas_018,quip,"A tree, a book, and one very big leg lamp."
+xmas_019,reveal,Leg lamp! A Christmas Story.
+xmas_020,bonusintro,Bonus two. Focus. Name the movie before the picture sharpens.
+xmas_021,bonusreveal,The Polar Express! Sharp eyes.
+xmas_022,quip,"Quick, the shops close tonight!"
+xmas_023,reveal,Jingle All the Way! Turbo-Man.
+xmas_024,quip,"Packed bags, and way too many lights."
+xmas_025,reveal,Christmas Vacation! Griswolds.
+xmas_026,quip,Spooky or festive? Somehow both.
+xmas_027,reveal,Spooky! The Nightmare Before Christmas.
+xmas_028,quip,A tree and a tune. Sing it out.
+xmas_029,reveal,"Bah, humbug! A Christmas Carol."
+xmas_030,bonusintro,Bonus three. Odd one out. Find the different tree.
+xmas_031,bonusreveal,There it is! Sneaky.
+xmas_032,quip,"Sparkles, and a street you can believe in."
+xmas_033,reveal,Believe! Miracle on 34th Street.
+xmas_034,quip,"Stars in his eyes, and a very big heart."
+xmas_035,reveal,"It's a Wonderful Life! Ring, ring."
+xmas_036,quip,Snow on the tree. Pretty classic.
+xmas_037,reveal,White Christmas! Pure classic.
+xmas_038,quip,"Cue cards, hearts, and awkward feelings."
+xmas_039,reveal,Love Actually! Awkward cards.
+xmas_040,bonusintro,Bonus four. Double feature. Name both movies.
+xmas_041,bonusreveal,"Elf, and The Polar Express! Double win."
+xmas_042,quip,"Swap houses, swap lives. Snow for sun."
+xmas_043,reveal,Pack up! The Holiday.
+xmas_044,quip,Thumbs down. This Santa is not nice.
+xmas_045,reveal,Naughty list! Bad Santa.
+xmas_046,quip,"Grabby fist, old TV, terrible attitude."
+xmas_047,reveal,Scrooged! Ghosts on TV.
+xmas_048,quip,Santa has a brother. Awkward.
+xmas_049,reveal,Fred Claus! Santa's brother.
+xmas_050,bonusintro,Bonus five. Autocomplete. Pick the missing word.
+xmas_051,bonusreveal,Alone. Home Alone.
+xmas_052,quip,Horns and chains. Somebody's naughty.
+xmas_053,reveal,Run! Krampus.
+xmas_054,quip,One couple. Four families. Good luck.
+xmas_055,reveal,Four Christmases! Four families.
+xmas_056,quip,"Cards, holly, and a very big light war."
+xmas_057,reveal,Light war! Deck the Halls.
+xmas_058,quip,Hoofprints in the snow. Follow them.
+xmas_059,reveal,Prancer! Nice hooves.
+xmas_060,bonusintro,Bonus six. Clean up. Name the movie from what is left.
+xmas_061,bonusreveal,The Santa Clause! Good eye.
+xmas_062,quip,"Cold card, colder heart. Or a snowman."
+xmas_063,reveal,Jack Frost! Snowman dad.
+xmas_064,quip,"A stocking, a scroll, and one wild sleigh ride."
+xmas_065,reveal,The Christmas Chronicles! Sleigh time.
+xmas_066,quip,"Gold star, bright coat. Family business."
+xmas_067,reveal,Noelle! Santa's daughter.
+xmas_068,quip,Last page of the calendar. Sweet and sad.
+xmas_069,reveal,Tissues out! Last Christmas.
+xmas_070,bonusintro,Bonus seven. Count the red lights.
+xmas_071,bonusreveal,Six red lights! Did you get it?
+xmas_072,quip,"Sledgehammer, night sky. Not so silent."
+xmas_073,reveal,Hammer time! Violent Night.
+xmas_074,quip,"Ghosts who sing. Yes, really."
+xmas_075,reveal,Spirited! Ghosts sing.
+xmas_076,quip,Roll the dice. Grab a hard hat.
+xmas_077,reveal,"Die Hard! Yes, Christmas."
+xmas_078,quip,Cute and furry. Mind the clock.
+xmas_079,reveal,Midnight! Gremlins.
+xmas_080,bonusintro,Bonus eight. Which icon was never a clue?
+xmas_081,bonusreveal,The snow globe! Sneaky.
+xmas_082,quip,One cranky couple. Zero Christmas.
+xmas_083,reveal,Skip it! Christmas with the Kranks.
+xmas_084,quip,Life ring! Somebody needs rescuing.
+xmas_085,reveal,Hired family! Surviving Christmas.
+xmas_086,quip,Perfect family. Imperfect dinner.
+xmas_087,reveal,The Family Stone! Awkward dinner.
+xmas_088,quip,Circle the date. Book a room.
+xmas_089,reveal,Check in! Holiday Inn.
+xmas_090,bonusintro,Bonus nine. Speed round. Name all three.
+xmas_091,bonusreveal,Die Hard. Surviving Christmas. The Family Stone. Speedy!
+xmas_092,quip,Gold star. One very brave donkey.
+xmas_093,reveal,The Star! Brave donkey.
+xmas_094,quip,"Sunrise, shield. Santa with swords."
+xmas_095,reveal,Team Santa! Rise of the Guardians.
+xmas_096,quip,"Santa hat, same finish line. Different movie."
+xmas_097,reveal,Single All the Way! Same clue.
+xmas_098,quip,Last movie! Tumble right in.
+xmas_099,reveal,Falling for Christmas! Swoon.
+xmas_100,bonusintro,Final bonus. Name as many as you can.
+xmas_101,bonusreveal,Krampus. Prancer. Noelle. Gremlins. Bravo!
+xmas_102,end,That was all fifty. Time to count your score.
+xmas_103,rank,Zero to ten: Coal in the Stocking.
+xmas_104,rank,Eleven to twenty: Elf in Training.
+xmas_105,rank,Twenty-one to thirty: Reindeer.
+xmas_106,rank,Thirty-one to forty: Santa's Helper.
+xmas_107,rank,Forty-one or more: Santa's Favorite.
+xmas_108,outro,"Comment your score out of fifty, and screenshot your rank card."
+xmas_109,outro,Which question beat you? Tell me the number.
+xmas_110,outro,Subscribe so you do not miss the next quiz.
