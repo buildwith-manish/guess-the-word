@@ -13,10 +13,10 @@ Nothing has been rendered by any task yet. 2a: `npx tsc --noEmit` has 0 errors i
 - [x] 1c: timing (`src/nfl/timing.ts`, `scripts/nfl_runtime.ts`, placeholder `src/nfl/timings.generated.ts` for 5a to overwrite)
 - [x] 2b: WalletCard (`src/nfl/components/WalletCard.tsx`, stills-only preview `src/nfl/WalletCardPreview.tsx`)
 - [x] 2c: PointsPill + clue timer. `src/nfl/components/PointsPill.tsx` exports `PointsPill`, `PointsPillGlow` (mount full-frame above the card), `pointsPillMath`. Props: `frame, starts[], end, values?, level?, width?, height?`. Added `pillLastSec`, `pillPulseSec` to `timing.ts`. Not rendered: no composition shows it until 3a.
-- [ ] 2d: ClueStack
+- [x] 2d: ClueStack
 - [x] 2e: ScoreHud, chips (`src/nfl/components/ScoreHud.tsx`, `Chips.tsx`; notes below)
 - [x] 5a: audio pipeline (clips, timings, map). `scripts/clean_nfl_clips.sh`, `build_nfl_timings.py`, `build_nfl_audio_map.ts`; notes below
-- [ ] 2f: Two-Minute Warning
+- [x] 2f: Two-Minute Warning
 - [x] 2g: RevealEngine + lock (`src/nfl/components/RevealEngine.tsx`: `RevealEngine`, `revealBeats`, `revealCues`, `SourceLine`)
 - [x] 4a: `src/nfl/scenes/LevelCard.tsx` (Starter, HoF), `LevelBanner.tsx` (Rookie, y 4-84, clears the first clue at y 160), `ScoreCard.tsx` (after card 10 and 20). Each exports its sfx cues (`levelCardCues`, `levelBannerCues`, `scoreCardCues`) and a voice start (`levelCardVoice`, `levelBannerVoice`, `scoreCardVoice`: type, key, tick) for the 5a audio map. timing.ts: new beats (`levelBannerSec`, `levelCardBeats`, `scoreCardBeats`); the Hall of Fame score card is removed (only 2 score cards, `needed` clips updated). data.ts: `levelText`. NEW SEAM: `src/nfl/lines.generated.ts` (empty placeholder) + `lines.ts` `lineText(type, key)`: 5a must write the spoken script text there; until then the ScoreCard shows rings and numbers without its text line. Not rendered; mounted by nothing until 3a/4b.
 - [x] 3a: CardScene + Preview (`src/nfl/scenes/CardScene.tsx`, `src/nfl/Preview.tsx`; compositions `NFL-Card` (prop n) and `NFL-Card-All` in `src/Root.tsx`; notes below)
@@ -25,12 +25,12 @@ Nothing has been rendered by any task yet. 2a: `npx tsc --noEmit` has 0 errors i
 - [x] 3c: `src/nfl/scenes/FinalCard.tsx` (`FinalCard`, `finalCardTicks/Frames`, `finalCardCues`) and `WalletCollection.tsx` (`WalletCollection`, `WalletCollectionView`, `collectionMarks`, `walletCollectionCues`). FinalCard = `HookLock` (now takes an optional `card`, default card 1) over `CardScene` for card 30. The lock second is the start of card 30's own segment (`phases.lock`, `finalLockSec`), so card 30's segment is 1 s longer and every other card offset is unchanged; NFL-Card for n=30 therefore starts with 1 s of empty level background (use FinalCard for the real thing). New `collection` segment after card 30 (`collectionSec` 6 s, `collectionBeats`: assumptions, not in the brief) in Part 3 (`partOf`). Cards show only number + level colour. Fan = two arcs of 15. Open: the final lock repeats the hook's notification text (`hookText`). Not rendered; nothing mounts them until 4d.
 - [x] 4b: Part 1 (`src/nfl/parts/Part1.tsx`, `src/nfl/sfxCues.ts`, composition `NFL-P1`; notes below)
 - [x] 4e: Predictions (`src/nfl/scenes/Predictions.tsx`; notes below)
-- [ ] 4c: Part 2
+- [x] 4c: Part 2
 - [x] 4d: Part 3 (`src/nfl/parts/Part3.tsx`, `part3Cues` in `src/nfl/sfxCues.ts`, composition `NFL-P3`; notes below)
-- [ ] 4g: Outro + Part 4
-- [ ] 4h: full composition + chapters
+- [x] 4g: Outro + Part 4
+- [x] 4h: full composition + chapters
 - [ ] 5b: clue-fit report
-- [ ] 5c: voice chain + mix
+- [x] 5c: voice chain + mix
 - [ ] 6a: thumbnails + metadata
 - [ ] 6b: Shorts
 - [ ] 6c: render, README, QA
