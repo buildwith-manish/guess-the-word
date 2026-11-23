@@ -13,6 +13,7 @@ import { GLASS_TILE_PREVIEW_DEFAULTS, GLASS_TILE_PREVIEW_FRAMES, GlassTilePrevie
 import { Hook, hookFrames } from './xmas/scenes/Hook';
 import { MOVIE_PREVIEW_DEFAULTS, MOVIES_ALL_FRAMES, XmasMovie, XmasMoviesAll, movieDurationFor } from './xmas/Preview';
 import { BonusSceneById, bonusSceneFramesById } from './xmas/scenes/BonusScene';
+import { Outro as XmasOutro, outroFrames } from './xmas/scenes/Outro';
 import { RENDER_TOTAL_FRAMES as GTA6_TOTAL_FRAMES } from './gta6/timing';
 import { LightStringPreview, LIGHT_PREVIEW } from './xmas/components/LightStringPreview';
 import { ALL_FRAMES, Gta6Preview, Gta6PreviewAll, PREVIEW_DEFAULTS, previewFrames } from './gta6/Preview';
@@ -71,6 +72,14 @@ export const RemotionRoot: React.FC = () => {
         calculateMetadata={({ props }) => ({ durationInFrames: movieDurationFor(props.slot) })}
       />
       <Composition id="XMAS-Movies-All" component={XmasMoviesAll} durationInFrames={MOVIES_ALL_FRAMES} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
+      <Composition
+        id="XMAS-Outro"
+        component={XmasOutro}
+        durationInFrames={outroFrames}
+        fps={RENDER_FPS}
+        width={WIDTH}
+        height={HEIGHT}
+      />
       <Composition
         id="XMAS-Bonus"
         component={BonusSceneById}

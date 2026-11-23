@@ -28,6 +28,19 @@ export const rankCardMinSec = 4;
 export const outroSec = 25;
 /** The end screen is the last part of the outro. */
 export const endScreenSec = 15;
+/** Outro asks: the first appears this long after the outro starts; the asks stop this long before the end screen. */
+export const outroAskLeadSec = 0.4;
+export const outroAskTailSec = 0.6;
+/** The voice of an ask starts this long after its text appears (the pop sound lands first). */
+export const outroVoiceLagSec = 0.2;
+/** The asks fade out over this long when the end screen starts. */
+export const outroAskExitSec = 0.4;
+/** End screen: seconds after it starts that each element comes in. */
+export const endScreenInSec = { slot: 0.3, subscribe: 1.0, rankCard: 1.7 } as const;
+/** The subscribe button presses once, this long after the end screen starts. */
+export const subscribePressSec = 3.0;
+/** Last seconds of the video: the final fade to black. */
+export const outroFadeSec = 1;
 /** Padding added to a measured clip: intro slot = max(base, clip + flexPadIntro), reveal slot = max(base, clip + flexPadReveal). */
 export const flexPadIntro = 0.2;
 export const flexPadReveal = 0.3;

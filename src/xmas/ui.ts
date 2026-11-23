@@ -14,7 +14,16 @@ export const UI = {
   /** scoring notes for the bonus rounds */
   allThree: 'ALL 3 TO SCORE',
   threeOfFour: '3 OF 4 TO SCORE',
+  /** end screen: label in the next-video slot, the subscribe button, the label on the rank card miniature */
+  nextVideo: 'NEXT VIDEO',
+  subscribe: 'SUBSCRIBE',
+  rankCard: 'YOUR RANK',
+  /** optional outro ask (see showPartTwoAsk); it has no voice clip yet */
+  partTwoAsk: 'Want forty more? Comment part two.',
 } as const;
+
+/** One switch: show the optional "Want forty more? Comment part two." ask in the outro, just before the subscribe ask. Off by default. */
+export const showPartTwoAsk = false;
 
 /** The counter under the timer: "7 OF 50". `n` is the 1-based slot number. */
 export const counterText = (n: number, total: number = TOTAL_SLOTS): string => `${n} OF ${total}`;
