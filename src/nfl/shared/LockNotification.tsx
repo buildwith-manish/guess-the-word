@@ -15,6 +15,7 @@
  */
 import React from 'react';
 import type { Level } from '../data';
+import { BloomLayer } from './BloomLayer';
 import { SAFE, blurPx, colors, levelBackground, radius, springAt, textStyle, px } from '../system';
 import { clamp01 } from './fade';
 
@@ -103,6 +104,7 @@ export const LockNotification: React.FC<LockNotificationProps> = ({
           <div style={{ ...textStyle('body'), fontSize: px(32), fontWeight: 700, color: colors.ink, marginTop: px(4) }}>{title}</div>
           <div style={{ ...textStyle('body'), color: colors.muted, marginTop: px(3) }}>{body}</div>
         </div>
+        <BloomLayer radius={radius.xl} />
       </div>
     </div>
   );

@@ -138,13 +138,11 @@ Fill `picks.json`, set `meta.sourceName`, then render `NFL-Full` where Chromium 
 - Not changed, not read, not mounted by any NFL scene: `shared/TimerRing.tsx` (urgent pulse) and `LowPowerRing` (2 turns/s spin). Check them before a scene mounts them.
 - Not rendered. Luminance figures are computed for the glow colour over black, not measured on a rendered frame.
 
-## B2 notes (finish layer)
+## B2 notes (finish layer: dropped, bloom only)
 
-- `components/FinishLayer.tsx` (`FinishLayer`, `nameRevealFrames`, `finishOffFrame`, `finishStrengthAt`, `inSplit`). Strength is `finishStrength` in `system.ts` (0.5; 0 renders nothing). `NflFull` takes an optional `finish` prop for A/B stills: `--props='{"finish":0}'`.
-- Mounted in `Full.tsx` after the parts and before `WatermarkOverlay` (so the watermark is never touched). It must stay outside any Sequence or element with opacity, filter or blend mode: bloom and split use `backdrop-filter`.
-- Layers at strength 1: bloom (screen, 60%), grain (overlay, 2%, new seed each design tick), vignette (50% at corners, centre 58% clear), 2 unit red/blue split for one design tick (2 render frames) at the `name-reveal` tick of each of the 30 cards. At the default 0.5 everything is half, the split is the same 2 units.
-- Off for the end screen: strength ramps to 0 over 36 render frames (`SPRINGS.slow`) and is 0 from the outro's `endScreenFrom` (render frame 59752 in the measured timeline) to the end.
-- Not rendered (Chromium cannot download here). Unverified: that Chromium's `backdrop-filter` with `mix-blend-mode: screen` gives the bloom, and that `backdrop-filter: url(#svg)` gives the split.
+- Decision: no frame-wide finish layer. `components/FinishLayer.tsx`, its mount in `Full.tsx` and the `finish` prop are removed. No grain, vignette or chromatic split anywhere.
+- Kept: an optional, very faint bloom inside three surfaces only, `shared/BloomLayer.tsx`: the lock-screen banner (`LockNotification`), `NotificationBanner` and `PointsPill`. It draws only if `finishBloom` is true and `finishStrength` is above 0 (both in `system.ts`; defaults false and 0, so it is off). Opacity is 0.3 x strength; the glow stays inside each surface's rounded rectangle.
+- Not rendered, not compared. Unverified: Chromium's `backdrop-filter` + `mix-blend-mode: screen` inside those surfaces.
 
 ## B4 notes (captions)
 

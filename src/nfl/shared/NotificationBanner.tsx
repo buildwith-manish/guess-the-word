@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Level } from '../data';
 import { FRAME, SAFE, colors, radius, springOver, textStyle, px } from '../system';
+import { BloomLayer } from './BloomLayer';
 import { FrostCard } from './FrostCard';
 
 export type NotificationBannerProps = {
@@ -29,6 +30,7 @@ export const NotificationBanner: React.FC<NotificationBannerProps> = ({
       <FrostCard width={width} height={height} padding={0} radius={radius.lg} style={{ display: 'flex', alignItems: 'center', gap: px(16), paddingLeft: px(20) }}>
         <div style={{ width: px(48), height: px(48), borderRadius: px(radius.md), background: accent, flex: 'none' }} />
         <div style={{ ...textStyle('body'), fontWeight: 600, color: colors.ink, filter: `blur(${px(blur)}px)` }}>{title}</div>
+        <BloomLayer radius={radius.lg} />
       </FrostCard>
     </div>
   );

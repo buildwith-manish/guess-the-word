@@ -103,8 +103,10 @@ export const levelBackground: Record<Level, string> = {
 };
 
 /**
- * Finish layer strength (components/FinishLayer.tsx): 0 turns it off (nothing is rendered), 1 is full. Clamped to 0..1.
- * At 1: grain layer at 2% opacity, vignette 50% at the corners, bloom layer at 60%. The 2 unit chromatic split on the
- * name-reveal frame is fixed and is on for any strength above 0. Default is low.
+ * Finish (B2, reduced): there is no frame-wide finish layer any more (no grain, vignette or chromatic split).
+ * Only an optional, very faint bloom inside the lock-screen banner, the banner and the points pill (shared/BloomLayer.tsx).
+ * `finishBloom` is its own switch (default false = off). `finishStrength` (0..1, default 0 = off) scales the bloom; it draws only
+ * when the switch is on and the strength is above 0.
  */
-export const finishStrength = 0.5;
+export const finishStrength = 0;
+export const finishBloom = false;

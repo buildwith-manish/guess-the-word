@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Level } from '../data';
 import { FPS } from '../shared/clock';
+import { BloomLayer } from '../shared/BloomLayer';
 import { EdgeGlow } from '../shared/EdgeGlow';
 import { colors, px, SPRINGS, springAt, textStyle } from '../system';
 import { pillLastSec, pillPulseSec } from '../timing';
@@ -142,6 +143,7 @@ export const PointsPill: React.FC<PointsPillProps> = ({ frame, starts, end, valu
       >
         <div style={{ width: `${m.fill * 100}%`, height: '100%', borderRadius: px(2), background: accent }} />
       </div>
+      <BloomLayer radius={height / 2} />
     </div>
   );
 };
