@@ -335,3 +335,11 @@ Started, then stopped at the owner's request in favour of 4c. Nothing written. N
 - Hook voice starts and the hook's audio cues are not measured against clips (no clips). `hookCues` mounted here; the hook's bubble has sfx off, its lock click is in `hookCues`.
 - Not in `part1Cues`: InkBubble's first lock click on rounds, result chip sound, BONUS pill sound (ticks not exported).
 - Read beyond the named files (minimal): timing.ts segments, sfxCues.ts, Root.tsx registration lines, sfx.ts and Part6.tsx/RankCard.tsx (grep and short views for the mount pattern), RoundScene props.
+
+## Task 4n: DONE locally (tsc --noEmit clean; NOT rendered; NOT pushed: no token supplied this session)
+
+- `Part6.tsx` and `DontSay-P6` already existed (4h, 4g); merged, not duplicated (Root.tsx still has one registration). `part6Cues` already existed in sfxCues.ts and is unchanged.
+- Change: Outro mounts no audio, so Part6 now mounts `outroCues` at the outro start (they were only listed in `part6Cues`, never played). Offsets now use `frameRange`; unexpected segment kinds throw. Hard cuts, no fades.
+- Order follows timing.ts: rank card (6 s), scoreboard (20 s), outro (30 s). The 4n brief says "Scoreboard, RankCard hold, Outro"; not changed because that needs a timing.ts change.
+- Frames (60 fps, part-local): rank card 0-359; scoreboard 360-1559; outro 1560-3359 (56 s total, 3360 frames).
+- Check by eye: 359 -> 360 (rank card to scoreboard cut), 1559 -> 1560 (scoreboard to outro cut), outro end screen 2460, final fade 2760-3359.
