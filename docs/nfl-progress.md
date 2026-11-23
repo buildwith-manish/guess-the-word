@@ -14,7 +14,7 @@ Nothing has been rendered by any task yet. 2a: `npx tsc --noEmit` has 0 errors i
 - [x] 2b: WalletCard (`src/nfl/components/WalletCard.tsx`, stills-only preview `src/nfl/WalletCardPreview.tsx`)
 - [ ] 2c: PointsPill + clue timer
 - [ ] 2d: ClueStack
-- [ ] 2e: ScoreHud, chips
+- [x] 2e: ScoreHud, chips (`src/nfl/components/ScoreHud.tsx`, `Chips.tsx`; notes below)
 - [ ] 5a: audio pipeline (clips, timings, map)
 - [ ] 2f: Two-Minute Warning
 - [ ] 2g: RevealEngine + lock
@@ -54,3 +54,12 @@ Nothing has been rendered by any task yet. 2a: `npx tsc --noEmit` has 0 errors i
 ## Next step
 
 Run 1b (data + validation) and 2a (system + shared parts) next; both need only 1a.
+
+## 2e notes (ScoreHud, Chips)
+
+- `ScoreHud` props `{ done, frame, from?, at?, side?, inset?, scale? }`: rings fill with cards completed, split by cards per level from data.ts; label from `hudLabel()`. It cannot know the viewer's score (said in the file header).
+- `Chips.tsx`: `StreakChip` ("CARD N OF 30 DONE", `isStreakCard`, `STREAK_EVERY` 5, never the final card), `DidYouKnowChip` (follows `card.didYouKnow`), `SourceLine` (throws if `sourceName` is null; `assertSourceName()` is exported for QA), `RuleChips` (lines built from `cards[0].points` and `maxPoints`).
+- Every `at` / `dur` / `outTicks` / `stagger` / `inTicks` is a required prop: the scene must pass them from `timing.ts`. Nothing in these files is a duration.
+- Task said DidYouKnowChip "every third card"; data.ts has didYouKnow on 3, 6, 9, 12, 15, 18, 22, 24, 27, 30 (no 21). The chip follows the data.
+- `SourceLine` will fail any render that mounts it until `docs/nfl/cards.json` `meta.sourceName` is set.
+- Nothing rendered. `npx tsc --noEmit`: 0 errors in `src/nfl/`; only the 3 known pre-existing errors remain.
