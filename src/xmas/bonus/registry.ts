@@ -3,9 +3,12 @@ import type { BonusSlot } from '../data';
 import { UI } from '../ui';
 import { Autocomplete } from './Autocomplete';
 import { CleanUp } from './CleanUp';
+import { ControlCenter } from './ControlCenter';
+import { CountLights } from './CountLights';
 import { DoubleFeature } from './DoubleFeature';
 import { Finale } from './Finale';
 import { Focus } from './Focus';
+import { OddOneOut } from './OddOneOut';
 import { PlaceholderRound } from './PlaceholderRound';
 import { SpeedRound } from './SpeedRound';
 import { Spotlight } from './Spotlight';
@@ -37,12 +40,12 @@ export const PLAY_AREA = { x: 218, y: 138, w: 844, h: 400 } as const;
 export const rounds: Readonly<Record<number, RoundComponent>> = {
   1: Spotlight, // 4a Spotlight
   2: Focus, // 4b Focus
-  3: PlaceholderRound, // 4c Odd One Out
+  3: OddOneOut, // 4c Odd One Out
   4: DoubleFeature, // 4d Double Feature
   5: Autocomplete, // 4a Autocomplete
   6: CleanUp, // 4b Clean Up
-  7: PlaceholderRound, // 4c Count the Lights
-  8: PlaceholderRound, // 4c Control Center
+  7: CountLights, // 4c Count the Lights
+  8: ControlCenter, // 4c Control Center
   9: SpeedRound, // 4d Speed Round
   10: Finale, // 4d Finale
 };
