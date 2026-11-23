@@ -46,6 +46,8 @@ export const scoreboardSec = 20;
 export const outroSec = 30;
 /** The end screen is the last part of the outro. */
 export const endScreenSec = 15;
+/** Final fade to black at the very end of the outro. */
+export const outroFadeSec = 1;
 /** Slot padding after a voice clip, in seconds. */
 export const clipPadSec = 0.3;
 /** Target runtime ~10:44. The tolerance is a working assumption, not from the brief. */

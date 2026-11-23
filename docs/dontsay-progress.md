@@ -214,3 +214,19 @@ Started, then stopped at the owner's request in favour of 4c. Nothing written. N
 - "Listen" label is UI copy owned by the scene. Voice level is a deterministic fake envelope, not read from audio.
 - `onScreenNote` for bonus 5 in data.ts is a production note ("Faint caption fades in ~1s..."). The scene passes the bonus to BonusWrapper with `onScreenNote` removed so it is never drawn; the data itself is unchanged.
 - Waveform/glow geometry unchecked by eye.
+## Task 4h: DONE (Outro + Part6 compile; NOT rendered, remotion still blocked: remotion.media unreachable)
+
+- `src/dontsay/scenes/Outro.tsx`: `Outro`, `OUTRO_ASKS`, `OUTRO_COPY`, `outroTicks`, `outroFrames`, `outroVoice`, `outroCues`. Asks in order, one at a time, 5 s slots; ask 3 stays and glides to the top at the end screen. End screen (last `endScreenSec`): next-video slot, drawn Subscribe button, rank card miniature (bottom-left, names and ranges from data.ts), final fade over `outroFadeSec`.
+- `src/dontsay/parts/Part6.tsx`: `Part6` (segments of part 6 from timing.ts), `part6Frames`. Registered `DontSay-P6` in Root.tsx (additive).
+- `src/dontsay/sfxCues.ts` (new): `part6Cues()`. Parts 1-5 lists to be added by 4i-4m in the same file.
+- `src/dontsay/timing.ts`: added `outroFadeSec = 1` (additive).
+- Frames at 60 fps, absolute in P6 (outro starts at 1560 = 26 s): ask 1 in ~1568; ask 2 in ~1868; ask 3 in ~2168; end screen 2460 (41 s); glide 2460-2488; subscribe 2472; slot 2480; miniature 2488; final fade 2760-2820 (last frame 2819).
+
+### Open points
+- **4g is not built.** `RankCard.tsx` and `Scoreboard.tsx` do not exist, so `Part6` takes `rankCard` / `scoreboard` as props and shows only the wallpaper for those 26 s. When 4g lands, import them and use them as the defaults. `part6Cues` has no scoreboard rank cues yet.
+- Part order follows timing.ts (rank card, scoreboard, outro). The 4h brief says "Scoreboard, RankCard hold, Outro"; 4g's voice ("That was all fifty. Add up your points.") also fits rank card first.
+- gta6 notes say that video's end screen draws NO slots (placeholders removed, the user places YouTube elements in Studio). The 4h brief asks for a slot and a button, so they are drawn here. Remove them if the same applies.
+- Copy owned here beyond the three asks: "Subscribe", "Next game". Rank miniature text is 10 ref units: thumbnail only, not phone-readable by design.
+- Outro uses its own `px()` and own glass (system.ts `u()` is on a 1920 reference).
+- Ask slots are fixed (5 s each); voice clips `outro_1..3` are guesses and not measured.
+- Repo-wide `tsc --noEmit` has one error outside DontSay: `src/timing.ts` cannot find `./rounds.json` (present before my change).
