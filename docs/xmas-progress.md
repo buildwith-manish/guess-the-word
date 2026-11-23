@@ -34,3 +34,5 @@ Note: docs/xmas-prompts-split.md has 26 task headings (1a-1e, 2a-2f, 3a-3b, 4a-4
 ## Notes for next task
 - Missing from the branch: `docs/xmas/reference/lg_q3.png`.
 - Inter font loader and woff2 files must be copied from nfl-quiz (src/ios/fonts.ts, public/fonts/ios/) before any text renders in Inter.
+
+- [x] 1c  timing.ts (+ timings.generated.ts stub) and scripts/xmas_runtime.ts; `npx tsx scripts/xmas_runtime.ts` prints the report
