@@ -10,6 +10,7 @@ import { Part4, part4Frames } from './gta6/parts/Part4';
 import { Gta6Full } from './gta6/Full';
 import { MOVIE_REVEAL_PREVIEW_DEFAULTS, MOVIE_REVEAL_PREVIEW_FRAMES, MovieRevealPreview } from './xmas/previews/MovieRevealPreview';
 import { GLASS_TILE_PREVIEW_DEFAULTS, GLASS_TILE_PREVIEW_FRAMES, GlassTilePreview } from './xmas/previews/GlassTilePreview';
+import { BonusSceneById, bonusSceneFramesById } from './xmas/scenes/BonusScene';
 import { RENDER_TOTAL_FRAMES as GTA6_TOTAL_FRAMES } from './gta6/timing';
 import { LightStringPreview, LIGHT_PREVIEW } from './xmas/components/LightStringPreview';
 import { ALL_FRAMES, Gta6Preview, Gta6PreviewAll, PREVIEW_DEFAULTS, previewFrames } from './gta6/Preview';
@@ -56,6 +57,16 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="Xmas-MovieReveal" component={MovieRevealPreview} durationInFrames={MOVIE_REVEAL_PREVIEW_FRAMES} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} defaultProps={MOVIE_REVEAL_PREVIEW_DEFAULTS} />
       <Composition id="GTA6-Full" component={Gta6Full} durationInFrames={GTA6_TOTAL_FRAMES} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
       <Composition id="Xmas-LightString" component={LightStringPreview} durationInFrames={LIGHT_PREVIEW.frames} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
+      <Composition
+        id="XMAS-Bonus"
+        component={BonusSceneById}
+        durationInFrames={bonusSceneFramesById(1)}
+        fps={RENDER_FPS}
+        width={WIDTH}
+        height={HEIGHT}
+        defaultProps={{ bonus: 1 }}
+        calculateMetadata={({ props }) => ({ durationInFrames: bonusSceneFramesById(props.bonus) })}
+      />
     </>
   );
 };

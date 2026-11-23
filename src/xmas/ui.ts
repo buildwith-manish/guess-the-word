@@ -36,3 +36,6 @@ export const FILL_IN = {
   bonusPrompt: 'FILL IN: BONUS TEXT',
   slot: 'FILL IN: SLOT',
 } as const;
+
+/** The visible placeholder of a bonus round whose real play area is not built yet (see bonus/registry.ts). */
+export const todoBonus = (n: number): string => `TODO bonus ${n}`;
