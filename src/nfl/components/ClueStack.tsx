@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Card } from '../data';
-import { colors, px, radius, springAt, textStyle } from '../system';
+import { colors, px, radius, springAt, springOver, textStyle } from '../system';
 import { DEFAULT_BOX, ROW, clueFit } from './clueFit';
 import type { Box } from './clueFit';
 
@@ -12,6 +12,8 @@ export type ClueStackProps = {
   starts: readonly number[];
   /** Area the stack is centred in, 1280x720 reference units. Default: the safe box below the HUD. */
   box?: Box;
+  /** Flip length in ticks. Default: the `gentle` spring preset. Two-Minute Warning cards pass `tmwFlipTicks(card)`. */
+  flipTicks?: number;
 };
 
 const DIM = 0.4; // earlier rows lose this much opacity
@@ -22,21 +24,22 @@ const DIM = 0.4; // earlier rows lose this much opacity
  * Row text is card.clues only; points are card.points. One text size for all rows (see clueFit.ts), so slots
  * never reflow when a row appears.
  */
-export const ClueStack: React.FC<ClueStackProps> = ({ card, frame, starts, box = DEFAULT_BOX }) => {
+export const ClueStack: React.FC<ClueStackProps> = ({ card, frame, starts, box = DEFAULT_BOX, flipTicks }) => {
   const fit = clueFit(card, box);
   const n = card.clues.length;
   const stackH = n * fit.slotH + (n - 1) * ROW.gap;
   const y0 = box.top + (box.height - stackH) / 2;
   const accent = colors.level[card.level];
+  const flip = (at: number) => (flipTicks === undefined ? springAt(frame, at, 'gentle') : springOver(frame, at, flipTicks));
 
   return (
     <div style={{ position: 'absolute', inset: 0, perspective: px(1400), pointerEvents: 'none' }}>
       {card.clues.map((_, k) => {
         const at = starts[k];
         if (at === undefined || frame < at) return null;
-        const p = springAt(frame, at, 'gentle');
+        const p = flip(at);
         const next = starts[k + 1];
-        const dim = next === undefined ? 0 : springAt(frame, next, 'gentle');
+        const dim = next === undefined ? 0 : flip(next);
         const opacity = Math.min(1, p * 2) * (1 - DIM * dim);
         return (
           <div
