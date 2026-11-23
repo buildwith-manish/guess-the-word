@@ -5,6 +5,9 @@
  */
 import { partRanges, segments } from './timing';
 import { outroCues } from './scenes/Outro';
+import { levelCardCues } from './scenes/LevelCard';
+import { revealCues } from './components/RevealEngine';
+import { bonusOppositeDayCues } from './scenes/BonusOppositeDay';
 import { rankCardCues } from './scenes/RankCard';
 import { scoreboardCues } from './scenes/Scoreboard';
 import type { SfxId } from './sfx';
@@ -27,3 +30,25 @@ export const part6Cues = (): PartCue[] => [
   ...scoreboardCues().map((c) => ({ ...c, name: `scoreboard-${c.name}`, tick: c.tick + seg('scoreboard').from - part6.from })),
   ...outroCues.map((c) => ({ ...c, name: `outro-${c.name}`, tick: c.tick + seg('outro').from - part6.from })),
 ];
+
+const part4 = partRanges[3];
+
+/**
+ * Part 4 cues (task 4l), ticks local to the part. Level card swell + rules-sheet slide (LevelCard `sheet`),
+ * every round's reveal cues (shake, click, dissolve, chime) shifted to the round's start, and Bonus 4.
+ */
+export const part4Cues = (): PartCue[] => {
+  const out: PartCue[] = [];
+  for (const s of segments) {
+    if (s.part !== 4) continue;
+    const base = s.from - part4.from;
+    if (s.kind === 'levelCard') {
+      out.push(...levelCardCues(s.level, true).map((c) => ({ ...c, name: `level-${s.level}-${c.name}`, tick: c.tick + base })));
+    } else if (s.kind === 'round') {
+      out.push(...revealCues(s.round, s.phases.beat.from - s.from).map((c) => ({ name: `r${s.round.n}-${c.name}`, id: c.id, tick: c.tick + base, volume: c.volume })));
+    } else if (s.kind === 'bonus') {
+      out.push(...bonusOppositeDayCues().map((c) => ({ name: `b${s.bonus.n}-${c.id}`, id: c.id, tick: c.at + base, volume: c.volume })));
+    }
+  }
+  return out;
+};

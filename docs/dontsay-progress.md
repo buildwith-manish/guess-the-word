@@ -262,3 +262,14 @@ Started, then stopped at the owner's request in favour of 4c. Nothing written. N
 - Scoreboard's ladder is ordered highest-at-top on screen (a "climbing" visual); `ranks` itself stays lowest-first everywhere else (RankCard's rows read top-to-bottom lowest-first, matching `ranks`' own order, since that screen is a reference card, not a climb).
 - `rank-reveal` is now used twice total in the full video (RankCard's own cue, Scoreboard's top-band cue) plus the same id already in `part6Cues`'s old single entry (replaced); not a problem for Remotion rendering (each scene schedules its own `<Audio>`) but worth knowing if a mix engineer only expects one `rank-reveal` hit.
 - Did not touch `src/dontsay/shared/`, `src/gta6/`, `src/nfl/`, or any round/bonus scene. `git pull --rebase` was clean (no conflicts) before this push.
+
+## Task 4l: DONE (tsc --noEmit clean; NOT rendered, remotion still blocked: ENOTFOUND remotion.media)
+- `src/dontsay/parts/Part4.tsx`: `Part4` (prop `sheet`, default true), `part4Frames` (6600 frames = 110 s). Segments come from timing.ts part 4: LevelCard L4, rounds 28-36 via `RoundScene`, `BonusOppositeDay`. Wallpaper = level 4 gradient. Composition `DontSay-P4` in Root.tsx (additive).
+- `src/dontsay/sfxCues.ts`: `part4Cues()`: level swell + sheet slide, per-round `revealCues` (shake/click/dissolve/chime), Bonus 4 cues. Ticks local to the part.
+- Frames to check at 60 fps (part-local, computed from timing.ts ticks x 2): L4 card 0, 108 (sheet slides in at tick 54), 230; round 28 starts 240 (timer 312, beat 582, reveal 612, result 732); round 29 starts 840; round 36 starts 5040; bonus 4 starts 5640 (invert 5790-5830, bubble slides 6240, dissolve 6300-6390, reveal 6390); last frame 6599.
+### Open points
+- `Part3.tsx` does not exist on this branch; Part6.tsx was used as the pattern.
+- timing.ts has no separate settingsCard segment for L4, so the rules sheet is the LevelCard `sheet` overlay inside the 4 s level card (sheet visible about 2.2 s, not the full 4 s). L4 rounds all have ruleType none, so the sheet shows "None".
+- Result chip outcome uses `defaultOutcome` (High collision = red, else green): editorial choice, not data.
+- Round cue ids/volumes reuse RevealEngine stand-ins (lock-click for the shake, callback-chime-1).
+- Frame numbers are arithmetic on timing.ts ticks (levelCard 120 ticks, 9 rounds x 300, bonus 480); not sampled from a render.
