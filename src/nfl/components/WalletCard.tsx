@@ -1,7 +1,6 @@
 import React from 'react';
 import { cards, cardUiText, pointsLabel, type Card } from '../data';
 import { LAYOUT } from './clueLayout';
-import { ScoreRings } from './ScoreHud';
 import { FPS } from '../shared/clock';
 import { Shake } from '../shared/Shake';
 import { SPRINGS, colors, fontStack, popAt, px, radius, safeBox, springAt, tabular, textStyle } from '../system';
@@ -35,8 +34,6 @@ export type WalletCardProps = {
   showName?: boolean;
   /** Footer: points on offer now (from the card) and the fill (0..1) of the thin timer line. Omit for no "Guess now" text. */
   guess?: { points: number; fill: number };
-  /** Progress rings in the header bar: cards completed (`done`), tweened from `from` at tick `at`. Not the viewer's score. */
-  progress?: { done: number; from?: number; at?: number };
   /** Clue content, drawn in the field area (see WALLET_LAYOUT.field). */
   children?: React.ReactNode;
 };
@@ -102,7 +99,7 @@ const cornerBox = (corner: StackCorner): { left: number; top: number } => {
   return { left, top };
 };
 
-export const WalletCard: React.FC<WalletCardProps> = ({ card, state, frame, since, jersey, stackIndex = 0, corner = 'bottom-left', showName = true, guess, progress, children }) => {
+export const WalletCard: React.FC<WalletCardProps> = ({ card, state, frame, since, jersey, stackIndex = 0, corner = 'bottom-left', showName = true, guess, children }) => {
   const level = colors.level[card.level];
   const total = cards.length;
 
@@ -175,22 +172,20 @@ export const WalletCard: React.FC<WalletCardProps> = ({ card, state, frame, sinc
           boxShadow: `0 ${px(2)}px ${px(6)}px rgba(0,0,0,0.30), 0 ${px(24)}px ${px(60)}px ${colors.shadow}, inset 0 1px 0 rgba(255,255,255,0.22)`,
         }}
       >
-        {/* one header bar: progress rings | level | "Card n of 30" */}
+        {/* soft header: thin level bar, small level pill, "Card n of 30" */}
         <div style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: px(4), background: level }} />
-        <div style={{ position: 'absolute', left: 0, top: px(4), width: '100%', height: px(HEADER_H - 4), display: 'flex', alignItems: 'center', padding: `0 ${px(PAD)}px`, boxSizing: 'border-box' }}>
-          <div
-            style={{
-              flex: 1, height: px(44), display: 'flex', alignItems: 'center', gap: px(14), padding: `0 ${px(16)}px 0 ${px(8)}px`, boxSizing: 'border-box',
-              borderRadius: px(22), background: 'rgba(255,255,255,0.08)', border: `${px(1)}px solid ${colors.hairline}`,
-            }}
-          >
-            {progress && <ScoreRings done={progress.done} from={progress.from} at={progress.at} frame={frame} size={32} />}
-            <span style={{ ...textStyle('label'), fontSize: px(28), color: colors.ink, textTransform: 'uppercase' }}>{levelNames[card.level]}</span>
-            <span style={{ flex: 1 }} />
-            <span style={{ ...textStyle('label'), fontSize: px(28), color: colors.muted, textTransform: 'uppercase' }}>
-              {cardUiText.card} {card.n} {cardUiText.of} {total}
-            </span>
-          </div>
+        <div
+          style={{
+            position: 'absolute', left: 0, top: px(4), width: '100%', height: px(HEADER_H - 4), display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: `0 ${px(PAD)}px`, boxSizing: 'border-box',
+          }}
+        >
+          <span style={{ ...textStyle('chip'), height: px(32), padding: `0 ${px(14)}px`, display: 'flex', alignItems: 'center', borderRadius: px(16), background: 'rgba(255,255,255,0.10)', border: `${px(1)}px solid ${colors.hairline}`, color: colors.ink, textTransform: 'uppercase' }}>
+            {levelNames[card.level]}
+          </span>
+          <span style={{ ...textStyle('chip'), color: colors.muted, textTransform: 'uppercase' }}>
+            {cardUiText.card} {card.n} {cardUiText.of} {total}
+          </span>
         </div>
 
         {/* field area: clue content from the caller */}

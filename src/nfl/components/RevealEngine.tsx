@@ -122,7 +122,7 @@ export const RevealEngine: React.FC<RevealEngineProps> = ({ card, frame, frozen,
 
   return (
     <div style={{ position: 'absolute', inset: 0 }}>
-      <WalletCard card={card} state={state} frame={frame} since={since} jersey={jersey} stackIndex={stackIndex} corner={corner} showName={false} progress={{ done: card.n, from: card.n - 1, at: since }}>
+      <WalletCard card={card} state={state} frame={frame} since={since} jersey={jersey} stackIndex={stackIndex} corner={corner} showName={false}>
         <div style={{ position: 'absolute', inset: 0 }}>
           {frozen !== undefined && <div style={{ position: 'absolute', inset: 0, opacity: 1 - nameShown }}>{frozen}</div>}
           <div

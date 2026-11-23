@@ -18,6 +18,7 @@ import React from 'react';
 import { AbsoluteFill } from 'remotion';
 import { cards, hookText, type Card } from '../data';
 import { RuleChips } from '../components/Chips';
+import { ScoreHud } from '../components/ScoreHud';
 import { WalletCard } from '../components/WalletCard';
 import { cue, type SfxCue } from '../sfx';
 import { LOCK_BEATS, LOCK_NOTIFICATION_TICKS, LockNotification } from '../shared/LockNotification';
@@ -59,7 +60,7 @@ export const hookVoice = (at: number) => ({ type: 'hook' as const, key: '', tick
 const first = cards[0];
 
 /** The first card as the lock screen's wallpaper: blank, already settled, drawn the same way everywhere it appears. */
-const BlankCard: React.FC<{ frame: number; card?: Card }> = ({ frame, card = first }) => <WalletCard card={card} state="blank" frame={frame} since={ENTERED} progress={{ done: 0 }} />;
+const BlankCard: React.FC<{ frame: number; card?: Card }> = ({ frame, card = first }) => <WalletCard card={card} state="blank" frame={frame} since={ENTERED} />;
 
 /**
  * The reusable 1-second lock-screen piece (HOOK_LOCK_TICKS): blurred backdrop in, notification banner slides down, holds,
@@ -105,6 +106,11 @@ export const Hook: React.FC<{ at?: number }> = ({ at = 0 }) => {
           <BlankCard frame={f} />
         </div>
       )}
+
+      {/* "30 cards, 150 points" */}
+      <div style={{ position: 'absolute', inset: 0, opacity: clamp01(hudP), transform: `translateY(${px(-16 * (1 - hudP))}px)` }}>
+        <ScoreHud done={0} frame={f} top={BAND_TOP} compact />
+      </div>
 
       {/* rules, on the "?" panel; never spoken. dur runs past the hook's end: card 1's segment carries them on. */}
       <RuleChips box={ANSWER_BOX} frame={f} at={m.chips} dur={3 * (m.end - m.chips)} outTicks={Math.round(SPRINGS.snappy * FPS)} stagger={secToTicks(chipStaggerSec)} />

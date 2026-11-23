@@ -201,8 +201,3 @@ Fill `picks.json`, set `meta.sourceName`, then render `NFL-Full` where Chromium 
 - Top row: watermark, PointsPill and ring chip are all 48 high at y 12 to 60 (`TOP_ROW`, `WATERMARK`). ScoreHud compact is rings only (the "30 cards, 150 points" label is gone there; it stays in the hook chips and the non-compact HUD). The top row sits above the 80% safe line, as before.
 - BROKEN, not fixed (out of scope): `scripts/nfl_contrast.ts` imports `CHIP, COMPACT, layoutOf` etc. from the old ClueStack and will not run until it is rewritten for hero + history. Clue colours changed less than the layout: text is ink on dark glass, history ink at full opacity.
 - NOT verified: nothing rendered (Chromium cannot download here: remotion.media unreachable), so no stills of cards 2, 14, 28, 29. Unverified by eye: the jersey path shape, PointsPill at 48 high (internals untouched), the ring chip at 32, footer fit, the hero emerge, contrast of the tag colours. TwoMinuteWarning not re-checked against the new box. `npx tsc --noEmit` passes.
-
-## iOS-6b notes (one header bar)
-
-- The level, "CARD n OF 30" and the progress rings are now ONE bar in the card header (`WalletCard` `progress` prop, new `ScoreRings` in `ScoreHud.tsx`; text 28 units, bar 44 high). The separate ring chip at the top right is gone from CardScene and the Hook (the Hook's "30 cards, 150 points" pop-in was removed with it; the rules are still on the card-1 chips). Reveal card passes `progress` so the rings still step from n-1 to n when the lock opens.
-- Top row is now watermark (left) and points pill (centre) only. Not rendered, not looked at. tsc passes.

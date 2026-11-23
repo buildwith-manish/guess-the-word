@@ -6,7 +6,7 @@
  * `at` is the tick, on the clock of the enclosing <Sequence>, where this card's first tick sits. The scene's own clock is
  * `useNflFrame() - at`, so 0 = segment start. Normal use mounts it in a Sequence that starts at the segment, with at = 0.
  *
- * Layers, back to front: level background, card + clues (WalletCard with ClueStack, wrapped in
+ * Layers, back to front: level background, ScoreHud (top band), card + clues (WalletCard with ClueStack, wrapped in
  * TwoMinuteWarning on cards 5, 15, 25), PointsPill + red edge glow, RuleChips (first card only).
  * From the silence beat after clue 5 the card is handed to RevealEngine, with the clue stack frozen at clue 5 as `frozen`.
  *
@@ -23,6 +23,7 @@ import { pointsPillMath } from '../components/PointsPill';
 import { PointsPill, PointsPillGlow } from '../components/PointsPill';
 import { RevealEngine } from '../components/RevealEngine';
 import { RuleChips } from '../components/Chips';
+import { ScoreHud } from '../components/ScoreHud';
 import { TwoMinuteWarning, tmwFlipTicks } from '../components/TwoMinuteWarning';
 import { WALLET_LAYOUT, WalletCard } from '../components/WalletCard';
 import { SPRINGS, levelBackground, px } from '../system';
@@ -93,7 +94,7 @@ export const CardScene: React.FC<CardSceneProps> = ({ card, at = 0, jersey, from
   const content = inReveal ? (
     <RevealEngine card={card} frame={f - beatFrom} frozen={clueStack(clueEnd)} jersey={jersey} />
   ) : (
-    <WalletCard card={card} state="blank" frame={f} since={fromHook ? ENTERED : introFrom} jersey={jersey} guess={guessAt(f)} progress={{ done: card.n, from: card.n - 1, at: revealOpen }}>
+    <WalletCard card={card} state="blank" frame={f} since={fromHook ? ENTERED : introFrom} jersey={jersey} guess={guessAt(f)}>
       {clueStack(f)}
     </WalletCard>
   );
@@ -102,6 +103,8 @@ export const CardScene: React.FC<CardSceneProps> = ({ card, at = 0, jersey, from
 
   return (
     <AbsoluteFill style={{ background: levelBackground[card.level], overflow: 'hidden' }}>
+      {/* rings fill with cards completed: card n-1 before the lock opens, n after (not the viewer's score) */}
+      <ScoreHud done={card.n} from={card.n - 1} frame={f} at={revealOpen} top={TOP_ROW.top} compact />
 
       <TwoMinuteWarning card={card} frame={f} starts={starts} end={clueEnd} label={tmwLabel}>
         {content}

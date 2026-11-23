@@ -54,33 +54,6 @@ const RING_W = 6;
 const SIZE = 70;
 const SIZE_COMPACT = 32; // compact chip is 48 high: 32 ring + 2 x 8 padding (iOS-6: rings only, the count is on the card header)
 
-/** The three level rings alone (also drawn inside the card header). `size` in reference units; progress as in ScoreHud. */
-export const ScoreRings: React.FC<{ done: number; frame: number; from?: number; at?: number; size: number }> = ({ done, frame, from, at = 0, size }) => {
-  const { levelTotals } = hudCounts();
-  const shown = from !== undefined ? from + (done - from) * springAt(frame, at, 'snappy') : done;
-  const ringColors = [colors.green, colors.amber, colors.red];
-  let start = 0;
-  const fills = levelTotals.map((t) => {
-    const f = t <= 0 ? 0 : Math.min(1, Math.max(0, (shown - start) / t));
-    start += t;
-    return f;
-  });
-  return (
-    <svg width={px(size)} height={px(size)} viewBox={`0 0 ${SIZE} ${SIZE}`} style={{ display: 'block' }}>
-      {fills.map((f, i) => {
-        const r = SIZE / 2 - RING_W / 2 - i * (RING_W + 2);
-        const c = 2 * Math.PI * r;
-        return (
-          <g key={i} transform={`rotate(-90 ${SIZE / 2} ${SIZE / 2})`}>
-            <circle cx={SIZE / 2} cy={SIZE / 2} r={r} fill="none" stroke={ringColors[i]} strokeOpacity={0.22} strokeWidth={RING_W} />
-            <circle cx={SIZE / 2} cy={SIZE / 2} r={r} fill="none" stroke={ringColors[i]} strokeWidth={RING_W} strokeLinecap="round" strokeDasharray={`${c * f} ${c}`} />
-          </g>
-        );
-      })}
-    </svg>
-  );
-};
-
 export const ScoreHud: React.FC<ScoreHudProps> = ({ done, frame, from, at = 0, side = 'right', inset = SAFE.x, scale = 1, top = SAFE.top, compact = false }) => {
   const ring = compact ? SIZE_COMPACT : SIZE;
   const { total, levelTotals } = hudCounts();
