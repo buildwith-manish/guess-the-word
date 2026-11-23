@@ -7,11 +7,12 @@ import { levelBannerInSec, levelBannerOutSec, levelBannerSec, secToTicks } from 
 
 /**
  * Rookie level banner: a notification-style banner that slides down over card 1, holds, and slides out. It has no card of
- * its own. Placement (1280x720 units): y 4 to 84, centred. The Wallet card starts at y 72 and its first clue field at
- * y 160 (WALLET_LAYOUT), so the banner clears the first clue by 76 units and only touches the top edge of the card header.
+ * its own. Placement (1280x720 units, iOS-12): on the top row line, y 12 to 60 (48 high), centred, x 360 to 920. That is
+ * clear of the top-left chip (ends near x 340), the top-right watermark (starts near x 1083) and the Wallet card (starts at
+ * y 72), and it sits where the points pill is (the pill is hidden behind it while it is up). Title and subtitle share one line.
  * Text comes from data.ts, lengths from timing.ts. `frame` and `at` are design ticks (30 fps) on the same clock.
  */
-export const LEVEL_BANNER_BOX = { top: 4, h: 80, w: 760 } as const;
+export const LEVEL_BANNER_BOX = { top: 12, h: 48, w: 560 } as const;
 
 export type LevelBannerProps = {
   frame: number;
@@ -55,12 +56,12 @@ export const LevelBanner: React.FC<LevelBannerProps> = ({ frame, at }) => {
         height: px(LEVEL_BANNER_BOX.h),
         marginLeft: -px(LEVEL_BANNER_BOX.w) / 2,
         boxSizing: 'border-box',
-        padding: `${px(8)}px ${px(14)}px`,
+        padding: `${px(8)}px ${px(16)}px`,
         display: 'flex',
         alignItems: 'center',
-        gap: px(16),
+        gap: px(12),
         borderRadius: px(radius.lg),
-        background: 'rgba(28,28,30,0.92)',
+        background: 'rgb(28,28,30)',
         backdropFilter: `blur(${px(blurPx)}px)`,
         border: `${px(1)}px solid ${colors.hairline}`,
         boxShadow: `0 ${px(8)}px ${px(24)}px ${colors.shadow}`,
@@ -85,9 +86,9 @@ export const LevelBanner: React.FC<LevelBannerProps> = ({ frame, at }) => {
       >
         {iconNumber}
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-        <div style={{ ...textStyle('body'), fontWeight: 700, lineHeight: 1.15, color: colors.ink, whiteSpace: 'nowrap' }}>{text.title}</div>
-        <div style={{ ...textStyle('caption'), lineHeight: 1.15, color: colors.muted, whiteSpace: 'nowrap' }}>{text.subtitle}</div>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: px(12), minWidth: 0, whiteSpace: 'nowrap' }}>
+        <div style={{ ...textStyle('body'), fontSize: px(28), fontWeight: 700, lineHeight: 1.1, color: colors.ink }}>{text.title}</div>
+        <div style={{ ...textStyle('caption'), lineHeight: 1.1, color: colors.muted }}>{text.subtitle}</div>
       </div>
     </div>
   );
