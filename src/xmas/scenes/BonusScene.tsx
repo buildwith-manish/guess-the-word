@@ -6,7 +6,7 @@ import { BonusReveal, BONUS_REVEAL, revealLayout } from '../components/BonusReve
 import { FrameShimmer } from '../components/FrameShimmer';
 import { LightString, bulbCues } from '../components/LightString';
 import { Snow } from '../components/Snow';
-import { TIMER, TimerToPill, defaultMorphFrame, timerCues, timerPropsOf } from '../components/TimerToPill';
+import { TIMER, TimerToPill, defaultMorphFrame, timerCues, timerPropsOf, withoutBackdrop } from '../components/TimerToPill';
 import { PLAY_AREA, passRuleText, roundOf } from '../bonus/registry';
 import { cue } from '../sfx';
 import type { SfxCue } from '../sfx';
@@ -141,7 +141,7 @@ export const BonusScene: React.FC<{ slot: BonusSlot }> = ({ slot }) => {
           alignItems: 'center',
           gap: px(14),
           whiteSpace: 'nowrap',
-          ...glassSurface(BANNER.height / 2, { edge: 0.6, depth: 0.45, base: colors.glassBase, tint: colors.gold, tintPercent: 18 }),
+          ...withoutBackdrop(glassSurface(BANNER.height / 2, { edge: 0.6, depth: 0.45, base: colors.glassBase, tint: colors.gold, tintPercent: 18 })),
         }}
       >
         <span style={{ ...textStyle('label'), color: colors.gold, fontWeight: 700 }}>{UI.bonus}</span>

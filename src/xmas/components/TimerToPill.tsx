@@ -39,6 +39,12 @@ export const TIMER = {
   maxSegments: 10,
 } as const;
 
+/** Backdrop-blur budget: at most two blurred layers on screen (the two tiles), so small pills draw the same glass flat. */
+export const withoutBackdrop = (style: React.CSSProperties): React.CSSProperties => {
+  const { backdropFilter: _b, WebkitBackdropFilter: _w, ...flat } = style as React.CSSProperties & { WebkitBackdropFilter?: string };
+  return flat;
+};
+
 export type TimerVariant = 'movie' | 'bonus';
 
 export type TimerPlan = {
@@ -147,12 +153,14 @@ export const TimerToPill: React.FC<TimerToPillProps> = ({ segments, startFrame, 
   const barOpacity = 1 - clamp01(mc / 0.45);
   const titleK = easeOut((t - (plan.morph.from + TIMER.titleDelayTicks)) / TIMER.titleTicks);
 
-  const glass = glassSurface(radius, {
-    edge: 0.6,
-    depth: 0.45,
-    base: colors.glassBase,
-    ...(gold ? { tint: colors.gold, tintPercent: 16 } : {}),
-  });
+  const glass = withoutBackdrop(
+    glassSurface(radius, {
+      edge: 0.6,
+      depth: 0.45,
+      base: colors.glassBase,
+      ...(gold ? { tint: colors.gold, tintPercent: 16 } : {}),
+    }),
+  );
 
   return (
     <div style={{ position: 'absolute', left: 0, top: 0, width: px(REF.w), height: px(REF.h), pointerEvents: 'none' }}>

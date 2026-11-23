@@ -1,3 +1,4 @@
+import { withoutBackdrop } from './TimerToPill';
 import React from 'react';
 import type { BonusSlot } from '../data';
 import { springAt } from '../shared/springs';
@@ -59,7 +60,7 @@ export const BonusReveal: React.FC<BonusRevealProps> = ({ slot, startFrame, fram
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              ...glassSurface(r.h / 2, { edge: 0.6, depth: 0.45, base: colors.glassBase, tint: colors.gold, tintPercent: 16 }),
+              ...withoutBackdrop(glassSurface(r.h / 2, { edge: 0.6, depth: 0.45, base: colors.glassBase, tint: colors.gold, tintPercent: 16 })),
               opacity: Math.min(1, k * 2),
               transform: `translateY(${px(14 * (1 - k))}px) scale(${0.92 + 0.08 * k})`,
             }}

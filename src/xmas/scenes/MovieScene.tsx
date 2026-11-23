@@ -5,7 +5,7 @@ import type { MovieSlot } from '../data';
 import { FrameShimmer } from '../components/FrameShimmer';
 import { MovieReveal, revealCues } from '../components/MovieReveal';
 import { Snow } from '../components/Snow';
-import { timerCues, timerPropsOf } from '../components/TimerToPill';
+import { timerCues, timerPropsOf, withoutBackdrop } from '../components/TimerToPill';
 import { cue } from '../sfx';
 import type { SfxCue } from '../sfx';
 import { easeOut, easeWindow, entranceAt } from '../shared/motion';
@@ -135,7 +135,7 @@ export const MovieScene: React.FC<{ slot: MovieSlot }> = ({ slot }) => {
             display: 'flex',
             alignItems: 'center',
             whiteSpace: 'nowrap',
-            ...glassSurface(cap.box.h / 2, { edge: 0.6, depth: 0.45, base: colors.glassBase }),
+            ...withoutBackdrop(glassSurface(cap.box.h / 2, { edge: 0.6, depth: 0.45, base: colors.glassBase })),
           }}
         >
           <span style={{ position: 'absolute', left: px(18), top: '50%', transform: 'translateY(-50%)', display: 'flex' }}>
