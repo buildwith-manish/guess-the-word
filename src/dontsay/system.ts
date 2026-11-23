@@ -5,9 +5,13 @@
  * The composition itself is 2560x1440 at 60 fps (30 fps design clock), so every
  * size goes through u(), which scales reference units by WIDTH / 1920.
  *
- * Level colours are iOS system colours, shifting cool → warm across the 5 levels:
- *   L1 cool blue (#007AFF) → L2 blue-violet (#5856D6) → L3 violet (#AF52DE)
- *   → L4 warm amber (#FF9F0A) → L5 red-orange (#FF3B30)
+ * Level accent colours come from data.ts (levelColors[l].accent), shifting cool → warm
+ * across the 5 levels. data.ts is the source of truth; this file derives a plain
+ * Record<Level, string> from the .accent field so components can use it as a hex.
+ *   L1 #4DA3FF (cool blue) → L2 #6F7BFF (blue-violet) → L3 #9B6BFF (violet)
+ *   → L4 #FFB02E (warm amber) → L5 #FF5A36 (red-orange)
+ * These are brighter than the iOS system colours (SYSTEM.blue #007AFF etc.) on
+ * purpose: they tint dark wallpapers, so they need to read at low alpha.
  * The wallpaper shifts with LEVEL, never with hearts left (honour-system: the video
  * does not track hearts — see docs/dontsay-context.md decision 1).
  *
@@ -17,15 +21,6 @@
  */
 import { spring } from 'remotion';
 import { levelColors, type Level } from './data';
-
-/** Level accent hex per level, from data.ts (the single source). */
-const levelColours: Record<Level, string> = {
-  1: levelColors[1].accent,
-  2: levelColors[2].accent,
-  3: levelColors[3].accent,
-  4: levelColors[4].accent,
-  5: levelColors[5].accent,
-};
 import { FPS, WIDTH } from './timing';
 
 // ---------------------------------------------------------------------------
@@ -58,9 +53,18 @@ export const SYSTEM = {
   red: '#FF3B30',
 } as const;
 
+/** Level accent hex strings, derived from data.ts levelColors[l].accent. */
+const levelAccents: Record<Level, string> = {
+  1: levelColors[1].accent,
+  2: levelColors[2].accent,
+  3: levelColors[3].accent,
+  4: levelColors[4].accent,
+  5: levelColors[5].accent,
+};
+
 export const colours = {
-  /** Level accent colours (cool blue → red-orange across 5 levels). */
-  level: levelColours as Record<Level, string>,
+  /** Level accent colours (cool blue → red-orange across 5 levels, from data.ts). */
+  level: levelAccents,
   ink: '#F5F5F7',
   muted: 'rgba(235,235,245,0.60)',
   mutedStrong: 'rgba(235,235,245,0.32)',
@@ -71,7 +75,7 @@ export const colours = {
   shadow: 'rgba(0,0,0,0.38)',
   shadowSoft: 'rgba(0,0,0,0.22)',
   onAccent: '#06130A',
-  /** Collision red (same as L5 / SYSTEM.red — reserved for "Same answer" beats). */
+  /** Collision red (SYSTEM.red, reserved for "Same answer" beats — distinct from the L5 accent). */
   collision: SYSTEM.red,
   /** Safe green (reserved for "Different? Safe" beats). */
   safe: SYSTEM.green,
