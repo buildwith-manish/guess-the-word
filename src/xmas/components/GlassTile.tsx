@@ -1,5 +1,7 @@
 import React from 'react';
-import { LAYOUT, bonusTileGlass, colors, glossStyle, lightZoneStyle, px, springAt, tileGlass, useXmasFrame } from '../system';
+import { LAYOUT, colors, glossStyle, lightZoneStyle, px, springAt, useXmasFrame } from '../system';
+import { glassSurface, rimLightStyle } from '../shared/glass';
+import { ENTRANCE } from '../shared/motion';
 import { ClueImage } from './ClueImage';
 
 /**
@@ -75,18 +77,31 @@ const glowColor = (side: GlassTileSide): string => (side === 'left' ? colors.gre
 
 export const GlassTile: React.FC<GlassTileProps> = ({ imageId, side, size = LAYOUT.tile.size, enterFrame, glideFrame, pulseFrame, frosted, light = true, imageStyle }) => {
   const t = useXmasFrame();
-  const s = glassTileState(t, enterFrame, glideFrame, pulseFrame);
+  // the right tile enters ENTRANCE.rightTile ticks after the left one (only when the tile has an enterFrame at all)
+  const enterAt = enterFrame === undefined ? undefined : enterFrame + (side === 'right' ? ENTRANCE.rightTile : 0);
+  const s = glassTileState(t, enterAt, glideFrame, pulseFrame);
   const P = GLASS_TILE.pulse;
   const blur = frosted ?? side !== 'none';
 
-  const base = side === 'bonus' ? bonusTileGlass() : tileGlass();
+  // same glass as system.ts tileGlass() / bonusTileGlass(), but the rim is the directional RimLight child below
+  const gold = side === 'bonus';
+  const base = glassSurface(LAYOUT.tile.radius, {
+    edge: 1,
+    depth: 1,
+    base: colors.glassBase,
+    rim: 'none',
+    ...(gold ? { tint: colors.gold, tintPercent: 18 } : {}),
+  });
+  // depth: a soft wide shadow (from glassSurface) plus a tighter contact shadow; box-shadow only, no blur filter
+  const shadow = `${base.boxShadow}, 0 ${px(size * 0.012)}px ${px(size * 0.04)}px rgba(0,0,0,0.35)`;
   const glass: React.CSSProperties = {
     ...base,
+    boxShadow: shadow,
     borderRadius: px(size * GLASS_TILE.radius),
     ...(blur ? {} : { backdropFilter: undefined, WebkitBackdropFilter: undefined }),
     // the pulse brightens the edge glow in the side colour; nothing is added when it is not pulsing
     ...(s.bump > 0.001
-      ? { boxShadow: `${base.boxShadow}, 0 0 ${px(size * 0.09)}px ${px(2)}px color-mix(in srgb, ${glowColor(side)} ${Math.round(P.glow * s.bump * 100)}%, transparent)` }
+      ? { boxShadow: `${shadow}, 0 0 ${px(size * 0.09)}px ${px(2)}px color-mix(in srgb, ${glowColor(side)} ${Math.round(P.glow * s.bump * 100)}%, transparent)` }
       : {}),
   };
 
@@ -121,6 +136,7 @@ export const GlassTile: React.FC<GlassTileProps> = ({ imageId, side, size = LAYO
       {zone ? <div style={zone} /> : null}
       <div style={{ position: 'absolute', inset: 0, ...glass }}>
         <div style={glossStyle(size)} />
+        <div style={rimLightStyle(size * GLASS_TILE.radius, { tint: gold ? colors.gold : undefined })} />
         {imageId ? (
           <div style={{ position: 'absolute', left: `${((1 - box) / 2) * 100}%`, top: `${((1 - box) / 2) * 100}%`, width: `${box * 100}%`, height: `${box * 100}%`, ...imageStyle }}>
             <ClueImage id={imageId} radius={0} />

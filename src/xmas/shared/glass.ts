@@ -5,7 +5,7 @@ import { px } from './px';
  * glass.ts: the frosted glass surface of this video.
  * Adapted from the glass panel of the States video (fill, top highlight, blur, rim light from two inset shadows, soft
  * shadow). Changes: the rim is brighter (`edge`), there is an optional tint (gold for the bonus rounds), and the
- * continuous-corner property was dropped so a render never depends on browser support. No masks, no images.
+ * continuous-corner property was dropped so a render never depends on browser support. The directional rim (`rimLightStyle`) is the one mask here.
  *
  * Colours come in as arguments (system.ts owns the palette), so this file has no colour roles of its own.
  * All sizes are reference units, passed through px(). `radius` is in reference units too.
@@ -40,6 +40,36 @@ export type GlassOptions = {
   tintPercent?: number;
   /** fill colour under the highlight; default is white at GLASS.fill. Tiles pass a dark blue-grey so they read as frosted glass. */
   base?: string;
+  /** 'inset' (default, unchanged): rim from two inset shadows. 'none': no rim here, the caller draws `rimLightStyle` instead. */
+  rim?: 'inset' | 'none';
+};
+
+/**
+ * Directional edge light: a thin ring that is brightest at the top-left corner and fades to nothing along the border
+ * (clockwise over the top edge, counter-clockwise down the left edge), so a tile looks lit from the top left.
+ * An absolutely positioned child (`inset: 0`) of the tile; pointer-free, no blur, no backdrop filter. Uses a mask that
+ * cuts out the middle, like the frame border in system.ts. `strength` 0..1.5, `tint` mixes a colour into the white.
+ */
+export const RIM_LIGHT = { width: 2, peak: 0.9, shoulder: 0.5, shoulderAt: 12, fadeAt: 30 } as const;
+export const rimLightStyle = (radius: number, opts: { strength?: number; tint?: string } = {}): CSSProperties => {
+  const { strength = 1, tint } = opts;
+  const R = RIM_LIGHT;
+  const white = tint ? `color-mix(in srgb, ${tint} 35%, #FFFFFF)` : '#FFFFFF';
+  const a = (v: number) => `color-mix(in srgb, ${white} ${Math.round(Math.min(1, v * strength) * 100)}%, transparent)`;
+  // conic angle 0 sits at the top-left corner; the sweep wraps, so the left edge is the end of the gradient
+  const stops = `${a(R.peak)} 0%, ${a(R.shoulder)} ${R.shoulderAt}%, transparent ${R.fadeAt}%, transparent ${100 - R.fadeAt}%, ${a(R.shoulder)} ${100 - R.shoulderAt}%, ${a(R.peak)} 100%`;
+  return {
+    position: 'absolute',
+    inset: 0,
+    borderRadius: px(radius),
+    padding: px(R.width),
+    background: `conic-gradient(from 315deg at 50% 50%, ${stops})`,
+    WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
+    WebkitMaskComposite: 'xor',
+    mask: 'linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0)',
+    pointerEvents: 'none',
+    boxSizing: 'border-box',
+  };
 };
 
 /**
@@ -58,7 +88,7 @@ export const glossStyle = (tileSize: number): CSSProperties => ({
 });
 
 export const glassSurface = (radius: number, opts: GlassOptions = {}): CSSProperties => {
-  const { tint, edge = 1, depth = 1, tintPercent = 16 } = opts;
+  const { tint, edge = 1, depth = 1, tintPercent = 16, rim: rimMode = 'inset' } = opts;
   const under = opts.base ?? `rgba(255,255,255,${GLASS.fill})`;
   const base = tint ? `color-mix(in srgb, ${tint} ${tintPercent}%, ${under})` : under;
   const rim = px(GLASS.rimWidth);
@@ -71,8 +101,12 @@ export const glassSurface = (radius: number, opts: GlassOptions = {}): CSSProper
       tint ? `color-mix(in srgb, ${tint} 40%, rgba(255,255,255,${GLASS.borderAlpha}))` : `rgba(255,255,255,${GLASS.borderAlpha})`
     }`,
     boxShadow: [
-      `inset ${rim}px ${rim}px 0 rgba(255,255,255,${Math.min(1, GLASS.rimStart * edge)})`,
-      `inset ${-rim}px ${-rim}px 0 rgba(255,255,255,${Math.min(1, GLASS.rimEnd * edge)})`,
+      ...(rimMode === 'none'
+        ? []
+        : [
+            `inset ${rim}px ${rim}px 0 rgba(255,255,255,${Math.min(1, GLASS.rimStart * edge)})`,
+            `inset ${-rim}px ${-rim}px 0 rgba(255,255,255,${Math.min(1, GLASS.rimEnd * edge)})`,
+          ]),
       `0 ${px(GLASS.shadowY) * depth}px ${px(GLASS.shadowBlur) * depth}px rgba(0,0,0,${GLASS.shadowAlpha})`,
     ].join(', '),
     boxSizing: 'border-box',
