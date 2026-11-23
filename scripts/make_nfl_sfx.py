@@ -29,8 +29,10 @@ IDS_TS = ROOT / "src" / "nfl" / "sfx-ids.ts"
 rng = np.random.default_rng(32)  # deterministic: the same files on every run
 
 # Pitch ladders. Clue flips rise with the clue number; points drops fall with the points left.
-FLIP_HZ = {1: 523.3, 2: 587.3, 3: 659.3, 4: 784.0, 5: 880.0}
-DROP_HZ = {5: 1350.0, 4: 1200.0, 3: 1050.0, 2: 900.0, 1: 750.0}
+# Haptic taps (iOS-5): low ticks, flips a little higher than drops. Both ladders are in Hz of the tap's fundamental.
+FLIP_HZ = {1: 300.0, 2: 320.0, 3: 340.0, 4: 360.0, 5: 380.0}
+DROP_HZ = {5: 220.0, 4: 195.0, 3: 172.0, 2: 150.0, 1: 130.0}
+TAP_SEC = {"flip": 0.055, "drop": 0.045}  # whole file, 20 to 60 ms
 
 
 # ---------------------------------------------------------------- synthesis helpers
@@ -125,6 +127,14 @@ def sweep_noise(sec, f0, f1, power=1.4, q=0.9, shape=1.6):
 # ---------------------------------------------------------------- the sounds
 
 
+def tap(freq, sec, decay_ms=11.0):
+    """Haptic-style tap: a short sine with a small downward pitch glide, ~1 ms attack, fast exponential decay. No noise."""
+    t = t_axis(sec)
+    ph = 2 * np.pi * (freq * t + freq * 0.3 * 0.006 * (1 - np.exp(-t / 0.006)))
+    sig = (np.sin(ph) + 0.18 * np.sin(2 * ph)) * np.exp(-t / (decay_ms / 1000.0)) * np.minimum(1, t / 0.001)
+    return fade(sig, 0, 0.008)
+
+
 def build():
     s = {}
 
@@ -134,23 +144,15 @@ def build():
     place(b, soft_tone(196.0, 0.28, 11.0) * 0.18, 0.4)
     s["card-in"] = b
 
-    # clue-flip-1..5: paper flip (two tiny noise ticks) plus a soft tone that rises with the clue number
+    # clue-flip-1..5: haptic tap, slightly higher for each clue (no paper noise, no tone tail)
     for k, f in FLIP_HZ.items():
-        b = np.zeros(int(0.34 * SR))
-        place(b, click(0.35, 0.012, 2500), 0)
-        place(b, click(0.22, 0.010, 3000), 0.045)
-        place(b, soft_tone(f, 0.28, 12.0, 0.25) * 0.8, 0.03)
-        s[f"clue-flip-{k}"] = b
+        click(0.35, 0.012, 2500), click(0.22, 0.010, 3000)  # draws discarded: keeps the shared rng stream (and so every other sound) unchanged
+        s[f"clue-flip-{k}"] = tap(f, TAP_SEC["flip"], 12.0)
 
-    # points-drop-5..1: soft tick, lower for each point left (5 = highest, 1 = lowest)
+    # points-drop-5..1: haptic tap, lower for each point left (5 = highest, 1 = lowest)
     for p, f in DROP_HZ.items():
-        t = t_axis(0.14)
-        tick = np.sin(2 * np.pi * f * t) * np.exp(-48 * t) + 0.25 * np.sin(2 * np.pi * f * 2 * t) * np.exp(-70 * t)
-        tick = fade(tick * np.minimum(1, t / 0.002), 0, 0.01)
-        b = np.zeros(len(t))
-        place(b, tick, 0)
-        place(b, click(0.12, 0.004, 3000), 0)
-        s[f"points-drop-{p}"] = b
+        click(0.12, 0.004, 3000)  # draw discarded, see above
+        s[f"points-drop-{p}"] = tap(f, TAP_SEC["drop"], 10.0)
 
     # lock-shake: the locked card refuses: three quick low thumps with a muffled rattle
     b = np.zeros(int(0.6 * SR))
@@ -167,12 +169,10 @@ def build():
     place(b, bell(1318.5, 0.8, 5.5) * 0.85, 0.24)
     s["lock-open"] = b
 
-    # name-reveal: bright major chime with a sparkle on top: the answer moment
-    b = np.zeros(int(2.0 * SR))
-    place(b, bell(1046.5, 1.8, 3.6), 0)
-    place(b, bell(1318.5, 1.6, 3.8) * 0.8, 0.06)
-    place(b, bell(1568.0, 1.5, 4.0) * 0.7, 0.12)
-    place(b, bell(2093.0, 1.1, 5.0, ((1, 1.0), (2.76, 0.12))) * 0.45, 0.2)
+    # name-reveal: short, soft major chime (iOS-5: was a 2 s bright chime with a sparkle)
+    b = np.zeros(int(0.8 * SR))
+    place(b, bell(1046.5, 0.7, 7.5, ((1, 1.0), (2.76, 0.10))), 0)
+    place(b, bell(1318.5, 0.6, 8.0, ((1, 1.0), (2.76, 0.08))) * 0.6, 0.05)
     s["name-reveal"] = b
 
     # wallet-stack: cards drop onto the stack: six quick soft taps rising in pitch, then a settle thud
@@ -284,13 +284,14 @@ def build():
 
 # Per-sound high-pass cutoff (Hz) for the chain; low-end sounds keep their sub. Everything else uses the default.
 HP_DEFAULT = 120.0
-HP_HZ = {"lock-shake": 35.0, "level-hof": 35.0, "rank-reveal": 40.0, "tmw-alert": 45.0, "wallet-stack": 60.0, "end-sting": 70.0}
+TAPS = [f"clue-flip-{k}" for k in FLIP_HZ] + [f"points-drop-{p}" for p in DROP_HZ]
+HP_HZ = {**{i: 60.0 for i in TAPS}, "lock-shake": 35.0, "level-hof": 35.0, "rank-reveal": 40.0, "tmw-alert": 45.0, "wallet-stack": 60.0, "end-sting": 70.0}
 # Per-sound level trim in dB on top of the shared loudness target (small ticks sit under the voice).
-LEVEL_DB = {"points-drop-1": -3, "points-drop-2": -3, "points-drop-3": -3, "points-drop-4": -3, "points-drop-5": -3,
-            "tmw-tick": -3.0, "card-in": -2.0, "clue-flip-1": -2, "clue-flip-2": -2, "clue-flip-3": -2,
-            "clue-flip-4": -2, "clue-flip-5": -2}
+LEVEL_DB = {"tmw-tick": -3.0, "card-in": -2.0}
+# Per-sound peak ceiling in dBFS (default PEAK_DB). The haptic taps peak at -12 and skip the RMS target; the name chime is softer.
+PEAK_BY_ID = {**{i: -12.0 for i in TAPS}, "name-reveal": -9.0}
 # No added tail for the loop-length sound, a short one for the rest so the limiter release is not cut off.
-TAIL_SEC = {"tmw-tick": 0.0}
+TAIL_SEC = {"tmw-tick": 0.0, **{i: 0.0 for i in TAPS}}
 
 
 def finish(sid, sig):
@@ -305,10 +306,10 @@ def finish(sid, sig):
     return chain(x, SR)[0].astype(np.float64)
 
 
-def normalise(sig, trim_db=0.0):
+def normalise(sig, trim_db=0.0, peak_db=PEAK_DB):
     peak = np.max(np.abs(sig)) + 1e-12
     rms = np.sqrt(np.mean(sig ** 2)) + 1e-12
-    g_peak = 10 ** (PEAK_DB / 20) / peak
+    g_peak = 10 ** (peak_db / 20) / peak
     g_rms = 10 ** (TARGET_RMS_DB / 20) / rms
     return sig * min(g_peak, g_rms) * 10 ** (min(trim_db, 0.0) / 20)
 
@@ -327,7 +328,7 @@ def main():
     IDS_TS.parent.mkdir(parents=True, exist_ok=True)
     manifest = []
     for sid, raw in build().items():
-        sig = normalise(finish(sid, raw), LEVEL_DB.get(sid, 0.0))
+        sig = normalise(finish(sid, raw), LEVEL_DB.get(sid, 0.0), PEAK_BY_ID.get(sid, PEAK_DB))
         write_wav(OUT / f"{sid}.wav", sig)
         sec = len(sig) / SR
         manifest.append({

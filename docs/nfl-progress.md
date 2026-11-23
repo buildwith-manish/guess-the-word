@@ -165,3 +165,8 @@ Fill `picks.json`, set `meta.sourceName`, then render `NFL-Full` where Chromium 
 - Applied in PointsPill, ScoreHud, Chips, ClueStack, Scoreboard, plus RevealEngine (name) and WalletCard (card number, level label). Clue prose keeps proportional figures on purpose (clueFit wraps with proportional Inter widths).
 - Not yet moved to the scale (other files, not in the task): weights 600/700/800 and px sizes in DidYouKnowCard, NotificationBanner, LockNotification, TimerRing, TwoMinuteWarning, Captions, Predictions, WalletCollection, LevelBanner. 800 is not a loaded weight (the browser falls back to 700).
 - clueFit still measures with Inter 600 widths while clues are now 500: wraps are slightly conservative.
+
+## iOS-5 notes (haptic SFX)
+
+- `scripts/make_nfl_sfx.py`: `clue-flip-1..5` and `points-drop-5..1` are now haptic taps (`tap()`: short sine, small pitch glide, about 1 ms attack, 10 to 12 ms decay, no noise), peak -12 dBFS (`PEAK_BY_ID`). Flips 300 to 380 Hz rising with the clue; drops 220 / 195 / 172 / 150 / 130 Hz for 5 to 1. `name-reveal`: two soft bells, 0.85 s, peak -9 dBFS. Same ids, same cue positions; only those 11 wav files changed (checked by md5 against the previous set; the old noise draws are burned so the shared rng stream, and every other sound, is unchanged).
+- Not listened to. Not rendered.
