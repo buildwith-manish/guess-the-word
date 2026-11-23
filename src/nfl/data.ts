@@ -132,5 +132,5 @@ export const byLevel: Record<Level, Card[]> = {
 export const tmwLabel = 'Two-Minute Warning';
 
 /** UI labels for the clue slots, the card header and the footer (iOS-6). Words only; every number comes from the card. */
-export const cardUiText = { card: 'Card', of: 'of', guessNow: 'Guess now', pt: 'pt', pts: 'pts' } as const;
+export const cardUiText = { card: 'Card', of: 'of', guessPlayer: 'Guess the NFL player', pt: 'pt', pts: 'pts' } as const;
 export const pointsLabel = (n: number): string => `${n} ${n === 1 ? cardUiText.pt : cardUiText.pts}`;

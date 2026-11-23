@@ -13,6 +13,7 @@
  */
 import React from 'react';
 import { byLevel, cards, levels, maxPoints } from '../data';
+import { LAYOUT } from './clueLayout';
 import { SAFE, blurPx, colors, radius, springAt, textStyle, type, px } from '../system';
 
 /** Counts the HUD shows, all derived from data.ts. */
@@ -40,7 +41,7 @@ export type ScoreHudProps = {
   at?: number;
   /** Which top corner (default right). */
   side?: 'left' | 'right';
-  /** Distance from the side edge in reference units (default SAFE.x). */
+  /** Distance from the side edge in reference units (default LAYOUT.cornerInset, shared with the watermark). */
   inset?: number;
   /** Overall size, 1 = full. The box shrinks toward its corner. */
   scale?: number;
@@ -57,7 +58,7 @@ const RING_W = 6;
 const SIZE = 70;
 const SIZE_COMPACT = 32; // compact chip is 48 high: 32 ring + 2 x 8 padding
 
-export const ScoreHud: React.FC<ScoreHudProps> = ({ done, frame, from, at = 0, side = 'right', inset = SAFE.x, scale = 1, top = SAFE.top, compact = false, tag, tagColor }) => {
+export const ScoreHud: React.FC<ScoreHudProps> = ({ done, frame, from, at = 0, side = 'right', inset = LAYOUT.cornerInset, scale = 1, top = SAFE.top, compact = false, tag, tagColor }) => {
   const ring = compact ? SIZE_COMPACT : SIZE;
   const { total, levelTotals } = hudCounts();
   const shown = from !== undefined ? from + (done - from) * springAt(frame, at, 'snappy') : done;

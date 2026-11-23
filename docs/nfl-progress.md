@@ -211,3 +211,13 @@ Fill `picks.json`, set `meta.sourceName`, then render `NFL-Full` where Chromium 
 ## iOS-6d notes
 
 - Card content now fills the space the header used to take: top padding 8 (was 16), field 648x504, hero 248 (`clueLayout.ts`). Jersey on the "?" face sits 24 units higher (front face paddingBottom 48). Not rendered. tsc passes, clue check passes.
+
+## iOS-7 notes (corners, taller card, hero 200 / history rows 72, footer)
+
+- One constant `LAYOUT.cornerInset` = 48 (clueLayout.ts): ScoreHud default `inset` and `WATERMARK.right` / `WATERMARK.left` (the approximation read by scripts/nfl_watermark_check.ts) both come from it. Top row unchanged otherwise: y 12 to 60, 48 high, one centre line with the points pill.
+- Card: `LAYOUT.card.h` 576 -> 592 (top 72, bottom 664; width and left/right edges unchanged). WalletCard `CARD_H` now reads LAYOUT. Footer = 48: text zone `LAYOUT.footerText` 32 (y 616 to 648, minus the 1.5 border) holds the lock and the footer words, the last 16 are surface and shadow only.
+- Field 648 x 520. Spec conflict: "hero 192" and "field 520 = 192 + 8 + 4 x 72 + 3 x 8" cannot both hold (that sum is 512). Kept field 520 (it follows from card bottom 664) and rows 72 / gaps 8, so **hero = 200** (heroInnerH 184). Say if you want hero 192 and a field of 512.
+- History: size 28, 2 lines, line height 1.15 (64.4 in a 72 row), one size for every row. check_nfl_clues.ts: no clue fails. Hero still 32 to 40, max 4 lines, every card lands at 40.
+- Footer: "Guess the NFL player" (data.ts `cardUiText.guessPlayer`, replaces `guessNow`) left of nothing but the lock, points ("1 pt", from the card via `pointsLabel`) right-aligned in the level colour, thin timer line kept.
+- Not changed: timing, clip positions, card text, emerge animation, SFX.
+- NOT verified: nothing rendered (remotion.media unreachable). Not looked at: footer fit, jersey panel at 520 high, hero/history spacing, LevelBanner and TwoMinuteWarning against the taller card, Captions strip (y 650 to 716) now sits 14 units below the card bottom, WalletCollection/stack scale. `nfl_watermark_check.ts` still reports OVERLAP with its stale "ScoreHud (right)" rectangle (the chip has been on the left since iOS-6c; it overlapped before this task too).

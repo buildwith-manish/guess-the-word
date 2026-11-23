@@ -16,14 +16,15 @@ import React from 'react';
 import { QuizMatrixBadge } from '../../ios/QuizMatrixBadge';
 import type { QuizMatrixLogo } from '../../ios/QuizMatrixBadge';
 import { watermarkText } from '../data';
-import { SAFE, px } from '../system';
+import { LAYOUT } from './clueLayout';
+import { px } from '../system';
 import { hookSec, outroFadeSec, partRanges, secToTicks, segments, useNflFrame } from '../timing';
 
 export const NFL_WATERMARK_LOGO: QuizMatrixLogo = { file: 'nfl/quiz-matrix-bulb.png', cols: 1, rows: 1, frames: 1, fps: 30 };
 
 /** Reference units. `top` puts the badge on the middle line of the ScoreHud (HUD top 4). */
-/** Top right (swapped with the ring chip, which is top left). Same height and centre line (y 36) as the points pill and the chip. `left` is the badge's approximate left edge (3.1 x height wide), for nfl_watermark_check only. */
-export const WATERMARK = { height: 48, right: SAFE.x, top: 12, left: 1280 - SAFE.x - 3.1 * 48 } as const;
+/** Top right, LAYOUT.cornerInset from the frame edge (the same constant as the ScoreHud chip on the left). (swapped with the ring chip, which is top left). Same height and centre line (y 36) as the points pill and the chip. `left` is the badge's approximate left edge (3.1 x height wide), for nfl_watermark_check only. */
+export const WATERMARK = { height: 48, right: LAYOUT.cornerInset, top: 12, left: 1280 - LAYOUT.cornerInset - 3.1 * 48 } as const;
 
 const outro = segments.find((s) => s.kind === 'outro');
 const FADE_START = outro ? outro.to - secToTicks(outroFadeSec) : Infinity;

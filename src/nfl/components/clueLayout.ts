@@ -10,19 +10,23 @@ import { INTER_600_EM } from './clueMetrics.generated';
  *   jersey panel 304 wide = 29.7% of the card
  */
 export const LAYOUT = {
-  card: { w: 1024, h: 576 },
+  card: { w: 1024, h: 592 },
   header: 8,
   footer: 48,
+  /** Part of the footer that carries text: the text stays inside it (card top + card h - footer + footerText = 648). The rest of the footer is surface only. */
+  footerText: 32,
+  /** Top-left chip and top-right watermark: distance from the left and right frame edges. */
+  cornerInset: 48,
   pad: 24,
   gap: 24,
   bodyPadY: 8,
   answerW: 304,
   /** Corner radii: card 32; surfaces 16 inside it (card inset 24 -> optical), rows 12. */
   radius: { card: 32, surface: 16, row: 12 },
-  heroH: 248,
+  heroH: 200,
   heroPadY: 8,
   heroPadX: 16,
-  rowH: 56,
+  rowH: 72,
   rowGap: 8,
   historyRows: 4,
   /** Right gutter reserved in every slot for the "N pts" tag. */
@@ -37,7 +41,7 @@ export const FIELD = {
 /** Hero text: the same size range for every card, largest first, never below `min`. At most `lines` lines. */
 export const HERO = { max: 40, min: 32, lines: 4, lineHeight: 1.2 } as const;
 /** History rows: one size for every row and every card, at most `lines` lines. */
-export const HISTORY = { size: 24, lines: 2, lineHeight: 1.15 } as const;
+export const HISTORY = { size: 28, lines: 2, lineHeight: 1.15 } as const;
 
 export const heroTextW = FIELD.w - LAYOUT.heroPadX * 2 - LAYOUT.tagW;
 export const rowTextW = FIELD.w - 32 - LAYOUT.tagW;

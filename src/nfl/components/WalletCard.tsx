@@ -31,7 +31,7 @@ export type WalletCardProps = {
   corner?: StackCorner;
   /** Draw the name in the answer panel (default). The reveal draws it big in the field instead and passes false. */
   showName?: boolean;
-  /** Footer: points on offer now (from the card) and the fill (0..1) of the thin timer line. Omit for no "Guess now" text. */
+  /** Footer: points on offer now (from the card) and the fill (0..1) of the thin timer line. Omit for no "Guess the NFL player" / points text. */
   guess?: { points: number; fill: number };
   /** Clue content, drawn in the field area (see WALLET_LAYOUT.field). */
   children?: React.ReactNode;
@@ -42,10 +42,11 @@ const HEADER_H = LAYOUT.header;
 const FOOTER_H = LAYOUT.footer;
 const PAD = LAYOUT.pad;
 const GAP = LAYOUT.gap;
+const FOOTER_BORDER = 1.5; // footer top border; the text zone starts below it, so the text still ends at footer top + footerText
 const ANSWER_W = LAYOUT.answerW;
 const BODY_PAD_Y = LAYOUT.bodyPadY;
-const CARD_W = safeBox.w; // 1024 = LAYOUT.card.w
-const CARD_H = safeBox.h; // 576 = LAYOUT.card.h
+const CARD_W = LAYOUT.card.w; // 1024 = safeBox.w
+const CARD_H = LAYOUT.card.h; // 592: top 72, bottom 664. Text ends at 648 (footer text zone); the last 16 are surface only.
 export const WALLET_LAYOUT = {
   card: { left: safeBox.left, top: safeBox.top, w: CARD_W, h: CARD_H },
   header: { h: HEADER_H },
@@ -242,21 +243,22 @@ export const WalletCard: React.FC<WalletCardProps> = ({ card, state, frame, sinc
             width: '100%',
             height: px(FOOTER_H),
             background: 'rgba(0,0,0,0.24)',
-            borderTop: `${px(1.5)}px solid ${colors.hairline}`,
-            display: 'flex',
-            alignItems: 'center',
-            padding: `0 ${px(PAD)}px`,
+            borderTop: `${px(FOOTER_BORDER)}px solid ${colors.hairline}`,
             boxSizing: 'border-box',
           }}
         >
-          <Shake frame={frame} at={state === 'locked' ? since : -1e9} dur={Math.round(SPRINGS.slow * FPS)} amp={5} seed={card.n} style={{ display: 'flex' }}>
-            <Lock closed={locked && !unlocked} color={lockColor} size={24} />
-          </Shake>
-          {guess && (
-            <span style={{ ...textStyle('caption'), marginLeft: px(12), color: colors.muted, whiteSpace: 'nowrap' }}>
-              {cardUiText.guessNow}: <span style={{ color: level, fontWeight: 700 }}>{pointsLabel(guess.points)}</span>
-            </span>
-          )}
+          {/* text zone: the top footerText units of the footer; the rest is surface only */}
+          <div style={{ position: 'absolute', left: px(PAD), right: px(PAD), top: 0, height: px(LAYOUT.footerText - FOOTER_BORDER), display: 'flex', alignItems: 'center' }}>
+            <Shake frame={frame} at={state === 'locked' ? since : -1e9} dur={Math.round(SPRINGS.slow * FPS)} amp={5} seed={card.n} style={{ display: 'flex' }}>
+              <Lock closed={locked && !unlocked} color={lockColor} size={24} />
+            </Shake>
+            {guess && (
+              <>
+                <span style={{ ...textStyle('caption'), marginLeft: px(12), color: colors.muted, whiteSpace: 'nowrap' }}>{cardUiText.guessPlayer}</span>
+                <span style={{ ...textStyle('caption'), marginLeft: 'auto', color: level, fontWeight: 700, whiteSpace: 'nowrap', textAlign: 'right' }}>{pointsLabel(guess.points)}</span>
+              </>
+            )}
+          </div>
           {guess && (
             <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: px(3), background: 'rgba(255,255,255,0.08)' }}>
               <div style={{ width: `${Math.min(1, Math.max(0, guess.fill)) * 100}%`, height: '100%', background: level }} />
