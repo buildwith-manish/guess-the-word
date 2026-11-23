@@ -199,7 +199,7 @@ export const WalletCard: React.FC<WalletCardProps> = ({ card, state, frame, sinc
         >
           <div style={{ position: 'absolute', inset: 0, transformStyle: 'preserve-3d', transform: `rotateY(${angle}deg)` }}>
             {/* front: blank jersey marked "?" */}
-            <div style={{ ...face, justifyContent: 'center', borderRadius: px(LAYOUT.radius.surface), background: 'rgba(0,0,0,0.22)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12)', border: `${px(1.5)}px solid ${colors.hairline}` }}>
+            <div style={{ ...face, justifyContent: 'center', paddingBottom: px(48), boxSizing: 'border-box', borderRadius: px(LAYOUT.radius.surface), background: 'rgba(0,0,0,0.22)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12)', border: `${px(1.5)}px solid ${colors.hairline}` }}>
               <div style={{ position: 'relative', width: px(JERSEY_W), height: px(JERSEY_H) }}>
                 <Jersey color={level} />
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: px(30), ...tabular, fontFamily: fontStack, fontWeight: 800, fontSize: px(96), color: level }}>

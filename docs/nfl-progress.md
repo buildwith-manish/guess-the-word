@@ -207,3 +207,7 @@ Fill `picks.json`, set `meta.sourceName`, then render `NFL-Full` where Chromium 
 - Reverted iOS-6b (the merged header bar). Now follows the user's reference (GTA 6 screenshot): top-left chip = progress rings + "n / 30" + a small level pill (`ScoreHud` compact with `tag`, `tagColor`; 48 high), top-right = watermark (`WATERMARK.right`), points pill stays centred. All three share y 12 to 60.
 - Card header is only the 4-unit level bar. The Rookie pill and "CARD n OF 30" are gone from the card (the chip carries them). Freed space goes to the hero: header 8, field 648x488, hero 232 (`clueLayout.ts`). check_nfl_clues: still no failing clue.
 - Hook uses the same chip (done 0) on the left. Not rendered, not looked at. tsc passes. `scripts/nfl_watermark_check.ts` still reads `WATERMARK.left`, now an approximate value derived from `right` (3.1 x height wide): re-check it.
+
+## iOS-6d notes
+
+- Card content now fills the space the header used to take: top padding 8 (was 16), field 648x504, hero 248 (`clueLayout.ts`). Jersey on the "?" face sits 24 units higher (front face paddingBottom 48). Not rendered. tsc passes, clue check passes.
