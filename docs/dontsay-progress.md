@@ -44,6 +44,26 @@ Task 2 (timing.ts / system.ts / fonts) per the original plan above.
 - `tsc --noEmit` passes. Sounds were not listened to.
 - Open: `LEVEL_COUNT = 5` in the script is unchecked against data.ts. `mic-pulse` and `check-in-tone` have a high RMS next to the rest (peak-normalised): lower their volume in cues.
 
-## Next step
+## Task 1c: DONE
 
-Task 2 (timing.ts / system.ts / fonts).
+- `src/dontsay/timing.ts`: own clock (2560x1440, 60 fps, 30 fps ticks, TIME_SCALE 2), all duration constants (one place), `segments`, `partRanges` (6 parts), `chapters`, frame helpers (`secToTicks`, `ticksToFrames`, `secToFrames`, `useDontSayFrame`, `frameRange`, `locate`, `timecode`), clip hooks (`clipSec`, `clipPath`, `roundClipId`, `bonusClipId`).
+- `src/dontsay/timings.generated.ts`: EMPTY placeholder (`clipTimings = []`). A voice-pipeline task replaces it. Until then every slot uses its base value.
+- `scripts/dontsay_runtime.ts` (`npx tsx scripts/dontsay_runtime.ts`): per-part table, total, chapters, data/timing cross-check, verdict vs ~10:44.
+- Round segment exposes `phases` (intro, timer, sealed, beat, reveal, result), `sealedFrom` (= first tick), `lockClickTicks` (first tick + reveal start).
+- `tsc --noEmit` passes. Nothing rendered.
+
+### Runtime with no clips: 11:22 (682 s), target ~10:44 = +38 s
+Rounds 512 s, bonuses 80, levels 20, hook 8, settings 4, check-in 2, rank 6, scoreboard 20, outro 30.
+Clip-driven intro/reveal slots can only make it longer. Constants were taken as specified and not tuned.
+
+### Assumptions to confirm
+- Settings card (4 s) sits after the hook, before the Level 1 card, in Part 1. The brief names the constant but not its place.
+- Level card (4 s) opens every level including Level 1.
+- Round 45's 4.2 s callback intro is part of the round, not a separate segment.
+- Order in Part 6: rank card, scoreboard, outro. End screen = last 15 s of the outro (`outro.endScreen`).
+- Clip id scheme `r01_intro`, `r01_reveal`, `b1_intro`, `b1_reveal` is my guess.
+- Bonus is fixed at 16 s (2/8/3/3); clips do not stretch it.
+- Target tolerance +/-30 s is my assumption.
+
+## Next step
+Timing (1c) is done, so "Task 2 (timing.ts / system.ts / fonts)" from the older note now means system.ts + fonts only. Then voice pipeline / timings.generated.ts, or the next build task from docs/dontsay-prompts-split.md.

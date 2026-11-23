@@ -1,0 +1,223 @@
+/**
+ * Don't Say The Same As Me: clock, durations, segments, parts, chapters.
+ * Durations in seconds are written ONLY here. Scenes read timing from this file and data from data.ts.
+ * Pattern (idea only, nothing imported): the clip-timing part of the earlier videos' timing.ts.
+ */
+import { useCurrentFrame } from 'remotion';
+import { bonuses, heartCheckIn, levelColors, rounds } from './data';
+import type { Bonus, Level, Round } from './data';
+import { clipTimings } from './timings.generated';
+
+/* ---------- clock ----------
+ * Output is 2560x1440 at 60 fps. Scenes are authored in 30 fps "design frames" (ticks);
+ * TIME_SCALE turns ticks into render frames. All `from` / `to` below are ticks, `to` exclusive. */
+export const WIDTH = 2560;
+export const HEIGHT = 1440;
+export const RENDER_FPS = 60;
+export const FPS = 30;
+export const TIME_SCALE = RENDER_FPS / FPS;
+
+/* ---------- durations in seconds: the only place they are written ---------- */
+export const hookSec = 8;
+export const introStdSec = 1.2;
+export const introHeavySec = 3.2;
+/** Round 45 only (the callback round). */
+export const introCallbackSec = 4.2;
+export const timerL1L2Sec = 5;
+export const timerL3Sec = 4;
+export const timerL4L5Sec = 3;
+export const sealedSlideSec = 1.5;
+/** Silence before the reveal. */
+export const beatSec = 0.5;
+export const revealSec = 2.0;
+export const resultSec = 1.8;
+export const levelCardSec = 4;
+export const settingsCardSec = 4;
+export const heartCheckInSec = 2;
+/** Bonus split: 2 intro, 8 play, 3 reveal, 3 result = 16 s. */
+export const bonusIntroSec = 2;
+export const bonusPlaySec = 8;
+export const bonusRevealSec = 3;
+export const bonusResultSec = 3;
+export const bonusSec = bonusIntroSec + bonusPlaySec + bonusRevealSec + bonusResultSec;
+/** Rank card holds this long. */
+export const rankCardSec = 6;
+export const scoreboardSec = 20;
+export const outroSec = 30;
+/** The end screen is the last part of the outro. */
+export const endScreenSec = 15;
+/** Slot padding after a voice clip, in seconds. */
+export const clipPadSec = 0.3;
+/** Target runtime ~10:44. The tolerance is a working assumption, not from the brief. */
+export const targetSec = 10 * 60 + 44;
+export const targetToleranceSec = 30;
+
+/* ---------- frame helpers ---------- */
+export const secToTicks = (sec: number): number => Math.round(sec * FPS);
+export const ticksToSec = (ticks: number): number => ticks / FPS;
+/** Design ticks -> render frames (60 fps). */
+export const ticksToFrames = (ticks: number): number => Math.round(ticks * TIME_SCALE);
+export const secToFrames = (sec: number): number => ticksToFrames(secToTicks(sec));
+/** Current time in design ticks (fractional): scenes read this instead of useCurrentFrame. */
+export const useDontSayFrame = (): number => useCurrentFrame() / TIME_SCALE;
+
+/** "m:ss" for a time in seconds. */
+export const timecode = (sec: number): string => {
+  const s = Math.floor(sec + 1e-9);
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+};
+
+/* ---------- clip lengths ---------- */
+const durOf = new Map(clipTimings.map((c) => [c.id, c.durSec] as const));
+const fileOf = new Map(clipTimings.map((c) => [c.id, c.file] as const));
+/** Length in seconds of a measured clip; undefined while timings do not exist (fallback = base value). */
+export const clipSec = (id: string | undefined): number | undefined => (id ? durOf.get(id) : undefined);
+/** `staticFile` path of a clip. */
+export const clipPath = (id: string): string => `dontsay/voiceover/clips/${fileOf.get(id) ?? `${id}.wav`}`;
+
+/** Clip id convention (assumption, to be matched by the voice pipeline): r01_intro, r01_reveal, b1_intro, b1_reveal. */
+export type ClipKind = 'intro' | 'reveal';
+const pad2 = (n: number): string => String(n).padStart(2, '0');
+export const roundClipId = (n: number, kind: ClipKind): string => `r${pad2(n)}_${kind}`;
+export const bonusClipId = (n: number, kind: ClipKind): string => `b${n}_${kind}`;
+
+/* ---------- per-round rules ---------- */
+export const timerSecFor = (level: Level): number => (level <= 2 ? timerL1L2Sec : level === 3 ? timerL3Sec : timerL4L5Sec);
+/** Base intro length by round kind (callback first: round 45 is also heavy). */
+export const introBaseSec = (r: Round): number => (r.callback ? introCallbackSec : r.heavy ? introHeavySec : introStdSec);
+/** Intro slot = max(base, intro clip + pad) once the clip exists; otherwise the base value. */
+export const introSecFor = (r: Round): number => Math.max(introBaseSec(r), (clipSec(roundClipId(r.n, 'intro')) ?? -Infinity) + clipPadSec);
+/** Reveal slot = max(revealSec, reveal clip + pad). */
+export const revealSecFor = (r: Round): number => Math.max(revealSec, (clipSec(roundClipId(r.n, 'reveal')) ?? -Infinity) + clipPadSec);
+
+/* ---------- segments ---------- */
+export type Range = { from: number; to: number };
+export type PartNo = 1 | 2 | 3 | 4 | 5 | 6;
+export type RoundPhases = { intro: Range; timer: Range; sealed: Range; beat: Range; reveal: Range; result: Range };
+export type BonusPhases = { intro: Range; play: Range; reveal: Range; result: Range };
+
+type Base = Range & { part: PartNo };
+export type Segment =
+  | ({ kind: 'hook' } & Base)
+  | ({ kind: 'settingsCard' } & Base)
+  | ({ kind: 'levelCard'; level: Level } & Base)
+  | ({
+      kind: 'round';
+      round: Round;
+      phases: RoundPhases;
+      /** The small sealed ink bubble is on screen from the first tick of the round. */
+      sealedFrom: number;
+      /** Lock click ticks: the first tick of the round and the first tick of the reveal. */
+      lockClickTicks: [number, number];
+    } & Base)
+  | ({ kind: 'heartCheckIn'; afterRound: number; beforeRound: number } & Base)
+  | ({ kind: 'bonus'; bonus: Bonus; phases: BonusPhases } & Base)
+  | ({ kind: 'rankCard' } & Base)
+  | ({ kind: 'scoreboard' } & Base)
+  | ({ kind: 'outro'; endScreen: Range } & Base);
+
+const buildSegments = (): Segment[] => {
+  const out: Segment[] = [];
+  let cur = 0;
+  const span = (sec: number): Range => {
+    const r = { from: cur, to: cur + secToTicks(sec) };
+    cur = r.to;
+    return r;
+  };
+  let part: PartNo = 1;
+
+  out.push({ kind: 'hook', part, ...span(hookSec) });
+  out.push({ kind: 'settingsCard', part, ...span(settingsCardSec) });
+
+  let lastLevel: Level | undefined;
+  rounds.forEach((r) => {
+    if (r.level !== lastLevel) {
+      if (r.level > 1) part = r.level as PartNo;
+      out.push({ kind: 'levelCard', level: r.level, part, ...span(levelCardSec) });
+      lastLevel = r.level;
+    }
+    const from = cur;
+    const phases: RoundPhases = {
+      intro: span(introSecFor(r)),
+      timer: span(timerSecFor(r.level)),
+      sealed: span(sealedSlideSec),
+      beat: span(beatSec),
+      reveal: span(revealSecFor(r)),
+      result: span(resultSec),
+    };
+    out.push({ kind: 'round', round: r, phases, sealedFrom: from, lockClickTicks: [from, phases.reveal.from], part, from, to: cur });
+
+    if (r.n === heartCheckIn.afterRound) {
+      out.push({ kind: 'heartCheckIn', afterRound: heartCheckIn.afterRound, beforeRound: heartCheckIn.beforeRound, part, ...span(heartCheckInSec) });
+    }
+    const b = bonuses.find((x) => x.afterRound === r.n);
+    if (b) {
+      const bFrom = cur;
+      const bp: BonusPhases = { intro: span(bonusIntroSec), play: span(bonusPlaySec), reveal: span(bonusRevealSec), result: span(bonusResultSec) };
+      out.push({ kind: 'bonus', bonus: b, phases: bp, part, from: bFrom, to: cur });
+    }
+  });
+
+  part = 6;
+  out.push({ kind: 'rankCard', part, ...span(rankCardSec) });
+  out.push({ kind: 'scoreboard', part, ...span(scoreboardSec) });
+  const o = span(outroSec);
+  out.push({ kind: 'outro', part, ...o, endScreen: { from: o.to - secToTicks(endScreenSec), to: o.to } });
+  return out;
+};
+
+export const segments: Segment[] = buildSegments();
+export const TOTAL_TICKS = segments[segments.length - 1].to;
+export const TOTAL_SEC = ticksToSec(TOTAL_TICKS);
+/** Composition length at the render rate. */
+export const RENDER_TOTAL_FRAMES = ticksToFrames(TOTAL_TICKS);
+
+/** The segment on screen at design tick `tick`, with the tick local to it. */
+export const locate = (tick: number): { seg: Segment; local: number; index: number } => {
+  for (let i = segments.length - 1; i >= 0; i--) if (tick >= segments[i].from) return { seg: segments[i], local: tick - segments[i].from, index: i };
+  return { seg: segments[0], local: 0, index: 0 };
+};
+/** Render-frame range of a segment or phase. */
+export const frameRange = (r: Range): { from: number; to: number; frames: number } => {
+  const from = ticksToFrames(r.from);
+  const to = ticksToFrames(r.to);
+  return { from, to, frames: to - from };
+};
+
+/* ---------- parts ---------- */
+export type PartRange = Range & { name: string; part: PartNo; ticks: number; renderFrom: number; renderTo: number; frames: number };
+
+export const partLabels: Record<PartNo, string> = {
+  1: 'Hook + Level 1 + Bonus 1',
+  2: 'Level 2 + Bonus 2',
+  3: 'Level 3 + check-in + Bonus 3',
+  4: 'Level 4 + Bonus 4',
+  5: 'Level 5 + callback + Bonus 5',
+  6: 'Rank card + scoreboard + outro',
+};
+
+const partRange = (part: PartNo): PartRange => {
+  const segs = segments.filter((s) => s.part === part);
+  const from = segs[0].from;
+  const to = segs[segs.length - 1].to;
+  const renderFrom = ticksToFrames(from);
+  const renderTo = ticksToFrames(to);
+  return { name: `Part${part}`, part, from, to, ticks: to - from, renderFrom, renderTo, frames: renderTo - renderFrom };
+};
+export const partRanges: PartRange[] = ([1, 2, 3, 4, 5, 6] as PartNo[]).map(partRange);
+
+/* ---------- chapters ---------- */
+const titleCase = (s: string): string => s.split('-').map((w) => w[0].toUpperCase() + w.slice(1)).join(' ');
+/** YouTube chapter lines, "m:ss Title". Chapters are in segment order. */
+export const chapters: string[] = (() => {
+  const at = (s: Segment): string => timecode(ticksToSec(s.from));
+  const lines: string[] = [];
+  segments.forEach((s) => {
+    if (s.kind === 'hook') lines.push(`${at(s)} Intro`);
+    else if (s.kind === 'levelCard') lines.push(`${at(s)} Level ${s.level}: ${levelColors[s.level].name}`);
+    else if (s.kind === 'bonus') lines.push(`${at(s)} Bonus ${s.bonus.n}: ${titleCase(s.bonus.name)}`);
+    else if (s.kind === 'rankCard') lines.push(`${at(s)} Your rank`);
+    else if (s.kind === 'outro') lines.push(`${at(s)} Outro`);
+  });
+  return lines;
+})();
