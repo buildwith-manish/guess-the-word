@@ -88,3 +88,18 @@ Timing (1c) is done, so "Task 2 (timing.ts / system.ts / fonts)" from the older 
 - `src/dontsay/components/HeartsPill.tsx`: props `at?` (omit = settled, no animation), `bonus`, `left`, `top`, `frame`. Pill springs once (gentle, settles ~15 ticks); hearts follow on a 4-tick stagger from `at+3`. Never changes afterwards. `HEART_COUNT = 3` is a UI constant here (not in data.ts).
 - `src/dontsay/components/ListeningGlow.tsx`: props `round`, `wakeAt`, `dimAt`, `offAt`, `card` (rect in ref units, default centre), `frame`. Glow dims to 0.4 over 8 ticks from `dimAt`, off by `offAt`. 5-7 bars, deterministic hash of the round number (no Math.random).
 - Scene (3a) must pass wakeAt/dimAt/offAt from the round's `phases` in timing.ts. Nothing rendered.
+
+## Task 2d: DONE (files compile; repo-wide tsc still fails on pre-existing errors)
+
+- `src/dontsay/components/CountdownNumber.tsx` (`CountdownNumber`, `EdgeBeat`): island pill, tabular Nunito 800 seconds, progress line, red + edge pulse for the last URGENT_SECONDS (2 s, shared/timerMath). Props: `level`, `at` (tick the timer starts = end of intro), `top`, `frame`, `edge`. Duration = `timerSecFor(level)`.
+- `src/dontsay/components/ResultBeat.tsx` (`ResultBeat`, `resultLineOf`, `resultClipId`): chip "Same answer" (red, `collision` sfx at 0.55) / "Different? Safe" (green, `safe-pulse` sfx). Props: `round`, `outcome`, `at` (tick the result phase starts), `anchor`, `frame`. No heart drawn or animated. `round.skipResultLine` skips chip and sfx.
+- `data.ts`: added `resultLines` and `resultLineFor(n, safe)` (additive).
+- Nothing rendered. No composition uses these yet.
+
+### Open points
+- `shared/EdgeGlow` and `shared/TimerRing` do not exist, so the red pulse and island pill are drawn inside CountdownNumber. Swap when 2a lands them.
+- `data.ts` has no per-round outcome (`collision` is High/Medium/Low odds, not a result), so RoundScene must pass `outcome`.
+- No round has `skipResultLine: true` in rounds.json, so nothing is skipped yet.
+- `resultLines` in rounds.json mention losing/deleting hearts. They are spoken only and never shown on screen; check they fit rule 7 before the voice pass. Clip id `rNN_result` is a guess.
+- ResultBeat has no InkBubble yet (2b): the chip sits at `anchor` (default frame centre) + 150 ref units down.
+- Pre-existing tsc errors: `shared/index.ts` re-exports 8 missing files; `system.ts` imports `levelColours` (data.ts has `levelColors`).

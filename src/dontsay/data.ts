@@ -97,6 +97,12 @@ const fixBonus = (b: Bonus): Bonus => {
 // ---------- exports ----------
 export const sourceName: string | null = (roundsJson.meta as { sourceName: string | null }).sourceName ?? null;
 
+/** Spoken lines that rotate after each reveal (the last one is the "safe" line). Spoken only, never animated. */
+export const resultLines: string[] = [...(roundsJson as unknown as { resultLines: string[] }).resultLines];
+/** Rotating result line: collisions cycle through all but the last line; a safe round uses the last one. */
+export const resultLineFor = (roundN: number, safe: boolean): string =>
+  safe ? resultLines[resultLines.length - 1] : resultLines[(roundN - 1) % (resultLines.length - 1)];
+
 /** 45 rounds, play order. */
 export const rounds: Round[] = (roundsJson.rounds as unknown as Round[]).map(fixRound);
 
