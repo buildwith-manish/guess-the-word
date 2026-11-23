@@ -47,3 +47,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
+# NFL voiceover working folders (source/ and clips/ are committed)
+public/nfl/voiceover/raw/
+public/nfl/voiceover/clips_master/

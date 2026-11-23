@@ -110,19 +110,19 @@ const durOf = new Map(clipTimings.map((c) => [rowKey(c.type, c.key), c.durSec] a
 export const clipSec = (type: ClipType, key = ''): number | undefined => durOf.get(rowKey(type, key));
 
 const range = (n: number): number[] => Array.from({ length: n }, (_, i) => i + 1);
+const range0 = (n: number): number[] => Array.from({ length: n }, (_, i) => i);
 const dykCards: Card[] = cards.filter((c) => c.didYouKnow);
 const needed: [ClipType, string][] = [
   ['hook', ''],
-  ['level', 'starter'],
-  ['level', 'hof'],
-  ...levels.filter((l) => l !== 'hof').map((l): [ClipType, string] => ['scorecard', l]),
+  ...levels.map((l): [ClipType, string] => ['level', l]),
+  ...levels.map((l): [ClipType, string] => ['scorecard', l]), // the Hall of Fame one is "That was card thirty" (opens the collection)
   ...cards.flatMap((c): [ClipType, string][] => [
     ['cardintro', String(c.n)],
     ...range(5).map((i): [ClipType, string] => ['clue', `${c.n}.${i}`]),
     ['reveal', String(c.n)],
   ]),
   ...dykCards.map((c): [ClipType, string] => ['dyk', String(c.n)]),
-  ...range(PREDICTION_CLIPS).map((i): [ClipType, string] => ['prediction', String(i)]),
+  ...range0(PREDICTION_CLIPS).map((i): [ClipType, string] => ['prediction', String(i)]), // '0' = intro, '1'..'3' = picks
   ...range(ranks.length).map((i): [ClipType, string] => ['rank', String(i)]),
   ...range(OUTRO_CLIPS).map((i): [ClipType, string] => ['outro', String(i)]),
 ];
@@ -134,7 +134,7 @@ const sum = (a: number[]): number => a.reduce((x, y) => x + y, 0);
 const slotOf = (minSec: number, clipLenSec: number): number => (useClipTimings ? Math.max(minSec, clipLenSec + clipPadSec) : minSec);
 
 /** Seconds per slot, in order. Prediction and outro lists are empty without clip timings. */
-export const predictionSlotSec: number[] = useClipTimings ? range(PREDICTION_CLIPS).map((i) => dur('prediction', String(i)) + clipPadSec) : [];
+export const predictionSlotSec: number[] = useClipTimings ? range0(PREDICTION_CLIPS).map((i) => dur('prediction', String(i)) + clipPadSec) : [];
 /** Per rank, in the order of `ranks` (best first); clip key is the position in `ranks` + 1 (best = '1'). */
 export const rankSlotSec: number[] = ranks.map((_, i) => slotOf(rankStepSec, dur('rank', String(i + 1))));
 export const outroSlotSec: number[] = useClipTimings ? range(OUTRO_CLIPS).map((i) => dur('outro', String(i)) + clipPadSec) : [];

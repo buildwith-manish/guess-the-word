@@ -1,0 +1,242 @@
+id,type,text
+nfl_001,hook,Thirty NFL players. Five clues each. Let us scout.
+nfl_002,level,Level one: Rookie. Famous names.
+nfl_003,cardintro,Card one.
+nfl_004,clue,"Drafted one hundred and ninety-ninth overall, in the sixth round, in two thousand."
+nfl_005,clue,College: Michigan. Jersey number twelve.
+nfl_006,clue,"Won three regular-season MVP awards: two thousand and seven, twenty ten and twenty seventeen."
+nfl_007,clue,Threw six hundred and forty-nine regular-season touchdown passes.
+nfl_008,clue,"Won seven Super Bowls, with the Patriots and the Buccaneers."
+nfl_009,reveal,Tom Brady. A sixth-round pick who won seven Super Bowls.
+nfl_010,cardintro,Card two.
+nfl_011,clue,Drafted sixteenth overall in nineteen eighty-five out of Mississippi Valley State.
+nfl_012,clue,Wore number eighty.
+nfl_013,clue,Super Bowl twenty-three MVP.
+nfl_014,clue,"Caught one thousand, five hundred and forty-nine passes in a twenty-season career."
+nfl_015,clue,"NFL all-time receiving yards leader, with twenty-two thousand, eight hundred and ninety-five, for the 49ers."
+nfl_016,reveal,"Jerry Rice. Twenty-two thousand, eight hundred and ninety-five receiving yards, still the record."
+nfl_017,cardintro,Card three.
+nfl_018,clue,Drafted seventeenth overall in nineteen ninety out of Florida.
+nfl_019,clue,Wore number twenty-two.
+nfl_020,clue,Named NFL MVP in nineteen ninety-three.
+nfl_021,clue,"Super Bowl twenty-eight MVP, with three Super Bowl wins."
+nfl_022,clue,"NFL all-time rushing yards leader, with eighteen thousand, three hundred and fifty-five, for the Cowboys."
+nfl_023,reveal,Emmitt Smith.
+nfl_024,dyk,Did you know? He also holds the career record with one hundred and sixty-four rushing touchdowns.
+nfl_025,cardintro,Card four.
+nfl_026,clue,Drafted fourth overall in nineteen seventy-five out of Jackson State.
+nfl_027,clue,"Wore number thirty-four and played thirteen seasons, nineteen seventy-five to nineteen eighty-seven."
+nfl_028,clue,Won Super Bowl twenty.
+nfl_029,clue,"Second in rushing yards, sixteen thousand, seven hundred and twenty-six, behind Emmitt Smith."
+nfl_030,clue,"Nicknamed Sweetness, a Bears legend."
+nfl_031,reveal,"Walter Payton. Sweetness, and the NFLs Man of the Year award is named for him."
+nfl_032,cardintro,Card five.
+nfl_033,clue,"Drafted third overall, nineteen eighty-nine, Oklahoma State."
+nfl_034,clue,Nineteen eighty-eight Heisman winner. Wore number twenty.
+nfl_035,clue,"Retired suddenly in nineteen ninety-nine, age thirty-one."
+nfl_036,clue,Rushed for two thousand and fifty-three yards in nineteen ninety-seven.
+nfl_037,clue,"Fifteen thousand, two hundred and sixty-nine rushing yards, all for Detroit."
+nfl_038,reveal,"Barry Sanders. He walked away at thirty-one, with fifteen thousand, two hundred and sixty-nine rushing yards."
+nfl_039,cardintro,Card six.
+nfl_040,clue,Drafted first overall in nineteen ninety-eight out of Tennessee.
+nfl_041,clue,Wore number eighteen.
+nfl_042,clue,"In twenty thirteen, threw fifty-five touchdown passes for five thousand, four hundred and seventy-seven yards."
+nfl_043,clue,Won five league MVP awards and Super Bowl forty-one MVP.
+nfl_044,clue,"Quarterback for the Colts, then the Broncos."
+nfl_045,reveal,Peyton Manning.
+nfl_046,dyk,Did you know? His younger brother Eli won two Super Bowl MVPs.
+nfl_047,cardintro,Card seven.
+nfl_048,clue,"Third-round pick, eighty-second overall, nineteen seventy-nine, Notre Dame."
+nfl_049,clue,"Wore number sixteen, retired by the 49ers."
+nfl_050,clue,Led a ninety-two-yard drive in Super Bowl twenty-three.
+nfl_051,clue,Threw The Catch in the nineteen eighty-one NFC Championship Game.
+nfl_052,clue,Nicknamed Joe Cool. Won four Super Bowls.
+nfl_053,reveal,"Joe Montana. Four Super Bowls, and he never lost one."
+nfl_054,cardintro,Card eight.
+nfl_055,clue,Drafted twenty-first overall in nineteen ninety-eight out of Marshall.
+nfl_056,clue,Caught seventeen touchdowns as a rookie.
+nfl_057,clue,"Played for the Vikings, Raiders, Patriots, Titans and 49ers."
+nfl_058,clue,Caught one hundred and fifty-six career touchdowns. Hall of Fame class of twenty eighteen.
+nfl_059,clue,Caught a record twenty-three touchdowns in two thousand and seven with the Patriots.
+nfl_060,reveal,"Randy Moss. Twenty-three touchdowns in one season, an NFL record."
+nfl_061,cardintro,Card nine.
+nfl_062,clue,Chiefs traded up from pick twenty-seven to ten in twenty seventeen.
+nfl_063,clue,College: Texas Tech. Wears number fifteen.
+nfl_064,clue,"First start: Week seventeen of twenty seventeen, against Denver."
+nfl_065,clue,NFL MVP in twenty eighteen and in twenty twenty-two.
+nfl_066,clue,"Won three Super Bowl MVP awards: fifty-four, fifty-seven and fifty-eight."
+nfl_067,reveal,Patrick Mahomes.
+nfl_068,dyk,Did you know? Kansas City sent two first-round picks and a third to move up.
+nfl_069,cardintro,Card ten.
+nfl_070,clue,"Second-round pick, thirty-third overall, nineteen ninety-one, by Atlanta."
+nfl_071,clue,College: Southern Mississippi. Wore number four.
+nfl_072,clue,"Played for the Falcons, Packers, Jets and Vikings."
+nfl_073,clue,"Won three straight MVP awards, nineteen ninety-five to nineteen ninety-seven."
+nfl_074,clue,"Started two hundred and ninety-seven straight regular-season games, three hundred and twenty-one with the playoffs."
+nfl_075,reveal,"Brett Favre. Two hundred and ninety-seven straight starts, a record for a quarterback."
+nfl_076,scorecard,Ten cards down. Keep your score.
+nfl_077,level,Level two: Starter. Record holders.
+nfl_078,cardintro,Card eleven.
+nfl_079,clue,Drafted second overall in nineteen eighty-three out of SMU.
+nfl_080,clue,Wore number twenty-nine and prescription goggles.
+nfl_081,clue,"Played for the Rams, Colts, Raiders and Falcons."
+nfl_082,clue,"Rushed for thirteen thousand, two hundred and fifty-nine career yards."
+nfl_083,clue,"Rushed for two thousand, one hundred and five yards in nineteen eighty-four, the NFL single-season record."
+nfl_084,reveal,"Eric Dickerson. Two thousand, one hundred and five yards in one season, and nobody has beaten it."
+nfl_085,cardintro,Card twelve.
+nfl_086,clue,Drafted second overall in two thousand and seven out of Georgia Tech.
+nfl_087,clue,"Wore number eighty-one and played nine seasons, two thousand and seven to twenty fifteen."
+nfl_088,clue,"Retired in March twenty sixteen, at age thirty."
+nfl_089,clue,Hall of Fame class of twenty twenty-one. Nickname: Megatron.
+nfl_090,clue,"Caught for one thousand, nine hundred and sixty-four yards in twenty twelve, the NFL single-season record."
+nfl_091,reveal,Calvin Johnson.
+nfl_092,dyk,"Did you know? He retired at thirty, with the Detroit Lions."
+nfl_093,cardintro,Card thirteen.
+nfl_094,clue,Drafted fifth overall in two thousand and one out of TCU.
+nfl_095,clue,Wore number twenty-one.
+nfl_096,clue,"Chargers, two thousand and one to two thousand and nine. Jets, twenty ten and twenty eleven."
+nfl_097,clue,"Rushed for thirteen thousand, six hundred and eighty-four career yards."
+nfl_098,clue,"Twenty-eight rushing touchdowns in two thousand and six, an NFL record."
+nfl_099,reveal,LaDainian Tomlinson. Twenty-eight rushing touchdowns in one season.
+nfl_100,cardintro,Card fourteen.
+nfl_101,clue,Drafted twenty-seventh overall in nineteen eighty-three out of Pittsburgh.
+nfl_102,clue,Wore number thirteen.
+nfl_103,clue,Played in just one Super Bowl: nineteen.
+nfl_104,clue,"Threw sixty-one thousand, three hundred and sixty-one career yards and four hundred and twenty touchdowns."
+nfl_105,clue,"Threw five thousand and eighty-four yards, forty-eight touchdowns for the Dolphins, nineteen eighty-four."
+nfl_106,reveal,"Dan Marino. Five thousand and eighty-four yards in nineteen eighty-four, a record that stood for twenty-seven years. Drew Brees passed it in twenty eleven."
+nfl_107,cardintro,Card fifteen.
+nfl_108,clue,"Drafted third overall, two thousand and four, Pittsburgh."
+nfl_109,clue,Wore number eleven his whole career.
+nfl_110,clue,"Seventeen seasons, all with Arizona."
+nfl_111,clue,"Caught one thousand, four hundred and thirty-two passes for seventeen thousand, four hundred and ninety-two yards."
+nfl_112,clue,"Second in receiving yards, behind Rice."
+nfl_113,reveal,Larry Fitzgerald.
+nfl_114,dyk,Did you know? He reached Super Bowl forty-three with Arizona.
+nfl_115,cardintro,Card sixteen.
+nfl_116,clue,"Third-round pick, eighty-ninth overall, nineteen ninety-six, Chattanooga."
+nfl_117,clue,Wore number eighty-one.
+nfl_118,clue,"Played for the 49ers, Eagles, Cowboys, Bills and Bengals."
+nfl_119,clue,"Caught one thousand and seventy-eight passes for fifteen thousand, nine hundred and thirty-four yards."
+nfl_120,clue,Scored one hundred and fifty-three career receiving touchdowns. Nickname T.O.
+nfl_121,reveal,Terrell Owens. One hundred and fifty-three receiving touchdowns across five NFL teams.
+nfl_122,cardintro,Card seventeen.
+nfl_123,clue,Drafted first overall in nineteen eighty-five out of Virginia Tech.
+nfl_124,clue,Wore number seventy-eight.
+nfl_125,clue,"Bills, nineteen eighty-five to nineteen ninety-nine. Redskins, two thousand to two thousand and three."
+nfl_126,clue,Four straight Super Bowls with Buffalo.
+nfl_127,clue,"NFL all-time sack leader, with two hundred."
+nfl_128,reveal,"Bruce Smith. Two hundred sacks, the most in NFL history."
+nfl_129,cardintro,Card eighteen.
+nfl_130,clue,"Fourth pick, nineteen eighty-four Supplemental Draft, after a USFL stint."
+nfl_131,clue,College: Tennessee. Wore number ninety-two.
+nfl_132,clue,"Averaged one point seven five sacks per game in nineteen eighty-seven, an NFL record."
+nfl_133,clue,Won Super Bowl thirty-one with the Packers.
+nfl_134,clue,Nicknamed Minister of Defense. Recorded one hundred and ninety-eight NFL sacks.
+nfl_135,reveal,Reggie White.
+nfl_136,dyk,Did you know? He had two hundred and twenty-one point five sacks counting his USFL games.
+nfl_137,cardintro,Card nineteen.
+nfl_138,clue,"Second-round pick, thirty-second overall, two thousand and one, Purdue."
+nfl_139,clue,Wore number nine.
+nfl_140,clue,"Chargers, two thousand and one to two thousand and five. Saints, two thousand and six to twenty twenty."
+nfl_141,clue,Super Bowl forty-four MVP.
+nfl_142,clue,"Threw eighty thousand, three hundred and fifty-eight career yards, second all-time."
+nfl_143,reveal,"Drew Brees. Eighty thousand, three hundred and fifty-eight passing yards, second only to Tom Brady."
+nfl_144,cardintro,Card twenty.
+nfl_145,clue,Drafted twenty-sixth overall in nineteen ninety-six out of Miami.
+nfl_146,clue,Wore number fifty-two.
+nfl_147,clue,"Spent his whole career, nineteen ninety-six to twenty twelve, with the Ravens."
+nfl_148,clue,Defensive Player of the Year in two thousand and two thousand and three.
+nfl_149,clue,Super Bowl thirty-five MVP. Won again in forty-seven.
+nfl_150,reveal,"Ray Lewis. One team, seventeen seasons, two Super Bowl wins."
+nfl_151,scorecard,Twenty cards down. Keep your score.
+nfl_152,level,Level three: Hall of Fame. Deep cuts.
+nfl_153,cardintro,Card twenty-one.
+nfl_154,clue,"Fourteenth-round pick, one hundred and eighty-sixth overall, in nineteen sixty-one."
+nfl_155,clue,Wore number seventy-five for the Rams.
+nfl_156,clue,Part of the Fearsome Foursome defensive line.
+nfl_157,clue,Hall of Fame class of nineteen eighty.
+nfl_158,clue,His unofficial sack total is one hundred and seventy-three point five.
+nfl_159,reveal,"Deacon Jones. One hundred and seventy-three point five unofficial sacks, as a fourteenth-round pick."
+nfl_160,cardintro,Card twenty-two.
+nfl_161,clue,Went undrafted out of Northern Iowa in nineteen ninety-four.
+nfl_162,clue,Stocked shelves at a Hy-Vee grocery store.
+nfl_163,clue,"Arena League with the Barnstormers, then NFL Europe."
+nfl_164,clue,"Two-time league MVP, nineteen ninety-nine and two thousand and one."
+nfl_165,clue,Super Bowl thirty-four MVP with the Rams.
+nfl_166,reveal,Kurt Warner.
+nfl_167,dyk,Did you know? He stocked shelves before he became a two-time MVP.
+nfl_168,cardintro,Card twenty-three.
+nfl_169,clue,Drafted seventeenth overall in nineteen seventy-eight out of Grambling State.
+nfl_170,clue,"Played for the Buccaneers, the USFLs Outlaws, then Washington."
+nfl_171,clue,Threw for three hundred and forty yards in Super Bowl twenty-two.
+nfl_172,clue,"Threw four touchdown passes, all in the second quarter."
+nfl_173,clue,First Black quarterback to win a Super Bowl.
+nfl_174,reveal,"Doug Williams. Four touchdowns in one quarter, and a first for the sport."
+nfl_175,cardintro,Card twenty-four.
+nfl_176,clue,Won the nineteen ninety-one Heisman Trophy at Michigan.
+nfl_177,clue,Drafted fourth overall in nineteen ninety-two by Washington.
+nfl_178,clue,"Played for five NFL teams, including the Raiders."
+nfl_179,clue,Ninety-nine-yard kickoff return touchdown in a Super Bowl.
+nfl_180,clue,"Super Bowl thirty-one MVP, a return specialist for the Packers."
+nfl_181,reveal,Desmond Howard.
+nfl_182,dyk,Did you know? He gained two hundred and forty-four all-purpose yards in that Super Bowl.
+nfl_183,cardintro,Card twenty-five.
+nfl_184,clue,"Drafted thirteenth overall, nineteen seventy-two, Penn State."
+nfl_185,clue,Wore number thirty-two for the Steelers.
+nfl_186,clue,"Rushed for twelve thousand, one hundred and twenty career yards."
+nfl_187,clue,"Super Bowl nine MVP, one hundred and fifty-eight yards."
+nfl_188,clue,Immaculate Reception. Four Super Bowl rings.
+nfl_189,reveal,"Franco Harris. The Immaculate Reception, then four Super Bowl rings."
+nfl_190,cardintro,Card twenty-six.
+nfl_191,clue,"Drafted in the twelfth round, three hundred and twentieth overall, in nineteen ninety-one."
+nfl_192,clue,"Played at Los Angeles Southwest College, then TCU."
+nfl_193,clue,"Cornerback, later with the Raiders and Vikings."
+nfl_194,clue,Two second-half interceptions in a Super Bowl.
+nfl_195,clue,Super Bowl thirty MVP with the Cowboys.
+nfl_196,reveal,Larry Brown. A twelfth-round pick who became a Super Bowl MVP.
+nfl_197,cardintro,Card twenty-seven.
+nfl_198,clue,Won the nineteen seventy Heisman Trophy at Stanford.
+nfl_199,clue,Drafted first overall in nineteen seventy-one by the Patriots.
+nfl_200,clue,Wore number sixteen. Also played for the 49ers.
+nfl_201,clue,Won Super Bowls fifteen and eighteen with the Raiders.
+nfl_202,clue,"Super Bowl fifteen MVP, a comeback story with the Raiders."
+nfl_203,reveal,Jim Plunkett.
+nfl_204,dyk,"Did you know? A first overall pick, and he won two Super Bowls with the Raiders."
+nfl_205,cardintro,Card twenty-eight.
+nfl_206,clue,"Sixth-round pick, two hundred and twelfth overall, twenty twenty-four, Arkansas."
+nfl_207,clue,"Wears number thirty-nine, the youngest kicker ever drafted."
+nfl_208,clue,Kicked seventy yards in a twenty twenty-five preseason game. Unofficial.
+nfl_209,clue,Set the outdoor record: a sixty-seven-yarder against Tennessee.
+nfl_210,clue,Broke Justin Tuckers record with a sixty-eight-yarder for Jacksonville.
+nfl_211,reveal,"Cam Little. Sixty-eight yards, and he broke Justin Tuckers sixty-six-yard record."
+nfl_212,cardintro,Card twenty-nine.
+nfl_213,clue,"Third-round pick, sixty-ninth overall, twenty seventeen, Eastern Washington."
+nfl_214,clue,"Wore number eighteen as a rookie, then number ten."
+nfl_215,clue,"Led the NFL in catches, yards and touchdowns, twenty twenty-one."
+nfl_216,clue,"Twenty twenty-one stat line: one hundred and forty-five catches, one thousand, nine hundred and forty-seven yards, sixteen touchdowns."
+nfl_217,clue,"Super Bowl fifty-six MVP, with the Rams."
+nfl_218,reveal,Cooper Kupp. A third-round pick who won the receiving triple crown.
+nfl_219,cardintro,Final card. Card thirty.
+nfl_220,clue,"Drafted in the seventeenth round, two hundredth overall, in nineteen fifty-six."
+nfl_221,clue,College: Alabama. Wore number fifteen.
+nfl_222,clue,"Won five NFL championships: nineteen sixty-one, nineteen sixty-two, nineteen sixty-five, nineteen sixty-six and nineteen sixty-seven."
+nfl_223,clue,MVP of the first two Super Bowls.
+nfl_224,clue,His sneak won the nineteen sixty-seven Ice Bowl.
+nfl_225,reveal,Bart Starr.
+nfl_226,dyk,Did you know? He was the two hundredth pick in the nineteen fifty-six draft.
+nfl_227,scorecard,That was card thirty. Let us see your score.
+nfl_228,prediction,Before your score: three games this week. Lock in your pick.
+nfl_229,prediction,"Pick one. Thursday night: Kansas City Chiefs at the Los Angeles Rams, kickoff eight fifteen Eastern. Who wins?"
+nfl_230,prediction,"Pick two. Sunday: Buffalo Bills at the New England Patriots, kickoff four twenty-five Eastern. Who wins?"
+nfl_231,prediction,"Pick three. Sunday night: Houston Texans at the Pittsburgh Steelers, kickoff eight twenty Eastern. Who wins?"
+nfl_232,rank,Under thirty-one: Practice Squad.
+nfl_233,rank,Thirty-one to sixty: Starter.
+nfl_234,rank,Sixty-one to ninety: Pro Bowler.
+nfl_235,rank,Ninety-one to one hundred twenty: All-Pro.
+nfl_236,rank,One hundred twenty-one or more: Hall of Famer.
+nfl_237,outro,"Comment your score out of one hundred fifty, and screenshot your rank card."
+nfl_238,outro,Which card beat you? Tell me the number.
+nfl_239,outro,Do not forget your three picks.
+nfl_240,outro,Subscribe so you do not miss the results.
+nfl_241,outro,Full thirty card quiz on the channel.
