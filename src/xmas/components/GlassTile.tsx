@@ -17,8 +17,8 @@ import { ClueImage } from './ClueImage';
 export type GlassTileSide = 'left' | 'right' | 'bonus' | 'none';
 
 export type GlassTileProps = {
-  /** Clue image id for ClueImage, e.g. "s01_c1". */
-  imageId: string;
+  /** Clue image id for ClueImage, e.g. "s01_c1". Omit for an empty glass tile (the Hook). */
+  imageId?: string;
   /** left = green light zone, right = red, bonus = gold glass and gold light, none = no light zone (tiles inside bonus layouts). */
   side: GlassTileSide;
   /** Tile edge in reference units. Default is the movie tile (LAYOUT.tile.size, 400). */
@@ -117,9 +117,11 @@ export const GlassTile: React.FC<GlassTileProps> = ({ imageId, side, size = LAYO
       {zone ? <div style={zone} /> : null}
       <div style={{ position: 'absolute', inset: 0, ...glass }}>
         <div style={glossStyle(size)} />
-        <div style={{ position: 'absolute', left: `${((1 - box) / 2) * 100}%`, top: `${((1 - box) / 2) * 100}%`, width: `${box * 100}%`, height: `${box * 100}%` }}>
-          <ClueImage id={imageId} radius={0} />
-        </div>
+        {imageId ? (
+          <div style={{ position: 'absolute', left: `${((1 - box) / 2) * 100}%`, top: `${((1 - box) / 2) * 100}%`, width: `${box * 100}%`, height: `${box * 100}%` }}>
+            <ClueImage id={imageId} radius={0} />
+          </div>
+        ) : null}
       </div>
     </div>
   );
