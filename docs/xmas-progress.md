@@ -17,7 +17,7 @@ Note: docs/xmas-prompts-split.md has 26 task headings (1a-1e, 2a-2f, 3a-3b, 4a-4
 - [ ] 2f  BonusScene, registry, XMAS-Bonus
 - [x] 3a  MovieScene, Preview
 - [ ] 3b  Hook, XMAS-Hook
-- [ ] 4a  Spotlight, Autocomplete
+- [x] 4a  Spotlight, Autocomplete
 - [ ] 4b  Focus, CleanUp
 - [ ] 4c  OddOneOut, CountLights, ControlCenter
 - [ ] 4d  DoubleFeature, SpeedRound, Finale

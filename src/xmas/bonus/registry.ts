@@ -4,6 +4,8 @@ import { UI } from '../ui';
 import { CleanUp } from './CleanUp';
 import { Focus } from './Focus';
 import { PlaceholderRound } from './PlaceholderRound';
+import { Autocomplete } from './Autocomplete';
+import { Spotlight } from './Spotlight';
 
 /**
  * registry.ts: the contract of a bonus round, and the table that maps bonus 1..10 to its component.
@@ -30,11 +32,11 @@ export const PLAY_AREA = { x: 218, y: 138, w: 844, h: 400 } as const;
 
 /** bonus number (1..10, `slot.bonus`) -> round component. Every entry is a placeholder until its task replaces it. */
 export const rounds: Readonly<Record<number, RoundComponent>> = {
-  1: PlaceholderRound, // 4a Spotlight
+  1: Spotlight, // 4a Spotlight
   2: Focus, // 4b Focus
   3: PlaceholderRound, // 4c Odd One Out
   4: PlaceholderRound, // 4d Double Feature
-  5: PlaceholderRound, // 4a Autocomplete
+  5: Autocomplete, // 4a Autocomplete
   6: CleanUp, // 4b Clean Up
   7: PlaceholderRound, // 4c Count the Lights
   8: PlaceholderRound, // 4c Control Center

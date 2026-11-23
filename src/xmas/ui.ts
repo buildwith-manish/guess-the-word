@@ -20,6 +20,16 @@ export const UI = {
   rankCard: 'YOUR RANK',
   /** optional outro ask (see showPartTwoAsk); it has no voice clip yet */
   partTwoAsk: 'Want forty more? Comment part two.',
+  /** empty search field (Spotlight bonus) */
+  searchPlaceholder: 'Search',
+} as const;
+
+/** The drawn keyboard (Autocomplete bonus): letter rows and the labels of its wide keys. Shapes (shift, delete) are drawn in code. */
+export const KEYBOARD = {
+  rows: ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'],
+  numbers: '123',
+  space: 'space',
+  enter: 'return',
 } as const;
 
 /** One switch: show the optional "Want forty more? Comment part two." ask in the outro, just before the subscribe ask. Off by default. */
