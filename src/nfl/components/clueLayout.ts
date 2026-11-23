@@ -13,8 +13,6 @@ export const LAYOUT = {
   card: { w: 1024, h: 592 },
   header: 8,
   footer: 48,
-  /** Part of the footer that carries text: the text stays inside it (card top + card h - footer + footerText = 648). The rest of the footer is surface only. */
-  footerText: 32,
   /** Top-left chip and top-right watermark: distance from the left and right frame edges. */
   cornerInset: 48,
   pad: 24,

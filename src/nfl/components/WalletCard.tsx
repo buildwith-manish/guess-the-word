@@ -42,7 +42,7 @@ const HEADER_H = LAYOUT.header;
 const FOOTER_H = LAYOUT.footer;
 const PAD = LAYOUT.pad;
 const GAP = LAYOUT.gap;
-const FOOTER_BORDER = 1.5; // footer top border; the text zone starts below it, so the text still ends at footer top + footerText
+const FOOTER_BORDER = 1.5; // footer top border (the timer line sits on it); the text is centred between it and the card bottom
 const ANSWER_W = LAYOUT.answerW;
 const BODY_PAD_Y = LAYOUT.bodyPadY;
 const CARD_W = LAYOUT.card.w; // 1024 = safeBox.w
@@ -247,8 +247,8 @@ export const WalletCard: React.FC<WalletCardProps> = ({ card, state, frame, sinc
             boxSizing: 'border-box',
           }}
         >
-          {/* text zone: the top footerText units of the footer; the rest is surface only */}
-          <div style={{ position: 'absolute', left: px(PAD), right: px(PAD), top: 0, height: px(LAYOUT.footerText - FOOTER_BORDER), display: 'flex', alignItems: 'center' }}>
+          {/* text zone: the whole footer under the timer line, so the lock, words and points are centred between the line and the card bottom */}
+          <div style={{ position: 'absolute', left: px(PAD), right: px(PAD), top: 0, height: px(FOOTER_H - FOOTER_BORDER), display: 'flex', alignItems: 'center' }}>
             <Shake frame={frame} at={state === 'locked' ? since : -1e9} dur={Math.round(SPRINGS.slow * FPS)} amp={5} seed={card.n} style={{ display: 'flex' }}>
               <Lock closed={locked && !unlocked} color={lockColor} size={24} />
             </Shake>
