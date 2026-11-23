@@ -1,9 +1,11 @@
 /**
  * sfxCues.ts: per-part SFX cue lists for "Don't Say The Same As Me".
  * Ticks are 30 fps design ticks, local to the part (0 = first frame of the part).
- * Part 1 to 5 lists are added by tasks 4i to 4m.
+ * Part 5 list added by task 4m; parts 1 to 4 by tasks 4i to 4l.
  */
 import { partRanges, segments } from './timing';
+import { round45Cues } from './scenes/Round45Callback';
+import { bonusVoiceOnlyCues } from './scenes/BonusVoiceOnly';
 import { outroCues } from './scenes/Outro';
 import { levelCardCues } from './scenes/LevelCard';
 import { revealCues } from './components/RevealEngine';
@@ -18,6 +20,33 @@ import type { SfxId } from './sfx';
 export type PartCue = { name: string; id: SfxId; tick: number; volume: number };
 
 const part2 = partRanges[1];
+const part5 = partRanges[4];
+
+/**
+ * Part 5 cues (task 4m), shifted from each scene's local clock to the part-5 clock.
+ * Mirrors the cue lists the scenes export: level card swell + sheet slide, the reveal cues of every
+ * round (RevealEngine), the callback chimes of the round with `callback`, and the voice-only bonus.
+ * Not mirrored: sounds that InkBubble, ResultBeat and BonusWrapper mount inside themselves.
+ */
+export const part5Cues = (): PartCue[] => {
+  const out: PartCue[] = [];
+  segments
+    .filter((s) => s.part === 5)
+    .forEach((s) => {
+      const base = s.from - part5.from;
+      if (s.kind === 'levelCard') {
+        levelCardCues(s.level, true).forEach((c) => out.push({ ...c, name: `level-${s.level}-${c.name}`, tick: c.tick + base }));
+      } else if (s.kind === 'round') {
+        const r = s.round;
+        revealCues(r, s.phases.beat.from - s.from).forEach((c) => out.push({ ...c, name: `r${r.n}-reveal-${c.name}`, tick: c.tick + base }));
+        if (r.callback) round45Cues(r).forEach((c) => out.push({ ...c, name: `r${r.n}-${c.name}`, tick: c.tick + base }));
+      } else if (s.kind === 'bonus') {
+        bonusVoiceOnlyCues().forEach((c) => out.push({ name: `bonus${s.bonus.n}-${c.id}`, id: c.id, tick: c.at + base, volume: c.volume }));
+      }
+    });
+  return out;
+};
+
 const part6 = partRanges[5];
 const seg = (kind: 'rankCard' | 'scoreboard' | 'outro') => {
   const s = segments.find((x) => x.part === 6 && x.kind === kind);

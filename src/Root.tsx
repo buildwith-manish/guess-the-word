@@ -18,6 +18,7 @@ import { BonusChainReaction as DontSayBonusChain } from './dontsay/scenes/BonusC
 import { BonusMindReader, bonusMindReaderFrames } from './dontsay/scenes/BonusMindReader';
 import { BonusOppositeDay, bonusOppositeDayFrames } from './dontsay/scenes/BonusOppositeDay';
 import { BonusVoiceOnly as DontSayBonusVoice } from './dontsay/scenes/BonusVoiceOnly';
+import { Part5 as DontSayPart5, part5Frames as dsPart5Frames } from './dontsay/parts/Part5';
 import { Part4 as DontSayPart4, part4Frames as dsPart4Frames } from './dontsay/parts/Part4';
 import { Part3 as DontSayPart3, part3Frames as dsPart3Frames } from './dontsay/parts/Part3';
 import { Part2 as DontSayPart2, part2Frames as dsPart2Frames } from './dontsay/parts/Part2';
@@ -77,6 +78,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="DontSay-HeartCheckIn" component={DontSayHeartCheckIn} durationInFrames={dsSecToFrames(DS_CHECKIN_SEC)} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
       <Composition id="DontSay-Bonus-3" component={DontSayBonusChain} durationInFrames={dsSecToFrames(DS_BONUS_SEC)} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
       <Composition id="DontSay-Bonus-5" component={DontSayBonusVoice} durationInFrames={dsSecToFrames(DS_BONUS_SEC)} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
+      <Composition id="DontSay-P5" component={DontSayPart5} durationInFrames={dsPart5Frames} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
       <Composition id="DontSay-P4" component={DontSayPart4} durationInFrames={dsPart4Frames} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
       <Composition id="DontSay-P3" component={DontSayPart3} durationInFrames={dsPart3Frames} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
       <Composition id="DontSay-P2" component={DontSayPart2} durationInFrames={dsPart2Frames} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />

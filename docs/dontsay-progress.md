@@ -302,3 +302,18 @@ Started, then stopped at the owner's request in favour of 4c. Nothing written. N
 - Part1.tsx does not exist yet (4i not built): Part6.tsx was used as the pattern.
 - timing.ts has no separate 4 s settingsCard segment for L2, so the sheet is the LevelCard `sheet` overlay inside the 4 s level card (visible about 2 s). A full 4 s sheet needs a timing.ts change that shifts every later segment.
 - Part2 hard-fails if part 2's bonus is not triple-lock.
+
+## Task 4m: DONE (tsc --noEmit clean; NOT rendered, remotion still blocked: remotion.media unreachable, ENOTFOUND)
+
+- `src/dontsay/parts/Part5.tsx`: `Part5`, `part5Range`, `part5Frames` (7380 = 123 s). Composition `DontSay-P5` in Root.tsx (additive, 1 import + 1 line). `part5Cues()` added to `src/dontsay/sfxCues.ts` (additive).
+- Everything is read from timing.ts `segments` (part 5): L5 LevelCard (with the SettingsCard sheet, `sheet` on), rounds 37-44 via RoundScene, round 45 via Round45Callback (picked by the data flag `round.callback`), Bonus 5 via BonusVoiceOnly (mapped by bonus number). The part throws on any other segment kind or an unmapped bonus. Heavy-rule rounds need no switch: RoundScene reads `round.heavy` (data: 37, 40, 42, 43, 44 and also 45).
+- Frames at 60 fps, local to P5 (from timing.ts): level card 0-239; round 37 starts 240; 38 at 960; 39 at 1560; 40 at 2160; 41 at 2880; 42 at 3480; 43 at 4200; 44 at 4920; round 45 at 5640 (780 frames); Bonus 5 at 6420 (960 frames, last frame 7379).
+- Check by eye: 5640 (round 45 start, bubble small); 5640+24..76 (cards launch 24/32/40/48, land 52/60/68/76); 5640+150 (bubble slide); 5891 (last frame of the 4.2 s callback intro) and 5892 (timer starts: 5640 + 252); 6419 (last frame of round 45) then 6420 (first frame of Voice Only: hard cut, no fade, no sealed bubble). Level card: 0, 120, 150 (sheet up), 230 (exit).
+
+### Open points
+- The rules sheet is shown inside the 4 s level card (`LevelCard sheet`, slides up at tick 54 = frame 108, so about 2.2 s on screen), not as its own 4 s segment: timing.ts has no settingsCard segment in part 5 and I did not change it (that would shift the runtime). Decision for the owner.
+- The level voice (`level_5`, the same clip id SettingsCard uses) and the card/sheet sounds are mounted by Part5 itself (LevelCard mounts none); the voice plays only if the clip exists in timings.generated.ts (still empty).
+- Round intro voice (`rNN_intro`) for rounds 37-44 is not mounted by Part5 or RoundScene (only Round45Callback mounts its own). Not touched here.
+- `part5Cues()` mirrors the scenes' exported cue lists (level card, reveal cues of each round, callback chimes, voice-only). Sounds mounted inside InkBubble, ResultBeat and BonusWrapper are not in it. It type-checks but was never run: importing scene files in plain Node fails on the font loader.
+- Backdrop under the level card is the previous level's wallpaper (first level in the part minus one, derived), black behind it.
+- Layout, overlaps, sheet over the exiting card and the callback-to-timer gap were not checked by eye.
