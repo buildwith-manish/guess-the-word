@@ -317,3 +317,21 @@ Started, then stopped at the owner's request in favour of 4c. Nothing written. N
 - `part5Cues()` mirrors the scenes' exported cue lists (level card, reveal cues of each round, callback chimes, voice-only). Sounds mounted inside InkBubble, ResultBeat and BonusWrapper are not in it. It type-checks but was never run: importing scene files in plain Node fails on the font loader.
 - Backdrop under the level card is the previous level's wallpaper (first level in the part minus one, derived), black behind it.
 - Layout, overlaps, sheet over the exiting card and the callback-to-timer gap were not checked by eye.
+
+## Task 4i: DONE (tsc --noEmit clean; NOT rendered, `remotion still` failed: Chromium download blocked, ENOTFOUND remotion.media)
+
+- `src/dontsay/parts/Part1.tsx`: `Part1`, `part1Frames` (8400 = 140 s), `part1Range`, `part1Segments`. Composition `DontSay-P1` in Root.tsx (additive, 1 import + 1 line). Mounted from timing.ts `segments` (part 1) in order: hook, settingsCard, levelCard L1, rounds 1-9, bonus 1. Hard cuts, no fades. Throws if part 1 stops starting with the hook or ending with bonus 1.
+- `src/dontsay/sfxCues.ts`: `part1Cues()` (hook cues, settings slide, level swell, each round's reveal cues, Mind Reader cues; ticks local to the part). Part1 mounts audio only for hook, settings and level card; rounds and the bonus mount their own.
+- Frames at 60 fps, part-local (computed from timing.ts): hook 0-479; settings card 480-719; level card L1 720-959; round 1 960; round 2 1680; round 9 6720-7439; bonus 1 7440-8399.
+
+### Frames to check by eye (DontSay-P1)
+- Hook into round 1: 359 (hook, countdown live from 360), 479 (last hook frame), 480 (settings card first frame), 959 (last level-card frame), 960 (round 1 first frame: hearts pill must spring in, level-first).
+- Round 9 -> bonus 1: 7439 (last frame of round 9, result chip), 7440 (first bonus frame, BONUS pill / sealed bubble small), 7440+600=8040 (bubble slides, bonus tick 300).
+
+### Open points
+- **Round 1 plays twice.** The hook already plays ~2 s of round 1 (live from 6.0 s), and timing.ts also schedules a full round 1 after the level card. The brief says "Hook (includes round 1)" but dropping the segment would shorten Part1 by 720 frames and shift every later part, so I kept both. Decide: keep, or change timing.ts.
+- Order follows timing.ts: hook, SETTINGS card, then LEVEL card (the brief lists level card first).
+- Settings card level is taken from the first level card in the part.
+- Hook voice starts and the hook's audio cues are not measured against clips (no clips). `hookCues` mounted here; the hook's bubble has sfx off, its lock click is in `hookCues`.
+- Not in `part1Cues`: InkBubble's first lock click on rounds, result chip sound, BONUS pill sound (ticks not exported).
+- Read beyond the named files (minimal): timing.ts segments, sfxCues.ts, Root.tsx registration lines, sfx.ts and Part6.tsx/RankCard.tsx (grep and short views for the mount pattern), RoundScene props.

@@ -21,6 +21,7 @@ import { BonusVoiceOnly as DontSayBonusVoice } from './dontsay/scenes/BonusVoice
 import { Part5 as DontSayPart5, part5Frames as dsPart5Frames } from './dontsay/parts/Part5';
 import { Part4 as DontSayPart4, part4Frames as dsPart4Frames } from './dontsay/parts/Part4';
 import { Part3 as DontSayPart3, part3Frames as dsPart3Frames } from './dontsay/parts/Part3';
+import { Part1 as DontSayPart1, part1Frames as dsPart1Frames } from './dontsay/parts/Part1';
 import { Part2 as DontSayPart2, part2Frames as dsPart2Frames } from './dontsay/parts/Part2';
 import { Part6 as DontSayPart6, part6Frames as dsPart6Frames } from './dontsay/parts/Part6';
 import { RankCard as DontSayRankCard, rankCardFrames as dsRankCardFrames } from './dontsay/scenes/RankCard';
@@ -81,6 +82,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="DontSay-P5" component={DontSayPart5} durationInFrames={dsPart5Frames} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
       <Composition id="DontSay-P4" component={DontSayPart4} durationInFrames={dsPart4Frames} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
       <Composition id="DontSay-P3" component={DontSayPart3} durationInFrames={dsPart3Frames} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
+      <Composition id="DontSay-P1" component={DontSayPart1} durationInFrames={dsPart1Frames} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
       <Composition id="DontSay-P2" component={DontSayPart2} durationInFrames={dsPart2Frames} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
       <Composition id="DontSay-P6" component={DontSayPart6} durationInFrames={dsPart6Frames} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
       <Composition id="DontSay-RankCard" component={DontSayRankCard} durationInFrames={dsRankCardFrames()} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />

@@ -15,6 +15,9 @@ import { rankCardCues } from './scenes/RankCard';
 import { heartCheckInCues } from './scenes/HeartCheckIn';
 import { bonusChainCues } from './scenes/BonusChainReaction';
 import { scoreboardCues } from './scenes/Scoreboard';
+import { hookCues } from './scenes/Hook';
+import { settingsCardCues } from './scenes/SettingsCard';
+import { bonusMindReaderCues } from './scenes/BonusMindReader';
 import type { SfxId } from './sfx';
 
 export type PartCue = { name: string; id: SfxId; tick: number; volume: number };
@@ -132,5 +135,32 @@ export const part2Cues = (): PartCue[] => {
         bonusTripleLockCues().forEach((c, i) => out.push({ name: `bonus-${s.bonus.n}-${c.id}-${i}`, id: c.id, tick: c.at + base, volume: 1 }));
       }
     });
+  return out;
+};
+
+/**
+ * Part 1 cues (task 4i), ticks local to the part. Hook cues, settings slide, level-1 swell, every round's
+ * reveal cues (shake, click, dissolve, chime) and the Mind Reader bonus cues. Part1.tsx mounts only the
+ * hook, settings and level-card cues itself; rounds and the bonus mount their own audio.
+ * Not listed (owned inside their components, tick not exported): InkBubble's first lock click, the result
+ * chip sound, the BONUS pill sound. The hook's own bubble has sfx off; its lock click is in hookCues.
+ */
+export const part1Cues = (): PartCue[] => {
+  const part1 = partRanges[0];
+  const out: PartCue[] = [];
+  for (const s of segments.filter((x) => x.part === 1)) {
+    const base = s.from - part1.from;
+    if (s.kind === 'hook') {
+      out.push(...hookCues.map((c) => ({ ...c, name: `hook-${c.name}`, tick: c.tick + base })));
+    } else if (s.kind === 'settingsCard') {
+      out.push(...settingsCardCues().map((c) => ({ ...c, name: `settings-${c.name}`, tick: c.tick + base })));
+    } else if (s.kind === 'levelCard') {
+      out.push(...levelCardCues(s.level).map((c) => ({ ...c, name: `level-${s.level}-${c.name}`, tick: c.tick + base })));
+    } else if (s.kind === 'round') {
+      out.push(...revealCues(s.round, s.phases.beat.from - s.from).map((c) => ({ name: `round-${s.round.n}-${c.name}`, id: c.id, tick: c.tick + base, volume: c.volume })));
+    } else if (s.kind === 'bonus') {
+      out.push(...bonusMindReaderCues().map((c, i) => ({ name: `bonus-${s.bonus.n}-${c.id}-${i}`, id: c.id, tick: c.at + base, volume: c.volume })));
+    }
+  }
   return out;
 };
