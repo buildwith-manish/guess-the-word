@@ -26,7 +26,7 @@ Nothing has been rendered by any task yet. 2a: `npx tsc --noEmit` has 0 errors i
 - [x] 4b: Part 1 (`src/nfl/parts/Part1.tsx`, `src/nfl/sfxCues.ts`, composition `NFL-P1`; notes below)
 - [x] 4e: Predictions (`src/nfl/scenes/Predictions.tsx`; notes below)
 - [ ] 4c: Part 2
-- [ ] 4d: Part 3
+- [x] 4d: Part 3 (`src/nfl/parts/Part3.tsx`, `part3Cues` in `src/nfl/sfxCues.ts`, composition `NFL-P3`; notes below)
 - [ ] 4g: Outro + Part 4
 - [ ] 4h: full composition + chapters
 - [ ] 5b: clue-fit report
@@ -97,6 +97,14 @@ Nothing has been rendered by any task yet. 2a: `npx tsc --noEmit` has 0 errors i
 - Fallback timings (no clips measured): Part 1 = 234.4 s = 14064 frames. Hook 0 to 6 s; card 1 6.00 to 28.00 s (clues 7.00 / 10.50 / 14.00 / 17.50 / 21.00, reveal 25.00); card 5 96.80 to 113.80 s (clues 97.80 / 100.30 / 102.80 / 105.30 / 107.80, reveal 110.80); score card 229.40 to 234.40 s. All change once 5a writes real clip lengths.
 - Not rendered: Chromium could not be downloaded (remotion.media unreachable). `npx tsc --noEmit`: 0 errors in `src/nfl/` and `src/Root.tsx`; the 3 known pre-existing errors remain.
 
+## 4d notes (Part 3)
+
+- `Part3.tsx` exports `Part3`, `Placed`, `part3Plan`, `part3Ticks`, `part3Frames` (= `partRanges[2]`), `part3Voice()`. Plan = every segment in `partRanges[2]`: Hall of Fame level card, cards 21 to 29 (`CardScene`; card 25 gets the Two-Minute Warning from the card flag), card 30 as `FinalCard` (its segment opens with the 1 s lock replay), then `WalletCollection`. No score card after the Hall of Fame; no fade at the end, so Part 4 is a straight cut on the next frame (`partRanges[2].to === partRanges[3].from`).
+- `sfxCues.ts`: `cuesOf` now also handles `levelCard` (`levelCardCues`), `collection` (`walletCollectionCues`) and card 30 (`finalCardCues` + `cardCues`). `part3Cues`: 166 cues, sorted, last at tick 7017 of 7101.
+- OPEN: the line "That was card thirty. Let's see your score." has no slot yet. `ClipType` in `timings.generated.ts` has no type for it, `lines.csv` is not in the repo, and the text is not in data.ts (nothing in Part3 draws or hard-codes it). `part3Voice()` returns `{ type: 'collection', key: '', tick }` with the tick at the first card landing (collection start + `collectionBeats.stackAt`). 5a must add the type/row, and `collectionSec` (6 s, assumption) does not yet grow with the clip: when clips are measured the collection slot should be max(collectionSec, clip + pad).
+- Fallback timings (no clips): Part 3 = 236.7 s = 14202 frames, starting at 7:46.30 of the full video. Level card 0 to 3.5 s; card 21 3.50 s; card 25 97.10 to 114.10 s (clues 98.10 / 100.60 / 103.10 / 105.60 / 108.10, reveal 111.10); card 30 204.90 s = lock replay, "Card 30." 205.90, clue 1 206.90, reveal 224.90; collection 230.70 to 236.70 s (frames 13842 to 14202). Part 4 starts at 11:43.00 of the full video.
+- Not rendered: no Chromium in the sandbox. `npx tsc --noEmit`: 0 errors in `src/nfl/` and `src/Root.tsx`; the 3 known pre-existing errors remain.
+
 ## Next step
 
-4c (Part 2) and 4d (Part 3) next; 4g (outro + Part 4) and 4h (full) after.
+4c (Part 2); 4g (outro + Part 4) and 4h (full) after.

@@ -12,6 +12,10 @@ import { cards } from './data';
 import { tmwCues } from './components/TwoMinuteWarning';
 import { revealCues } from './components/RevealEngine';
 import { part1BannerAt, part1Plan, type Placed } from './parts/Part1';
+import { part3Plan } from './parts/Part3';
+import { finalCardCues } from './scenes/FinalCard';
+import { levelCardCues } from './scenes/LevelCard';
+import { walletCollectionCues } from './scenes/WalletCollection';
 import { hookCues } from './scenes/Hook';
 import { levelBannerCues } from './scenes/LevelBanner';
 import { scoreCardCues } from './scenes/ScoreCard';
@@ -48,7 +52,13 @@ const cuesOf = (plan: Placed[]): SfxCue[] =>
         case 'hook':
           return hookCues(at);
         case 'card':
-          return cardCues(seg.card, at);
+          // card 30 opens with the lock-screen replay: its notification sound comes first
+          return seg.card.final ? [...finalCardCues(at), ...cardCues(seg.card, at)] : cardCues(seg.card, at);
+        case 'levelCard':
+          if (seg.level === 'rookie') throw new Error('sfxCues: Rookie has no level card');
+          return levelCardCues(seg.level, at);
+        case 'collection':
+          return walletCollectionCues(at);
         case 'scoreCard':
           return scoreCardCues(at);
         default:
@@ -59,3 +69,6 @@ const cuesOf = (plan: Placed[]): SfxCue[] =>
 
 /** Part 1: hook, Rookie banner over card 1, cards 1 to 10, Rookie score card. Ticks local to the part. */
 export const part1Cues: SfxCue[] = [...cuesOf(part1Plan), ...levelBannerCues(part1BannerAt)].sort(byFrame);
+
+/** Part 3: Hall of Fame level card, cards 21 to 29, card 30 (lock replay + card), Wallet collection. Ticks local to the part. */
+export const part3Cues: SfxCue[] = cuesOf(part3Plan);
