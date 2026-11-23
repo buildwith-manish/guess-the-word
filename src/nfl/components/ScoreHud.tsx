@@ -44,12 +44,18 @@ export type ScoreHudProps = {
   inset?: number;
   /** Overall size, 1 = full. The box shrinks toward its corner. */
   scale?: number;
+  /** Top edge in reference units (default SAFE.top). */
+  top?: number;
+  /** Rings + label only, for the 72-unit band above the card: smaller rings, no "n / total" counter (the card header already shows the card number). Label stays at type.caption. */
+  compact?: boolean;
 };
 
 const RING_W = 6;
 const SIZE = 70;
+const SIZE_COMPACT = 52;
 
-export const ScoreHud: React.FC<ScoreHudProps> = ({ done, frame, from, at = 0, side = 'right', inset = SAFE.x, scale = 1 }) => {
+export const ScoreHud: React.FC<ScoreHudProps> = ({ done, frame, from, at = 0, side = 'right', inset = SAFE.x, scale = 1, top = SAFE.top, compact = false }) => {
+  const ring = compact ? SIZE_COMPACT : SIZE;
   const { total, levelTotals } = hudCounts();
   const shown = from !== undefined ? from + (done - from) * springAt(frame, at, 'snappy') : done;
 
@@ -62,7 +68,7 @@ export const ScoreHud: React.FC<ScoreHudProps> = ({ done, frame, from, at = 0, s
   });
 
   const rings = fills.map((f, i) => {
-    const r = SIZE / 2 - RING_W / 2 - i * (RING_W + 2);
+    const r = SIZE / 2 - RING_W / 2 - i * (RING_W + 2); // drawn on the 70 grid; the svg scales it down when compact
     const c = 2 * Math.PI * r;
     return (
       <g key={i} transform={`rotate(-90 ${SIZE / 2} ${SIZE / 2})`}>
@@ -86,13 +92,13 @@ export const ScoreHud: React.FC<ScoreHudProps> = ({ done, frame, from, at = 0, s
       style={{
         position: 'absolute',
         ...(side === 'left' ? { left: px(inset) } : { right: px(inset) }),
-        top: px(SAFE.top),
+        top: px(top),
         transform: `scale(${scale})`,
         transformOrigin: side === 'left' ? 'top left' : 'top right',
         display: 'flex',
         alignItems: 'center',
         gap: px(16),
-        padding: `${px(12)}px ${px(22)}px ${px(12)}px ${px(12)}px`,
+        padding: compact ? `${px(8)}px ${px(22)}px ${px(8)}px ${px(8)}px` : `${px(12)}px ${px(22)}px ${px(12)}px ${px(12)}px`,
         borderRadius: px(radius.xl),
         background: colors.glass,
         border: `${px(1)}px solid ${colors.hairline}`,
@@ -100,14 +106,16 @@ export const ScoreHud: React.FC<ScoreHudProps> = ({ done, frame, from, at = 0, s
         boxShadow: `0 ${px(7)}px ${px(20)}px ${colors.shadow}`,
       }}
     >
-      <svg width={px(SIZE)} height={px(SIZE)} viewBox={`0 0 ${SIZE} ${SIZE}`}>
+      <svg width={px(ring)} height={px(ring)} viewBox={`0 0 ${SIZE} ${SIZE}`}>
         {rings}
       </svg>
       <div style={{ display: 'flex', flexDirection: 'column', gap: px(2) }}>
-        <div style={{ ...textStyle('number'), fontSize: px(36), color: colors.ink, whiteSpace: 'nowrap' }}>
-          {Math.round(shown)}
-          <span style={{ color: colors.muted }}> / {total}</span>
-        </div>
+        {!compact && (
+          <div style={{ ...textStyle('number'), fontSize: px(36), color: colors.ink, whiteSpace: 'nowrap' }}>
+            {Math.round(shown)}
+            <span style={{ color: colors.muted }}> / {total}</span>
+          </div>
+        )}
         <div style={{ ...textStyle('caption'), fontSize: px(type.caption.size), color: colors.muted, whiteSpace: 'nowrap' }}>{hudLabel()}</div>
       </div>
     </div>

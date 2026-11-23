@@ -105,3 +105,6 @@ export const byLevel: Record<Level, Card[]> = {
   starter: cards.filter((c) => c.level === 'starter'),
   hof: cards.filter((c) => c.level === 'hof'),
 };
+
+/** Badge text of the Two-Minute Warning wrapper. cards.json has no field for it; UI label, not card content. */
+export const tmwLabel = 'Two-Minute Warning';

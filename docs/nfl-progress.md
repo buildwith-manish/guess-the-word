@@ -19,7 +19,7 @@ Nothing has been rendered by any task yet. 2a: `npx tsc --noEmit` has 0 errors i
 - [ ] 2f: Two-Minute Warning
 - [x] 2g: RevealEngine + lock (`src/nfl/components/RevealEngine.tsx`: `RevealEngine`, `revealBeats`, `revealCues`, `SourceLine`)
 - [x] 4a: `src/nfl/scenes/LevelCard.tsx` (Starter, HoF), `LevelBanner.tsx` (Rookie, y 4-84, clears the first clue at y 160), `ScoreCard.tsx` (after card 10 and 20). Each exports its sfx cues (`levelCardCues`, `levelBannerCues`, `scoreCardCues`) and a voice start (`levelCardVoice`, `levelBannerVoice`, `scoreCardVoice`: type, key, tick) for the 5a audio map. timing.ts: new beats (`levelBannerSec`, `levelCardBeats`, `scoreCardBeats`); the Hall of Fame score card is removed (only 2 score cards, `needed` clips updated). data.ts: `levelText`. NEW SEAM: `src/nfl/lines.generated.ts` (empty placeholder) + `lines.ts` `lineText(type, key)`: 5a must write the spoken script text there; until then the ScoreCard shows rings and numbers without its text line. Not rendered; mounted by nothing until 3a/4b.
-- [ ] 3a: CardScene + Preview
+- [x] 3a: CardScene + Preview (`src/nfl/scenes/CardScene.tsx`, `src/nfl/Preview.tsx`; compositions `NFL-Card` (prop n) and `NFL-Card-All` in `src/Root.tsx`; notes below)
 - [ ] 4f: Scoreboard + rank card
 - [ ] 3b: Hook + lock notification
 - [ ] 3c: final card + Wallet collection
@@ -63,3 +63,12 @@ Run 1b (data + validation) and 2a (system + shared parts) next; both need only 1
 - Task said DidYouKnowChip "every third card"; data.ts has didYouKnow on 3, 6, 9, 12, 15, 18, 22, 24, 27, 30 (no 21). The chip follows the data.
 - `SourceLine` will fail any render that mounts it until `docs/nfl/cards.json` `meta.sourceName` is set.
 - Nothing rendered. `npx tsc --noEmit`: 0 errors in `src/nfl/`; only the 3 known pre-existing errors remain.
+
+## 3a notes (CardScene, Preview)
+
+- `CardScene({ card, at?, jersey? })`: `at` = tick on the enclosing Sequence's clock where the card segment starts (0 in normal use). Exports `cardTicks(card)`, `cardFrames(card)`. Preview exports `NflCardPreview`, `NflCardPreviewAll`, `previewFrames`, `cardMarks(n)`, `ALL_FRAMES`, `PREVIEW_DEFAULTS`.
+- Handover: WalletCard (blank) + ClueStack until the silence beat, then RevealEngine with the clue stack frozen at clue 5 as `frozen`. TwoMinuteWarning wraps both on cards 5, 15, 25.
+- Layout: ScoreHud (new `compact` + `top` props: rings + label, no counter) and PointsPill (200x64) sit in the 72-unit band above the card. ClueStack box is relative to the card's clue field. RuleChips (new `box` prop) sit on the "?" answer panel of card 1, from the intro through clue 1.
+- Added: `chipStaggerSec` (timing.ts, assumption 0.15 s), `tmwLabel` (data.ts, UI label for the badge).
+- No jersey numbers yet (cards.json has no field). Not rendered: Chromium could not be downloaded in the sandbox.
+- Frames (60 fps, local to the card, fallback timings without clips): card 1 clue1 60, clue5 900, beat 1110, reveal 1140, len 1320; card 5 clue5 660, reveal 840, len 1020; card 22/30 dyk 1320, len 1488. `NFL-Card-All` = 40380 frames (673 s) in fallback mode.

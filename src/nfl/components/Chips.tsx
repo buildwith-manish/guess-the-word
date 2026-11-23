@@ -179,26 +179,35 @@ export const SourceLine: React.FC<SourceLineProps> = ({ frame, at, inTicks, top 
 /* ---------- RuleChips ---------- */
 
 export type RuleChipsProps = Timing & {
-  top: number;
+  /** Top edge in reference units; the chips are centred across the safe box. Ignored when `box` is given. */
+  top?: number;
+  /** Centre the stack in this box (reference units) instead, e.g. the answer panel of the card. */
+  box?: { left: number; top: number; width: number; height: number };
   /** Ticks between one chip and the next (from timing.ts). */
   stagger: number;
 };
 
 /** Three rule chips stacked in the centre, popping in one after another. Each has its own pop-in; all leave together. */
-export const RuleChips: React.FC<RuleChipsProps> = ({ top, stagger, at, dur, outTicks, frame }) => {
+export const RuleChips: React.FC<RuleChipsProps> = ({ top = CHIP_TOP_MIN, box, stagger, at, dur, outTicks, frame }) => {
   const lines = ruleLines();
   const accents = [colors.green, colors.amber, colors.red];
-  return (
-    <Row top={top}>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: px(12) }}>
-        {lines.map((line, i) => (
-          <Toast key={line} frame={frame} at={at + i * stagger} dur={dur - i * stagger} outTicks={outTicks} accent={accents[i % accents.length]}>
-            <div style={chipText}>{line}</div>
-          </Toast>
-        ))}
-      </div>
-    </Row>
+  const stack = (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: px(12) }}>
+      {lines.map((line, i) => (
+        <Toast key={line} frame={frame} at={at + i * stagger} dur={dur - i * stagger} outTicks={outTicks} accent={accents[i % accents.length]}>
+          <div style={chipText}>{line}</div>
+        </Toast>
+      ))}
+    </div>
   );
+  if (box) {
+    return (
+      <div style={{ position: 'absolute', left: px(box.left), top: px(box.top), width: px(box.width), height: px(box.height), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        {stack}
+      </div>
+    );
+  }
+  return <Row top={top}>{stack}</Row>;
 };
 
 /** Lowest top edge (reference units) that keeps a chip inside the safe box. */

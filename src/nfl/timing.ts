@@ -56,6 +56,7 @@ export const scoreCardBeats = { ringsAt: 0.33, ringsLen: 1.2, ringStagger: 0.18,
 /* Not given in the task; assumptions to confirm: */
 export const cardIntroSec = 1.0; // "Card n." slot when no clip is measured
 export const dykTailSec = 0.2; // the did-you-know chip stays this long after its clip ends
+export const chipStaggerSec = 0.15; // rule chips on card 1: gap between one chip's pop-in and the next
 export const dykSec = 2.8; // did-you-know after the reveal when no clip is measured (gta6 value)
 
 /** Clip counts per type (structure, not seconds). */
