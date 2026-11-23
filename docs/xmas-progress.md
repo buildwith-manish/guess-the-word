@@ -20,7 +20,7 @@ Note: docs/xmas-prompts-split.md has 26 task headings (1a-1e, 2a-2f, 3a-3b, 4a-4
 - [x] 4a  Spotlight, Autocomplete
 - [ ] 4b  Focus, CleanUp
 - [ ] 4c  OddOneOut, CountLights, ControlCenter
-- [ ] 4d  DoubleFeature, SpeedRound, Finale
+- [x] 4d  DoubleFeature, SpeedRound, Finale (src/xmas/bonus/; tsc passes, NOT render-checked: Chromium could not be downloaded in the cloud session)
 - [x] 5a  ScoreScene
 - [ ] 5b  Outro
 - [ ] 5c  Part1-3, sfxCues, XMAS-P1..P3
