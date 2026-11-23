@@ -23,6 +23,7 @@ export type ClueStackProps = {
  *     row text fades in late, both clipped by the moving card, the points tag glides with it);
  *   - the new clue's hero card rises from 24 units below with a slight scale (0.94 -> 1) and fades in on the same spring.
  *   One spring drives both, so it reads as one motion. Nothing else moves; the other rows and the field stay put.
+ *   No placeholders: the history area is empty at first, and each row only exists once its card has travelled there.
  * Text sizes (clueLayout): hero 32 to 40 units auto-fitted (up to 4 lines), history one size, up to 2 lines. Lines are
  * wrapped by clueFit-style metrics, so the DOM never re-wraps. Points are a right-aligned tag in each slot.
  */
@@ -90,20 +91,6 @@ export const ClueStack: React.FC<ClueStackProps> = ({ card, frame, starts, flipT
 
   return (
     <div style={{ position: 'absolute', left: 0, top: 0, width: px(FIELD.w), height: px(FIELD.h), pointerEvents: 'none' }}>
-      {/* empty history slots: faint outlines; the slot being filled fades its outline as the card lands */}
-      {Array.from({ length: LAYOUT.historyRows }, (_, r) => {
-        if (r < j) return null;
-        return (
-          <div
-            key={r}
-            style={{
-              position: 'absolute', left: 0, top: px(rowTop(r)), width: '100%', height: px(LAYOUT.rowH), boxSizing: 'border-box', borderRadius: px(LAYOUT.radius.row),
-              border: `${px(1)}px solid rgba(255,255,255,0.07)`, background: 'rgba(255,255,255,0.02)', opacity: r === j ? 1 - q : 1,
-            }}
-          />
-        );
-      })}
-
       {/* rows already docked: static, same look the moving card lands in */}
       {Array.from({ length: Math.max(0, j) }, (_, r) => (
         <div
