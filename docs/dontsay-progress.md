@@ -36,3 +36,14 @@ Create the DontSay foundations in `src/dontsay/`, importing nothing from `src/gt
 ## Next step
 
 Task 2 (timing.ts / system.ts / fonts) per the original plan above.
+
+## Task 1d: DONE
+
+- `scripts/make_dontsay_sfx.py`, `public/dontsay/sfx/*.wav` + `manifest.json` (31 files), `src/dontsay/sfx.ts` (generated). Ids listed in `docs/dontsay-context.md` section 5.
+- Ticked: 1a, 1b, 1c, 1d. (1c has no entry in this file; ticked at the owner's request.)
+- `tsc --noEmit` passes. Sounds were not listened to.
+- Open: `LEVEL_COUNT = 5` in the script is unchecked against data.ts. `mic-pulse` and `check-in-tone` have a high RMS next to the rest (peak-normalised): lower their volume in cues.
+
+## Next step
+
+Task 2 (timing.ts / system.ts / fonts).

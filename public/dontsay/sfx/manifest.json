@@ -1,0 +1,286 @@
+{
+  "sampleRate": 48000,
+  "lengthUnit": "seconds",
+  "framesUnit": "render frames at 60 fps (ceil)",
+  "sfx": [
+    {
+      "id": "card-in",
+      "file": "card-in.wav",
+      "channels": 1,
+      "length": 0.9,
+      "frames": 54,
+      "peakDb": -3.0,
+      "rmsDb": -19.2
+    },
+    {
+      "id": "listening-start",
+      "file": "listening-start.wav",
+      "channels": 1,
+      "length": 0.7,
+      "frames": 42,
+      "peakDb": -3.0,
+      "rmsDb": -14.0
+    },
+    {
+      "id": "tick-1",
+      "file": "tick-1.wav",
+      "channels": 1,
+      "length": 0.1,
+      "frames": 6,
+      "peakDb": -3.0,
+      "rmsDb": -21.5
+    },
+    {
+      "id": "tick-2",
+      "file": "tick-2.wav",
+      "channels": 1,
+      "length": 0.1,
+      "frames": 6,
+      "peakDb": -3.0,
+      "rmsDb": -22.1
+    },
+    {
+      "id": "tick-3",
+      "file": "tick-3.wav",
+      "channels": 1,
+      "length": 0.1,
+      "frames": 6,
+      "peakDb": -3.0,
+      "rmsDb": -22.0
+    },
+    {
+      "id": "tick-4",
+      "file": "tick-4.wav",
+      "channels": 1,
+      "length": 0.1,
+      "frames": 6,
+      "peakDb": -3.0,
+      "rmsDb": -22.3
+    },
+    {
+      "id": "tick-5",
+      "file": "tick-5.wav",
+      "channels": 1,
+      "length": 0.1,
+      "frames": 6,
+      "peakDb": -3.0,
+      "rmsDb": -21.8
+    },
+    {
+      "id": "lock-click",
+      "file": "lock-click.wav",
+      "channels": 1,
+      "length": 0.18,
+      "frames": 11,
+      "peakDb": -3.0,
+      "rmsDb": -25.9
+    },
+    {
+      "id": "ink-dissolve",
+      "file": "ink-dissolve.wav",
+      "channels": 2,
+      "length": 1.85,
+      "frames": 111,
+      "peakDb": -3.0,
+      "rmsDb": -18.3
+    },
+    {
+      "id": "collision",
+      "file": "collision.wav",
+      "channels": 1,
+      "length": 0.7,
+      "frames": 42,
+      "peakDb": -3.0,
+      "rmsDb": -16.2
+    },
+    {
+      "id": "safe-pulse",
+      "file": "safe-pulse.wav",
+      "channels": 1,
+      "length": 0.7,
+      "frames": 42,
+      "peakDb": -3.0,
+      "rmsDb": -17.4
+    },
+    {
+      "id": "exclusion-flip",
+      "file": "exclusion-flip.wav",
+      "channels": 1,
+      "length": 0.35,
+      "frames": 21,
+      "peakDb": -3.0,
+      "rmsDb": -25.9
+    },
+    {
+      "id": "swatch-cross",
+      "file": "swatch-cross.wav",
+      "channels": 1,
+      "length": 0.5,
+      "frames": 30,
+      "peakDb": -3.0,
+      "rmsDb": -19.3
+    },
+    {
+      "id": "chip-land",
+      "file": "chip-land.wav",
+      "channels": 1,
+      "length": 0.22,
+      "frames": 14,
+      "peakDb": -3.0,
+      "rmsDb": -15.6
+    },
+    {
+      "id": "level-card-1",
+      "file": "level-card-1.wav",
+      "channels": 2,
+      "length": 1.35,
+      "frames": 81,
+      "peakDb": -3.0,
+      "rmsDb": -17.9
+    },
+    {
+      "id": "level-card-2",
+      "file": "level-card-2.wav",
+      "channels": 2,
+      "length": 1.35,
+      "frames": 81,
+      "peakDb": -3.0,
+      "rmsDb": -16.5
+    },
+    {
+      "id": "level-card-3",
+      "file": "level-card-3.wav",
+      "channels": 2,
+      "length": 1.35,
+      "frames": 81,
+      "peakDb": -3.0,
+      "rmsDb": -17.5
+    },
+    {
+      "id": "level-card-4",
+      "file": "level-card-4.wav",
+      "channels": 2,
+      "length": 1.35,
+      "frames": 81,
+      "peakDb": -3.0,
+      "rmsDb": -17.0
+    },
+    {
+      "id": "level-card-5",
+      "file": "level-card-5.wav",
+      "channels": 2,
+      "length": 1.35,
+      "frames": 81,
+      "peakDb": -3.0,
+      "rmsDb": -17.0
+    },
+    {
+      "id": "bonus-pill",
+      "file": "bonus-pill.wav",
+      "channels": 2,
+      "length": 1.6,
+      "frames": 96,
+      "peakDb": -3.0,
+      "rmsDb": -17.3
+    },
+    {
+      "id": "triple-lock-click",
+      "file": "triple-lock-click.wav",
+      "channels": 1,
+      "length": 0.5,
+      "frames": 30,
+      "peakDb": -3.0,
+      "rmsDb": -26.3
+    },
+    {
+      "id": "chain-link",
+      "file": "chain-link.wav",
+      "channels": 1,
+      "length": 0.11,
+      "frames": 7,
+      "peakDb": -3.0,
+      "rmsDb": -22.6
+    },
+    {
+      "id": "invert-whoosh",
+      "file": "invert-whoosh.wav",
+      "channels": 1,
+      "length": 0.8,
+      "frames": 49,
+      "peakDb": -3.0,
+      "rmsDb": -16.5
+    },
+    {
+      "id": "mic-pulse",
+      "file": "mic-pulse.wav",
+      "channels": 1,
+      "length": 0.5,
+      "frames": 30,
+      "peakDb": -3.0,
+      "rmsDb": -9.7
+    },
+    {
+      "id": "callback-chime-1",
+      "file": "callback-chime-1.wav",
+      "channels": 1,
+      "length": 0.8,
+      "frames": 48,
+      "peakDb": -3.0,
+      "rmsDb": -17.1
+    },
+    {
+      "id": "callback-chime-2",
+      "file": "callback-chime-2.wav",
+      "channels": 1,
+      "length": 0.8,
+      "frames": 48,
+      "peakDb": -3.0,
+      "rmsDb": -16.9
+    },
+    {
+      "id": "callback-chime-3",
+      "file": "callback-chime-3.wav",
+      "channels": 1,
+      "length": 0.8,
+      "frames": 48,
+      "peakDb": -3.0,
+      "rmsDb": -17.0
+    },
+    {
+      "id": "callback-chime-4",
+      "file": "callback-chime-4.wav",
+      "channels": 1,
+      "length": 0.8,
+      "frames": 48,
+      "peakDb": -3.0,
+      "rmsDb": -16.6
+    },
+    {
+      "id": "check-in-tone",
+      "file": "check-in-tone.wav",
+      "channels": 1,
+      "length": 0.32,
+      "frames": 20,
+      "peakDb": -3.0,
+      "rmsDb": -11.1
+    },
+    {
+      "id": "rank-reveal",
+      "file": "rank-reveal.wav",
+      "channels": 2,
+      "length": 2.3,
+      "frames": 138,
+      "peakDb": -3.0,
+      "rmsDb": -20.3
+    },
+    {
+      "id": "end-sting",
+      "file": "end-sting.wav",
+      "channels": 2,
+      "length": 3.2,
+      "frames": 192,
+      "peakDb": -3.0,
+      "rmsDb": -22.0
+    }
+  ]
+}
