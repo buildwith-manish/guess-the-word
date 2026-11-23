@@ -1,0 +1,788 @@
+{
+ "meta": {
+  "title": "NFL Scouting Card Quiz (30 players)",
+  "cards": 30,
+  "maxPoints": 150,
+  "sourceName": null,
+  "sourceNameNote": "Set to the site you actually checked (for example Pro Football Reference). QA fails while this is null.",
+  "ranks": [
+   {
+    "rank": "Hall of Famer",
+    "min": 121,
+    "max": 150
+   },
+   {
+    "rank": "All-Pro",
+    "min": 91,
+    "max": 120
+   },
+   {
+    "rank": "Pro Bowler",
+    "min": 61,
+    "max": 90
+   },
+   {
+    "rank": "Starter",
+    "min": 31,
+    "max": 60
+   },
+   {
+    "rank": "Practice Squad",
+    "min": 0,
+    "max": 30
+   }
+  ]
+ },
+ "cards": [
+  {
+   "n": 1,
+   "level": "rookie",
+   "twoMinuteWarning": false,
+   "final": false,
+   "clueSec": 3.5,
+   "clues": [
+    "Drafted 199th overall, in the sixth round, in 2000.",
+    "College: Michigan. Jersey number 12.",
+    "Won 3 regular-season MVP awards: 2007, 2010 and 2017.",
+    "Threw 649 regular-season touchdown passes.",
+    "Won 7 Super Bowls, with the Patriots and the Buccaneers."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Tom Brady",
+   "revealLine": "A sixth-round pick who won seven Super Bowls.",
+   "didYouKnow": null,
+   "revealExtra": null
+  },
+  {
+   "n": 2,
+   "level": "rookie",
+   "twoMinuteWarning": false,
+   "final": false,
+   "clueSec": 3.5,
+   "clues": [
+    "Drafted 16th overall in 1985 out of Mississippi Valley State.",
+    "Wore No. 80.",
+    "Super Bowl XXIII MVP.",
+    "Caught 1,549 passes in a 20-season career.",
+    "NFL all-time receiving yards leader, with 22,895, for the 49ers."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Jerry Rice",
+   "revealLine": "22,895 receiving yards, still the record.",
+   "didYouKnow": null,
+   "revealExtra": null
+  },
+  {
+   "n": 3,
+   "level": "rookie",
+   "twoMinuteWarning": false,
+   "final": false,
+   "clueSec": 3.5,
+   "clues": [
+    "Drafted 17th overall in 1990 out of Florida.",
+    "Wore No. 22.",
+    "Named NFL MVP in 1993.",
+    "Super Bowl XXVIII MVP, with 3 Super Bowl wins.",
+    "NFL all-time rushing yards leader, with 18,355, for the Cowboys."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Emmitt Smith",
+   "revealLine": null,
+   "didYouKnow": "He also holds the career record with 164 rushing touchdowns.",
+   "revealExtra": null
+  },
+  {
+   "n": 4,
+   "level": "rookie",
+   "twoMinuteWarning": false,
+   "final": false,
+   "clueSec": 3.5,
+   "clues": [
+    "Drafted 4th overall in 1975 out of Jackson State.",
+    "Wore No. 34 and played 13 seasons, 1975 to 1987.",
+    "Won Super Bowl XX.",
+    "Second in rushing yards, 16,726, behind Emmitt Smith.",
+    "Nicknamed 'Sweetness', a Bears legend."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Walter Payton",
+   "revealLine": "Sweetness, and the NFL's Man of the Year award is named for him.",
+   "didYouKnow": null,
+   "revealExtra": null
+  },
+  {
+   "n": 5,
+   "level": "rookie",
+   "twoMinuteWarning": true,
+   "final": false,
+   "clueSec": 2.5,
+   "clues": [
+    "Drafted 3rd overall, 1989, Oklahoma State.",
+    "1988 Heisman winner. Wore No. 20.",
+    "Retired suddenly in 1999, age 31.",
+    "Rushed for 2,053 yards in 1997.",
+    "15,269 rushing yards, all for Detroit."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Barry Sanders",
+   "revealLine": "He walked away at 31, with 15,269 rushing yards.",
+   "didYouKnow": null,
+   "revealExtra": null
+  },
+  {
+   "n": 6,
+   "level": "rookie",
+   "twoMinuteWarning": false,
+   "final": false,
+   "clueSec": 3.5,
+   "clues": [
+    "Drafted first overall in 1998 out of Tennessee.",
+    "Wore No. 18.",
+    "In 2013, threw 55 touchdown passes for 5,477 yards.",
+    "Won 5 league MVP awards and Super Bowl XLI MVP.",
+    "Quarterback for the Colts, then the Broncos."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Peyton Manning",
+   "revealLine": null,
+   "didYouKnow": "His younger brother Eli won two Super Bowl MVPs.",
+   "revealExtra": null
+  },
+  {
+   "n": 7,
+   "level": "rookie",
+   "twoMinuteWarning": false,
+   "final": false,
+   "clueSec": 3.5,
+   "clues": [
+    "Third-round pick, 82nd overall, 1979, Notre Dame.",
+    "Wore No. 16, retired by the 49ers.",
+    "Led a 92-yard drive in Super Bowl XXIII.",
+    "Threw 'The Catch' in the 1981 NFC Championship Game.",
+    "Nicknamed 'Joe Cool'. Won 4 Super Bowls."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Joe Montana",
+   "revealLine": "Four Super Bowls, and he never lost one.",
+   "didYouKnow": null,
+   "revealExtra": null
+  },
+  {
+   "n": 8,
+   "level": "rookie",
+   "twoMinuteWarning": false,
+   "final": false,
+   "clueSec": 3.5,
+   "clues": [
+    "Drafted 21st overall in 1998 out of Marshall.",
+    "Caught 17 touchdowns as a rookie.",
+    "Played for the Vikings, Raiders, Patriots, Titans and 49ers.",
+    "Caught 156 career touchdowns. Hall of Fame class of 2018.",
+    "Caught a record 23 touchdowns in 2007 with the Patriots."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Randy Moss",
+   "revealLine": "23 touchdowns in one season, an NFL record.",
+   "didYouKnow": null,
+   "revealExtra": null
+  },
+  {
+   "n": 9,
+   "level": "rookie",
+   "twoMinuteWarning": false,
+   "final": false,
+   "clueSec": 3.5,
+   "clues": [
+    "Chiefs traded up from pick 27 to 10 in 2017.",
+    "College: Texas Tech. Wears No. 15.",
+    "First start: Week 17 of 2017, against Denver.",
+    "NFL MVP in 2018 and in 2022.",
+    "Won 3 Super Bowl MVP awards: LIV, LVII and LVIII."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Patrick Mahomes",
+   "revealLine": null,
+   "didYouKnow": "Kansas City sent two first-round picks and a third to move up.",
+   "revealExtra": null
+  },
+  {
+   "n": 10,
+   "level": "rookie",
+   "twoMinuteWarning": false,
+   "final": false,
+   "clueSec": 3.5,
+   "clues": [
+    "Second-round pick, 33rd overall, 1991, by Atlanta.",
+    "College: Southern Mississippi. Wore No. 4.",
+    "Played for the Falcons, Packers, Jets and Vikings.",
+    "Won 3 straight MVP awards, 1995 to 1997.",
+    "Started 297 straight regular-season games, 321 with the playoffs."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Brett Favre",
+   "revealLine": "297 straight starts, a record for a quarterback.",
+   "didYouKnow": null,
+   "revealExtra": null
+  },
+  {
+   "n": 11,
+   "level": "starter",
+   "twoMinuteWarning": false,
+   "final": false,
+   "clueSec": 3.5,
+   "clues": [
+    "Drafted 2nd overall in 1983 out of SMU.",
+    "Wore No. 29 and prescription goggles.",
+    "Played for the Rams, Colts, Raiders and Falcons.",
+    "Rushed for 13,259 career yards.",
+    "Rushed for 2,105 yards in 1984, the NFL single-season record."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Eric Dickerson",
+   "revealLine": "2,105 yards in one season, and nobody has beaten it.",
+   "didYouKnow": null,
+   "revealExtra": null
+  },
+  {
+   "n": 12,
+   "level": "starter",
+   "twoMinuteWarning": false,
+   "final": false,
+   "clueSec": 3.5,
+   "clues": [
+    "Drafted 2nd overall in 2007 out of Georgia Tech.",
+    "Wore No. 81 and played 9 seasons, 2007 to 2015.",
+    "Retired in March 2016, at age 30.",
+    "Hall of Fame class of 2021. Nickname: 'Megatron'.",
+    "Caught for 1,964 yards in 2012, the NFL single-season record."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Calvin Johnson",
+   "revealLine": null,
+   "didYouKnow": "He retired at 30, with the Detroit Lions.",
+   "revealExtra": null
+  },
+  {
+   "n": 13,
+   "level": "starter",
+   "twoMinuteWarning": false,
+   "final": false,
+   "clueSec": 3.5,
+   "clues": [
+    "Drafted 5th overall in 2001 out of TCU.",
+    "Wore No. 21.",
+    "Chargers, 2001 to 2009. Jets, 2010 and 2011.",
+    "Rushed for 13,684 career yards.",
+    "28 rushing touchdowns in 2006, an NFL record."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "LaDainian Tomlinson",
+   "revealLine": "28 rushing touchdowns in one season.",
+   "didYouKnow": null,
+   "revealExtra": null
+  },
+  {
+   "n": 14,
+   "level": "starter",
+   "twoMinuteWarning": false,
+   "final": false,
+   "clueSec": 3.5,
+   "clues": [
+    "Drafted 27th overall in 1983 out of Pittsburgh.",
+    "Wore No. 13.",
+    "Played in just one Super Bowl: XIX.",
+    "Threw 61,361 career yards and 420 touchdowns.",
+    "Threw 5,084 yards, 48 touchdowns for the Dolphins, 1984."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Dan Marino",
+   "revealLine": "5,084 yards in 1984, a record that stood for 27 years.",
+   "didYouKnow": null,
+   "revealExtra": "Drew Brees passed it in 2011."
+  },
+  {
+   "n": 15,
+   "level": "starter",
+   "twoMinuteWarning": true,
+   "final": false,
+   "clueSec": 2.5,
+   "clues": [
+    "Drafted 3rd overall, 2004, Pittsburgh.",
+    "Wore No. 11 his whole career.",
+    "17 seasons, all with Arizona.",
+    "Caught 1,432 passes for 17,492 yards.",
+    "Second in receiving yards, behind Rice."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Larry Fitzgerald",
+   "revealLine": null,
+   "didYouKnow": "He reached Super Bowl XLIII with Arizona.",
+   "revealExtra": null
+  },
+  {
+   "n": 16,
+   "level": "starter",
+   "twoMinuteWarning": false,
+   "final": false,
+   "clueSec": 3.5,
+   "clues": [
+    "Third-round pick, 89th overall, 1996, Chattanooga.",
+    "Wore No. 81.",
+    "Played for the 49ers, Eagles, Cowboys, Bills and Bengals.",
+    "Caught 1,078 passes for 15,934 yards.",
+    "Scored 153 career receiving touchdowns. Nickname 'T.O.'"
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Terrell Owens",
+   "revealLine": "153 receiving touchdowns across five NFL teams.",
+   "didYouKnow": null,
+   "revealExtra": null
+  },
+  {
+   "n": 17,
+   "level": "starter",
+   "twoMinuteWarning": false,
+   "final": false,
+   "clueSec": 3.5,
+   "clues": [
+    "Drafted first overall in 1985 out of Virginia Tech.",
+    "Wore No. 78.",
+    "Bills, 1985 to 1999. Redskins, 2000 to 2003.",
+    "Four straight Super Bowls with Buffalo.",
+    "NFL all-time sack leader, with 200."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Bruce Smith",
+   "revealLine": "200 sacks, the most in NFL history.",
+   "didYouKnow": null,
+   "revealExtra": null
+  },
+  {
+   "n": 18,
+   "level": "starter",
+   "twoMinuteWarning": false,
+   "final": false,
+   "clueSec": 3.5,
+   "clues": [
+    "4th pick, 1984 Supplemental Draft, after a USFL stint.",
+    "College: Tennessee. Wore No. 92.",
+    "Averaged 1.75 sacks per game in 1987, an NFL record.",
+    "Won Super Bowl XXXI with the Packers.",
+    "Nicknamed 'Minister of Defense'. Recorded 198 NFL sacks."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Reggie White",
+   "revealLine": null,
+   "didYouKnow": "He had 221.5 sacks counting his USFL games.",
+   "revealExtra": null
+  },
+  {
+   "n": 19,
+   "level": "starter",
+   "twoMinuteWarning": false,
+   "final": false,
+   "clueSec": 3.5,
+   "clues": [
+    "Second-round pick, 32nd overall, 2001, Purdue.",
+    "Wore No. 9.",
+    "Chargers, 2001 to 2005. Saints, 2006 to 2020.",
+    "Super Bowl XLIV MVP.",
+    "Threw 80,358 career yards, second all-time."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Drew Brees",
+   "revealLine": "80,358 passing yards, second only to Tom Brady.",
+   "didYouKnow": null,
+   "revealExtra": null
+  },
+  {
+   "n": 20,
+   "level": "starter",
+   "twoMinuteWarning": false,
+   "final": false,
+   "clueSec": 3.5,
+   "clues": [
+    "Drafted 26th overall in 1996 out of Miami.",
+    "Wore No. 52.",
+    "Spent his whole career, 1996 to 2012, with the Ravens.",
+    "Defensive Player of the Year in 2000 and 2003.",
+    "Super Bowl XXXV MVP. Won again in XLVII."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Ray Lewis",
+   "revealLine": "One team, 17 seasons, two Super Bowl wins.",
+   "didYouKnow": null,
+   "revealExtra": null
+  },
+  {
+   "n": 21,
+   "level": "hof",
+   "twoMinuteWarning": false,
+   "final": false,
+   "clueSec": 3.5,
+   "clues": [
+    "14th-round pick, 186th overall, in 1961.",
+    "Wore No. 75 for the Rams.",
+    "Part of the 'Fearsome Foursome' defensive line.",
+    "Hall of Fame class of 1980.",
+    "His unofficial sack total is 173.5."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Deacon Jones",
+   "revealLine": "173.5 unofficial sacks, as a 14th-round pick.",
+   "didYouKnow": null,
+   "revealExtra": null
+  },
+  {
+   "n": 22,
+   "level": "hof",
+   "twoMinuteWarning": false,
+   "final": false,
+   "clueSec": 3.5,
+   "clues": [
+    "Went undrafted out of Northern Iowa in 1994.",
+    "Stocked shelves at a Hy-Vee grocery store.",
+    "Arena League with the Barnstormers, then NFL Europe.",
+    "Two-time league MVP, 1999 and 2001.",
+    "Super Bowl XXXIV MVP with the Rams."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Kurt Warner",
+   "revealLine": null,
+   "didYouKnow": "He stocked shelves before he became a two-time MVP.",
+   "revealExtra": null
+  },
+  {
+   "n": 23,
+   "level": "hof",
+   "twoMinuteWarning": false,
+   "final": false,
+   "clueSec": 3.5,
+   "clues": [
+    "Drafted 17th overall in 1978 out of Grambling State.",
+    "Played for the Buccaneers, the USFL's Outlaws, then Washington.",
+    "Threw for 340 yards in Super Bowl XXII.",
+    "Threw 4 touchdown passes, all in the second quarter.",
+    "First Black quarterback to win a Super Bowl."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Doug Williams",
+   "revealLine": "Four touchdowns in one quarter, and a first for the sport.",
+   "didYouKnow": null,
+   "revealExtra": null
+  },
+  {
+   "n": 24,
+   "level": "hof",
+   "twoMinuteWarning": false,
+   "final": false,
+   "clueSec": 3.5,
+   "clues": [
+    "Won the 1991 Heisman Trophy at Michigan.",
+    "Drafted 4th overall in 1992 by Washington.",
+    "Played for five NFL teams, including the Raiders.",
+    "99-yard kickoff return touchdown in a Super Bowl.",
+    "Super Bowl XXXI MVP, a return specialist for the Packers."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Desmond Howard",
+   "revealLine": null,
+   "didYouKnow": "He gained 244 all-purpose yards in that Super Bowl.",
+   "revealExtra": null
+  },
+  {
+   "n": 25,
+   "level": "hof",
+   "twoMinuteWarning": true,
+   "final": false,
+   "clueSec": 2.5,
+   "clues": [
+    "Drafted 13th overall, 1972, Penn State.",
+    "Wore No. 32 for the Steelers.",
+    "Rushed for 12,120 career yards.",
+    "Super Bowl IX MVP, 158 yards.",
+    "Immaculate Reception. Four Super Bowl rings."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Franco Harris",
+   "revealLine": "The Immaculate Reception, then four Super Bowl rings.",
+   "didYouKnow": null,
+   "revealExtra": null
+  },
+  {
+   "n": 26,
+   "level": "hof",
+   "twoMinuteWarning": false,
+   "final": false,
+   "clueSec": 3.5,
+   "clues": [
+    "Drafted in the 12th round, 320th overall, in 1991.",
+    "Played at Los Angeles Southwest College, then TCU.",
+    "Cornerback, later with the Raiders and Vikings.",
+    "Two second-half interceptions in a Super Bowl.",
+    "Super Bowl XXX MVP with the Cowboys."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Larry Brown",
+   "revealLine": "A 12th-round pick who became a Super Bowl MVP.",
+   "didYouKnow": null,
+   "revealExtra": null
+  },
+  {
+   "n": 27,
+   "level": "hof",
+   "twoMinuteWarning": false,
+   "final": false,
+   "clueSec": 3.5,
+   "clues": [
+    "Won the 1970 Heisman Trophy at Stanford.",
+    "Drafted first overall in 1971 by the Patriots.",
+    "Wore No. 16. Also played for the 49ers.",
+    "Won Super Bowls XV and XVIII with the Raiders.",
+    "Super Bowl XV MVP, a comeback story with the Raiders."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Jim Plunkett",
+   "revealLine": null,
+   "didYouKnow": "A first overall pick, and he won two Super Bowls with the Raiders.",
+   "revealExtra": null
+  },
+  {
+   "n": 28,
+   "level": "hof",
+   "twoMinuteWarning": false,
+   "final": false,
+   "clueSec": 3.5,
+   "clues": [
+    "Sixth-round pick, 212th overall, 2024, Arkansas.",
+    "Wears No. 39, the youngest kicker ever drafted.",
+    "Kicked 70 yards in a 2025 preseason game. Unofficial.",
+    "Set the outdoor record: a 67-yarder against Tennessee.",
+    "Broke Justin Tucker's record with a 68-yarder for Jacksonville."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Cam Little",
+   "revealLine": "68 yards, and he broke Justin Tucker's 66-yard record.",
+   "didYouKnow": null,
+   "revealExtra": null
+  },
+  {
+   "n": 29,
+   "level": "hof",
+   "twoMinuteWarning": false,
+   "final": false,
+   "clueSec": 3.5,
+   "clues": [
+    "Third-round pick, 69th overall, 2017, Eastern Washington.",
+    "Wore No. 18 as a rookie, then No. 10.",
+    "Led the NFL in catches, yards and touchdowns, 2021.",
+    "2021 stat line: 145 catches, 1,947 yards, 16 touchdowns.",
+    "Super Bowl LVI MVP, with the Rams."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Cooper Kupp",
+   "revealLine": "A third-round pick who won the receiving triple crown.",
+   "didYouKnow": null,
+   "revealExtra": null
+  },
+  {
+   "n": 30,
+   "level": "hof",
+   "twoMinuteWarning": false,
+   "final": true,
+   "clueSec": 3.5,
+   "clues": [
+    "Drafted in the 17th round, 200th overall, in 1956.",
+    "College: Alabama. Wore No. 15.",
+    "Won 5 NFL championships: 1961, 1962, 1965, 1966 and 1967.",
+    "MVP of the first two Super Bowls.",
+    "His sneak won the 1967 Ice Bowl."
+   ],
+   "points": [
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "name": "Bart Starr",
+   "revealLine": null,
+   "didYouKnow": "He was the 200th pick in the 1956 draft.",
+   "revealExtra": null
+  }
+ ]
+}

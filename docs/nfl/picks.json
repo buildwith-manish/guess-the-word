@@ -1,0 +1,20 @@
+{
+ "note": "Fill from the official NFL schedule just before recording: the three games that kick off in the 7 days after upload (one marquee, one divisional, one underdog). QA fails while any field is null.",
+ "picks": [
+  {
+   "pick": 1,
+   "matchup": null,
+   "kickoffET": null
+  },
+  {
+   "pick": 2,
+   "matchup": null,
+   "kickoffET": null
+  },
+  {
+   "pick": 3,
+   "matchup": null,
+   "kickoffET": null
+  }
+ ]
+}
