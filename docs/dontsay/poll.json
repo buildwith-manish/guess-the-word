@@ -1,0 +1,260 @@
+{
+  "meta": {
+    "video": "Don't Say The Same As Me",
+    "purpose": "Community poll to confirm collision tags and region-sensitive answers before recording voice.",
+    "howToUse": "Post each round's poll on the YouTube Community tab. If the video's answer is in the top 1-2 responses, keep it. If not, swap to the top response or tighten the rule. For region-sensitive rounds, post with region options if your audience allows it.",
+    "generated": "2026-11-23"
+  },
+  "pollRounds": [
+    1,
+    5,
+    6,
+    14,
+    25,
+    28,
+    30,
+    33,
+    36,
+    41,
+    42,
+    43,
+    45
+  ],
+  "rounds": [
+    {
+      "n": 1,
+      "prompt": "Name a fruit",
+      "videoAnswer": "Banana",
+      "currentCollision": "High",
+      "whyPolled": "Banana is a very common default fruit; confirm the rate is high.",
+      "commonAlternatives": [
+        "Apple",
+        "Mango",
+        "Orange",
+        "Strawberry"
+      ],
+      "regionSensitive": false
+    },
+    {
+      "n": 5,
+      "prompt": "Name a vegetable",
+      "videoAnswer": "Carrot",
+      "currentCollision": "High",
+      "whyPolled": "Carrot is the default vegetable for many viewers; confirm the rate.",
+      "commonAlternatives": [
+        "Potato",
+        "Tomato",
+        "Broccoli",
+        "Onion"
+      ],
+      "regionSensitive": false
+    },
+    {
+      "n": 6,
+      "prompt": "Name a sport",
+      "videoAnswer": "Tennis",
+      "currentCollision": "Medium",
+      "whyPolled": "Region-sensitive: cricket dominates South Asia; tennis may not collide there.",
+      "commonAlternatives": [
+        "Football",
+        "Basketball",
+        "Cricket",
+        "Soccer"
+      ],
+      "regionSensitive": true
+    },
+    {
+      "n": 14,
+      "prompt": "Name a superhero",
+      "videoAnswer": "Superman",
+      "currentCollision": "High",
+      "whyPolled": "With Batman and Spider-Man banned, Superman is the obvious pick; confirm.",
+      "commonAlternatives": [
+        "Iron Man",
+        "Captain America",
+        "Wonder Woman",
+        "Flash"
+      ],
+      "regionSensitive": false
+    },
+    {
+      "n": 25,
+      "prompt": "Name a ball sport",
+      "videoAnswer": "Basketball",
+      "currentCollision": "High",
+      "whyPolled": "Region-sensitive: with football/soccer banned, cricket may win in South Asia.",
+      "commonAlternatives": [
+        "Cricket",
+        "Tennis",
+        "Volleyball",
+        "Baseball"
+      ],
+      "regionSensitive": true
+    },
+    {
+      "n": 28,
+      "prompt": "Name a boy's name",
+      "videoAnswer": "Liam",
+      "currentCollision": "Medium",
+      "whyPolled": "Region-sensitive: Liam is Western; Indian names (Arjun, Rahul, Aarav) would dominate South Asia.",
+      "commonAlternatives": [
+        "Noah",
+        "Oliver",
+        "Arjun",
+        "Rahul"
+      ],
+      "regionSensitive": true
+    },
+    {
+      "n": 30,
+      "prompt": "Name a number 1 to 10",
+      "videoAnswer": "7",
+      "currentCollision": "High",
+      "whyPolled": "7 is the most commonly picked number 1-10; confirm the collision is high.",
+      "commonAlternatives": [
+        "3",
+        "5",
+        "8",
+        "1"
+      ],
+      "regionSensitive": false
+    },
+    {
+      "n": 33,
+      "prompt": "Name a car brand",
+      "videoAnswer": "Toyota",
+      "currentCollision": "Medium",
+      "whyPolled": "Region-sensitive: Toyota is Western/Asian-global; Maruti Suzuki dominates India.",
+      "commonAlternatives": [
+        "Honda",
+        "Ford",
+        "Maruti Suzuki",
+        "BMW"
+      ],
+      "regionSensitive": true
+    },
+    {
+      "n": 36,
+      "prompt": "Name a girl's name",
+      "videoAnswer": "Olivia",
+      "currentCollision": "Medium",
+      "whyPolled": "Region-sensitive: Olivia is Western; Indian names (Priya, Ananya, Diya) would dominate South Asia.",
+      "commonAlternatives": [
+        "Emma",
+        "Sophia",
+        "Priya",
+        "Ananya"
+      ],
+      "regionSensitive": true
+    },
+    {
+      "n": 41,
+      "prompt": "Name a number 1-100",
+      "videoAnswer": "37",
+      "currentCollision": "High",
+      "whyPolled": "FIX: 37 is the most commonly picked number 1-100 (was Medium); confirm the rate is high.",
+      "commonAlternatives": [
+        "7",
+        "42",
+        "69",
+        "50"
+      ],
+      "regionSensitive": false
+    },
+    {
+      "n": 42,
+      "prompt": "Name a vegetable",
+      "videoAnswer": "Onion",
+      "currentCollision": "High",
+      "whyPolled": "With Carrot/Potato/Tomato banned, Onion is the obvious next pick; confirm.",
+      "commonAlternatives": [
+        "Broccoli",
+        "Spinach",
+        "Cabbage",
+        "Pepper"
+      ],
+      "regionSensitive": false
+    },
+    {
+      "n": 43,
+      "prompt": "Name a drink",
+      "videoAnswer": "Milk",
+      "currentCollision": "High",
+      "whyPolled": "With water/tea/coffee/juice banned, Milk is the obvious next pick; confirm.",
+      "commonAlternatives": [
+        "Soda",
+        "Beer",
+        "Smoothie",
+        "Lemonade"
+      ],
+      "regionSensitive": false
+    },
+    {
+      "n": 45,
+      "prompt": "Name a fruit (callback)",
+      "videoAnswer": "Strawberry",
+      "currentCollision": "High",
+      "whyPolled": "Callback round: Banana/Orange/Kiwi/Grapes banned; Strawberry is the next common pick; confirm.",
+      "commonAlternatives": [
+        "Apple",
+        "Mango",
+        "Pineapple",
+        "Watermelon"
+      ],
+      "regionSensitive": false
+    }
+  ],
+  "regionSensitiveRounds": [
+    {
+      "n": 6,
+      "prompt": "Name a sport",
+      "westernDefault": "Tennis",
+      "southAsiaSwap": "Cricket",
+      "note": "Cricket is the dominant sport in India and South Asia; if your audience is largely from there, swap Tennis to Cricket for a real collision.",
+      "ruleStillApplies": false
+    },
+    {
+      "n": 25,
+      "prompt": "Name a ball sport (rule: not football or soccer)",
+      "westernDefault": "Basketball",
+      "southAsiaSwap": "Cricket",
+      "note": "Cricket is a ball sport and is not football/soccer, so the rule still holds. Swap if your audience is largely South Asian.",
+      "ruleStillApplies": true
+    },
+    {
+      "n": 28,
+      "prompt": "Name a boy's name",
+      "westernDefault": "Liam",
+      "southAsiaSwap": "Arjun (or Rahul, Aarav)",
+      "note": "Common Indian boy names; pick the one your poll shows as the top response.",
+      "ruleStillApplies": false
+    },
+    {
+      "n": 33,
+      "prompt": "Name a car brand",
+      "westernDefault": "Toyota",
+      "southAsiaSwap": "Maruti Suzuki",
+      "note": "Maruti Suzuki is the largest-selling car brand in India by market share; swap if your audience is largely Indian.",
+      "ruleStillApplies": false
+    },
+    {
+      "n": 36,
+      "prompt": "Name a girl's name",
+      "westernDefault": "Olivia",
+      "southAsiaSwap": "Priya (or Ananya, Diya)",
+      "note": "Common Indian girl names; pick the one your poll shows as the top response.",
+      "ruleStillApplies": false
+    }
+  ],
+  "collisionAudit": {
+    "targetRate": "1 in 4 (about 25%)",
+    "currentEstimate": "1 in 3 (about 33%) - runs hot",
+    "counts": {
+      "High": 16,
+      "Medium": 24,
+      "Low": 5
+    },
+    "estimatedCollisionsPerLevel": 2.88,
+    "actionIfHot": "Drop the most common alternative or tighten the rule on the worst offender. Re-run the poll."
+  }
+}

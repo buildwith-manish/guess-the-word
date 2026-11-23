@@ -25,8 +25,14 @@ Create the DontSay foundations in `src/dontsay/`, importing nothing from `src/gt
 - `scripts/gta6_qa.ts` does not exist; confirm what QA script is wanted.
 - Task ID was `<ID>` in the brief; Task 1a was inferred from the heading.
 
-## Task 1b: BLOCKED (inputs missing)
+## Task 1b: DONE
 
-`docs/dontsay/rounds.json` and `docs/dontsay/poll.json` do not exist on any remote branch (checked all), and the task block / `docs/dontsay-prompts-split.md` was not in the repo. `src/dontsay/data.ts` must import the JSON and never retype it, so nothing was built.
+- Added `docs/dontsay/rounds.json`, `docs/dontsay/poll.json`, `docs/dontsay-prompts-split.md` (supplied by owner).
+- `src/dontsay/data.ts`: `Round`, `Bonus`, `rounds` (45), `bonuses` (5), `heartCheckIn`, `levelColors`, `ranks`, `pollRounds`, `sourceName`. Fixes applied in data.ts (idempotent; most were already in the JSON).
+- `scripts/check_dontsay_data.ts` (`npx tsx scripts/check_dontsay_data.ts`): all hard checks pass; 6 warnings (sourceName null; rounds 6, 25, 28, 33, 36 hold Western defaults).
+- `tsc --noEmit` passes. Nothing rendered.
+- Notes: level hex colours/wallpaper stops are my choice (JSON only names the tint). `Round` also keeps extra JSON fields (introSec, timerSec, callback, callbackFrom, logoFree, skipResultLine, clarificationChip) for timing.ts.
 
-To unblock: commit `docs/dontsay/rounds.json` (45 rounds, play order, with bonuses if they live there) and `docs/dontsay/poll.json`, then re-run Task 1b. I also need the JSON field names (or a sample entry) so `Round`/`Bonus` map to them exactly.
+## Next step
+
+Task 2 (timing.ts / system.ts / fonts) per the original plan above.
