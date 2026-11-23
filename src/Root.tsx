@@ -16,6 +16,7 @@ import { HeartCheckIn as DontSayHeartCheckIn } from './dontsay/scenes/HeartCheck
 import { BonusTripleLock, bonusTripleLockFrames } from './dontsay/scenes/BonusTripleLock';
 import { BonusChainReaction as DontSayBonusChain } from './dontsay/scenes/BonusChainReaction';
 import { BonusMindReader, bonusMindReaderFrames } from './dontsay/scenes/BonusMindReader';
+import { BonusOppositeDay, bonusOppositeDayFrames } from './dontsay/scenes/BonusOppositeDay';
 import { BonusVoiceOnly as DontSayBonusVoice } from './dontsay/scenes/BonusVoiceOnly';
 import { Part6 as DontSayPart6, part6Frames as dsPart6Frames } from './dontsay/parts/Part6';
 import { WIDTH as DS_WIDTH, HEIGHT as DS_HEIGHT, RENDER_FPS as DS_FPS, hookSec as DS_HOOK_SEC, levelCardSec as DS_LEVEL_SEC, settingsCardSec as DS_SETTINGS_SEC, heartCheckInSec as DS_CHECKIN_SEC, bonusSec as DS_BONUS_SEC, secToFrames as dsSecToFrames } from './dontsay/timing';
@@ -86,6 +87,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="DontSay-Round-All" component={RoundPreviewAll} durationInFrames={ROUND_ALL_FRAMES} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
       <Composition id="DontSay-Round45Callback" component={Round45Callback} durationInFrames={round45Frames()} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
       <Composition id="DontSay-Bonus-2" component={BonusTripleLock} durationInFrames={bonusTripleLockFrames()} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
+      <Composition id="DontSay-Bonus-4" component={BonusOppositeDay} durationInFrames={bonusOppositeDayFrames()} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
       <Composition id="DontSay-Bonus-1" component={BonusMindReader} durationInFrames={bonusMindReaderFrames()} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
     </>
   );

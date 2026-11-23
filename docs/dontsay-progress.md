@@ -230,3 +230,13 @@ Started, then stopped at the owner's request in favour of 4c. Nothing written. N
 - Outro uses its own `px()` and own glass (system.ts `u()` is on a 1920 reference).
 - Ask slots are fixed (5 s each); voice clips `outro_1..3` are guesses and not measured.
 - Repo-wide `tsc --noEmit` has one error outside DontSay: `src/timing.ts` cannot find `./rounds.json` (present before my change).
+
+
+## Task 4e: DONE (tsc --noEmit clean; NOT rendered, remotion still blocked: remotion.media unreachable)
+- `src/dontsay/scenes/BonusOppositeDay.tsx`: `BonusOppositeDay`, `oppositeDayTicks`, `bonusOppositeDayCues`, `bonusOppositeDayVoice`, `bonusOppositeDayFrames`. Composition `DontSay-Bonus-4` in Root.tsx (additive, 1 import + 1 line).
+- Frames at 60 fps (ticks x 2): invert starts 150 (ramp in 150-160, full 160-200), ends 210 (ramp out 200-210); bubble slides 600; dissolve 660-750; voice reveal 750.
+### Open points
+- The invert is a backdrop-filter veil over everything BonusWrapper draws, so the BONUS pill and pass chip invert too (they are in the same layer as the wallpaper and the wrapper's props cannot split them). Prompt and bubble are drawn above the veil and are not inverted. Splitting it needs a wallpaper-only prop on BonusWrapper.
+- "in 4 s": no 4 s constant exists in data.ts/timing.ts (bonus play is 8 s), so no countdown is drawn. Add one when a source constant exists.
+- Voice not synced (no clips measured); invert beat position (0.5 s into play) is my choice.
+- Prompt is 56 ref units at y 300-390; bubble large spans about y 320-620 and the prompt fades out as it enlarges. Clearance not checked by eye.
