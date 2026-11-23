@@ -24,4 +24,5 @@ export const SFX_IDS = [
   'swipe',
   'widget-pop',
   'ring-glow',
+  'transition',
 ] as const;

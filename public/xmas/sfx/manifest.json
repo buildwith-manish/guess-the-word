@@ -6,10 +6,10 @@
     {
       "id": "tiles-in",
       "file": "tiles-in.wav",
-      "length": 0.52,
-      "frames": 16,
+      "length": 0.54,
+      "frames": 17,
       "peakDb": -3.0,
-      "rmsDb": -17.2
+      "rmsDb": -20.0
     },
     {
       "id": "tick-01",
@@ -182,10 +182,10 @@
     {
       "id": "widget-pop",
       "file": "widget-pop.wav",
-      "length": 0.18,
-      "frames": 6,
+      "length": 0.38,
+      "frames": 12,
       "peakDb": -3.0,
-      "rmsDb": -13.7
+      "rmsDb": -19.5
     },
     {
       "id": "ring-glow",
@@ -194,6 +194,14 @@
       "frames": 27,
       "peakDb": -3.0,
       "rmsDb": -13.6
+    },
+    {
+      "id": "transition",
+      "file": "transition.wav",
+      "length": 0.64,
+      "frames": 20,
+      "peakDb": -3.0,
+      "rmsDb": -16.9
     }
   ]
 }

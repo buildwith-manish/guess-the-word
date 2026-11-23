@@ -2,8 +2,9 @@
 """Synthesize the Christmas Movie Emoji Quiz sound effects (original, numpy synthesis, royalty-free).
 
 Every sound is generated from scratch with numpy (sines, decaying glass partials, filtered noise), then finished through
-a small pedalboard chain: high-pass, gentle compressor, limiter. No samples, no recordings, no tunes: every sound is a
-single soft event (tick, whoosh, pop, ping), nothing that sounds like a melody or a song.
+a pedalboard chain: high-pass, gentle compressor, limiter. The UI sounds (tiles-in, widget-pop, transition) use the
+richer `premium` chain: EQ, air shelf, a very small room, compressor, limiter. No samples, no recordings, no tunes: every sound is a
+single soft event (tick, pop, ping, a soft air sweep), nothing that sounds like a melody or a song.
 
 Writes 48 kHz 16-bit mono wavs to public/xmas/sfx/, public/xmas/sfx/manifest.json and src/xmas/sfx-ids.ts (typed ids,
 read by src/xmas/sfx.ts).  Needs:  pip install numpy pedalboard      Run:  python3 scripts/make_xmas_sfx.py
@@ -121,17 +122,50 @@ def finish(sig, hp=80, comp=True):
     return y / (np.max(np.abs(y)) + 1e-9) * 10 ** (PEAK_DB / 20)
 
 
+def premium(sig, hp=120, room=0.16, wet=0.11, air=2.5, tail=0.22):
+    """The finishing chain of the UI sounds (pop, transition): pedalboard high-pass, a little low-mid cleanup, an 'air'
+    shelf, a very small damped room (it adds depth, not an audible echo), a soft compressor and a limiter. `tail` seconds
+    of silence are added first so the room can ring out."""
+    from pedalboard import Compressor, HighShelfFilter, HighpassFilter, Limiter, PeakFilter, Pedalboard, Reverb
+    x = np.pad(sig, (0, int(tail * SR))).astype(np.float32)
+    x = x / (np.max(np.abs(x)) + 1e-9) * 0.7
+    board = Pedalboard([
+        HighpassFilter(hp),
+        PeakFilter(cutoff_frequency_hz=320, gain_db=-2.0, q=0.9),
+        HighShelfFilter(cutoff_frequency_hz=7500, gain_db=air, q=0.7),
+        Reverb(room_size=room, damping=0.75, wet_level=wet, dry_level=0.92, width=0.6),
+        Compressor(threshold_db=-20, ratio=2.2, attack_ms=2, release_ms=70),
+        Limiter(threshold_db=-1.0, release_ms=50),
+    ])
+    y = board(x[None, :], SR)[0].astype(np.float64)
+    y = fade(y, 0.0, 0.03)
+    return y / (np.max(np.abs(y)) + 1e-9) * 10 ** (PEAK_DB / 20)
+
+
+def bubble(f0, sec=0.14, amp=1.0):
+    """One soft iOS-style bubble pop: a round sine that rises about an octave in a few ms and decays fast, a quiet second
+    partial, a muted tick on the attack and a faint glass top. Single event, no pitch pattern."""
+    body = sweep(f0 * 0.82, f0 * 1.7, sec, decay=30, attack=0.002)
+    t = t_axis(sec)
+    over = 0.22 * np.sin(2 * np.pi * f0 * 2.0 * t) * np.exp(-60 * t)
+    top = glass(f0 * 5.2, sec, decay=42, amp=0.07)[: len(t)]
+    sig = body + over + top
+    sig[: int(0.003 * SR)] += click(0.10, 0.003, 1800)
+    return sig * amp
+
+
 def build():
     out = {}
 
-    # tiles-in: soft glass whoosh, the two clue tiles gliding in (noise band sweeping up, a faint shimmer at the end).
-    sec = 0.5
-    w = noise_band(sec, lambda p: 500 + 2600 * p ** 1.3, q=1.1) * bell_env(sec, 0.55, 1.2)
-    shim = glass(2900, 0.2, decay=14, amp=0.10)
-    buf = np.zeros(int(sec * SR))
-    buf += w
-    place(buf, shim, 0.28)
-    out["tiles-in"] = finish(buf, hp=150)
+    # tiles-in: the two clue tiles pop in: two soft bubble pops 40 ms apart (the right one a little higher and quieter).
+    # (The random stream is restored and the old whoosh's draw is skipped, so every other sound stays bit-identical.)
+    state = rng.bit_generator.state
+    buf = np.zeros(int(0.32 * SR))
+    place(buf, bubble(400, 0.14, 1.0), 0.0)
+    place(buf, bubble(450, 0.14, 0.8), 0.04)
+    out["tiles-in"] = premium(buf, hp=150)
+    rng.bit_generator.state = state
+    rng.standard_normal(int(0.5 * SR))
 
     # tick-01..tick-10: one soft tick per timer segment, pitch rising slightly with each number (about 3% a step).
     for i in range(10):
@@ -205,11 +239,8 @@ def build():
     sw = noise_band(sec, lambda p: 2200 - 1300 * p, q=1.0) * bell_env(sec, 0.35, 1.2)
     out["swipe"] = finish(sw, hp=300)
 
-    # widget-pop: a soft bubble pop, short upward glide with a tiny glass top.
-    sig = sweep(300, 560, 0.16, decay=24)
-    sig = sig + glass(1500, 0.16, decay=26, amp=0.10)[: len(sig)]
-    sig[: int(0.003 * SR)] += click(0.12, 0.003, 2500)
-    out["widget-pop"] = finish(sig, hp=120)
+    # widget-pop: one soft bubble pop (icons, widgets, outro asks), same family as tiles-in.
+    out["widget-pop"] = premium(bubble(360, 0.16, 1.0), hp=120)
 
     # ring-glow: a soft glow swelling around the odd tree: slow glass swell with a little air.
     sec = 0.85
@@ -218,6 +249,15 @@ def build():
     swell = (np.sin(2 * np.pi * 740 * t) + 0.25 * np.sin(2 * np.pi * 740 * 2.32 * t) + 0.1 * np.sin(2 * np.pi * 740 * 4.25 * t)) * env
     air = noise_band(sec, lambda p: 3200 + 900 * p, q=1.2) * env * 0.12
     out["ring-glow"] = finish(swell * 0.8 + air, hp=250)
+
+    # transition: the move to the next question: a soft low tap, then a short air sweep going up and away.
+    sec = 0.42
+    buf = np.zeros(int(sec * SR))
+    place(buf, sweep(150, 82, 0.14, decay=26, attack=0.003) * 0.8, 0.0)
+    sw = noise_band(0.34, lambda p: 900 + 3200 * p ** 1.2, q=1.0) * bell_env(0.34, 0.5, 1.3) * 0.45
+    place(buf, sw, 0.05)
+    place(buf, glass(2600, 0.2, decay=16, amp=0.05), 0.22)
+    out["transition"] = premium(buf, hp=70, room=0.2, wet=0.12)
 
     return out
 

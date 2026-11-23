@@ -5,12 +5,14 @@ import { BonusScene } from '../scenes/BonusScene';
 import { MovieScene } from '../scenes/MovieScene';
 import { Outro } from '../scenes/Outro';
 import { ScoreScene } from '../scenes/ScoreScene';
+import { SlotTransition } from '../components/SlotTransition';
 import { ticksToFrames } from '../timing';
 import type { PartRange, Segment } from '../timing';
 
 /**
  * PartScenes: one Part of the video as a stack of Sequences, one per timing.ts segment, placed at the segment's offset
  * from the start of the part (so a part started alone begins at its first segment, local frame 0).
+ *   every slot is wrapped in SlotTransition (soft fade/settle in and out; sound `transition` from sfxCues)
  *   hook -> Hook, slot -> MovieScene (movie) or BonusScene (bonus, by `slot.kind`, not by the slot number), score -> ScoreScene,
  *   outro -> Outro.
  * Each scene reads everything from its own slot and its own local clock (the light string from the slot number, the bokeh
@@ -22,7 +24,7 @@ const SceneOf: React.FC<{ seg: Segment }> = ({ seg }) => {
     case 'hook':
       return <Hook />;
     case 'slot':
-      return seg.slot.kind === 'bonus' ? <BonusScene slot={seg.slot} /> : <MovieScene slot={seg.slot} />;
+      return <SlotTransition>{seg.slot.kind === 'bonus' ? <BonusScene slot={seg.slot} /> : <MovieScene slot={seg.slot} />}</SlotTransition>;
     case 'score':
       return <ScoreScene />;
     case 'outro':

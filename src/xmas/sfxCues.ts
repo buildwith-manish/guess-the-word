@@ -8,6 +8,8 @@ import { spotlightCues } from './bonus/Spotlight';
 import { bonusBeats, bonusCues } from './scenes/BonusScene';
 import { hookCues } from './scenes/Hook';
 import { movieCues } from './scenes/MovieScene';
+import { transitionCueTick } from './components/SlotTransition';
+import { cue } from './sfx';
 import { outroCues } from './scenes/Outro';
 import { scoreCues } from './scenes/ScoreScene';
 import type { SfxCue } from './sfx';
@@ -51,7 +53,11 @@ const segmentCues = (seg: Segment, start: number): SfxCue[] => {
     case 'hook':
       return hookCues(start);
     case 'slot':
-      return seg.slot.kind === 'bonus' ? [...bonusCues(seg.slot, start), ...roundCues(seg.slot, start)] : movieCues(seg.slot, start);
+      return [
+        ...(seg.slot.kind === 'bonus' ? [...bonusCues(seg.slot, start), ...roundCues(seg.slot, start)] : movieCues(seg.slot, start)),
+        // the move to the next question, at the start of the slot's exit
+        cue('transition', start + transitionCueTick(seg.to - seg.from)),
+      ];
     case 'score':
       return scoreCues(start);
     case 'outro':
