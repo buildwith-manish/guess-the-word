@@ -24,3 +24,9 @@ Create the DontSay foundations in `src/dontsay/`, importing nothing from `src/gt
 - `src/ios/tokens.ts` imports `px` from `../style` (shared base). Decide whether that is acceptable under rule 3.
 - `scripts/gta6_qa.ts` does not exist; confirm what QA script is wanted.
 - Task ID was `<ID>` in the brief; Task 1a was inferred from the heading.
+
+## Task 1b: BLOCKED (inputs missing)
+
+`docs/dontsay/rounds.json` and `docs/dontsay/poll.json` do not exist on any remote branch (checked all), and the task block / `docs/dontsay-prompts-split.md` was not in the repo. `src/dontsay/data.ts` must import the JSON and never retype it, so nothing was built.
+
+To unblock: commit `docs/dontsay/rounds.json` (45 rounds, play order, with bonuses if they live there) and `docs/dontsay/poll.json`, then re-run Task 1b. I also need the JSON field names (or a sample entry) so `Round`/`Bonus` map to them exactly.
