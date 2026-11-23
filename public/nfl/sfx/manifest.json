@@ -1,0 +1,207 @@
+{
+  "sampleRate": 48000,
+  "lengthUnit": "seconds",
+  "framesUnit": "design frames at 30 fps (ceil)",
+  "sfx": [
+    {
+      "id": "card-in",
+      "file": "card-in.wav",
+      "length": 0.75,
+      "frames": 23,
+      "peakDb": -6.0,
+      "rmsDb": -21.0
+    },
+    {
+      "id": "clue-flip-1",
+      "file": "clue-flip-1.wav",
+      "length": 0.39,
+      "frames": 12,
+      "peakDb": -5.9,
+      "rmsDb": -21.0
+    },
+    {
+      "id": "clue-flip-2",
+      "file": "clue-flip-2.wav",
+      "length": 0.39,
+      "frames": 12,
+      "peakDb": -5.3,
+      "rmsDb": -21.0
+    },
+    {
+      "id": "clue-flip-3",
+      "file": "clue-flip-3.wav",
+      "length": 0.39,
+      "frames": 12,
+      "peakDb": -7.5,
+      "rmsDb": -21.0
+    },
+    {
+      "id": "clue-flip-4",
+      "file": "clue-flip-4.wav",
+      "length": 0.39,
+      "frames": 12,
+      "peakDb": -9.0,
+      "rmsDb": -21.0
+    },
+    {
+      "id": "clue-flip-5",
+      "file": "clue-flip-5.wav",
+      "length": 0.39,
+      "frames": 12,
+      "peakDb": -7.3,
+      "rmsDb": -21.0
+    },
+    {
+      "id": "points-drop-5",
+      "file": "points-drop-5.wav",
+      "length": 0.19,
+      "frames": 6,
+      "peakDb": -6.0,
+      "rmsDb": -22.6
+    },
+    {
+      "id": "points-drop-4",
+      "file": "points-drop-4.wav",
+      "length": 0.19,
+      "frames": 6,
+      "peakDb": -6.0,
+      "rmsDb": -22.8
+    },
+    {
+      "id": "points-drop-3",
+      "file": "points-drop-3.wav",
+      "length": 0.19,
+      "frames": 6,
+      "peakDb": -6.0,
+      "rmsDb": -22.7
+    },
+    {
+      "id": "points-drop-2",
+      "file": "points-drop-2.wav",
+      "length": 0.19,
+      "frames": 6,
+      "peakDb": -6.0,
+      "rmsDb": -22.7
+    },
+    {
+      "id": "points-drop-1",
+      "file": "points-drop-1.wav",
+      "length": 0.19,
+      "frames": 6,
+      "peakDb": -6.0,
+      "rmsDb": -22.9
+    },
+    {
+      "id": "lock-shake",
+      "file": "lock-shake.wav",
+      "length": 0.65,
+      "frames": 20,
+      "peakDb": -9.1,
+      "rmsDb": -19.0
+    },
+    {
+      "id": "lock-open",
+      "file": "lock-open.wav",
+      "length": 1.05,
+      "frames": 32,
+      "peakDb": -3.3,
+      "rmsDb": -19.0
+    },
+    {
+      "id": "name-reveal",
+      "file": "name-reveal.wav",
+      "length": 2.05,
+      "frames": 62,
+      "peakDb": -3.0,
+      "rmsDb": -19.2
+    },
+    {
+      "id": "wallet-stack",
+      "file": "wallet-stack.wav",
+      "length": 1.25,
+      "frames": 38,
+      "peakDb": -3.3,
+      "rmsDb": -19.0
+    },
+    {
+      "id": "notification",
+      "file": "notification.wav",
+      "length": 1.15,
+      "frames": 35,
+      "peakDb": -4.4,
+      "rmsDb": -19.0
+    },
+    {
+      "id": "streak",
+      "file": "streak.wav",
+      "length": 1.45,
+      "frames": 44,
+      "peakDb": -3.8,
+      "rmsDb": -19.0
+    },
+    {
+      "id": "tmw-tick",
+      "file": "tmw-tick.wav",
+      "length": 1.0,
+      "frames": 30,
+      "peakDb": -6.0,
+      "rmsDb": -26.1
+    },
+    {
+      "id": "tmw-alert",
+      "file": "tmw-alert.wav",
+      "length": 1.05,
+      "frames": 32,
+      "peakDb": -9.0,
+      "rmsDb": -19.0
+    },
+    {
+      "id": "level-rookie",
+      "file": "level-rookie.wav",
+      "length": 1.45,
+      "frames": 44,
+      "peakDb": -3.8,
+      "rmsDb": -19.0
+    },
+    {
+      "id": "level-starter",
+      "file": "level-starter.wav",
+      "length": 1.05,
+      "frames": 32,
+      "peakDb": -4.6,
+      "rmsDb": -19.0
+    },
+    {
+      "id": "level-hof",
+      "file": "level-hof.wav",
+      "length": 1.55,
+      "frames": 47,
+      "peakDb": -8.1,
+      "rmsDb": -19.0
+    },
+    {
+      "id": "score-card",
+      "file": "score-card.wav",
+      "length": 1.95,
+      "frames": 59,
+      "peakDb": -3.9,
+      "rmsDb": -19.0
+    },
+    {
+      "id": "rank-reveal",
+      "file": "rank-reveal.wav",
+      "length": 1.65,
+      "frames": 50,
+      "peakDb": -3.0,
+      "rmsDb": -20.4
+    },
+    {
+      "id": "end-sting",
+      "file": "end-sting.wav",
+      "length": 2.85,
+      "frames": 86,
+      "peakDb": -3.0,
+      "rmsDb": -20.6
+    }
+  ]
+}

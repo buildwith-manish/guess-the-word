@@ -8,7 +8,7 @@ Nothing has been rendered or type-checked by any task yet.
 
 - [x] 1a: recon and context file. `docs/nfl-context.md`, `docs/nfl-progress.md`. No feature code.
 - [ ] 1b: data + validation (`src/nfl/data.ts`, `scripts/check_nfl_data.ts`)
-- [ ] 1d: sfx (pedalboard)
+- [x] 1d: sfx (pedalboard). `scripts/make_nfl_sfx.py`, `public/nfl/sfx/`, `src/nfl/sfx.ts`, `src/nfl/sfx-ids.ts` (generated)
 - [ ] 2a: copy shared parts + system (`src/nfl/system.ts`, Inter / `src/ios` files)
 - [ ] 1c: timing (`src/nfl/timing.ts`, `scripts/nfl_runtime.ts`)
 - [ ] 2b: WalletCard

@@ -127,3 +127,13 @@ Common rule for every `src/gta6/` row: it imports `Item` / `Level` from `data.ts
 - `pedalboard` in this sandbox (not installed) and `tsx` / `esbuild` in `package.json` (the scripts run through `npx tsx`, downloaded on demand).
 - `docs/gta6-prompts-split.md`: not in the repo (as noted in `docs/gta6-progress.md`).
 - Known from the gta6 notes and not re-verified here: 3 pre-existing `tsc` errors outside `src/gta6/` (`src/fontshare/load-fonts.ts` missing `@remotion/google-fonts/PlusJakartaSans` and `JetBrainsMono`; `src/timing.ts` line 45), and `npm ci` failing because the lockfile is out of sync (use `npm install --no-save --no-package-lock`).
+
+## 6. SFX ids (task 1d)
+
+`scripts/make_nfl_sfx.py` (numpy synthesis + pedalboard high-pass, gentle compressor, limiter) writes 48 kHz mono wavs to `public/nfl/sfx/` plus `manifest.json` and the generated `src/nfl/sfx-ids.ts` (`SFX_IDS`, `SFX_ROWS`). `src/nfl/sfx.ts` exports `SfxId`, `SfxEntry`, `SfxCue`, `cue()`, `sfxIds`, `sfxManifest`, `sfxEntry`, `sfxLength`, `sfxFrames`, `sfxSrc`, `clueFlipId(1..5)`, `pointsDropId(5..1)`. Cue `frame` is a design tick (30 fps). Peak ceiling -3 dBFS.
+
+Ids (25): card-in, clue-flip-1, clue-flip-2, clue-flip-3, clue-flip-4, clue-flip-5, points-drop-5, points-drop-4, points-drop-3, points-drop-2, points-drop-1, lock-shake, lock-open, name-reveal, wallet-stack, notification, streak, tmw-tick, tmw-alert, level-rookie, level-starter, level-hof, score-card, rank-reveal, end-sting.
+
+- `clue-flip-N`: N = clue number, pitch rises with N. `points-drop-N`: N = points left after the drop, pitch falls with lower N.
+- `tmw-tick` is exactly 1.0 s (8 ticks), made to be cued once per second.
+- Re-run `python3 scripts/make_nfl_sfx.py` after any change (needs `pip install numpy pedalboard`).
