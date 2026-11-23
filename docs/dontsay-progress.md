@@ -117,3 +117,18 @@ Timing (1c) is done, so "Task 2 (timing.ts / system.ts / fonts)" from the older 
 - `ink-dissolve.wav` is 1.85 s, longer than the 1.5 s sweep: it runs about 0.35 s into the result beat. Its pan is whatever is baked into the file; not listened to.
 - `BUBBLE_HALF_H` (150) mirrors InkBubble's large height (not exported); the lock sits above it.
 - No composition uses RevealEngine yet, so no `remotion still` was possible.
+
+## Task 3b: DONE (Hook compiles; tsc --noEmit clean; NOT rendered)
+
+- `src/dontsay/scenes/Hook.tsx`: `Hook`, `HookLockNotification` (1 s, takes `at`; `HOOK_LOCK_TICKS`, `hookLockEnd`), `hookCues`, `hookVoice`.
+- Composition `DontSay-Hook` added to `src/Root.tsx` (additive, 2 imports + 1 line). Frames to check at 60 fps: 0, 60 (1 s), 180 (3 s), 360 (6 s), 480 (8 s, last = 479).
+- Beats (hook clock): notification 0-1 s in, leaves 2.6-3.0; wallpaper fades 3.0-3.8; ink bubble (forced small) + lock click 3.0; hearts spring on "Three hearts every level"; listening glow + prompt card wake on "Let's go"; round 1 live 6.0 (countdown starts then).
+- Fix outside scope: `system.ts` imported `levelColours` (not exported by data.ts); now builds it from `levelColors[n].accent`. Repo-wide tsc is clean.
+
+### Open points
+- Voice start times in `hookVoice` are estimates (no clips measured). Six lines are ~28 words in about 6 s: tight; measure the clips, and if too fast, lengthen `hookSec`.
+- Round 1 plays only ~2 s in the hook (timer 5 s is cut by the hook end). Full round 1 is still expected in 3a: confirm that is what "plays inside the hook (once)" means.
+- Copy owned by Hook.tsx (not in data): notification app line "DON'T SAY THE SAME", time label "now". Body line reuses narration line 2.
+- Layout is guessed from component defaults (card 140-380, glow bars under it, countdown top 520, InkBubble corner top-right, HeartsPill top-left): overlaps not checked by eye.
+- The notification uses its own px()-based banner; `shared/LockNotification` (1920 reference frame) is not used.
+- `remotion still` failed: Chromium download blocked (ENOTFOUND remotion.media).

@@ -16,7 +16,16 @@
  * shared/fonts.ts and the note in docs/dontsay-context.md.
  */
 import { spring } from 'remotion';
-import { levelColours, type Level } from './data';
+import { levelColors, type Level } from './data';
+
+/** Level accent hex per level, from data.ts (the single source). */
+const levelColours: Record<Level, string> = {
+  1: levelColors[1].accent,
+  2: levelColors[2].accent,
+  3: levelColors[3].accent,
+  4: levelColors[4].accent,
+  5: levelColors[5].accent,
+};
 import { FPS, WIDTH } from './timing';
 
 // ---------------------------------------------------------------------------
