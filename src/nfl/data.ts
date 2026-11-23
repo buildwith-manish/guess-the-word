@@ -71,6 +71,14 @@ export const levelText: Record<Level, { title: string; subtitle: string }> = {
   hof: { title: 'Level three: Hall of Fame', subtitle: 'Deep cuts' },
 };
 
+/** Lock-screen notification of the hook (task 3b). On-screen only: the hook clip is spoken from the script, never from here. */
+export const hookText = {
+  appName: 'Scouting',
+  title: `Scouting report: ${cards.length} players.`,
+  body: `Name each player from ${cards[0].clues.length} clues.`,
+  timeLabel: 'now',
+} as const;
+
 /** Rank bands, best first. */
 export const ranks: Rank[] = (cardsFile.meta.ranks as { rank: string; min: number; max: number }[]).map((r) => ({
   name: r.rank,

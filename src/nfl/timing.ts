@@ -55,6 +55,8 @@ export const levelBannerOutSec = 0.3; // slide out
 export const levelCardBeats = { gridIn: 0.2, pressAt: 0.3, launchAt: 0.4, textAt: 0.7, textStagger: 0.12, exitLen: 0.5, tail: 0.1 } as const;
 /** Score card beats, seconds from the segment start: rings start, rings fill, stagger between rings, text line in. */
 export const scoreCardBeats = { ringsAt: 0.33, ringsLen: 1.2, ringStagger: 0.18, textAt: 0.47 } as const;
+/** Hook beats (seconds from the hook start; hookSec is the whole hook). Assumptions to confirm: only lockSec (0:00-0:03) is from the brief. */
+export const hookBeats = { lockSec: 3, notifyAt: 0, hudAt: 3.4, chipsAt: 4, voiceAt: 0.3 } as const;
 /* Not given in the task; assumptions to confirm: */
 export const cardIntroSec = 1.0; // "Card n." slot when no clip is measured
 export const dykTailSec = 0.2; // the did-you-know chip stays this long after its clip ends

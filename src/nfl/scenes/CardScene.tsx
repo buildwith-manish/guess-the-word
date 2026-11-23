@@ -42,14 +42,16 @@ export const cardTicks = (card: Card): number => {
 export const cardFrames = (card: Card): number => ticksToFrames(cardTicks(card));
 
 /** Top band above the card (reference units): the card starts at SAFE.top, so the HUD and the pill live in the 72 above it. */
-const BAND_TOP = 4;
+export const BAND_TOP = 4;
+/** A start tick so far back that every entrance spring has settled: the state the hook leaves the card in. */
+const ENTERED = -1e6;
 const PILL = { w: 200, h: 64 } as const;
 
 /** The clue stack is laid out inside the card's clue field, so its box is relative to the field. */
 const FIELD_BOX = { left: 0, top: 0, width: WALLET_LAYOUT.field.w, height: WALLET_LAYOUT.field.h };
 
 /** The answer panel in absolute reference units (the "?" face, empty during the clues): home of the rule chips. */
-const ANSWER_BOX = {
+export const ANSWER_BOX = {
   left: WALLET_LAYOUT.card.left + WALLET_LAYOUT.answer.left,
   top: WALLET_LAYOUT.card.top + WALLET_LAYOUT.answer.top,
   width: WALLET_LAYOUT.answer.w,
@@ -62,9 +64,11 @@ export type CardSceneProps = {
   at?: number;
   /** Jersey number for the open face. cards.json has no jersey field yet: undefined leaves it out. */
   jersey?: string | number;
+  /** Card 1 only: the hook already showed the card, the HUD and the rule chips, so this scene continues from them without a new entrance (no card spring-in, no chip pop-in). */
+  fromHook?: boolean;
 };
 
-export const CardScene: React.FC<CardSceneProps> = ({ card, at = 0, jersey }) => {
+export const CardScene: React.FC<CardSceneProps> = ({ card, at = 0, jersey, fromHook = false }) => {
   const f = useNflFrame() - at;
   const seg = segmentOf(card);
   const { phases } = seg;
@@ -84,7 +88,7 @@ export const CardScene: React.FC<CardSceneProps> = ({ card, at = 0, jersey }) =>
   const content = inReveal ? (
     <RevealEngine card={card} frame={f - beatFrom} frozen={clueStack(clueEnd)} jersey={jersey} />
   ) : (
-    <WalletCard card={card} state="blank" frame={f} since={introFrom} jersey={jersey}>
+    <WalletCard card={card} state="blank" frame={f} since={fromHook ? ENTERED : introFrom} jersey={jersey}>
       {clueStack(f)}
     </WalletCard>
   );
@@ -113,8 +117,8 @@ export const CardScene: React.FC<CardSceneProps> = ({ card, at = 0, jersey }) =>
         <RuleChips
           box={ANSWER_BOX}
           frame={f}
-          at={introFrom}
-          dur={clue1End - introFrom}
+          at={fromHook ? ENTERED : introFrom}
+          dur={clue1End - (fromHook ? ENTERED : introFrom)}
           outTicks={Math.round(SPRINGS.snappy * FPS)}
           stagger={secToTicks(chipStaggerSec)}
         />

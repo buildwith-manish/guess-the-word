@@ -21,7 +21,7 @@ Nothing has been rendered by any task yet. 2a: `npx tsc --noEmit` has 0 errors i
 - [x] 4a: `src/nfl/scenes/LevelCard.tsx` (Starter, HoF), `LevelBanner.tsx` (Rookie, y 4-84, clears the first clue at y 160), `ScoreCard.tsx` (after card 10 and 20). Each exports its sfx cues (`levelCardCues`, `levelBannerCues`, `scoreCardCues`) and a voice start (`levelCardVoice`, `levelBannerVoice`, `scoreCardVoice`: type, key, tick) for the 5a audio map. timing.ts: new beats (`levelBannerSec`, `levelCardBeats`, `scoreCardBeats`); the Hall of Fame score card is removed (only 2 score cards, `needed` clips updated). data.ts: `levelText`. NEW SEAM: `src/nfl/lines.generated.ts` (empty placeholder) + `lines.ts` `lineText(type, key)`: 5a must write the spoken script text there; until then the ScoreCard shows rings and numbers without its text line. Not rendered; mounted by nothing until 3a/4b.
 - [x] 3a: CardScene + Preview (`src/nfl/scenes/CardScene.tsx`, `src/nfl/Preview.tsx`; compositions `NFL-Card` (prop n) and `NFL-Card-All` in `src/Root.tsx`; notes below)
 - [x] 4f: `src/nfl/scenes/Scoreboard.tsx` (`Scoreboard`, `scoreboardCues`, `scoreboardVoice`). One card with all five tiers (names and ranges from data.ts); rings fill, tiers light lowest to highest, then a still hold of at least 4 s. timing.ts: new `scoreboardPlan` {rings, steps (lit order, clip key = position in `ranks`, best = '1'), hold, len}, `scoreboardRingsSec`, `rankStepSec`, `rankFinalHoldSec` (replaces `rankHoldSec`); `rankSlotSec` is now per rank step. 5a: the audio map must give the five rank clips keys '1'..'5' with '1' = Hall of Famer, and they play lowest first (key '5' first). Not rendered; nothing mounts it until 4h.
-- [ ] 3b: Hook + lock notification
+- [x] 3b: Hook (`src/nfl/scenes/Hook.tsx`: `Hook`, `HookLock` (the reusable 1 s piece, takes `at`), `HOOK_LOCK_TICKS`, `hookMarks`, `hookCues`, `hookVoice`; composition `NFL-Hook`; notes below)
 - [ ] 3c: final card + Wallet collection
 - [ ] 4b: Part 1
 - [ ] 4e: Predictions
@@ -72,3 +72,12 @@ Run 1b (data + validation) and 2a (system + shared parts) next; both need only 1
 - Added: `chipStaggerSec` (timing.ts, assumption 0.15 s), `tmwLabel` (data.ts, UI label for the badge).
 - No jersey numbers yet (cards.json has no field). Not rendered: Chromium could not be downloaded in the sandbox.
 - Frames (60 fps, local to the card, fallback timings without clips): card 1 clue1 60, clue5 900, beat 1110, reveal 1140, len 1320; card 5 clue5 660, reveal 840, len 1020; card 22/30 dyk 1320, len 1488. `NFL-Card-All` = 40380 frames (673 s) in fallback mode.
+
+## 3b notes (Hook)
+
+- Hook = 6 s (`hookSec`). 0:00-0:03 blurred card + the 1 s `HookLock` notification (banner is on screen about 0.7 s, ticks 4 to 24); 0:03 the real blank card flips in (jersey "?" silhouette); HUD ("30 cards, 150 points") pops in at `hookBeats.hudAt`, rule chips fade in at `hookBeats.chipsAt` on the "?" panel. Rules are not voiced; `hookVoice` is the hook clip only.
+- Card 1 is NOT played inside the hook: its segment (intro, clues, reveal) follows at 0:06 from timing.ts. To avoid a second entrance, 4b must mount card 1 as `<CardScene card={cards[0]} fromHook />` (new prop: no card spring-in, chips already up, HUD already up). The brief says "card 1 is live by 0:06"; with the 1 s "Card n." intro in its segment, clue 1 goes live at 0:07. Confirm which is meant.
+- New: `hookBeats` (timing.ts; only `lockSec` 3 is from the brief), `hookText` (data.ts; title is from the brief, appName / body / timeLabel are my copy), CardScene exports `BAND_TOP`, `ANSWER_BOX`.
+- `LOCK_BEATS` stay literal tick counts in shared/LockNotification.tsx (the piece is 1 s by design).
+- LevelBanner (y 4 to 84, centred) sits over the compact ScoreHud / PointsPill band on card 1: 4b has to decide what hides.
+- Not rendered (no Chromium in the sandbox). Frames at 60 fps: 0, 8 (banner starts), 60 (1 s: notification over, blurred card), 180 (3 s: flip starts), 216 (flip done), 359 (last frame, HUD + chips up).
