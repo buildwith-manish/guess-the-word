@@ -13,7 +13,7 @@ Note: docs/xmas-prompts-split.md has 26 task headings (1a-1e, 2a-2f, 3a-3b, 4a-4
 - [ ] 2b  GlassTile
 - [ ] 2c  TimerToPill, titleFit
 - [x] 2d  LightString
-- [ ] 2e  MovieReveal
+- [x] 2e  MovieReveal
 - [ ] 2f  BonusScene, registry, XMAS-Bonus
 - [ ] 3a  MovieScene, Preview
 - [ ] 3b  Hook, XMAS-Hook
