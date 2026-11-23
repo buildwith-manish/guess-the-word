@@ -11,11 +11,11 @@ Titles come from `meta.titles` in docs/xmas/questions.json (data.ts). Pick one.
 Can you guess the Christmas movie from two emoji-style clues? 40 movies plus 10 bonus rounds, 50 questions in all. Think fast, keep your score, and see how you rank at the end.
 
 0:00 Intro and questions 1-10
-2:07 Questions 11-20
-4:08 Questions 21-30
-6:13 Questions 31-40
-8:18 Questions 41-50
-10:24 Your score
+2:29 Questions 11-20
+4:50 Questions 21-30
+7:19 Questions 31-40
+9:45 Questions 41-50
+12:13 Your score
 
 This channel is not affiliated with any film studio. Movie titles are the property of their owners.
 
