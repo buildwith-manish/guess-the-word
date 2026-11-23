@@ -19,6 +19,7 @@ import { AbsoluteFill } from 'remotion';
 import type { Card } from '../data';
 import { cards, tmwLabel } from '../data';
 import { ClueStack } from '../components/ClueStack';
+import { pointsPillMath } from '../components/PointsPill';
 import { PointsPill, PointsPillGlow } from '../components/PointsPill';
 import { RevealEngine } from '../components/RevealEngine';
 import { RuleChips } from '../components/Chips';
@@ -45,7 +46,9 @@ export const cardFrames = (card: Card): number => ticksToFrames(cardTicks(card))
 export const BAND_TOP = 4;
 /** A start tick so far back that every entrance spring has settled: the state the hook leaves the card in. */
 const ENTERED = -1e6;
-const PILL = { w: 200, h: 64 } as const;
+/** Top row (iOS-6): watermark, points pill and ring chip share one height and one centre line (y 36). */
+export const TOP_ROW = { top: 12, h: 48 } as const;
+const PILL = { w: 200, h: TOP_ROW.h } as const;
 
 /** The clue stack is laid out inside the card's clue field, so its box is relative to the field. */
 const FIELD_BOX = { left: 0, top: 0, width: WALLET_LAYOUT.field.w, height: WALLET_LAYOUT.field.h };
@@ -84,11 +87,14 @@ export const CardScene: React.FC<CardSceneProps> = ({ card, at = 0, jersey, from
   const flipTicks = tmwFlipTicks(card);
   const clueStack = (frame: number) => <ClueStack card={card} frame={frame} starts={starts} box={FIELD_BOX} flipTicks={flipTicks} />;
 
+  const pm = pointsPillMath(f, starts, clueEnd);
+  const guessAt = (_f: number) => (pm.live ? { points: card.points[pm.idx], fill: pm.fill } : undefined);
+
   const inReveal = f >= beatFrom;
   const content = inReveal ? (
     <RevealEngine card={card} frame={f - beatFrom} frozen={clueStack(clueEnd)} jersey={jersey} />
   ) : (
-    <WalletCard card={card} state="blank" frame={f} since={fromHook ? ENTERED : introFrom} jersey={jersey}>
+    <WalletCard card={card} state="blank" frame={f} since={fromHook ? ENTERED : introFrom} jersey={jersey} guess={guessAt(f)}>
       {clueStack(f)}
     </WalletCard>
   );
@@ -98,14 +104,14 @@ export const CardScene: React.FC<CardSceneProps> = ({ card, at = 0, jersey, from
   return (
     <AbsoluteFill style={{ background: levelBackground[card.level], overflow: 'hidden' }}>
       {/* rings fill with cards completed: card n-1 before the lock opens, n after (not the viewer's score) */}
-      <ScoreHud done={card.n} from={card.n - 1} frame={f} at={revealOpen} top={BAND_TOP} compact />
+      <ScoreHud done={card.n} from={card.n - 1} frame={f} at={revealOpen} top={TOP_ROW.top} compact />
 
       <TwoMinuteWarning card={card} frame={f} starts={starts} end={clueEnd} label={tmwLabel}>
         {content}
       </TwoMinuteWarning>
 
       {/* points pill: Dynamic Island position, centred in the top band, only while a clue is live */}
-      <div style={{ position: 'absolute', left: 0, right: 0, top: px(BAND_TOP), display: 'flex', justifyContent: 'center' }}>
+      <div style={{ position: 'absolute', left: 0, right: 0, top: px(TOP_ROW.top), display: 'flex', justifyContent: 'center' }}>
         <PointsPill frame={f} starts={starts} end={clueEnd} values={card.points} level={card.level} width={PILL.w} height={PILL.h} />
       </div>
       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>

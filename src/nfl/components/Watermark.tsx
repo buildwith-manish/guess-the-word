@@ -22,7 +22,7 @@ import { hookSec, outroFadeSec, partRanges, secToTicks, segments, useNflFrame } 
 export const NFL_WATERMARK_LOGO: QuizMatrixLogo = { file: 'nfl/quiz-matrix-bulb.png', cols: 1, rows: 1, frames: 1, fps: 30 };
 
 /** Reference units. `top` puts the badge on the middle line of the ScoreHud (HUD top 4). */
-export const WATERMARK = { height: 40, left: SAFE.x, top: 20 } as const;
+export const WATERMARK = { height: 48, left: SAFE.x, top: 12 } as const; // iOS-6: same height and centre line (y 36) as the points pill and the ring chip
 
 const outro = segments.find((s) => s.kind === 'outro');
 const FADE_START = outro ? outro.to - secToTicks(outroFadeSec) : Infinity;

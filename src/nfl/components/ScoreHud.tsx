@@ -52,7 +52,7 @@ export type ScoreHudProps = {
 
 const RING_W = 6;
 const SIZE = 70;
-const SIZE_COMPACT = 52;
+const SIZE_COMPACT = 32; // compact chip is 48 high: 32 ring + 2 x 8 padding (iOS-6: rings only, the count is on the card header)
 
 export const ScoreHud: React.FC<ScoreHudProps> = ({ done, frame, from, at = 0, side = 'right', inset = SAFE.x, scale = 1, top = SAFE.top, compact = false }) => {
   const ring = compact ? SIZE_COMPACT : SIZE;
@@ -97,8 +97,10 @@ export const ScoreHud: React.FC<ScoreHudProps> = ({ done, frame, from, at = 0, s
         transformOrigin: side === 'left' ? 'top left' : 'top right',
         display: 'flex',
         alignItems: 'center',
-        gap: px(16),
-        padding: compact ? `${px(8)}px ${px(22)}px ${px(8)}px ${px(8)}px` : `${px(12)}px ${px(22)}px ${px(12)}px ${px(12)}px`,
+        gap: px(compact ? 0 : 16),
+        boxSizing: 'border-box',
+        height: compact ? px(48) : undefined,
+        padding: compact ? `${px(8)}px` : `${px(12)}px ${px(22)}px ${px(12)}px ${px(12)}px`,
         borderRadius: px(radius.xl),
         background: colors.glass,
         border: `${px(1)}px solid ${colors.hairline}`,
@@ -116,7 +118,7 @@ export const ScoreHud: React.FC<ScoreHudProps> = ({ done, frame, from, at = 0, s
             <span style={{ color: colors.muted }}> / {total}</span>
           </div>
         )}
-        <div style={{ ...textStyle('caption'), color: colors.muted, whiteSpace: 'nowrap' }}>{hudLabel()}</div>
+        {!compact && <div style={{ ...textStyle('caption'), color: colors.muted, whiteSpace: 'nowrap' }}>{hudLabel()}</div>}
       </div>
     </div>
   );

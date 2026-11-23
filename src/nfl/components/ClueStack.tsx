@@ -1,203 +1,109 @@
 import React from 'react';
-import type { Card } from '../data';
-import { colors, px, radius, springAt, springOver, textStyle, type } from '../system';
-import { DEFAULT_BOX, ROW, wrap } from './clueFit';
-import type { Box } from './clueFit';
+import { pointsLabel, type Card } from '../data';
+import { colors, px, springAt, springOver, textStyle, type } from '../system';
+import { HERO, HISTORY, LAYOUT, FIELD, heroFit, historyFit } from './clueLayout';
 
 export type ClueStackProps = {
   card: Card;
   /** Local design frame (30 fps ticks). */
   frame: number;
-  /** Local tick each clue row flips in (five numbers, from timing.ts). */
+  /** Local tick each clue arrives (five numbers, from timing.ts). */
   starts: readonly number[];
-  /** Area the stack lives in, 1280x720 reference units. Default: the safe box below the HUD. */
-  box?: Box;
-  /** Flip length in ticks. Default: the `gentle` spring preset. Two-Minute Warning cards pass `tmwFlipTicks(card)`. */
+  /** Kept for the callers; the layout is fixed to the field (clueLayout FIELD) and ignores it. */
+  box?: { left: number; top: number; width: number; height: number };
+  /** Emerge length in ticks. Default: the `gentle` spring preset. Two-Minute Warning cards pass `tmwFlipTicks(card)`. */
   flipTicks?: number;
 };
 
 /**
- * Notification-stack layout. The newest clue is a large row at the top of the box; every earlier clue is a compact row
- * below it, newest first, a little dimmer and narrower the older it is (like stacked Lock Screen notifications).
- * Nothing is drawn outside `box` (the wrapper clips), so rows can never run over the card header.
- *
- * Sizes are chosen per clue number so everything always fits the box: compact rows try 22 units and step down to 18,
- * the newest clue takes the rest of the height at 40 units down to 30. Widths come from clueFit's Inter metrics, so the
- * wrap does not depend on the DOM. Text is left-aligned beside the points chip, so lines get the whole row width.
- * When a new clue arrives, rows glide to their new slot and each row cross-fades between its two layouts.
+ * Hero + history (iOS-6). A HERO slot (fixed box, top of the field) holds the live clue; four HISTORY rows (fixed boxes
+ * below it, clue order) hold the earlier clues in full. Nothing moves or resizes while clues arrive:
+ *   - the new clue emerges inside the hero's own mask: it rises from the bottom edge of the hero with the gentle spring
+ *     and a slight scale (0.96 -> 1); nothing is drawn outside the hero box while it moves (overflow hidden);
+ *   - the clue it replaces fades out of the hero in the first third of the spring, and its history row fades in. Opacity
+ *     only, no travel, so there is one main motion.
+ * Text sizes (clueLayout): hero 32 to 40 units auto-fitted (up to 4 lines), history one size, up to 2 lines. Lines are
+ * wrapped by clueFit-style metrics, so the DOM never re-wraps. Points are a right-aligned tag in each slot.
  */
-export const GAP = 6;
-export const ACTIVE = { max: 40, min: 30, padY: 8 } as const;
-export const COMPACT = { max: 24, min: 24, padY: 3 } as const; // iOS-4: never below type.caption (24): older clues stay phone-readable
-export const CHIP = { activeW: 56, activeH: 44, compactW: 46, compactH: 34, col: 56, activeFont: type.chipNumber.size, compactFont: type.chip.size } as const;
-const ENTER_DROP = 28; // the new row starts this far above its slot
-export const DIM_STEP = 0.14;
-export const DIM_FIRST = 0.8;
-export const DIM_FLOOR = 0.35;
-const SHRINK_STEP = 0.02; // older rows are a touch narrower
+const clamp01 = (v: number): number => Math.min(1, Math.max(0, v));
 
-type Text = { size: number; lines: string[] };
-type Layout = { active: Text; activeH: number; compact: Text[]; compactH: number[] };
-type Geom = { y: number; h: number; rank: number; text: Text };
+const Tag: React.FC<{ text: string; color: string; opacity?: number }> = ({ text, color, opacity = 1 }) => (
+  <div style={{ ...textStyle('chip'), letterSpacing: '0em', fontSize: px(type.chip.size), color, opacity, whiteSpace: 'nowrap', textAlign: 'right' }}>{text}</div>
+);
 
-const textWOf = (box: Box): number => box.width - ROW.chipGap * 2 - CHIP.col - 16;
-const heightOf = (t: Text, padY: number): number => t.lines.length * t.size * ROW.lineHeight + 2 * padY;
-
-export const layoutOf = (card: Card, m: number, box: Box): Layout => {
-  const textW = textWOf(box);
-  let best: Layout | undefined;
-  for (let cs = COMPACT.max; cs >= COMPACT.min; cs--) {
-    const compact = card.clues.slice(0, m).map((c): Text => ({ size: cs, lines: wrap(c, cs, textW) }));
-    const compactH = compact.map((t) => heightOf(t, COMPACT.padY));
-    const rem = box.height - compactH.reduce((a, b) => a + b, 0) - m * GAP;
-    for (let s = ACTIVE.max; s >= ACTIVE.min; s--) {
-      const active: Text = { size: s, lines: wrap(card.clues[m], s, textW) };
-      const h = heightOf(active, ACTIVE.padY);
-      const layout = { active, activeH: h, compact, compactH };
-      best = layout;
-      if (h <= rem && active.lines.length <= 3) return layout;
-    }
-  }
-  return best as Layout;
-};
-
-/** Where clue j sits when clue m is the newest: y from the top of the box, height, recency rank (0 = newest), its text. */
-const geomOf = (L: Layout, m: number, j: number): Geom => {
-  if (j === m) return { y: 0, h: L.activeH, rank: 0, text: L.active };
-  let y = L.activeH + GAP;
-  for (let q = m - 1; q > j; q--) y += L.compactH[q] + GAP;
-  return { y, h: L.compactH[j], rank: m - j, text: L.compact[j] };
-};
-
-const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
-export const dimOf = (rank: number): number => (rank === 0 ? 1 : Math.max(DIM_FLOOR, DIM_FIRST - DIM_STEP * (rank - 1)));
-/** iOS-4: older rows fade their SURFACE with dimOf, but their text only down to this opacity, so contrast stays above 4.5:1 (scripts/nfl_contrast.mjs). */
-export const TEXT_DIM_FLOOR = 0.86;
-export const textDimOf = (rank: number): number => (rank <= 0 ? 1 : Math.max(TEXT_DIM_FLOOR, 1 - 0.035 * rank));
-/** iOS-4: dark base under the glass of each row, so light text sits on a darker surface than the bare glass would give. */
-export const ROW_BASE = 'rgba(0,0,0,0.34)';
-const sameText = (a: Text, b: Text): boolean => a.size === b.size && a.lines.length === b.lines.length && a.lines.every((l, i) => l === b.lines[i]);
-
-const TextBlock: React.FC<{ t: Text; opacity: number }> = ({ t, opacity }) => (
-  <div
-    style={{
-      ...textStyle('clue'),
-      position: 'absolute',
-      left: px(ROW.chipGap * 2 + CHIP.col),
-      right: px(16),
-      top: 0,
-      bottom: 0,
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      fontSize: px(t.size),
-      lineHeight: ROW.lineHeight,
-      fontVariantNumeric: 'normal',
-      fontFeatureSettings: 'normal',
-      textAlign: 'left',
-      color: colors.ink,
-      opacity,
-    }}
-  >
-    {t.lines.map((line, i) => (
-      <div key={i} style={{ whiteSpace: 'nowrap' }}>{line}</div>
+const Lines: React.FC<{ lines: string[]; size: number; lineHeight: number; color: string; weight?: number }> = ({ lines, size, lineHeight, color, weight }) => (
+  <div style={{ ...textStyle('clue'), fontSize: px(size), lineHeight, fontWeight: weight ?? type.clue.weight, letterSpacing: size >= 32 ? '-0.015em' : '-0.01em', color, textAlign: 'left' }}>
+    {lines.map((l, i) => (
+      <div key={i} style={{ whiteSpace: 'nowrap' }}>{l}</div>
     ))}
   </div>
 );
 
-export const ClueStack: React.FC<ClueStackProps> = ({ card, frame, starts, box = DEFAULT_BOX, flipTicks }) => {
+export const ClueStack: React.FC<ClueStackProps> = ({ card, frame, starts, flipTicks }) => {
   const accent = colors.level[card.level];
-  const flip = (at: number) => (flipTicks === undefined ? springAt(frame, at, 'gentle') : springOver(frame, at, flipTicks));
-
-  // newest clue on screen: the last one whose start has passed
   let m = -1;
   starts.forEach((s, k) => {
     if (s !== undefined && frame >= s && k < card.clues.length) m = k;
   });
   if (m < 0) return null;
+  const p = flipTicks === undefined ? springAt(frame, starts[m], 'gentle') : springOver(frame, starts[m], flipTicks);
+  const fadeOut = 1 - clamp01(p * 3); // leaving hero text
+  const fadeIn = clamp01(p * 3); // arriving text and the docked row
+  const heroNow = heroFit(card.clues[m]);
+  const heroPrev = m > 0 ? heroFit(card.clues[m - 1]) : undefined;
+  const textW = FIELD.w - LAYOUT.heroPadX * 2 - LAYOUT.tagW;
+  const rise = (1 - p) * LAYOUT.heroH * 0.6;
 
-  const p = flip(starts[m]);
-  const now = layoutOf(card, m, box);
-  const prev = m > 0 ? layoutOf(card, m - 1, box) : undefined;
+  const heroLines = (f: ReturnType<typeof heroFit>, opacity: number, dy: number, scale: number, key: string) => (
+    <div key={key} style={{ position: 'absolute', left: px(LAYOUT.heroPadX), top: 0, bottom: 0, width: px(textW), display: 'flex', alignItems: 'center', opacity, transform: `translateY(${px(dy)}px) scale(${scale})`, transformOrigin: '0% 100%' }}>
+      <Lines lines={f.lines} size={f.size} lineHeight={HERO.lineHeight} color={colors.ink} />
+    </div>
+  );
 
   return (
-    <div style={{ position: 'absolute', left: px(box.left), top: px(box.top), width: px(box.width), height: px(box.height), overflow: 'hidden', pointerEvents: 'none' }}>
-      {card.clues.slice(0, m + 1).map((_, j) => {
-        const g1 = geomOf(now, m, j);
-        const isNew = j === m;
-        const g0 = isNew || !prev ? undefined : geomOf(prev, m - 1, j);
-        const y = isNew ? lerp(-ENTER_DROP, 0, p) : lerp(g0!.y, g1.y, p);
-        const h = isNew ? g1.h : lerp(g0!.h, g1.h, p);
-        const rank = g0 ? lerp(g0.rank, g1.rank, p) : 0;
-        const opacity = isNew ? Math.min(1, p * 2) : lerp(dimOf(g0!.rank), dimOf(g1.rank), p);
-        const act = isNew ? 1 : lerp(g0!.rank === 0 ? 1 : 0, g1.rank === 0 ? 1 : 0, p);
-        const chipW = lerp(CHIP.compactW, CHIP.activeW, act);
-        const chipH = lerp(CHIP.compactH, CHIP.activeH, act);
-        const scale = 1 - SHRINK_STEP * Math.min(rank, 4);
-        const textOp = isNew ? Math.min(1, p * 2) : lerp(textDimOf(g0!.rank), textDimOf(g1.rank), p);
-        const crossfade = g0 !== undefined && !sameText(g0.text, g1.text);
+    <div style={{ position: 'absolute', left: 0, top: 0, width: px(FIELD.w), height: px(FIELD.h), pointerEvents: 'none' }}>
+      {/* hero: fixed box, masks its own motion */}
+      <div
+        style={{
+          position: 'absolute', left: 0, top: 0, width: '100%', height: px(LAYOUT.heroH), boxSizing: 'border-box', overflow: 'hidden',
+          borderRadius: px(LAYOUT.radius.surface), border: `${px(1.5)}px solid ${accent}`,
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.06)), rgba(0,0,0,0.30)',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18)',
+        }}
+      >
+        {heroPrev && fadeOut > 0 ? heroLines(heroPrev, fadeOut, 0, 1, `p${m - 1}`) : null}
+        {heroLines(heroNow, m === 0 ? Math.min(1, p * 2) : fadeIn, rise, 0.96 + 0.04 * Math.min(1, p), `c${m}`)}
+        <div style={{ position: 'absolute', right: px(LAYOUT.heroPadX), top: px(LAYOUT.heroPadY + 4) }}>
+          <Tag text={pointsLabel(card.points[m])} color={accent} opacity={m === 0 ? Math.min(1, p * 2) : 1} />
+        </div>
+      </div>
+
+      {/* history: four fixed rows in clue order; a row is empty until its clue has been replaced in the hero */}
+      {Array.from({ length: LAYOUT.historyRows }, (_, j) => {
+        const filled = j < m;
+        const arriving = j === m - 1; // docks now
+        const op = filled ? (arriving ? fadeIn : 1) : 0;
+        const fit = historyFit(card.clues[j]);
         return (
           <div
             key={j}
             style={{
-              position: 'absolute',
-              left: 0,
-              top: px(y),
-              width: '100%',
-              height: px(h),
-              boxSizing: 'border-box',
-              borderRadius: px(radius.lg),
-              transformOrigin: '50% 0%',
-              transform: `scale(${scale})`,
+              position: 'absolute', left: 0, top: px(LAYOUT.heroH + LAYOUT.rowGap + j * (LAYOUT.rowH + LAYOUT.rowGap)), width: '100%', height: px(LAYOUT.rowH),
+              boxSizing: 'border-box', borderRadius: px(LAYOUT.radius.row),
+              border: `${px(1)}px solid ${filled ? colors.hairline : 'rgba(255,255,255,0.07)'}`,
+              background: filled ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.02)',
+              boxShadow: filled ? 'inset 0 1px 0 rgba(255,255,255,0.10)' : 'none',
+              display: 'flex', alignItems: 'center', padding: `0 ${px(16)}px`,
             }}
           >
-            {/* surface: only this layer fades with age */}
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                borderRadius: px(radius.lg),
-                background: `linear-gradient(160deg, ${colors.glassStrong}, ${colors.glass}), ${ROW_BASE}`,
-                border: `${px(1.5)}px solid ${act > 0.5 ? accent : colors.hairline}`,
-                boxSizing: 'border-box',
-                opacity,
-              }}
-            />
-            <div
-              style={{
-                position: 'absolute',
-                left: px(ROW.chipGap),
-                top: '50%',
-                width: px(CHIP.col),
-                height: px(chipH),
-                marginTop: -px(chipH) / 2,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                opacity: textOp,
-              }}
-            >
-              <div
-                style={{
-                  ...textStyle('chipNumber'),
-                  width: px(chipW),
-                  height: px(chipH),
-                  boxSizing: 'border-box',
-                  borderRadius: px(chipH / 2),
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: px(lerp(CHIP.compactFont, CHIP.activeFont, act)),
-                  color: colors.ink,
-                  background: `${accent}33`,
-                  border: `${px(1.5)}px solid ${accent}`,
-                }}
-              >
-                {card.points[j]}
-              </div>
-            </div>
-            {crossfade ? <TextBlock t={g0!.text} opacity={(1 - p) * textOp} /> : null}
-            <TextBlock t={g1.text} opacity={(crossfade ? p : 1) * textOp} />
+            {filled ? (
+              <>
+                <div style={{ flex: 1, opacity: op }}>
+                  <Lines lines={fit.lines} size={HISTORY.size} lineHeight={HISTORY.lineHeight} color={colors.ink} />
+                </div>
+                <Tag text={pointsLabel(card.points[j])} color={accent} opacity={op * 0.85} />
+              </>
+            ) : null}
           </div>
         );
       })}
