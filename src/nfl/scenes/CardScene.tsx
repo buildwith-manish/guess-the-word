@@ -80,7 +80,6 @@ export const CardScene: React.FC<CardSceneProps> = ({ card, at = 0, jersey, from
   const starts = phases.clues.map((r) => r.from - seg.from);
   const clueEnd = phases.clues[phases.clues.length - 1].to - seg.from;
   const beatFrom = phases.beat.from - seg.from;
-  const revealOpen = phases.reveal.from - seg.from;
   const introFrom = phases.intro.from - seg.from;
   const clue1End = phases.clues[0].to - seg.from;
 
@@ -104,7 +103,7 @@ export const CardScene: React.FC<CardSceneProps> = ({ card, at = 0, jersey, from
   return (
     <AbsoluteFill style={{ background: levelBackground[card.level], overflow: 'hidden' }}>
       {/* rings fill with cards completed: card n-1 before the lock opens, n after (not the viewer's score) */}
-      <ScoreHud done={card.n} from={card.n - 1} frame={f} at={revealOpen} top={TOP_ROW.top} side="left" compact tag={levelNames[card.level]} tagColor={levelTagColor(card.level)} />
+      <ScoreHud done={card.n} frame={f} top={TOP_ROW.top} side="left" compact tag={levelNames[card.level]} tagColor={levelTagColor(card.level)} />
 
       <TwoMinuteWarning card={card} frame={f} starts={starts} end={clueEnd} label={tmwLabel}>
         {content}
