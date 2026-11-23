@@ -30,8 +30,8 @@ export const hudLabel = (): string => {
   return `${total} cards, ${points} points`;
 };
 
-/** Colour of the level pill in the top-left chip: Rookie is neutral gray (text and outline), the other levels keep their level colour. */
-export const levelTagColor = (level: keyof typeof colors.level): string => (level === 'rookie' ? colors.muted : colors.level[level]);
+/** Colour of the level pill in the top-left chip: neutral gray (text and outline) for every level. */
+export const levelTagColor = (_level: keyof typeof colors.level): string => colors.muted;
 
 export type ScoreHudProps = {
   /** Cards completed so far (0..total). Not the viewer's score. */
