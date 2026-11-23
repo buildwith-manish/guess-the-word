@@ -8,6 +8,7 @@ import { outroCues } from './scenes/Outro';
 import { levelCardCues } from './scenes/LevelCard';
 import { revealCues } from './components/RevealEngine';
 import { bonusOppositeDayCues } from './scenes/BonusOppositeDay';
+import { bonusTripleLockCues } from './scenes/BonusTripleLock';
 import { rankCardCues } from './scenes/RankCard';
 import { heartCheckInCues } from './scenes/HeartCheckIn';
 import { bonusChainCues } from './scenes/BonusChainReaction';
@@ -16,6 +17,7 @@ import type { SfxId } from './sfx';
 
 export type PartCue = { name: string; id: SfxId; tick: number; volume: number };
 
+const part2 = partRanges[1];
 const part6 = partRanges[5];
 const seg = (kind: 'rankCard' | 'scoreboard' | 'outro') => {
   const s = segments.find((x) => x.part === 6 && x.kind === kind);
@@ -77,5 +79,29 @@ export const part3Cues = (): PartCue[] => {
       out.push(...bonusChainCues().map((c, i) => ({ name: `bonus-${s.bonus.n}-${c.id}-${i}`, id: c.id, tick: c.at + base, volume: c.volume })));
     }
   }
+  return out;
+};
+
+/**
+ * Part 2 cues (task 4j). Level card (with the rules sheet), each round's reveal cues (shake, click,
+ * dissolve, chime; the same list RevealEngine mounts itself), and the Triple Lock bonus cues, all
+ * shifted onto the part-2 clock. Each scene still mounts its own audio; this list is for the mix.
+ */
+export const part2Cues = (): PartCue[] => {
+  const out: PartCue[] = [];
+  segments
+    .filter((s) => s.part === 2)
+    .forEach((s) => {
+      const base = s.from - part2.from;
+      if (s.kind === 'levelCard') {
+        levelCardCues(s.level, true).forEach((c) => out.push({ ...c, name: `level-${s.level}-${c.name}`, tick: c.tick + base }));
+      } else if (s.kind === 'round') {
+        revealCues(s.round, s.phases.beat.from - s.from).forEach((c) =>
+          out.push({ name: `round-${s.round.n}-${c.name}`, id: c.id, tick: c.tick + base, volume: c.volume }),
+        );
+      } else if (s.kind === 'bonus') {
+        bonusTripleLockCues().forEach((c, i) => out.push({ name: `bonus-${s.bonus.n}-${c.id}-${i}`, id: c.id, tick: c.at + base, volume: 1 }));
+      }
+    });
   return out;
 };

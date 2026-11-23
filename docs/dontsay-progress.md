@@ -293,3 +293,12 @@ Started, then stopped at the owner's request in favour of 4c. Nothing written. N
 - Voice clips (`level_3`, `check_in`, round intro/reveal) are not mounted here; no clips exist yet (timings.generated.ts empty). Check-in music lift (`heartCheckInMusicGain`) not applied: no music bed mounts.
 - Repo-wide tsc: one error outside DontSay (`src/timing.ts` cannot find `./rounds.json`), present before this task.
 - Read beyond the named files (minimal): timing.ts segment types, SettingsCard/LevelCard/RoundScene/RevealEngine exports, Part6.tsx, sfxCues.ts, Root.tsx registration lines, sfx.ts exports.
+## Task 4j: DONE (tsc --noEmit clean; NOT rendered, remotion still not run)
+
+- `src/dontsay/parts/Part2.tsx`: `Part2`, `part2Frames` (7920 = 132 s), `part2Segments`. Registered `DontSay-P2` in Root.tsx (additive). Level card L2 uses `LevelCard sheet` (SettingsCard slides over at LEVEL_SHEET_AT), rounds 10-18 via `RoundScene`, then `BonusTripleLock`. Everything is read from timing.ts `segments` (part 2).
+- `src/dontsay/sfxCues.ts`: `part2Cues()` (level card + sheet, each round's reveal cues, triple-lock cues) on the part-2 clock.
+- Frames at 60 fps, local to DontSay-P2 (video time in brackets): level card 0 (2:20), sheet slides ~108; round 10 240 (2:24); round 12 HEAVY 1680 (2:48), intro ends 1872; round 18 HEAVY 6120 (4:02), intro ends 6312; bonus 2 6960 (4:16); last frame 7919.
+### Open points
+- Part1.tsx does not exist yet (4i not built): Part6.tsx was used as the pattern.
+- timing.ts has no separate 4 s settingsCard segment for L2, so the sheet is the LevelCard `sheet` overlay inside the 4 s level card (visible about 2 s). A full 4 s sheet needs a timing.ts change that shifts every later segment.
+- Part2 hard-fails if part 2's bonus is not triple-lock.
