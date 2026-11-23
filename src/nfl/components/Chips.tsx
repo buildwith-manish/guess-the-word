@@ -19,7 +19,7 @@ import { cards, maxPoints, sourceName } from '../data';
 import type { Card, Level } from '../data';
 import { clamp01 } from '../shared/fade';
 import { presence } from '../shared/presence';
-import { SAFE, blurPx, colors, radius, safeBox, textStyle, type, px } from '../system';
+import { SAFE, blurPx, colors, radius, safeBox, textStyle, px } from '../system';
 
 /* ---------- helpers ---------- */
 
@@ -88,10 +88,7 @@ const Toast: React.FC<ToastProps> = ({ frame, at, dur, outTicks, accent, maxWidt
 };
 
 const chipText = {
-  ...textStyle('caption'),
-  fontSize: px(type.caption.size),
-  fontWeight: 700,
-  letterSpacing: '0.06em',
+  ...textStyle('chip'),
   color: colors.ink,
   whiteSpace: 'nowrap',
 } as const;
@@ -139,7 +136,7 @@ export const DidYouKnowChip: React.FC<DidYouKnowChipProps> = ({ card, top, ...t 
       <Toast {...t} accent={colors.level[card.level as Level]} maxWidth={safeBox.w}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: px(4) }}>
           <div style={{ ...chipText, color: colors.muted }}>DID YOU KNOW?</div>
-          <div style={{ ...textStyle('body'), color: colors.ink, fontWeight: 600, whiteSpace: 'normal' }}>{card.didYouKnow}</div>
+          <div style={{ ...textStyle('bodyStrong'), color: colors.ink, whiteSpace: 'normal' }}>{card.didYouKnow}</div>
         </div>
       </Toast>
     </Row>
@@ -171,7 +168,7 @@ export const SourceLine: React.FC<SourceLineProps> = ({ frame, at, inTicks, top 
   if (o <= 0) return null;
   return (
     <Row top={top}>
-      <div style={{ ...textStyle('caption'), fontSize: px(type.caption.size), color: colors.muted, opacity: o, whiteSpace: 'nowrap' }}>{`Source: ${name}`}</div>
+      <div style={{ ...textStyle('caption'), color: colors.muted, opacity: o, whiteSpace: 'nowrap' }}>{`Source: ${name}`}</div>
     </Row>
   );
 };

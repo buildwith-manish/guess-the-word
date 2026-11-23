@@ -50,16 +50,34 @@ export const fontStack = '"Inter", -apple-system, "SF Pro Display", "Helvetica N
 export const tabular = { fontVariantNumeric: 'tabular-nums', fontFeatureSettings: '"tnum" 1' } as const;
 
 /**
- * Type scale in 1280x720 reference units. Mobile-first: nothing under 24 (1.9% of the frame width),
- * so text stays readable on a phone at arm's length.
+ * Type scale (one for the whole video), in 1280x720 reference units. Inter only, and only the four bundled weights:
+ * 400 regular, 500 medium, 600 semibold, 700 bold (src/ios/fonts.ts loads exactly these). Mobile-first: nothing under
+ * 24 (1.9% of the frame width), so text stays readable on a phone at arm's length.
+ *
+ * Weight per role: clue 500, chips 600, name and numbers 700. Tracking is in em: -0.01 on running text, tighter on
+ * large type (-0.02 name, title, rank; -0.03 the big numbers, the card number and the reveal name), wider (+0.06, +0.08)
+ * only on all-caps chips and labels. Every role carries tabular figures through textStyle() (see `tabular`).
+ * A component may set a size inside the scale's range (the clue fit steps 24 to 40) but never a weight of its own.
  */
+export const weights = { regular: 400, medium: 500, semibold: 600, bold: 700 } as const;
+export type Weight = (typeof weights)[keyof typeof weights];
+
 export const type = {
-  caption: { size: 24, weight: 500, lineHeight: 1.25 },
-  body: { size: 30, weight: 500, lineHeight: 1.3 },
-  clue: { size: 40, weight: 600, lineHeight: 1.2 },
-  name: { size: 56, weight: 700, lineHeight: 1.1 },
-  title: { size: 64, weight: 800, lineHeight: 1.05 },
-  number: { size: 80, weight: 700, lineHeight: 1 },
+  caption: { size: 24, weight: weights.medium, lineHeight: 1.25, tracking: -0.01 },
+  chip: { size: 24, weight: weights.semibold, lineHeight: 1.25, tracking: 0.06 },
+  label: { size: 30, weight: weights.bold, lineHeight: 1.3, tracking: 0.08 },
+  body: { size: 30, weight: weights.medium, lineHeight: 1.3, tracking: -0.01 },
+  bodyStrong: { size: 30, weight: weights.semibold, lineHeight: 1.3, tracking: -0.01 },
+  clue: { size: 40, weight: weights.medium, lineHeight: 1.2, tracking: -0.01 },
+  chipNumber: { size: 28, weight: weights.semibold, lineHeight: 1, tracking: -0.02 },
+  cardNumber: { size: 30, weight: weights.bold, lineHeight: 1, tracking: -0.03 },
+  counter: { size: 36, weight: weights.bold, lineHeight: 1.1, tracking: -0.03 },
+  pill: { size: 40, weight: weights.bold, lineHeight: 1, tracking: -0.03 },
+  rank: { size: 52, weight: weights.bold, lineHeight: 1.1, tracking: -0.02 },
+  name: { size: 56, weight: weights.bold, lineHeight: 1.1, tracking: -0.02 },
+  title: { size: 64, weight: weights.bold, lineHeight: 1.05, tracking: -0.02 },
+  number: { size: 80, weight: weights.bold, lineHeight: 1, tracking: -0.03 },
+  reveal: { size: 88, weight: weights.bold, lineHeight: 1.05, tracking: -0.03 },
 } as const;
 export type TypeRole = keyof typeof type;
 
@@ -68,7 +86,7 @@ export const textStyle = (role: TypeRole) => ({
   fontSize: px(type[role].size),
   fontWeight: type[role].weight,
   lineHeight: type[role].lineHeight,
-  letterSpacing: role === 'title' || role === 'name' ? '-0.02em' : '-0.01em',
+  letterSpacing: `${type[role].tracking}em`,
   ...tabular,
 });
 

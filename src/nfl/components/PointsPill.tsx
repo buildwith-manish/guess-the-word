@@ -3,7 +3,7 @@ import type { Level } from '../data';
 import { FPS } from '../shared/clock';
 import { BloomLayer } from '../shared/BloomLayer';
 import { EdgeGlow } from '../shared/EdgeGlow';
-import { colors, px, SPRINGS, springAt, textStyle } from '../system';
+import { colors, px, SPRINGS, springAt, textStyle, type } from '../system';
 import { pillLastSec, pillPulseSec } from '../timing';
 
 export type PointsPillProps = {
@@ -67,14 +67,13 @@ export const PointsPill: React.FC<PointsPillProps> = ({ frame, starts, end, valu
   const rise = h * 0.7;
 
   const digit: React.CSSProperties = {
-    ...textStyle('number'),
+    ...textStyle('pill'),
     position: 'absolute',
     inset: 0,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: h * 0.62,
-    fontWeight: 700,
+    fontSize: Math.min(px(type.pill.size), h * 0.62), // the scale's pill size, smaller only if the pill is
     color: accent,
   };
 

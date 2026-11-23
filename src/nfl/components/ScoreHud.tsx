@@ -111,12 +111,12 @@ export const ScoreHud: React.FC<ScoreHudProps> = ({ done, frame, from, at = 0, s
       </svg>
       <div style={{ display: 'flex', flexDirection: 'column', gap: px(2) }}>
         {!compact && (
-          <div style={{ ...textStyle('number'), fontSize: px(36), color: colors.ink, whiteSpace: 'nowrap' }}>
+          <div style={{ ...textStyle('counter'), color: colors.ink, whiteSpace: 'nowrap' }}>
             {Math.round(shown)}
             <span style={{ color: colors.muted }}> / {total}</span>
           </div>
         )}
-        <div style={{ ...textStyle('caption'), fontSize: px(type.caption.size), color: colors.muted, whiteSpace: 'nowrap' }}>{hudLabel()}</div>
+        <div style={{ ...textStyle('caption'), color: colors.muted, whiteSpace: 'nowrap' }}>{hudLabel()}</div>
       </div>
     </div>
   );

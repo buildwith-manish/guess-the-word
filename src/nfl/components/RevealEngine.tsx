@@ -139,7 +139,7 @@ export const RevealEngine: React.FC<RevealEngineProps> = ({ card, frame, frozen,
               transform: `translateY(${(1 - nameP) * px(24)}px) scale(${0.92 + 0.08 * nameP})`,
             }}
           >
-            <div style={{ ...textStyle('title'), fontSize: px(88), fontWeight: 800, color: colors.ink, textWrap: 'balance' as React.CSSProperties['textWrap'] }}>{card.name}</div>
+            <div style={{ ...textStyle('reveal'), color: colors.ink, textWrap: 'balance' as React.CSSProperties['textWrap'] }}>{card.name}</div>
             {revealText !== '' && <div style={{ ...textStyle('body'), color: colors.muted, fontFamily: fontStack }}>{revealText}</div>}
           </div>
           <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0 }}>

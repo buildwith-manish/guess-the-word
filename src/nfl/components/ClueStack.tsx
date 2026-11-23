@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Card } from '../data';
-import { colors, px, radius, springAt, springOver, textStyle } from '../system';
+import { colors, px, radius, springAt, springOver, textStyle, type } from '../system';
 import { DEFAULT_BOX, ROW, wrap } from './clueFit';
 import type { Box } from './clueFit';
 
@@ -29,7 +29,7 @@ export type ClueStackProps = {
 export const GAP = 6;
 export const ACTIVE = { max: 40, min: 30, padY: 8 } as const;
 export const COMPACT = { max: 24, min: 24, padY: 3 } as const; // iOS-4: never below type.caption (24): older clues stay phone-readable
-export const CHIP = { activeW: 56, activeH: 44, compactW: 46, compactH: 34, col: 56, activeFont: 28, compactFont: 24 } as const;
+export const CHIP = { activeW: 56, activeH: 44, compactW: 46, compactH: 34, col: 56, activeFont: type.chipNumber.size, compactFont: type.chip.size } as const;
 const ENTER_DROP = 28; // the new row starts this far above its slot
 export const DIM_STEP = 0.14;
 export const DIM_FIRST = 0.8;
@@ -179,7 +179,7 @@ export const ClueStack: React.FC<ClueStackProps> = ({ card, frame, starts, box =
             >
               <div
                 style={{
-                  ...textStyle('caption'),
+                  ...textStyle('chipNumber'),
                   width: px(chipW),
                   height: px(chipH),
                   boxSizing: 'border-box',
@@ -188,8 +188,6 @@ export const ClueStack: React.FC<ClueStackProps> = ({ card, frame, starts, box =
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: px(lerp(CHIP.compactFont, CHIP.activeFont, act)),
-                  fontWeight: 700,
-                  lineHeight: 1,
                   color: colors.ink,
                   background: `${accent}33`,
                   border: `${px(1.5)}px solid ${accent}`,

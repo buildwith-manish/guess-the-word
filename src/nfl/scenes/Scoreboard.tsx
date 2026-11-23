@@ -110,7 +110,7 @@ export const Scoreboard: React.FC<ScoreboardProps> = ({ frame }) => {
             const litC = clamp01(lit);
             // emphasis while this tier is the current one; it settles before the step ends, so the hold is still
             const emph = frame < step.from || frame >= step.to ? 0 : clamp01(lit) * (1 - clamp01((frame - (step.to - outLen)) / outLen));
-            const text: React.CSSProperties = { ...textStyle('name'), fontSize: px(52), lineHeight: 1.1, whiteSpace: 'nowrap', opacity: 0.45 + 0.55 * litC };
+            const text: React.CSSProperties = { ...textStyle('rank'), whiteSpace: 'nowrap', opacity: 0.45 + 0.55 * litC };
             return (
               <div
                 key={rank.name}
@@ -132,8 +132,8 @@ export const Scoreboard: React.FC<ScoreboardProps> = ({ frame }) => {
               >
                 <div style={{ position: 'absolute', inset: 0, background: hexA(color, 0.2 * litC) }} />
                 <div style={{ position: 'relative', flex: 'none', width: px(20), height: px(20), borderRadius: px(10), background: color, opacity: 0.3 + 0.7 * litC }} />
-                <div style={{ ...text, position: 'relative', flex: 1, color: colors.ink, fontWeight: 700 }}>{rank.name}</div>
-                <div style={{ ...text, position: 'relative', color, fontWeight: 800 }}>
+                <div style={{ ...text, position: 'relative', flex: 1, color: colors.ink }}>{rank.name}</div>
+                <div style={{ ...text, position: 'relative', color }}>
                   {rank.min}–{rank.max}
                 </div>
               </div>

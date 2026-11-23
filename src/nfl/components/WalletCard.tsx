@@ -180,8 +180,8 @@ export const WalletCard: React.FC<WalletCardProps> = ({ card, state, frame, sinc
             boxSizing: 'border-box',
           }}
         >
-          <span style={{ ...textStyle('body'), fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{levelNames[card.level]}</span>
-          <span style={{ ...textStyle('body'), fontWeight: 800 }}>
+          <span style={{ ...textStyle('label'), textTransform: 'uppercase' }}>{levelNames[card.level]}</span>
+          <span style={{ ...textStyle('cardNumber') }}>
             {card.n} / {total}
           </span>
         </div>

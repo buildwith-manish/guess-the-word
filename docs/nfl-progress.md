@@ -158,3 +158,10 @@ Fill `picks.json`, set `meta.sourceName`, then render `NFL-Full` where Chromium 
 - Before: 21 of 48 below (all older clues and their chips: row opacity faded text with its surface). After: 0 of 48.
 - `ClueStack.tsx`: older rows fade only their surface (`dimOf`); their text keeps `textDimOf` (floor `TEXT_DIM_FLOOR` 0.86); dark `ROW_BASE` under every row; older clue text 22 -> 24 units, chip text 20 -> 24 (chips 46 x 34), compact row padY 3 so the tallest stack (406) still fits the 408 field. Newest clue now 31 to 40 (was 34 to 40). Level accent colours unchanged.
 - Not rendered: layout was checked with clueFit's Inter metrics only, no still.
+
+## iOS-3 notes (type scale)
+
+- `system.ts` `type` is the one scale: Inter 400/500/600/700 only (`weights`), 15 roles with size, weight, line height and tracking (em); `textStyle(role)` always adds tabular figures. Clue 500, chips 600, name and numbers 700. Tighter tracking on name/title/rank (-0.02) and on the big numbers, card number, counter, pill and reveal name (-0.03).
+- Applied in PointsPill, ScoreHud, Chips, ClueStack, Scoreboard, plus RevealEngine (name) and WalletCard (card number, level label). Clue prose keeps proportional figures on purpose (clueFit wraps with proportional Inter widths).
+- Not yet moved to the scale (other files, not in the task): weights 600/700/800 and px sizes in DidYouKnowCard, NotificationBanner, LockNotification, TimerRing, TwoMinuteWarning, Captions, Predictions, WalletCollection, LevelBanner. 800 is not a loaded weight (the browser falls back to 700).
+- clueFit still measures with Inter 600 widths while clues are now 500: wraps are slightly conservative.
