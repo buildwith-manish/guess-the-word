@@ -1,5 +1,6 @@
 import React from 'react';
 import { clamp01 as clamp01m, easeInOut, easeOut, motionSpringAt } from '../shared/motion';
+import { rimLightStyle } from '../shared/glass';
 import { colors, glassSurface, LAYOUT, px, REF, textStyle, timerColor, useXmasFrame } from '../system';
 import { fitTitle } from '../titleFit';
 import { cue, tickId } from '../sfx';
@@ -100,6 +101,8 @@ export const timerCues = (startFrame: number, segments: number, secondsPerSegmen
 /* ------------------------------------------------------------------ drawing */
 
 const clamp01 = clamp01m;
+/** Unfilled timer segment: fainter than colors.segmentOff (which Spotlight also uses) so the empty bar is light and the tiles lead. */
+const SEGMENT_OFF = 'rgba(255,255,255,0.065)';
 const lerp = (a: number, b: number, k: number) => a + (b - a) * k;
 
 /** Segment i of n, relative to the capsule's top-left corner (reference units). */
@@ -158,6 +161,7 @@ export const TimerToPill: React.FC<TimerToPillProps> = ({ segments, startFrame, 
       edge: 0.6,
       depth: 0.45,
       base: colors.glassBase,
+      rim: 'none',
       ...(gold ? { tint: colors.gold, tintPercent: 16 } : {}),
     }),
   );
@@ -177,6 +181,8 @@ export const TimerToPill: React.FC<TimerToPillProps> = ({ segments, startFrame, 
           boxShadow: `${glass.boxShadow}, 0 0 ${px(34 * flash)}px ${gold ? 'rgba(255,200,87,0.55)' : 'rgba(255,255,255,0.45)'}`,
         }}
       >
+        {/* top-left edge light, the same light source as the tiles; follows the morphing radius */}
+        <div style={rimLightStyle(radius, { strength: 0.7, tint: gold ? colors.gold : undefined })} />
         {/* the segments live in a box the size of the capsule, centred in the morphing container */}
         <div
           style={{
@@ -197,7 +203,7 @@ export const TimerToPill: React.FC<TimerToPillProps> = ({ segments, startFrame, 
             const handOver = i + 1 < segments ? easeInOut((t - plan.fills[i + 1]) / (TIMER.fillTicks * 2)) : 0;
             const glow = f * (1 - handOver);
             return (
-              <div key={i} style={{ position: 'absolute', left: px(r.x), top: px(r.y), width: px(r.w), height: px(r.h), borderRadius: px(r.h / 2), background: colors.segmentOff }}>
+              <div key={i} style={{ position: 'absolute', left: px(r.x), top: px(r.y), width: px(r.w), height: px(r.h), borderRadius: px(r.h / 2), background: SEGMENT_OFF }}>
                 {f > 0 ? (
                   <div
                     style={{

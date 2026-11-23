@@ -48,7 +48,7 @@ export const GLASS_TILE = {
   enter: { spring: 'pop', fromScale: 0.86, rise: 0.06, fadeAt: 0.5 },
   glide: { spring: 'smooth', rise: 0.1, scale: 0.92 },
   /** one pulse: length in ticks, peak scale and peak edge glow (0..1) */
-  pulse: { ticks: 16, scale: 0.035, glow: 0.5, zoneBoost: 0.4 },
+  pulse: { ticks: 16, scale: 0.035, glow: 0.2, zoneBoost: 0.2 },
 } as const;
 
 const clamp01 = (v: number): number => Math.max(0, Math.min(1, v));
@@ -101,7 +101,7 @@ export const GlassTile: React.FC<GlassTileProps> = ({ imageId, side, size = LAYO
     ...(blur ? {} : { backdropFilter: undefined, WebkitBackdropFilter: undefined }),
     // the pulse brightens the edge glow in the side colour; nothing is added when it is not pulsing
     ...(s.bump > 0.001
-      ? { boxShadow: `${shadow}, 0 0 ${px(size * 0.09)}px ${px(2)}px color-mix(in srgb, ${glowColor(side)} ${Math.round(P.glow * s.bump * 100)}%, transparent)` }
+      ? { boxShadow: `${shadow}, 0 0 ${px(size * 0.22)}px color-mix(in srgb, ${glowColor(side)} ${Math.round(P.glow * s.bump * 100)}%, transparent)` }
       : {}),
   };
 
