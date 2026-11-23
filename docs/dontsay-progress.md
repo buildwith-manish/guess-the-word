@@ -163,3 +163,16 @@ Timing (1c) is done, so "Task 2 (timing.ts / system.ts / fonts)" from the older 
 - Voice clip ids `level_<n>` and `check_in` are guesses; music lift 1.12x is a guess; nothing mounts the music bed yet.
 - Level fill is the wallpaper gradient + accent glow (white text on raw amber would be low contrast). Not checked by eye.
 - Caption on the check-in is my addition ("voice only"): `showCaption={false}` removes it.
+
+## Task 4b: NOT BUILT
+Started, then stopped at the owner's request in favour of 4c. Nothing written. Needs `src/dontsay/scenes/BonusMindReader.tsx` and `DontSay-Bonus-1`. Note for whoever builds it: `InkBubble` is a single full-frame bubble (small corner to centre, `slideAt` prop), so use `slideAt = bonusTicks.play` to keep it small until the reveal.
+
+## Task 4c: DONE (tsc --noEmit clean; NOT rendered, remotion still blocked: remotion.media unreachable)
+- `src/dontsay/scenes/BonusTripleLock.tsx`: `BonusTripleLock`, `tripleLockTicks`, `bonusTripleLockCues`, `bonusTripleLockVoice`, `bonusTripleLockFrames`. Composition `DontSay-Bonus-2` in Root.tsx (additive, 1 import + 1 line). Prompt, answers (Cow/Pig/Chicken), pass chip and voice lines come from data.ts via BonusWrapper; phase lengths from timing.ts.
+- Frames at 60 fps to check: locks 0, 8, 16 (click each, shackle drops); dissolves start 630, 670, 710 and take 40 frames each (check ~650, ~690, ~730); reveal phase 600-780; all three answers visible by 750.
+### Open points
+- "4-frame stagger" read as 4 design ticks (STAGGER.chip), i.e. 8 render frames at 60 fps. If 4 render frames was meant, change `lockAt` in tripleLockTicks.
+- Three own ink covers are drawn in the scene: `InkBubble` is one full-frame bubble and cannot sit in three widget rows. Look and the shared small-corner bubble rule for bonuses are your call.
+- Dissolve = 20 ticks each after the 0.5 s beat with a 0.5 s tail hold, fitted into the 3 s reveal phase; voice "Cow. Pig. Chicken." is not synced (no clips measured).
+- UI copy owned here: none beyond data (prompt line shown above the widgets). Layout fits the wrapper stage (1024 x ~386 ref units): prompt 40 + three rows of 100 + gaps; clearance not checked by eye.
+- `ink-dissolve.wav` (1.85 s) is cut to about 0.9 s per dissolve with a fade.
