@@ -15,7 +15,7 @@ Nothing has been rendered by any task yet. 2a: `npx tsc --noEmit` has 0 errors i
 - [x] 2c: PointsPill + clue timer. `src/nfl/components/PointsPill.tsx` exports `PointsPill`, `PointsPillGlow` (mount full-frame above the card), `pointsPillMath`. Props: `frame, starts[], end, values?, level?, width?, height?`. Added `pillLastSec`, `pillPulseSec` to `timing.ts`. Not rendered: no composition shows it until 3a.
 - [ ] 2d: ClueStack
 - [x] 2e: ScoreHud, chips (`src/nfl/components/ScoreHud.tsx`, `Chips.tsx`; notes below)
-- [ ] 5a: audio pipeline (clips, timings, map)
+- [x] 5a: audio pipeline (clips, timings, map). `scripts/clean_nfl_clips.sh`, `build_nfl_timings.py`, `build_nfl_audio_map.ts`; notes below
 - [ ] 2f: Two-Minute Warning
 - [x] 2g: RevealEngine + lock (`src/nfl/components/RevealEngine.tsx`: `RevealEngine`, `revealBeats`, `revealCues`, `SourceLine`)
 - [x] 4a: `src/nfl/scenes/LevelCard.tsx` (Starter, HoF), `LevelBanner.tsx` (Rookie, y 4-84, clears the first clue at y 160), `ScoreCard.tsx` (after card 10 and 20). Each exports its sfx cues (`levelCardCues`, `levelBannerCues`, `scoreCardCues`) and a voice start (`levelCardVoice`, `levelBannerVoice`, `scoreCardVoice`: type, key, tick) for the 5a audio map. timing.ts: new beats (`levelBannerSec`, `levelCardBeats`, `scoreCardBeats`); the Hall of Fame score card is removed (only 2 score cards, `needed` clips updated). data.ts: `levelText`. NEW SEAM: `src/nfl/lines.generated.ts` (empty placeholder) + `lines.ts` `lineText(type, key)`: 5a must write the spoken script text there; until then the ScoreCard shows rings and numbers without its text line. Not rendered; mounted by nothing until 3a/4b.
@@ -104,6 +104,15 @@ Nothing has been rendered by any task yet. 2a: `npx tsc --noEmit` has 0 errors i
 - OPEN: the line "That was card thirty. Let's see your score." has no slot yet. `ClipType` in `timings.generated.ts` has no type for it, `lines.csv` is not in the repo, and the text is not in data.ts (nothing in Part3 draws or hard-codes it). `part3Voice()` returns `{ type: 'collection', key: '', tick }` with the tick at the first card landing (collection start + `collectionBeats.stackAt`). 5a must add the type/row, and `collectionSec` (6 s, assumption) does not yet grow with the clip: when clips are measured the collection slot should be max(collectionSec, clip + pad).
 - Fallback timings (no clips): Part 3 = 236.7 s = 14202 frames, starting at 7:46.30 of the full video. Level card 0 to 3.5 s; card 21 3.50 s; card 25 97.10 to 114.10 s (clues 98.10 / 100.60 / 103.10 / 105.60 / 108.10, reveal 111.10); card 30 204.90 s = lock replay, "Card 30." 205.90, clue 1 206.90, reveal 224.90; collection 230.70 to 236.70 s (frames 13842 to 14202). Part 4 starts at 11:43.00 of the full video.
 - Not rendered: no Chromium in the sandbox. `npx tsc --noEmit`: 0 errors in `src/nfl/` and `src/Root.tsx`; the 3 known pre-existing errors remain.
+
+## 5a notes (voiceover wiring)
+
+- Files: `docs/nfl/lines.csv` (added unchanged, was missing from the repo), `public/nfl/voiceover/source/` (241 originals, untouched, committed), `clips/` (cleaned: 48 kHz mono wav, 0.1 s pads, -16 LUFS, committed). `raw/` and `clips_master/` are git-ignored. Run order: `bash scripts/clean_nfl_clips.sh`, `python3 scripts/build_nfl_timings.py`, `npx tsx scripts/build_nfl_audio_map.ts`. The first one also does the Step 1 checks (ids, extras, duplicates, empty, under 0.3 s) and stops before writing.
+- Generated: `src/nfl/timings.csv` (id,type,seconds), `timings.generated.ts` (adds the slot `key`), `audioMap.ts` (`hookId`, `levelIds`, `cardAudio`/`audioOf(card)`, `scoreCardIds`, `predictionIds`, `rankIds` best first, `outroIds`), and `lines.generated.ts` (spoken text per slot, copied unchanged; ScoreCard and Predictions now draw their line).
+- Keys: prediction '0' = intro, '1'..'3' = picks; rank '1' = Hall of Famer (file lists the lowest first); scorecard 'hof' = nfl_227 "That was card thirty" (opens the collection); level 'rookie' = nfl_002.
+- `timing.ts`: the prediction keys are now '0'..'3' (they were '1'..'4', which did not match `predictionsVoice`), and `needed` also lists level 'rookie' and scorecard 'hof', so all 241 clips are covered. Slot rules were already as briefed: clue = max(3.5, or 2.5 on cards 5, 15, 25; clip + 0.3), reveal = max(3.0, reveal + dyk + 0.3).
+- Result with measured clips: 16:47.2 (target 12 to 14). Part 1 5:13.5, Part 2 5:12.8, Part 3 5:02.5, Part 4 1:18.4. Clue slots stretch 152 s above their minimums.
+- Open: `part3Voice()` still returns type 'collection'; the clip is `scorecard:hof` (2.94 s, fits `collectionSec` 6). Predictions lines 229 to 231 name real games, `picks.json` is still null.
 
 ## Next step
 
