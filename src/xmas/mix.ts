@@ -40,4 +40,4 @@ export const musicDuckGain: number = dbToGain(MIX.musicDuckDb);
  * The music bed file, relative to public/ (for example 'xmas/music/bed.mp3'). null = no music: the video renders with
  * voice and sound effects only. Setting it requires licence text in docs/xmas/music-license.md (Audio.tsx refuses otherwise).
  */
-export const MUSIC_FILE: string | null = null;
+export const MUSIC_FILE: string | null = 'xmas/music/bed.mp3';

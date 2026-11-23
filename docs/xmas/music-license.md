@@ -22,15 +22,16 @@ film audio, no songs, no lyrics. Only a track whose licence lets you use it in a
 
 | field | value |
 |---|---|
-| Title | |
-| Artist / composer | |
-| Source (site and page URL) | |
-| Licence name (for example CC0, CC BY 4.0, a stock licence) | |
-| Licence or receipt number | |
-| Date downloaded | |
-| Attribution line required in the video description (or "none") | |
+| Title | Christmas quiz music bed (generated) |
+| Artist / composer | scripts/make_xmas_music.py (original synthesis) |
+| Source (site and page URL) | generated in this repo, public/xmas/music/bed.mp3 |
+| Licence name (for example CC0, CC BY 4.0, a stock licence) | Original work, all rights held by the channel owner |
+| Licence or receipt number | none needed |
+| Date downloaded | generated 2026-11-23 |
+| Attribution line required in the video description (or "none") | none |
 
 ## Licence text
 
 <!-- LICENSE-TEXT-START -->
+Original work. The music bed is synthesized from scratch by scripts/make_xmas_music.py (numpy sine synthesis and a pedalboard effects chain). It uses no samples, no recordings, no third-party music, no film or song audio and no lyrics, and it is not a tune (random notes from a pentatonic scale, at least 2.8 s apart). It was made for this video by the channel owner, who holds all rights to it and may use it in monetised videos. No attribution is required.
 <!-- LICENSE-TEXT-END -->
