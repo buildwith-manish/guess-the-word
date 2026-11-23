@@ -10,6 +10,7 @@ import { Part4, part4Frames } from './gta6/parts/Part4';
 import { Gta6Full } from './gta6/Full';
 import { RENDER_TOTAL_FRAMES as GTA6_TOTAL_FRAMES } from './gta6/timing';
 import { Hook as NflHook } from './nfl/scenes/Hook';
+import { CONTACT_SHEET_DEFAULTS, ContactSheet as NflContactSheet, calcContactSheetMetadata, sheetSize } from './nfl/ContactSheet';
 import { Predictions as NflPredictions } from './nfl/scenes/Predictions';
 import { Part1 as NflPart1, part1Frames as nflPart1Frames } from './nfl/parts/Part1';
 import { Part2 as NflPart2, part2Frames as nflPart2Frames } from './nfl/parts/Part2';
@@ -82,6 +83,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="NFL-P3" component={NflP3} durationInFrames={nflPart3Frames} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
       <Composition id="NFL-P4" component={NflP4} durationInFrames={nflPart4Frames} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
       <Composition id="NFL-Full" component={NflFull} durationInFrames={nflFullFrames} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
+      <Composition id="NFL-ContactSheet" component={NflContactSheet} durationInFrames={1} fps={RENDER_FPS} width={sheetSize(CONTACT_SHEET_DEFAULTS).width} height={sheetSize(CONTACT_SHEET_DEFAULTS).height} defaultProps={CONTACT_SHEET_DEFAULTS} calculateMetadata={calcContactSheetMetadata} />
       <Composition id="NFL-Card-All" component={NflCardPreviewAll} durationInFrames={NFL_ALL_FRAMES} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
     </>
   );

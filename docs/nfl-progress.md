@@ -170,3 +170,12 @@ Fill `picks.json`, set `meta.sourceName`, then render `NFL-Full` where Chromium 
 
 - `scripts/make_nfl_sfx.py`: `clue-flip-1..5` and `points-drop-5..1` are now haptic taps (`tap()`: short sine, small pitch glide, about 1 ms attack, 10 to 12 ms decay, no noise), peak -12 dBFS (`PEAK_BY_ID`). Flips 300 to 380 Hz rising with the clue; drops 220 / 195 / 172 / 150 / 130 Hz for 5 to 1. `name-reveal`: two soft bells, 0.85 s, peak -9 dBFS. Same ids, same cue positions; only those 11 wav files changed (checked by md5 against the previous set; the old noise draws are burned so the shared rng stream, and every other sound, is unchanged).
 - Not listened to. Not rendered.
+
+## B5 notes (contact sheet)
+
+- `scripts/nfl_contact_sheet.ts` (run from the repo root: `npx tsx scripts/nfl_contact_sheet.ts`; `--dry` prints the 64 frames without Chromium; `--force` re-renders thumbnails; `CHROME_PATH=...` uses an installed Chrome). Uses `@remotion/bundler` and `@remotion/renderer` (`ensureBrowser`, `openBrowser`, `selectComposition`, `renderStill`), one browser for all stills.
+- Per card: a thumbnail (0.3 scale of 2560x1440 = 768x432) at the middle of the clue 3 slot and at the name reveal with the name settled (cue tick + `SPRINGS.gentle`). Sheets 1 to 3 = cards 1-10, 11-20, 21-30 (20 cells each, 4 columns). Sheet 4 = hook (last frame), Starter and Hall of Fame level cards (middle), rank card = the Scoreboard (last frame), end screen (middle of the end-screen slot). Rookie has no level card (banner only); the two score cards are not on the sheets.
+- New tooling composition `NFL-ContactSheet` (`src/nfl/ContactSheet.tsx`, registered in `src/Root.tsx`): the sheet is itself rendered as a still, thumbnails passed as data URIs, so no image library is needed. Output: `out/nfl-contact-sheet-1..4.png`, thumbs in `out/nfl-contact/thumbs/` (out/ is git-ignored).
+- Frames come from `timing.ts`; re-run after any timing change. `--dry` at measured timings: card 1 clue 3 = frame 1437, name = 2218; hook 359; Starter 19140; Hall of Fame 37918; rank card 58851; end screen 60202.
+- `tsc` showed a `src/rounds.json` error only because it is git-ignored and built by `npm run data` (postinstall); it is gone once that has run.
+- Not rendered: Chromium cannot be downloaded in the sandbox. Verified: `--dry`, tsc on `src/` and on the script, and that the bundle (including the new composition) compiles.
