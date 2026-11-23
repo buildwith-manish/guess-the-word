@@ -119,7 +119,7 @@ export const textStyle = (role: TypeRole): CSSProperties => {
 
 /* ------------------------------------------------------------------ safe margins and layout */
 
-/** The centre 80% of the frame. All text stays inside, except the counter below the timer. */
+/** The centre 80% of the frame. All text stays inside. */
 export const SAFE = {
   left: REF.w * 0.1, // 128
   right: REF.w * 0.9, // 1152
@@ -137,10 +137,10 @@ const TILE_X0 = (REF.w - (2 * TILE + TILE_GAP)) / 2; // 218
 /**
  * One layout block, reference units (1280x720). Numbers come from the look reference (its pixels / 2).
  *   lights    y 40..77   (50 small bulbs on a swagged wire)
- *   caption   centred y 98 (box y 79..117)
+ *   caption   movie caption: plain text centred y 108 (textBox y 89..127, no pill); `cy`/`box` (y 98) stay for the bonus banner
  *   tiles     x 218..618 and 662..1062, y 138..538, corner 108 (0.27 of the tile), 44 gap, no plus sign
  *   timer     capsule x 320..960, y 578..642, 8 segments inside
- *   counter   centred y 688 (box y 674..702), the one text item below the safe band
+ *   counter   small glass pill, top left of the safe box: x 128, y 88..128 (centre y 108, the same line as the caption and the watermark); box.w is the widest case ("50 OF 50")
  */
 export const LAYOUT = {
   tile: {
@@ -177,8 +177,8 @@ export const LAYOUT = {
     wireTop: 40,
     wireSag: 14,
   },
-  caption: { cy: 98, box: { x: (REF.w - 560) / 2, y: 79, w: 560, h: 38 } as Rect },
-  counter: { cy: 688, box: { x: (REF.w - 240) / 2, y: 674, w: 240, h: 28 } as Rect },
+  caption: { cy: 98, box: { x: (REF.w - 560) / 2, y: 79, w: 560, h: 38 } as Rect, textCy: 108, textBox: { x: (REF.w - 560) / 2, y: 89, w: 560, h: 38 } as Rect },
+  counter: { cy: 108, box: { x: 128, y: 88, w: 210, h: 40 } as Rect, padX: 24, gap: 12, tracking: 0.2 },
 } as const;
 
 /** x, y, w, h of timer segment `i` (0..7) relative to the capsule's top-left corner, reference units. */
@@ -235,10 +235,11 @@ export const checkLayout = (): string[] => {
     tileRight: tile.right,
     timer: timer.capsule,
     caption: caption.box,
+    captionText: caption.textBox,
     counter: counter.box,
   };
   for (const [n, r] of Object.entries(rects)) inFrame(n, r);
-  for (const n of ['tileLeft', 'tileRight', 'timer', 'caption']) inSafe(n, rects[n]);
+  for (const n of ['tileLeft', 'tileRight', 'timer', 'caption', 'captionText', 'counter']) inSafe(n, rects[n]);
   if (tile.left.w < 400 || tile.left.h < 400) bad.push('tile smaller than 400');
   if (tile.right.x - (tile.left.x + tile.left.w) < 24) bad.push('gap between tiles is not visible');
   if (Math.abs(tile.left.x + tile.left.w / 2 + (tile.right.x + tile.right.w / 2) - REF.w) > 0.5) bad.push('tiles are not centred');
@@ -249,9 +250,12 @@ export const checkLayout = (): string[] => {
   if (lowest > lights.bottom + 0.01) bad.push(`bulbs reach y ${lowest.toFixed(1)}, past ${lights.bottom}`);
   if (highest < lights.top - 0.01) bad.push('wire above the light string band');
   if (lowest >= caption.box.y) bad.push('bulbs touch the caption');
+  if (lowest >= caption.textBox.y) bad.push('bulbs touch the caption text');
+  if (lowest >= counter.box.y) bad.push('bulbs touch the counter');
   if (caption.box.y + caption.box.h >= tile.left.y) bad.push('caption touches the tiles');
+  if (caption.textBox.y + caption.textBox.h >= tile.left.y) bad.push('caption text touches the tiles');
+  if (counter.box.x + counter.box.w >= caption.textBox.x) bad.push('counter touches the caption text');
   if (tile.left.y + tile.left.h >= timer.capsule.y) bad.push('tiles touch the timer');
-  if (timer.capsule.y + timer.capsule.h >= counter.box.y) bad.push('timer touches the counter');
   const seg = timerSegment(timer.segments - 1);
   if (seg.x + seg.w > timer.capsule.w - timer.padX + 0.01) bad.push('timer segments overflow the capsule');
   return bad;

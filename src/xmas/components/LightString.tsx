@@ -4,11 +4,12 @@ import { bulbColor, slotAt } from '../data';
 import { cue } from '../sfx';
 import type { SfxCue } from '../sfx';
 import { TOTAL_SLOTS, counterParts } from '../ui';
-import { LAYOUT, REF, bulbStyle, bulbs, lightWireY, px, textStyle, useXmasFonts } from '../system';
+import { LAYOUT, REF, bulbStyle, bulbs, colors, glassSurface, lightWireY, px, textStyle, useXmasFonts } from '../system';
+import { withoutBackdrop } from './TimerToPill';
 
 /**
- * LightString: 50 bulbs on a thin wire that sags in gentle waves along the top (y 40..77), plus the "N OF 50" counter
- * centred under the timer (y 688). Bulb n is slot n: its colour comes from data.ts bulbColor (red / green for movies,
+ * LightString: 50 bulbs on a thin wire that sags in gentle waves along the top (y 40..77), plus the "N OF 50" counter in a small glass pill
+ * at the top left of the safe box (x 128, y 88..128, number thickened with a hairline stroke; Inter is loaded to 700 only). Bulb n is slot n: its colour comes from data.ts bulbColor (red / green for movies,
  * gold for bonus rounds). Unlit bulbs are dim blue-grey glass.
  *
  * Stateless: the same props give the same picture, so a Part started alone renders the same as in the full video.
@@ -50,14 +51,13 @@ const wirePathAt = (frame: number): string => {
   return pts.join(' ');
 };
 
-/** Counter: tracking a little wider than the shared 0.3em, number thickened with a hairline stroke (Inter is loaded to 700 only). */
-const COUNTER_TRACKING = 0.38;
 
 export const LightString: React.FC<LightStringProps> = ({ litUpTo, pulseSlot, pulseFrame = 0, mode = 'progress', counter }) => {
   useXmasFonts();
   const list = bulbs();
   if (list.length !== TOTAL_SLOTS) throw new Error(`LightString: ${list.length} bulbs for ${TOTAL_SLOTS} slots`);
   const L = LAYOUT.lights;
+  const C = LAYOUT.counter;
   const all = mode === 'all';
   const parts = counter === undefined ? null : counterParts(counter);
   const frame = useCurrentFrame();
@@ -138,21 +138,20 @@ export const LightString: React.FC<LightStringProps> = ({ litUpTo, pulseSlot, pu
         <div
           style={{
             position: 'absolute',
-            left: 0,
-            width: px(1280),
-            top: px(LAYOUT.counter.box.y),
-            height: px(LAYOUT.counter.box.h),
+            left: px(C.box.x),
+            top: px(C.box.y),
+            height: px(C.box.h),
             display: 'flex',
-            justifyContent: 'center',
             alignItems: 'center',
-            gap: px(16),
-            // trailing letter-spacing pushes the text left by half a tracking step: balance it
-            paddingLeft: px(COUNTER_TRACKING * 24),
-            boxSizing: 'border-box',
+            gap: px(C.gap),
+            // the trailing letter-spacing of the last word adds to the right padding: take it off
+            padding: `0 ${px(C.padX - C.tracking * 24)}px 0 ${px(C.padX)}px`,
+            whiteSpace: 'nowrap',
+            ...withoutBackdrop(glassSurface(C.box.h / 2, { edge: 0.6, depth: 0.45, base: colors.glassBase })),
           }}
         >
-          <span style={{ ...textStyle('counter'), letterSpacing: `${COUNTER_TRACKING}em`, WebkitTextStroke: `${px(0.7)}px currentColor` }}>{parts.n}</span>
-          <span style={{ ...textStyle('counterRest'), letterSpacing: `${COUNTER_TRACKING}em` }}>{parts.rest}</span>
+          <span style={{ ...textStyle('counter'), letterSpacing: `${C.tracking}em`, WebkitTextStroke: `${px(0.7)}px currentColor` }}>{parts.n}</span>
+          <span style={{ ...textStyle('counterRest'), letterSpacing: `${C.tracking}em` }}>{parts.rest}</span>
         </div>
       ) : null}
     </div>

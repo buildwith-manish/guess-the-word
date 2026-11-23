@@ -5,12 +5,12 @@ import type { MovieSlot } from '../data';
 import { FrameShimmer } from '../components/FrameShimmer';
 import { MovieReveal, revealCues } from '../components/MovieReveal';
 import { Snow } from '../components/Snow';
-import { timerCues, timerPropsOf, withoutBackdrop } from '../components/TimerToPill';
+import { timerCues, timerPropsOf } from '../components/TimerToPill';
 import { cue } from '../sfx';
 import type { SfxCue } from '../sfx';
 import { easeOut, easeWindow, entranceAt } from '../shared/motion';
 import { springAt } from '../shared/springs';
-import { BOKEH, LAYOUT, backgroundStyle, bokehStyle, colors, frameBorderStyle, glassSurface, px, REF, textStyle, useXmasFonts, useXmasFrame } from '../system';
+import { BOKEH, LAYOUT, backgroundStyle, bokehStyle, colors, frameBorderStyle, px, REF, TYPE, textStyle, useXmasFonts, useXmasFrame } from '../system';
 import { segmentOfSlot, ticksToFrames } from '../timing';
 import { UI } from '../ui';
 
@@ -112,37 +112,27 @@ export const MovieScene: React.FC<{ slot: MovieSlot }> = ({ slot }) => {
       <div style={frameBorderStyle()} />
       <FrameShimmer />
 
-      {/* caption pill, centred above the tiles; fades as the tiles glide up */}
+      {/* caption: plain wide-tracked text (no pill), centred above the tiles; fades as the tiles glide up */}
       <div
         style={{
           position: 'absolute',
           left: 0,
           width: px(1280),
-          top: px(cap.cy - cap.box.h / 2),
-          height: px(cap.box.h),
+          top: px(cap.textBox.y),
+          height: px(cap.textBox.h),
           display: 'flex',
           justifyContent: 'center',
+          alignItems: 'center',
+          whiteSpace: 'nowrap',
+          // wide tracking leaves a trailing gap after the last letter: balance it so the text is centred
+          paddingLeft: px(0.34 * TYPE.caption),
+          boxSizing: 'border-box',
           opacity: clamp01(captionIn * 2) * captionOut,
           transform: `translateY(${px(-8 * (1 - captionIn))}px)`,
         }}
       >
-        <div
-          style={{
-            height: '100%',
-            boxSizing: 'border-box',
-            padding: `0 ${px(44)}px`,
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center',
-            whiteSpace: 'nowrap',
-            ...withoutBackdrop(glassSurface(cap.box.h / 2, { edge: 0.6, depth: 0.45, base: colors.glassBase })),
-          }}
-        >
-          <span style={{ position: 'absolute', left: px(18), top: '50%', transform: 'translateY(-50%)', display: 'flex' }}>
-            <CaptionStar />
-          </span>
-          <span style={textStyle('caption')}>{UI.caption}</span>
-        </div>
+        {/* a very soft dark shadow keeps the text readable over the bokeh */}
+        <span style={{ ...textStyle('caption'), textShadow: '0 0 12px rgba(0,0,0,0.85), 0 1px 3px rgba(0,0,0,0.6)' }}>{UI.caption}</span>
       </div>
 
       {/* tiles, timer, title pill, light string */}
