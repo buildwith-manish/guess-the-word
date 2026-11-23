@@ -10,7 +10,7 @@ Nothing has been rendered by any task yet. 2a: `npx tsc --noEmit` has 0 errors i
 - [ ] 1b: data + validation (`src/nfl/data.ts`, `scripts/check_nfl_data.ts`)
 - [x] 1d: sfx (pedalboard). `scripts/make_nfl_sfx.py`, `public/nfl/sfx/`, `src/nfl/sfx.ts`, `src/nfl/sfx-ids.ts` (generated)
 - [x] 2a: copy shared parts + system (`src/nfl/system.ts`, `src/nfl/shared/*`, `src/ios/fonts.ts` + Inter files). See context section 7.
-- [ ] 1c: timing (`src/nfl/timing.ts`, `scripts/nfl_runtime.ts`)
+- [x] 1c: timing (`src/nfl/timing.ts`, `scripts/nfl_runtime.ts`, placeholder `src/nfl/timings.generated.ts` for 5a to overwrite)
 - [ ] 2b: WalletCard
 - [ ] 2c: PointsPill + clue timer
 - [ ] 2d: ClueStack
