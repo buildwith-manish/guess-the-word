@@ -164,7 +164,7 @@ Timing (1c) is done, so "Task 2 (timing.ts / system.ts / fonts)" from the older 
 - Level fill is the wallpaper gradient + accent glow (white text on raw amber would be low contrast). Not checked by eye.
 - Caption on the check-in is my addition ("voice only"): `showCaption={false}` removes it.
 
-## Task 4b: NOT BUILT
+## Task 4b: superseded by the DONE entry at the end of this file (was NOT BUILT)
 Started, then stopped at the owner's request in favour of 4c. Nothing written. Needs `src/dontsay/scenes/BonusMindReader.tsx` and `DontSay-Bonus-1`. Note for whoever builds it: `InkBubble` is a single full-frame bubble (small corner to centre, `slideAt` prop), so use `slideAt = bonusTicks.play` to keep it small until the reveal.
 
 ## Task 4c: DONE (tsc --noEmit clean; NOT rendered, remotion still blocked: remotion.media unreachable)
@@ -189,3 +189,15 @@ Started, then stopped at the owner's request in favour of 4c. Nothing written. N
 - Bubble large state (300 high at centre y 500) spans y 350-650: 2 ref units under the 648 safe line, 4 above the chain cards. Not checked by eye.
 - Rule line fades out when the bubble enlarges so they do not overlap.
 - Read beyond the named files (minimal greps): data.ts Bonus type, bonus 3 JSON, timing.ts bonus constants, InkBubble props, Root.tsx registration lines.
+
+## Task 4b: DONE (tsc --noEmit clean; NOT rendered, remotion still blocked: remotion.media unreachable)
+
+- `src/dontsay/scenes/BonusMindReader.tsx`: `BonusMindReader` (BonusWrapper + prompt + flipped rule + keyboard prediction strip + InkBubble), `bonusMindReaderCues`, `bonusMindReaderVoice`, `bonusMindReaderFrames`, `earnedLabel`, tick constants. Composition `DontSay-Bonus-1` in Root.tsx (additive, 1 import + 1 line).
+- Prompt, rule, answer, pass chip (via BonusWrapper) and voice lines come from data.ts; phase lengths from timing.ts. Earned label ("+1 point") is parsed from `passCondition`. No hearts, no collision chip.
+- Ticks (30 fps, local): bubble slides at 300 (play end), dissolve 330-375, match cell lights at 375, voice reveal at 375. Frames at 60 fps = ticks x 2: sealed 0; slide 600; dissolve 660-750; match cell 750 (settled ~780).
+
+### Open points
+- Strip is own-drawn: left/right cells are neutral dots, centre cell shows a lock, then a green check + "+1 point" at the match. It never shows other words (no extra hard-coded content).
+- Bubble large state spans y 290-590; prompt at y 232-284; strip y 598-648. Tight; clearance not checked by eye. The BonusWrapper chip ends near y 225 (estimate).
+- Strip height 50 ref units: the "+1 point" text is 28 units, possibly small for a phone; bump if needed.
+- Voice is not synced (no clips measured). SFX: chip-land at chip, ink-dissolve at dissolve, safe-pulse at match.
