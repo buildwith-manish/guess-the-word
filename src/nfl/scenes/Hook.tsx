@@ -18,7 +18,7 @@ import React from 'react';
 import { AbsoluteFill } from 'remotion';
 import { cards, hookText, type Card } from '../data';
 import { RuleChips } from '../components/Chips';
-import { ScoreHud } from '../components/ScoreHud';
+import { ScoreHud, levelTagColor } from '../components/ScoreHud';
 import { WalletCard } from '../components/WalletCard';
 import { cue, type SfxCue } from '../sfx';
 import { LOCK_BEATS, LOCK_NOTIFICATION_TICKS, LockNotification } from '../shared/LockNotification';
@@ -109,7 +109,7 @@ export const Hook: React.FC<{ at?: number }> = ({ at = 0 }) => {
 
       {/* "30 cards, 150 points" */}
       <div style={{ position: 'absolute', inset: 0, opacity: clamp01(hudP), transform: `translateY(${px(-16 * (1 - hudP))}px)` }}>
-        <ScoreHud done={0} frame={f} top={TOP_ROW.top} side="left" compact tag={levelNames[first.level]} tagColor={colors.level[first.level]} />
+        <ScoreHud done={0} frame={f} top={TOP_ROW.top} side="left" compact tag={levelNames[first.level]} tagColor={levelTagColor(first.level)} />
       </div>
 
       {/* rules, on the "?" panel; never spoken. dur runs past the hook's end: card 1's segment carries them on. */}

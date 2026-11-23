@@ -23,7 +23,7 @@ import { pointsPillMath } from '../components/PointsPill';
 import { PointsPill, PointsPillGlow } from '../components/PointsPill';
 import { RevealEngine } from '../components/RevealEngine';
 import { RuleChips } from '../components/Chips';
-import { ScoreHud } from '../components/ScoreHud';
+import { ScoreHud, levelTagColor } from '../components/ScoreHud';
 import { TwoMinuteWarning, tmwFlipTicks } from '../components/TwoMinuteWarning';
 import { WALLET_LAYOUT, WalletCard } from '../components/WalletCard';
 import { SPRINGS, colors, levelBackground, px } from '../system';
@@ -104,7 +104,7 @@ export const CardScene: React.FC<CardSceneProps> = ({ card, at = 0, jersey, from
   return (
     <AbsoluteFill style={{ background: levelBackground[card.level], overflow: 'hidden' }}>
       {/* rings fill with cards completed: card n-1 before the lock opens, n after (not the viewer's score) */}
-      <ScoreHud done={card.n} from={card.n - 1} frame={f} at={revealOpen} top={TOP_ROW.top} side="left" compact tag={levelNames[card.level]} tagColor={colors.level[card.level]} />
+      <ScoreHud done={card.n} from={card.n - 1} frame={f} at={revealOpen} top={TOP_ROW.top} side="left" compact tag={levelNames[card.level]} tagColor={levelTagColor(card.level)} />
 
       <TwoMinuteWarning card={card} frame={f} starts={starts} end={clueEnd} label={tmwLabel}>
         {content}
