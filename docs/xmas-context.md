@@ -205,3 +205,13 @@ Scenes call `useXmasFonts()` at the top. Layer order (back to front): background
 - `bulbCues(slot, frame)` returns `bulb-on` (movie slot) or `gold-bulb` (bonus slot) at the absolute design frame the bulb lights.
 - Dev preview: composition `Xmas-LightString` (src/xmas/components/LightStringPreview.tsx, registered in Root.tsx). Frames (60 fps): 0 all unlit, 60 twelve lit, 126 pulse on slot 13, 186 gold bonus pulse (slot of the third bonus round), 250 all 50.
 - Rendering here needs `--browser-executable=/usr/bin/google-chrome --chrome-mode=chrome-for-testing` (the sandbox cannot download Chrome Headless Shell).
+
+## Task 5a: ScoreScene (done)
+- `src/xmas/scenes/ScoreScene.tsx` (+ `scoreCues(start)`, `scoreVoice(start)`), composition `Xmas-Score` (1200 render frames = 20 s). Local tick 0 = the segment's first tick.
+- Beats live in `timing.ts` `scoreBeats()` (local ticks): all 50 bulbs glow from tick 0 (LightString mode "all"); the "all fifty" voice starts at 0.6 s and the rank card slides in then (tiers dim); 5 bands of 2.4 s from 3.4 s (lowest first, each voice 0.3 s after its band lights, earlier tiers stay lit); hold from 15.4 s to 20 s (4.6 s; `scoreBeats()` throws if under `rankCardMinSec`). Band lengths are estimates until the voice clips are measured (6b).
+- The score segment's `rankCard` range in timing.ts is now the hold (it was the first 4 s of the segment, which nothing read).
+- Voice: no audio map existed. `src/xmas/audioMap.ts` holds only the ids of the score scene (`xmas_102` end line, `xmas_103..107` rank lines, checked equal to lines.csv / data.ts ranks[].voice). No voice text is stored in the scene. Task 6c extends this map.
+- Text: tier names and ranges from data.ts ranks; `UI.rankCard` ("YOUR RANK", shared with the outro's card miniature) and `rankRange()` in ui.ts. `rankColor(i, count)` in system.ts: grey, green, red, green, gold.
+- Card: x 240..1040, y 108..640 (inside the safe band), rows 78 high, 40-unit type.
+- Frames to check (render frames at 60 fps): 120 all bulbs lit, card in, no band lit; band lighting 224 / 368 / 512 / 656 / 800 (lowest to highest); 924 first frame of the hold.
+- Sounds: `bulb-on` at tick 0 and at each band, `rank-reveal` at the hold.

@@ -78,6 +78,9 @@ export const timerColor = (t: number): string => {
   return TIMER_STOPS[TIMER_STOPS.length - 1][1];
 };
 
+/** Colour of rank tier `i` (0 = lowest): grey for the lowest, then green, red, green, and gold for the top tier. Red, green and gold only. */
+export const rankColor = (i: number, count: number): string => (i === 0 ? '#9AA6BD' : i === count - 1 ? colors.gold : i % 2 === 1 ? colors.green : colors.red);
+
 /* ------------------------------------------------------------------ type */
 
 /** Inter (loaded by useXmasFonts), emoji from the bundled Noto Color Emoji. */

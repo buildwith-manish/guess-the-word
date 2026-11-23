@@ -1,4 +1,4 @@
-import { slots } from './data';
+import { ranks, slots } from './data';
 import type { Slot } from './data';
 import { clipTimings } from './timings.generated';
 
@@ -25,6 +25,14 @@ export const bonusRevealSec = 3.0;
 export const scoreSec = 20;
 /** The rank card holds at least this long inside the score segment. */
 export const rankCardMinSec = 4;
+/** Score segment beats, seconds from its start. Estimates until the voice clips are measured (task 6b fits them). */
+export const scoreLeadSec = 0.6;
+/** "That was all fifty..." slot: the lead, the line and a breath. The rank card appears at the lead. */
+export const scoreEndLineSec = 3.4;
+/** One rank band: its spoken line and a short hold. Bands light from the lowest to the highest. */
+export const rankBandSec = 2.4;
+/** The band's voice starts this long after the band lights. */
+export const rankVoiceLeadSec = 0.3;
 export const outroSec = 25;
 /** The end screen is the last part of the outro. */
 export const endScreenSec = 15;
@@ -120,6 +128,33 @@ const withSec = (r: Range): Range & TimeRange => ({ ...r, startSec: ticksToSec(r
 const evenSplit = (r: Range, n: number): Range[] =>
   Array.from({ length: n }, (_, i) => ({ from: r.from + Math.round(((r.to - r.from) * i) / n), to: r.from + Math.round(((r.to - r.from) * (i + 1)) / n) }));
 
+/**
+ * Beats of the score segment in LOCAL ticks (0 = the segment's first tick):
+ *   endLine  the "all fifty" line; its voice starts at `endVoiceFrom`; the rank card appears at `cardFrom`
+ *   bands    one per rank in data order (lowest first), each lights at `band.from`; its voice starts at `voiceFrom`
+ *   hold     the final rank card with all tiers lit, from the end of the last band to the end of the segment
+ * Throws when the hold would be shorter than `rankCardMinSec`.
+ */
+export type ScoreBeats = {
+  total: number;
+  cardFrom: number;
+  endVoiceFrom: number;
+  endLine: Range;
+  bands: { band: Range; voiceFrom: number }[];
+  hold: Range;
+};
+export const scoreBeats = (): ScoreBeats => {
+  const total = secToTicks(scoreSec);
+  const endLine = { from: 0, to: secToTicks(scoreEndLineSec) };
+  const bands = ranks.map((_, i) => {
+    const from = endLine.to + i * secToTicks(rankBandSec);
+    return { band: { from, to: from + secToTicks(rankBandSec) }, voiceFrom: from + secToTicks(rankVoiceLeadSec) };
+  });
+  const hold = { from: bands.length ? bands[bands.length - 1].band.to : endLine.to, to: total };
+  if (hold.to - hold.from < secToTicks(rankCardMinSec)) throw new Error(`score segment: the rank card holds only ${ticksToSec(hold.to - hold.from)} s (min ${rankCardMinSec} s)`);
+  return { total, cardFrom: secToTicks(scoreLeadSec), endVoiceFrom: secToTicks(scoreLeadSec), endLine, bands, hold };
+};
+
 const buildSegments = (): Segment[] => {
   const out: Segment[] = [];
   let cur = 0;
@@ -143,7 +178,8 @@ const buildSegments = (): Segment[] => {
   }
   const scoreFrom = cur;
   const score = span(secToTicks(scoreSec));
-  out.push({ kind: 'score', rankCard: { from: scoreFrom, to: scoreFrom + secToTicks(rankCardMinSec) }, ...withSec(score) });
+  const beats = scoreBeats();
+  out.push({ kind: 'score', rankCard: { from: scoreFrom + beats.hold.from, to: scoreFrom + beats.hold.to }, ...withSec(score) });
   const outro = span(secToTicks(outroSec));
   out.push({ kind: 'outro', asks: { from: outro.from, to: outro.to - secToTicks(endScreenSec) }, endScreen: { from: outro.to - secToTicks(endScreenSec), to: outro.to }, ...withSec(outro) });
   return out;

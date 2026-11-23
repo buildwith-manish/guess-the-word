@@ -15,6 +15,8 @@ import { MOVIE_PREVIEW_DEFAULTS, MOVIES_ALL_FRAMES, XmasMovie, XmasMoviesAll, mo
 import { BonusSceneById, bonusSceneFramesById } from './xmas/scenes/BonusScene';
 import { Outro as XmasOutro, outroFrames } from './xmas/scenes/Outro';
 import { RENDER_TOTAL_FRAMES as GTA6_TOTAL_FRAMES } from './gta6/timing';
+import { ScoreScene } from './xmas/scenes/ScoreScene';
+import { scoreBeats, ticksToFrames as xmasTicksToFrames } from './xmas/timing';
 import { LightStringPreview, LIGHT_PREVIEW } from './xmas/components/LightStringPreview';
 import { ALL_FRAMES, Gta6Preview, Gta6PreviewAll, PREVIEW_DEFAULTS, previewFrames } from './gta6/Preview';
 
@@ -59,6 +61,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="Xmas-GlassTile" component={GlassTilePreview} durationInFrames={GLASS_TILE_PREVIEW_FRAMES} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} defaultProps={GLASS_TILE_PREVIEW_DEFAULTS} />
       <Composition id="Xmas-MovieReveal" component={MovieRevealPreview} durationInFrames={MOVIE_REVEAL_PREVIEW_FRAMES} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} defaultProps={MOVIE_REVEAL_PREVIEW_DEFAULTS} />
       <Composition id="GTA6-Full" component={Gta6Full} durationInFrames={GTA6_TOTAL_FRAMES} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
+      <Composition id="Xmas-Score" component={ScoreScene} durationInFrames={xmasTicksToFrames(scoreBeats().total)} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
       <Composition id="Xmas-LightString" component={LightStringPreview} durationInFrames={LIGHT_PREVIEW.frames} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
       <Composition id="XMAS-Hook" component={Hook} durationInFrames={hookFrames()} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
       <Composition

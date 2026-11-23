@@ -21,7 +21,7 @@ Note: docs/xmas-prompts-split.md has 26 task headings (1a-1e, 2a-2f, 3a-3b, 4a-4
 - [ ] 4b  Focus, CleanUp
 - [ ] 4c  OddOneOut, CountLights, ControlCenter
 - [ ] 4d  DoubleFeature, SpeedRound, Finale
-- [ ] 5a  ScoreScene
+- [x] 5a  ScoreScene
 - [ ] 5b  Outro
 - [ ] 5c  Part1-3, sfxCues, XMAS-P1..P3
 - [ ] 5d

@@ -48,3 +48,6 @@ export const FILL_IN = {
 
 /** The visible placeholder of a bonus round whose real play area is not built yet (see bonus/registry.ts). */
 export const todoBonus = (n: number): string => `TODO bonus ${n}`;
+
+/** Score range of a rank tier as printed on the rank card: "11–20". Values come from data.ts ranks. */
+export const rankRange = (min: number, max: number): string => `${min}\u2013${max}`;
