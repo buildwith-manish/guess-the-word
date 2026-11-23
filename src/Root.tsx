@@ -24,6 +24,7 @@ import { Part3 as DontSayPart3, part3Frames as dsPart3Frames } from './dontsay/p
 import { Part1 as DontSayPart1, part1Frames as dsPart1Frames } from './dontsay/parts/Part1';
 import { Part2 as DontSayPart2, part2Frames as dsPart2Frames } from './dontsay/parts/Part2';
 import { Part6 as DontSayPart6, part6Frames as dsPart6Frames } from './dontsay/parts/Part6';
+import { DontSayFull, dontSayFullFrames } from './dontsay/Full';
 import { RankCard as DontSayRankCard, rankCardFrames as dsRankCardFrames } from './dontsay/scenes/RankCard';
 import { Scoreboard as DontSayScoreboard, scoreboardFrames as dsScoreboardFrames } from './dontsay/scenes/Scoreboard';
 import { WIDTH as DS_WIDTH, HEIGHT as DS_HEIGHT, RENDER_FPS as DS_FPS, hookSec as DS_HOOK_SEC, levelCardSec as DS_LEVEL_SEC, settingsCardSec as DS_SETTINGS_SEC, heartCheckInSec as DS_CHECKIN_SEC, bonusSec as DS_BONUS_SEC, secToFrames as dsSecToFrames } from './dontsay/timing';
@@ -85,6 +86,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="DontSay-P1" component={DontSayPart1} durationInFrames={dsPart1Frames} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
       <Composition id="DontSay-P2" component={DontSayPart2} durationInFrames={dsPart2Frames} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
       <Composition id="DontSay-P6" component={DontSayPart6} durationInFrames={dsPart6Frames} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
+      <Composition id="DontSay-Full" component={DontSayFull} durationInFrames={dontSayFullFrames} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
       <Composition id="DontSay-RankCard" component={DontSayRankCard} durationInFrames={dsRankCardFrames()} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
       <Composition id="DontSay-Scoreboard" component={DontSayScoreboard} durationInFrames={dsScoreboardFrames()} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
       <Composition id="GTA6-Full" component={Gta6Full} durationInFrames={GTA6_TOTAL_FRAMES} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />

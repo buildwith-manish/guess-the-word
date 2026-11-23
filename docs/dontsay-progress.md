@@ -343,3 +343,17 @@ Started, then stopped at the owner's request in favour of 4c. Nothing written. N
 - Order follows timing.ts: rank card (6 s), scoreboard (20 s), outro (30 s). The 4n brief says "Scoreboard, RankCard hold, Outro"; not changed because that needs a timing.ts change.
 - Frames (60 fps, part-local): rank card 0-359; scoreboard 360-1559; outro 1560-3359 (56 s total, 3360 frames).
 - Check by eye: 359 -> 360 (rank card to scoreboard cut), 1559 -> 1560 (scoreboard to outro cut), outro end screen 2460, final fade 2760-3359.
+
+## Task 4o: DONE (tsc --noEmit clean; NOT rendered)
+
+- Prerequisites 4i, 4j, 4k, 4l, 4m, 4n all have DONE entries and their commits are on the branch.
+- `src/dontsay/Full.tsx`: `DontSayFull`, `dontSayFullFrames` (= `RENDER_TOTAL_FRAMES`, 40920 = 682 s). Part1 to Part6 as Sequences at `partRanges[i].renderFrom`, length `partRanges[i].frames`; hard cuts. Throws if the part component count differs from timing.ts. Composition `DontSay-Full` in Root.tsx (additive, 1 import + 1 line). Part frame counts sum to the total (checked by script).
+- Part starts (60 fps frames): P1 0, P2 8400, P3 16320, P4 23580, P5 30180, P6 37560.
+- `scripts/dontsay_chapters.ts` (`npx tsx scripts/dontsay_chapters.ts`): prints the chapter list and the diff to the draft, writes `docs/dontsay/chapters.txt`. Chapters: Intro, each level card, final bonus, rank card (bonuses 1-4 and the outro are not chapters). Checks first = 0:00 and every chapter >= 10 s.
+- Chapters: 0:00 Intro, 0:12 Level 1: Warm-up, 2:20 Level 2: Banned list, 4:32 Level 3: Filters, 6:33 Level 4: Under pressure, 8:23 Level 5: Final, 10:10 Final bonus: Voice Only, 10:26 Your rank. Draft was 0:00, 0:08, 2:12, 4:19, 6:16, 8:01, 9:44, 10:00: +0, +4, +8, +13, +17, +22, +26, +26 s.
+
+### Open points
+- Level 1 starts at its level card (0:12). The 4 s settings card (8-12 s) sits inside the Intro chapter; starting Level 1 at 0:08 would move it there.
+- The drift is the runtime: 682 s (11:22) against the ~10:44 target, as noted under 1c. Clip-driven intro/reveal slots can only lengthen it.
+- No music bed or voice layer in the Full composition yet (no clips). Part1 plays round 1 twice (see 4i).
+- Nothing rendered, so no frame of the Full composition was checked. Part boundaries to look at: 8399 -> 8400, 16319 -> 16320, 23579 -> 23580, 30179 -> 30180, 37559 -> 37560.
