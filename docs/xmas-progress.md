@@ -9,7 +9,7 @@ Note: docs/xmas-prompts-split.md has 26 task headings (1a-1e, 2a-2f, 3a-3b, 4a-4
 - [ ] 1c  timing.ts and xmas_runtime.ts (not done yet; skipped when 1d was run)
 - [x] 1d  sound effects (scripts/make_xmas_sfx.py, src/xmas/sfx.ts)
 - [ ] 1e  clue index, placeholders, ClueImage
-- [ ] 2a
+- [x] 2a  shared parts, system.ts, ui.ts (src/xmas/shared/*, src/xmas/system.ts, src/xmas/ui.ts)
 - [ ] 2b  GlassTile
 - [ ] 2c  TimerToPill, titleFit
 - [ ] 2d  LightString
@@ -33,6 +33,7 @@ Note: docs/xmas-prompts-split.md has 26 task headings (1a-1e, 2a-2f, 3a-3b, 4a-4
 
 ## Notes for next task
 - Missing from the branch: `docs/xmas/reference/lg_q3.png`.
-- Inter font loader and woff2 files must be copied from nfl-quiz (src/ios/fonts.ts, public/fonts/ios/) before any text renders in Inter.
+- Inter woff2 files are now in public/fonts/ios/ and loaded by `useXmasFonts()` (src/xmas/shared/fonts.ts); every scene calls it at the top.
+- src/xmas/shared/clock.ts holds WIDTH/HEIGHT/RENDER_FPS/FPS/TIME_SCALE; src/xmas/timing.ts (1c) should re-export them rather than redefine (check for a duplicate when 2b starts).
 
 - [x] 1c  timing.ts (+ timings.generated.ts stub) and scripts/xmas_runtime.ts; `npx tsx scripts/xmas_runtime.ts` prints the report
