@@ -2,14 +2,14 @@
 
 Task table: `docs/nfl-prompts-split.md` (28 tasks, run order below). Shared context: `docs/nfl-context.md`. Branch `nfl-quiz`, cut from `gta6-quiz` at tag `gta6-base-1123` (commit 79454ca).
 
-Nothing has been rendered or type-checked by any task yet.
+Nothing has been rendered by any task yet. 2a: `npx tsc --noEmit` has 0 errors in `src/nfl/`.
 
 ## Checklist (run order)
 
 - [x] 1a: recon and context file. `docs/nfl-context.md`, `docs/nfl-progress.md`. No feature code.
 - [ ] 1b: data + validation (`src/nfl/data.ts`, `scripts/check_nfl_data.ts`)
 - [x] 1d: sfx (pedalboard). `scripts/make_nfl_sfx.py`, `public/nfl/sfx/`, `src/nfl/sfx.ts`, `src/nfl/sfx-ids.ts` (generated)
-- [ ] 2a: copy shared parts + system (`src/nfl/system.ts`, Inter / `src/ios` files)
+- [x] 2a: copy shared parts + system (`src/nfl/system.ts`, `src/nfl/shared/*`, `src/ios/fonts.ts` + Inter files). See context section 7.
 - [ ] 1c: timing (`src/nfl/timing.ts`, `scripts/nfl_runtime.ts`)
 - [ ] 2b: WalletCard
 - [ ] 2c: PointsPill + clue timer
@@ -37,9 +37,9 @@ Nothing has been rendered or type-checked by any task yet.
 
 ## Decisions the next tasks must settle (from 1a)
 
-1. **Units.** gta6 components use 1920x1080 reference units through `u()`; the NFL Starter requires 1280x720 through `px()`. Convert gta6 numbers x 2/3 when copying, or give `src/nfl/system.ts` its own `u()`. Decide in 2a.
+1. **Units (settled in 2a: 1280x720 through `px()` in `src/nfl/system.ts`).** gta6 components use 1920x1080 reference units through `u()`; the NFL Starter requires 1280x720 through `px()`. Convert gta6 numbers x 2/3 when copying, or give `src/nfl/system.ts` its own `u()`. Decide in 2a.
 2. **`px()` / `useDesignFrame` source.** They live in `src/style.ts` / `src/clock.ts`, not on the Starter's allowed-import list (though `src/ios/tokens.ts` imports `../style`). Suggested: copy the two helpers into `src/nfl/system.ts` in 2a.
-3. **Inter.** Not loaded anywhere on this branch. 2a should bring `src/ios/index.ts`, `fonts.ts`, `IosBackground.tsx`, `layout.ts` and `public/fonts/ios/Inter-*.woff2` from `origin/search-history`, and Root should import `src/ios/fonts.ts` once.
+3. **Inter (settled in 2a: `src/ios/fonts.ts` + woff2 brought over; `system.ts` imports it).** Not loaded anywhere on this branch. 2a should bring `src/ios/index.ts`, `fonts.ts`, `IosBackground.tsx`, `layout.ts` and `public/fonts/ios/Inter-*.woff2` from `origin/search-history`, and Root should import `src/ios/fonts.ts` once.
 4. **Clip folders.** The prompts put generated clips in `public/nfl/voiceover/raw/`; `scripts/clean_gta6_clips.sh` expects clips in `clips/` and creates `raw/` itself. Settle before 5a.
 5. **Render.** `render-video.yml` does not know `nfl-quiz`: pass `composition`. `render-pixel.yml` runs the GTW-only `scripts/voiceover-scan.js` when present.
 

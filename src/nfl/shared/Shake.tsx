@@ -1,0 +1,38 @@
+import React from 'react';
+import { px } from '../system';
+
+/** Deterministic hash -> [0, 1). Same input, same output, on every render. */
+export const seeded = (n: number): number => {
+  let t = (n + 0x6d2b79f5) | 0;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+};
+
+export type ShakeProps = {
+  frame: number;
+  /** Local frame the shake starts. */
+  at: number;
+  /** Shake length in ticks. Outside [at, at + dur) the child is not moved. */
+  dur: number;
+  /** Peak offset, 1280x720 reference units. */
+  amp?: number;
+  /** Changes the pattern. */
+  seed?: number;
+  children?: React.ReactNode;
+  style?: React.CSSProperties;
+};
+
+export const Shake: React.FC<ShakeProps> = ({ frame, at, dur, amp = 4, seed = 1, children, style }) => {
+  const t = frame - at;
+  let transform: string | undefined;
+  if (t >= 0 && t < dur) {
+    const k = Math.floor(frame); // one new offset per whole tick
+    const env = Math.min(1, t / 2) * (1 - t / dur); // quick ramp in, linear fade out
+    const dx = (seeded(k * 3 + seed * 101) - 0.5) * 2 * px(amp) * env;
+    const dy = (seeded(k * 3 + 1 + seed * 101) - 0.5) * 2 * px(amp) * 0.6 * env;
+    const rot = (seeded(k * 3 + 2 + seed * 101) - 0.5) * 2 * 0.4 * env;
+    transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg)`;
+  }
+  return <div style={{ transform, ...style }}>{children}</div>;
+};

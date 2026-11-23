@@ -137,3 +137,46 @@ Ids (25): card-in, clue-flip-1, clue-flip-2, clue-flip-3, clue-flip-4, clue-flip
 - `clue-flip-N`: N = clue number, pitch rises with N. `points-drop-N`: N = points left after the drop, pitch falls with lower N.
 - `tmw-tick` is exactly 1.0 s (8 ticks), made to be cued once per second.
 - Re-run `python3 scripts/make_nfl_sfx.py` after any change (needs `pip install numpy pedalboard`).
+
+## 7. Task 2a result: `src/nfl/system.ts` and `src/nfl/shared/`
+
+Done in 2a. Units are settled: **1280x720 reference units through `px()`**, defined in `src/nfl/system.ts` (`px(v) = v * 2`). Every copy below was converted from gta6's 1920 units (x 2/3, text sizes raised to the mobile-first scale). No `u()` exists in `src/nfl/`. Nothing in `src/nfl/` imports from `src/gta6/`, `src/style.ts`, `src/clock.ts` or `src/timing.ts`; imports are `src/nfl/`, `src/ios/motion`, `src/ios/fonts`, `remotion`, `@remotion/fonts` (through `ios/fonts`).
+
+**New for NFL (not copies)**
+
+| file | what |
+|---|---|
+| `src/nfl/system.ts` | `FRAME` 1280x720, `SCALE`, `px`, `SAFE` {x 128, top 72, bottom 72} = centre 80%, `safeBox`, `colors` {green, amber, red, `level` (rookie/starter/hof from `data.ts` `levelColors`), ink, muted, mutedStrong, glass, glassStrong, hairline, shadow, onAccent, lowPower}, `fontStack`, `tabular`, `type` roles caption 24 / body 30 / clue 40 / name 56 / title 64 / number 80, `textStyle(role)`, `radius`, `blurPx`, `SPRINGS` {snappy .3 s, gentle .45 s, slow .6 s}, `springAt(frame, at, preset)`, `springOver(frame, at, ticks)`, `easeOut`, `levelBackground` per level. |
+| `src/nfl/shared/clock.ts` | `WIDTH` 2560, `HEIGHT` 1440, `RENDER_FPS` 60, `FPS` 30, `TIME_SCALE` 2, `useDesignFrame()`. Numbers equal root `settings.json`; 1c's `timing.ts` should import them from here. |
+| `src/ios/fonts.ts`, `public/fonts/ios/Inter-{400,500,600,700}.woff2`, `Inter-LICENSE.txt` | Brought byte for byte from `origin/search-history`. `system.ts` imports `../ios/fonts`, so any scene that imports `system` waits for Inter (`loadFont` holds the frame). `src/ios/index.ts`, `IosBackground.tsx`, `layout.ts` were **not** brought (not needed; layout lives in `system.ts`). `tokens.ts` and `motion.ts` on search-history are identical to this branch. |
+
+Spring presets come from `src/ios/motion.ts` (`spring(t)`, about 1.5% overshoot); a preset is only the length of that curve. gta6's Remotion `spring()` configs (including `bouncy`) are not used.
+
+**Copied files (source path in `src/gta6/`)**
+
+| copy in `src/nfl/shared/` | source | changes |
+|---|---|---|
+| `clock.ts` | `src/clock.ts` (+ constants of `src/gta6/timing.ts`) | see above |
+| `fade.ts` | `components/fade.ts` | none |
+| `presence.ts` | `components/presence.ts` | imports `../system` |
+| `timerMath.ts` | `components/timerMath.ts` | `FPS` from `./clock` |
+| `TimerRing.tsx` | `components/TimerRing.tsx` | ring and island variants kept; `colors.hard` -> `colors.red`; default size 132 (island text is 0.15 x width: pass 160+) |
+| `EdgeGlow.tsx` | `components/EdgeGlow.tsx` | `dur` now required (no 90-tick default) |
+| `Shake.tsx` | `components/Shake.tsx` | default `amp` 4 (was 6 in 1920 units) |
+| `LowPowerTint.tsx` | `components/LowPowerTint.tsx` | tint + `LowPowerRing`; `dur` in ticks, no defaults for it |
+| `FrostCard.tsx` | `components/FrostCard.tsx` | needed by the banner and DYK card; not in the task list, copied as its dependency |
+| `DidYouKnowCard.tsx` | `components/DidYouKnowCard.tsx` | `dur` and `outTicks` required (no `dykSec`), `label` optional with **no default text**, `DYK_MAX_TICKS` dropped |
+| `NotificationBanner.tsx` | `components/NotificationBanner.tsx` | `dur` required (no `bannerSec`), spring now `springOver(frame, at, dur)` |
+| `LockNotification.tsx` | `components/LockNotification.tsx` | the blurred 2x2 answer grid (`ChoiceChip`, `options`) is replaced by `children` (the blurred layer). `LOCK_NOTIFICATION_TICKS` 30 and `LOCK_BEATS` stay in the file as animation beats; 3b may move them to `timing.ts`. |
+| `ScoreHud.tsx` | `components/ScoreHud.tsx` | ring math kept; rings green/amber/red; `levelTotals` = [rookie, starter, hof]. `hudCounts.ts` **not** copied (it imports gta6 `items`); 2e writes the NFL counts. |
+| `levelTransition.ts` | `scenes/LevelCard.tsx` (helpers only) | `WIPE_VARIANT`, `GRID`, `ICON_CELL`, `cellPos`, `launchRect`, `wipeClip`, `exitClip`, `clamp01`, `lerp`. Beat lengths are parameters (from `timing.ts`); `LEVEL_CARD`, `levelSeconds`, `levelCardText`, `levelCardCues` and the scene are **not** copied (4a). |
+
+**GTA 6 content still in the copies:** none in code or text. Level keys are `rookie | starter | hof`. The only mentions of gta6 are comments naming the source file (`ScoreHud.tsx`, `levelTransition.ts`). The shared components need no gta6 file at run time.
+
+**Open points for later tasks**
+
+- `LOCK_NOTIFICATION_TICKS` / `LOCK_BEATS` are literal tick counts in `LockNotification.tsx` (3b).
+- `SPRINGS` lengths are literal seconds in `system.ts` (motion presets, not scene timing).
+- `type.caption` 24 is the smallest size; the island `TimerRing` text can fall below it if given a width under 160.
+- Root must still render with Inter loaded: importing `system` is enough; no extra Root import needed.
+- `npx tsc --noEmit`: 0 errors in `src/nfl/`, `src/ios/`; the 3 known pre-existing errors elsewhere remain (`src/fontshare/load-fonts.ts` x2, `src/timing.ts` line 45).
