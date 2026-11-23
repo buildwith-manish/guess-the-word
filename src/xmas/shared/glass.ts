@@ -2,6 +2,30 @@ import type { CSSProperties } from 'react';
 import { px } from './px';
 
 /**
+ * GLOSS: every number of the tile gloss, in one place. Fractions are of the tile edge unless noted.
+ *   wash   a very light white-to-clear vertical gradient over the whole glass
+ *   edge   a thin curved highlight hugging the top inside edge; a horizontal mask fades it out toward the corners
+ */
+export const GLOSS = {
+  wash: { topAlpha: 0.07, clearAt: 0.6 },
+  edge: {
+    /** gap between the tile's rim and the highlight, reference units */
+    inset: 3.5,
+    /** the highlight box is this tall (fraction); its lower part is faded by a vertical mask */
+    height: 0.34,
+    /** thickness of the bright line, reference units */
+    thickness: 2.2,
+    /** softness of the line (box-shadow blur, reference units; not a filter) */
+    soft: 1.2,
+    alpha: 0.55,
+    /** horizontal fade: transparent at the ends, full between `fadeIn` and `1 - fadeIn` */
+    fadeIn: 0.3,
+    /** vertical fade: full until `solidUntil`, clear at the bottom of the box */
+    solidUntil: 0.4,
+  },
+} as const;
+
+/**
  * glass.ts: the frosted glass surface of this video.
  * Adapted from the glass panel of the States video (fill, top highlight, blur, rim light from two inset shadows, soft
  * shadow). Changes: the rim is brighter (`edge`), there is an optional tint (gold for the bonus rounds), and the
@@ -42,6 +66,8 @@ export type GlassOptions = {
   base?: string;
   /** 'inset' (default, unchanged): rim from two inset shadows. 'none': no rim here, the caller draws `rimLightStyle` instead. */
   rim?: 'inset' | 'none';
+  /** false: leave out the built-in top highlight (tiles draw GLOSS.wash instead). Default true. */
+  highlight?: boolean;
 };
 
 /**
@@ -73,27 +99,54 @@ export const rimLightStyle = (radius: number, opts: { strength?: number; tint?: 
 };
 
 /**
- * The soft lens-shaped gloss on a tile's top edge (an absolutely positioned child of the tile). Fractions of the tile.
- * Static, no animation. Sits under the clue image.
+ * Tile gloss, part 1: a very light white-to-clear vertical wash over the glass (an absolutely positioned child of the tile,
+ * under the rim and the clue image). Top alpha GLOSS.wash.topAlpha, clear by GLOSS.wash.clearAt. Static.
+ * Part 2 is glossEdgeStyle. Both are children of the tile; the tile's corner radius is `tileSize * radius`.
  */
-export const glossStyle = (tileSize: number): CSSProperties => ({
+export const glossStyle = (tileSize: number, radius = 0.27): CSSProperties => ({
   position: 'absolute',
-  left: px(tileSize * 0.08),
-  right: px(tileSize * 0.08),
-  top: px(tileSize * 0.018),
-  height: px(tileSize * 0.14),
-  borderRadius: '50%',
-  background: 'radial-gradient(ellipse at 50% 40%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.08) 60%, rgba(255,255,255,0) 100%)',
+  inset: 0,
+  borderRadius: px(tileSize * radius),
+  background: `linear-gradient(180deg, rgba(255,255,255,${GLOSS.wash.topAlpha}) 0%, rgba(255,255,255,0) ${GLOSS.wash.clearAt * 100}%)`,
   pointerEvents: 'none',
 });
 
+/**
+ * Tile gloss, part 2: a thin curved highlight just inside the top edge. It follows the tile's rounded top corners (an
+ * inset box-shadow on a box with the same radius), a horizontal mask fades it out toward the corners and a vertical mask
+ * removes the box's lower end. No blur filter, no backdrop filter. `tint` mixes a colour into the white (gold bonus tiles).
+ */
+export const glossEdgeStyle = (tileSize: number, opts: { radius?: number; tint?: string } = {}): CSSProperties => {
+  const { radius = 0.27, tint } = opts;
+  const E = GLOSS.edge;
+  const white = tint ? `color-mix(in srgb, ${tint} 30%, #FFFFFF)` : '#FFFFFF';
+  const line = `color-mix(in srgb, ${white} ${Math.round(E.alpha * 100)}%, transparent)`;
+  const fade = `linear-gradient(90deg, transparent 0%, #000 ${E.fadeIn * 100}%, #000 ${(1 - E.fadeIn) * 100}%, transparent 100%)`;
+  const down = `linear-gradient(180deg, #000 0%, #000 ${E.solidUntil * 100}%, transparent 100%)`;
+  const r = tileSize * radius - E.inset;
+  return {
+    position: 'absolute',
+    left: px(E.inset),
+    right: px(E.inset),
+    top: px(E.inset),
+    height: px(tileSize * E.height),
+    borderRadius: `${px(r)}px ${px(r)}px 0 0`,
+    boxShadow: `inset 0 ${px(E.thickness)}px ${px(E.soft)}px ${line}`,
+    WebkitMaskImage: `${fade}, ${down}`,
+    maskImage: `${fade}, ${down}`,
+    WebkitMaskComposite: 'source-in',
+    maskComposite: 'intersect',
+    pointerEvents: 'none',
+  };
+};
+
 export const glassSurface = (radius: number, opts: GlassOptions = {}): CSSProperties => {
-  const { tint, edge = 1, depth = 1, tintPercent = 16, rim: rimMode = 'inset' } = opts;
+  const { tint, edge = 1, depth = 1, tintPercent = 16, rim: rimMode = 'inset', highlight = true } = opts;
   const under = opts.base ?? `rgba(255,255,255,${GLASS.fill})`;
   const base = tint ? `color-mix(in srgb, ${tint} ${tintPercent}%, ${under})` : under;
   const rim = px(GLASS.rimWidth);
   return {
-    background: `linear-gradient(180deg, rgba(255,255,255,${GLASS.highlight}) 0%, rgba(255,255,255,0) ${GLASS.highlightEnd * 100}%), ${base}`,
+    background: highlight ? `linear-gradient(180deg, rgba(255,255,255,${GLASS.highlight}) 0%, rgba(255,255,255,0) ${GLASS.highlightEnd * 100}%), ${base}` : base,
     borderRadius: px(radius),
     backdropFilter: `blur(${px(GLASS.blur)}px) saturate(${GLASS.saturate})`,
     WebkitBackdropFilter: `blur(${px(GLASS.blur)}px) saturate(${GLASS.saturate})`,

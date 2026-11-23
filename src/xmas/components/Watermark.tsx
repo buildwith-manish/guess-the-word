@@ -4,7 +4,7 @@
  * Size and position are 1280x720 reference units through px().
  *
  * Position: top-right corner, LAYOUT.cornerInset (96) from the frame edge, the mirror of the counter pill on the left. It sits below the light
- * string (bulbs end at y 77), right of the caption box (ends x 920) and above the right tile (starts y 138).
+ * string (bulbs end at y 77), right of the caption box (ends x 920) and above the right tile (starts y 142).
  *
  * Mounting: PartScenes draws ONE overlay per part, above all its Sequences, with `offsetTick` = the part's first tick,
  * so XMAS-Full (which plays the parts) and XMAS-P1..P3 show it identically and it is never drawn twice.
@@ -17,6 +17,12 @@ import { px } from '../shared/px';
 import { LAYOUT } from '../system';
 import { hookSec, outroFadeSec, secToTicks, segments, useXmasFrame } from '../timing';
 import { UI } from '../ui';
+
+/** Watermark word colours (QUIZ was #FFFFFF, MATRIX was rgba(235,235,245,0.60); the badge itself drew both at 0.92 opacity). */
+export const WATERMARK_TEXT = { quiz: '#FFFFFF', matrix: 'rgba(240,240,250,0.95)' } as const;
+const WM_CSS = `.xmas-wm > div { opacity: 1 !important; }
+.xmas-wm > div > div:last-child > span:nth-child(1) { color: ${WATERMARK_TEXT.quiz} !important; }
+.xmas-wm > div > div:last-child > span:nth-child(2) { color: ${WATERMARK_TEXT.matrix} !important; font-weight: 600 !important; }`;
 
 export const XMAS_WATERMARK_LOGO: QuizMatrixLogo = { file: 'xmas/quiz-matrix-bulb.png', cols: 1, rows: 1, frames: 1, fps: 30 };
 
@@ -35,7 +41,8 @@ export const WatermarkOverlay: React.FC<{ offsetTick?: number }> = ({ offsetTick
   const fade = tick <= FADE_START ? 1 : Math.max(0, 1 - (tick - FADE_START) / (FADE_END - FADE_START));
   if (fade <= 0) return null;
   return (
-    <div style={{ position: 'absolute', right: px(WATERMARK.right), top: px(WATERMARK.top), opacity: fade, pointerEvents: 'none' }}>
+    <div className="xmas-wm" style={{ position: 'absolute', right: px(WATERMARK.right), top: px(WATERMARK.top), opacity: fade, pointerEvents: 'none' }}>
+      <style>{WM_CSS}</style>
       <QuizMatrixBadge frame={tick} since={since} height={px(WATERMARK.height)} logo={XMAS_WATERMARK_LOGO} quiz={UI.watermark.quiz} matrix={UI.watermark.matrix} />
     </div>
   );

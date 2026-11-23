@@ -26,8 +26,10 @@ export const colors = {
   glassEdge: 'rgba(255,255,255,0.70)',
   ink: 'rgba(255,255,255,0.95)',
   muted: 'rgba(235,235,245,0.62)',
-  /** the one dim text colour, for "OF 50" */
+  /** a dim text colour (the "·" in the bonus banner) */
   faint: 'rgba(235,235,245,0.45)',
+  /** "OF 50" in the counter: dimmer than the white number but 4.5:1 or better on the glass pill (was faint, 0.45 alpha) */
+  counterRest: 'rgba(235,235,245,0.85)',
   green: '#30D158',
   red: '#FF453A',
   orange: '#FF9F0A',
@@ -95,7 +97,7 @@ export type TypeRole = 'caption' | 'counter' | 'counterRest' | 'label' | 'body' 
 const ROLES: Record<TypeRole, { size: number; weight: number; tracking: string; color: string; upper?: boolean }> = {
   caption: { size: TYPE.caption, weight: weights.medium, tracking: '0.34em', color: colors.muted, upper: true },
   counter: { size: TYPE.counter, weight: weights.bold, tracking: '0.3em', color: colors.ink },
-  counterRest: { size: TYPE.counter, weight: weights.regular, tracking: '0.3em', color: colors.faint },
+  counterRest: { size: TYPE.counter, weight: weights.medium, tracking: '0.3em', color: colors.counterRest },
   label: { size: TYPE.label, weight: weights.semibold, tracking: '0.14em', color: colors.muted, upper: true },
   body: { size: TYPE.body, weight: weights.medium, tracking: '0', color: colors.ink },
   title: { size: TYPE.title, weight: weights.bold, tracking: '-0.02em', color: colors.ink },
@@ -129,17 +131,17 @@ export const SAFE = {
 
 type Rect = { x: number; y: number; w: number; h: number };
 
-const TILE = 400;
+const TILE = 408;
 const TILE_GAP = 44;
-const TILE_Y = 138;
-const TILE_X0 = (REF.w - (2 * TILE + TILE_GAP)) / 2; // 218
+const TILE_Y = 142;
+const TILE_X0 = (REF.w - (2 * TILE + TILE_GAP)) / 2; // 210
 
 /**
  * One layout block, reference units (1280x720). Numbers come from the look reference (its pixels / 2).
  *   lights    y 40..77   (50 small bulbs on a swagged wire)
  *   caption   movie caption: plain text centred y 108 (textBox y 89..127, no pill); `cy`/`box` (y 98) stay for the bonus banner
- *   tiles     x 218..618 and 662..1062, y 138..538, corner 108 (0.27 of the tile), 44 gap, no plus sign
- *   timer     capsule x 320..960, y 578..642, 8 segments inside
+ *   tiles     x 210..618 and 662..1070, y 142..550, corner 110 (0.27 of the tile), 44 gap, no plus sign
+ *   timer     capsule x 320..960, y 582..646 (bottom = the safe band's 648 limit, 74 above the frame bottom), 8 segments inside
  *   counter   small glass pill, top left corner (cornerInset 96): x 96, y 88..128 (centre y 108, the same line as the caption and the watermark); box.w is the widest case ("50 OF 50")
  */
 export const LAYOUT = {
@@ -148,14 +150,14 @@ export const LAYOUT = {
   tile: {
     size: TILE,
     gap: TILE_GAP,
-    radius: Math.round(TILE * 0.27), // 108
+    radius: Math.round(TILE * 0.27), // 110
     left: { x: TILE_X0, y: TILE_Y, w: TILE, h: TILE } as Rect,
     right: { x: TILE_X0 + TILE + TILE_GAP, y: TILE_Y, w: TILE, h: TILE } as Rect,
     /** inner padding for the clue image */
     inset: 40,
   },
   timer: {
-    capsule: { x: 320, y: 578, w: 640, h: 64 } as Rect,
+    capsule: { x: 320, y: 582, w: 640, h: 64 } as Rect,
     radius: 32,
     segments: 8,
     padX: 14,
@@ -243,7 +245,7 @@ export const checkLayout = (): string[] => {
   for (const [n, r] of Object.entries(rects)) inFrame(n, r);
   if (counter.box.x !== LAYOUT.cornerInset) bad.push('counter is not on the corner inset');
   for (const n of ['tileLeft', 'tileRight', 'timer', 'caption', 'captionText']) inSafe(n, rects[n]);
-  if (tile.left.w < 400 || tile.left.h < 400) bad.push('tile smaller than 400');
+  if (tile.left.w < 408 || tile.left.h < 408) bad.push('tile smaller than 408');
   if (tile.right.x - (tile.left.x + tile.left.w) < 24) bad.push('gap between tiles is not visible');
   if (Math.abs(tile.left.x + tile.left.w / 2 + (tile.right.x + tile.right.w / 2) - REF.w) > 0.5) bad.push('tiles are not centred');
   if (Math.abs(timer.capsule.x + timer.capsule.w / 2 - REF.w / 2) > 0.5) bad.push('timer is not centred');
@@ -266,7 +268,7 @@ export const checkLayout = (): string[] => {
 
 /* ------------------------------------------------------------------ glass looks */
 
-/** Frosted tile with the bright edge. Add a child with glossStyle(tile size) for the lens highlight. */
+/** Frosted tile with the bright edge. GlassTile adds the gloss (glossStyle wash + glossEdgeStyle highlight, shared/glass.ts GLOSS). */
 export const tileGlass = (): CSSProperties => ({
   ...glassSurface(LAYOUT.tile.radius, { edge: 1, depth: 1, base: colors.glassBase }),
 });
