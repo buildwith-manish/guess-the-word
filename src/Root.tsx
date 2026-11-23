@@ -1,5 +1,5 @@
 import React from 'react';
-import { Composition } from 'remotion';
+import { Composition, Still } from 'remotion';
 import './fonts';
 import { Main } from './Main';
 import { HEIGHT, RENDER_FPS, RENDER_TOTAL_FRAMES, WIDTH } from './timing';
@@ -18,6 +18,7 @@ import { Part1 as XmasPart1, part1Frames as xmasPart1Frames } from './xmas/parts
 import { Part2 as XmasPart2, part2Frames as xmasPart2Frames } from './xmas/parts/Part2';
 import { Part3 as XmasPart3, part3Frames as xmasPart3Frames } from './xmas/parts/Part3';
 import { XmasFull } from './xmas/Full';
+import { Thumb } from './xmas/thumbs/Thumb';
 import { RENDER_TOTAL_FRAMES as GTA6_TOTAL_FRAMES } from './gta6/timing';
 import { ScoreScene } from './xmas/scenes/ScoreScene';
 import { RENDER_TOTAL_FRAMES as XMAS_TOTAL_FRAMES, scoreBeats, ticksToFrames as xmasTicksToFrames } from './xmas/timing';
@@ -101,6 +102,9 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="XMAS-P2" component={XmasPart2} durationInFrames={xmasPart2Frames} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
       <Composition id="XMAS-P3" component={XmasPart3} durationInFrames={xmasPart3Frames} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
       <Composition id="XMAS-Full" component={XmasFull} durationInFrames={XMAS_TOTAL_FRAMES} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
+      <Still id="XMAS-Thumb-A" component={() => <Thumb id="A" />} width={1280} height={720} />
+      <Still id="XMAS-Thumb-B" component={() => <Thumb id="B" />} width={1280} height={720} />
+      <Still id="XMAS-Thumb-C" component={() => <Thumb id="C" />} width={1280} height={720} />
     </>
   );
 };
