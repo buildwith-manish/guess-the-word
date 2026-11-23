@@ -103,3 +103,17 @@ Timing (1c) is done, so "Task 2 (timing.ts / system.ts / fonts)" from the older 
 - `resultLines` in rounds.json mention losing/deleting hearts. They are spoken only and never shown on screen; check they fit rule 7 before the voice pass. Clip id `rNN_result` is a guess.
 - ResultBeat has no InkBubble yet (2b): the chip sits at `anchor` (default frame centre) + 150 ref units down.
 - Pre-existing tsc errors: `shared/index.ts` re-exports 8 missing files; `system.ts` imports `levelColours` (data.ts has `levelColors`).
+
+## Task 2g: DONE (RevealEngine compiles; repo-wide tsc has one pre-existing error)
+
+- `src/dontsay/components/RevealEngine.tsx`: `RevealEngine`, `revealCues(card, start)`, `revealTimes(card, start)`, `REVEAL_SFX`. Props: `round`, `start` (local tick the beat starts), `outcome`, `accent`, `sfx`, `centre`, `frame`.
+- Mount from round tick 0: it owns the InkBubble (small from frame 0, slides to centre), the shaking lock, the cues and the ResultBeat.
+- Timing from timing.ts only: beat = beatSec; dissolve = revealSec - beatSec (1.5 s); result starts at beat + revealSecFor(round) and runs resultSec.
+- Answer text is drawn by InkBubble (`round.answer`, Inter 800, masked by the sweep); not duplicated here.
+- `tsc --noEmit`: only error left is `system.ts` importing `levelColours` (data.ts exports `levelColors`), from task 2a. Nothing rendered.
+
+### Open points
+- The audio map has no `lock-shake` or `name-reveal`. Stand-ins in `REVEAL_SFX`: shake = `lock-click` at 0.35, chime = `callback-chime-1`. Swap the ids when task 1d adds them.
+- `ink-dissolve.wav` is 1.85 s, longer than the 1.5 s sweep: it runs about 0.35 s into the result beat. Its pan is whatever is baked into the file; not listened to.
+- `BUBBLE_HALF_H` (150) mirrors InkBubble's large height (not exported); the lock sits above it.
+- No composition uses RevealEngine yet, so no `remotion still` was possible.
