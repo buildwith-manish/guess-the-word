@@ -1,9 +1,10 @@
 import React from 'react';
+import { useCurrentFrame } from 'remotion';
 import { bulbColor, slotAt } from '../data';
 import { cue } from '../sfx';
 import type { SfxCue } from '../sfx';
 import { TOTAL_SLOTS, counterParts } from '../ui';
-import { LAYOUT, bulbStyle, bulbs, lightWirePath, px, textStyle, useXmasFonts } from '../system';
+import { LAYOUT, REF, bulbStyle, bulbs, lightWireY, px, textStyle, useXmasFonts } from '../system';
 
 /**
  * LightString: 50 bulbs on a thin wire that sags in gentle waves along the top (y 40..77), plus the "N OF 50" counter
@@ -35,7 +36,22 @@ const pop = (ticks: number): number => {
   return Math.sin(Math.PI * Math.pow(ticks / POP_TICKS, 0.6));
 };
 
-const wirePath = lightWirePath();
+/**
+ * Sway: a slow travelling wave along the wire, deterministic from the render frame (60 fps), no randomness.
+ * 1.6 reference units peak (about 3 px at 2560 wide), one cycle every 6 s, a quarter wave across the width.
+ * Bulbs hang from the wire, so they move with it.
+ */
+const SWAY = { amp: 1.6, periodFrames: 360, waveLen: 1280 * 4 } as const;
+const swayAt = (x: number, frame: number): number => SWAY.amp * Math.sin(2 * Math.PI * (frame / SWAY.periodFrames - x / SWAY.waveLen));
+
+const wirePathAt = (frame: number): string => {
+  const pts: string[] = [];
+  for (let x = 0; x <= REF.w; x += 8) pts.push(`${x === 0 ? 'M' : 'L'} ${x} ${(lightWireY(x) + swayAt(x, frame)).toFixed(2)}`);
+  return pts.join(' ');
+};
+
+/** Counter: tracking a little wider than the shared 0.3em, number thickened with a hairline stroke (Inter is loaded to 700 only). */
+const COUNTER_TRACKING = 0.38;
 
 export const LightString: React.FC<LightStringProps> = ({ litUpTo, pulseSlot, pulseFrame = 0, mode = 'progress', counter }) => {
   useXmasFonts();
@@ -44,13 +60,15 @@ export const LightString: React.FC<LightStringProps> = ({ litUpTo, pulseSlot, pu
   const L = LAYOUT.lights;
   const all = mode === 'all';
   const parts = counter === undefined ? null : counterParts(counter);
+  const frame = useCurrentFrame();
+  const wirePath = wirePathAt(frame);
 
   return (
     <div style={{ position: 'absolute', left: 0, top: 0, width: px(1280), height: px(720), pointerEvents: 'none' }}>
       <svg width={px(1280)} height={px(L.bottom + 3)} viewBox={`0 0 1280 ${L.bottom + 3}`} style={{ position: 'absolute', left: 0, top: 0 }}>
         <path d={wirePath} fill="none" stroke="rgba(170,185,215,0.38)" strokeWidth={1.2} strokeLinecap="round" strokeLinejoin="round" />
         {list.map((b) => (
-          <rect key={b.i} x={b.x - 2.5} y={b.wireY - 0.5} width={5} height={L.hang + 2} rx={1.2} fill="rgba(120,135,165,0.55)" />
+          <rect key={b.i} x={b.x - 2.5} y={b.wireY + swayAt(b.x, frame) - 0.5} width={5} height={L.hang + 2} rx={1.2} fill="rgba(120,135,165,0.55)" />
         ))}
       </svg>
 
@@ -64,16 +82,33 @@ export const LightString: React.FC<LightStringProps> = ({ litUpTo, pulseSlot, pu
         const p = isPulse ? pop(pulseFrame) : all ? pop(pulseFrame - b.i * 0.8) : 0;
         const gold = slot.kind === 'bonus';
         const glow = (all ? 1.35 : 1) * (1 + (gold ? 1.9 : 1.4) * p);
-        const base = bulbStyle({ ...b, color }, lit, glow);
+        const dy = swayAt(b.x, frame);
+        const sb = { ...b, color, wireY: b.wireY + dy, top: b.top + dy };
+        const base = bulbStyle(sb, lit, glow * 1.15);
         const haloSize = (gold ? 64 : 48) * p;
+        // steady bloom of every lit bulb: soft radial gradient behind the glass
+        const bloomSize = gold ? 46 : 40;
         return (
           <React.Fragment key={b.i}>
+            {lit ? (
+              <div
+                style={{
+                  position: 'absolute',
+                  left: px(b.x - bloomSize / 2),
+                  top: px(sb.top + L.bulbH / 2 - bloomSize / 2),
+                  width: px(bloomSize),
+                  height: px(bloomSize),
+                  borderRadius: '50%',
+                  background: `radial-gradient(circle, ${color}66 0%, ${color}2e 38%, ${color}00 72%)`,
+                }}
+              />
+            ) : null}
             {p > 0 && lit ? (
               <div
                 style={{
                   position: 'absolute',
                   left: px(b.x - haloSize / 2),
-                  top: px(b.top + L.bulbH / 2 - haloSize / 2),
+                  top: px(sb.top + L.bulbH / 2 - haloSize / 2),
                   width: px(haloSize),
                   height: px(haloSize),
                   borderRadius: '50%',
@@ -112,12 +147,12 @@ export const LightString: React.FC<LightStringProps> = ({ litUpTo, pulseSlot, pu
             alignItems: 'center',
             gap: px(16),
             // trailing letter-spacing pushes the text left by half a tracking step: balance it
-            paddingLeft: px(0.3 * 24),
+            paddingLeft: px(COUNTER_TRACKING * 24),
             boxSizing: 'border-box',
           }}
         >
-          <span style={textStyle('counter')}>{parts.n}</span>
-          <span style={textStyle('counterRest')}>{parts.rest}</span>
+          <span style={{ ...textStyle('counter'), letterSpacing: `${COUNTER_TRACKING}em`, WebkitTextStroke: `${px(0.7)}px currentColor` }}>{parts.n}</span>
+          <span style={{ ...textStyle('counterRest'), letterSpacing: `${COUNTER_TRACKING}em` }}>{parts.rest}</span>
         </div>
       ) : null}
     </div>

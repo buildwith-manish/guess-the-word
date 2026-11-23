@@ -44,3 +44,5 @@ Note: docs/xmas-prompts-split.md has 26 task headings (1a-1e, 2a-2f, 3a-3b, 4a-4
 - Not wired (no cue export in the round files): Focus (`focus-lock`), Autocomplete, Clean Up (`clean-sparkle`).
 - Part lengths (frames at 60 fps): P1 14880 (0:00-4:08), P2 15000 (4:08-8:18), P3 10260 (8:18-11:09). Total 11:09 is under timing.ts `targetSec` (12:00 +-30 s) until voice clips are measured.
 - Boundaries: hook ends tick 180 (6.00 s), slot 5 starts 0:54, slot 20/21 at 4:08 (248 s), slot 40/41 at 8:18 (498 s), score 624 s, outro 644 s.
+
+- [x] 8d  LightString polish (bloom on lit bulbs, wire sway from the frame, wider counter tracking, bolder number). tsc passes; NOT render-checked (no Chromium in the cloud session). Sway uses the local Sequence frame, so its phase restarts at each slot cut.
