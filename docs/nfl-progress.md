@@ -18,7 +18,7 @@ Nothing has been rendered by any task yet. 2a: `npx tsc --noEmit` has 0 errors i
 - [ ] 5a: audio pipeline (clips, timings, map)
 - [ ] 2f: Two-Minute Warning
 - [x] 2g: RevealEngine + lock (`src/nfl/components/RevealEngine.tsx`: `RevealEngine`, `revealBeats`, `revealCues`, `SourceLine`)
-- [ ] 4a: level cards (Starter, Hall of Fame), Rookie banner, score cards
+- [x] 4a: `src/nfl/scenes/LevelCard.tsx` (Starter, HoF), `LevelBanner.tsx` (Rookie, y 4-84, clears the first clue at y 160), `ScoreCard.tsx` (after card 10 and 20). Each exports its sfx cues (`levelCardCues`, `levelBannerCues`, `scoreCardCues`) and a voice start (`levelCardVoice`, `levelBannerVoice`, `scoreCardVoice`: type, key, tick) for the 5a audio map. timing.ts: new beats (`levelBannerSec`, `levelCardBeats`, `scoreCardBeats`); the Hall of Fame score card is removed (only 2 score cards, `needed` clips updated). data.ts: `levelText`. NEW SEAM: `src/nfl/lines.generated.ts` (empty placeholder) + `lines.ts` `lineText(type, key)`: 5a must write the spoken script text there; until then the ScoreCard shows rings and numbers without its text line. Not rendered; mounted by nothing until 3a/4b.
 - [ ] 3a: CardScene + Preview
 - [ ] 4f: Scoreboard + rank card
 - [ ] 3b: Hook + lock notification

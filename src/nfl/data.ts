@@ -61,6 +61,16 @@ export const levelColors: Record<Level, string> = {
   hof: '#FF453A',
 };
 
+/**
+ * On-screen level strings (task 4a brief): the Rookie banner and the Starter / Hall of Fame level cards.
+ * The spoken level clips come from the audio map, never from here.
+ */
+export const levelText: Record<Level, { title: string; subtitle: string }> = {
+  rookie: { title: 'Level one: Rookie', subtitle: 'Famous names' },
+  starter: { title: 'Level two: Starter', subtitle: 'Record holders' },
+  hof: { title: 'Level three: Hall of Fame', subtitle: 'Deep cuts' },
+};
+
 /** Rank bands, best first. */
 export const ranks: Rank[] = (cardsFile.meta.ranks as { rank: string; min: number; max: number }[]).map((r) => ({
   name: r.rank,

@@ -46,6 +46,13 @@ export const endScreenSec = 15; // the end screen is the last part of the outro
 export const clipPadSec = 0.3; // added to a clip's length when it sets a slot
 export const pillLastSec = 1; // points pill: the red edge glow builds over the last this-many seconds of clue 5
 export const pillPulseSec = 1; // points pill: on the last clue it pulses once per this-many seconds
+export const levelBannerSec = 2; // Rookie banner over card 1: slide in, hold, slide out ("about 2 s")
+export const levelBannerInSec = 0.4; // slide in (spring)
+export const levelBannerOutSec = 0.3; // slide out
+/** Level card beats, seconds from the segment start: home screen in, icon press, launch zoom, title, subtitle stagger, iris wipe out, tail. */
+export const levelCardBeats = { gridIn: 0.2, pressAt: 0.3, launchAt: 0.4, textAt: 0.7, textStagger: 0.12, exitLen: 0.5, tail: 0.1 } as const;
+/** Score card beats, seconds from the segment start: rings start, rings fill, stagger between rings, text line in. */
+export const scoreCardBeats = { ringsAt: 0.33, ringsLen: 1.2, ringStagger: 0.18, textAt: 0.47 } as const;
 /* Not given in the task; assumptions to confirm: */
 export const cardIntroSec = 1.0; // "Card n." slot when no clip is measured
 export const dykTailSec = 0.2; // the did-you-know chip stays this long after its clip ends
@@ -96,7 +103,7 @@ const needed: [ClipType, string][] = [
   ['hook', ''],
   ['level', 'starter'],
   ['level', 'hof'],
-  ...levels.map((l): [ClipType, string] => ['scorecard', l]),
+  ...levels.filter((l) => l !== 'hof').map((l): [ClipType, string] => ['scorecard', l]),
   ...cards.flatMap((c): [ClipType, string][] => [
     ['cardintro', String(c.n)],
     ...range(5).map((i): [ClipType, string] => ['clue', `${c.n}.${i}`]),
@@ -154,7 +161,8 @@ const buildSegments = (): Segment[] => {
     const phases: CardPhases = { intro, clues, beat, reveal };
     if (card.didYouKnow) phases.dyk = { from: reveal.from + secToTicks(revealClip), to: reveal.to };
     out.push({ kind: 'card', card, from, to: cur, phases });
-    if (!next || next.level !== card.level) {
+    // score cards after card 10 and 20 only: the Hall of Fame has none and cuts on to the rest of the video
+    if ((!next || next.level !== card.level) && card.level !== 'hof') {
       out.push({ kind: 'scoreCard', level: card.level, after: card, ...span(slotOf(scoreCardSec, dur('scorecard', card.level))) });
     }
   });
