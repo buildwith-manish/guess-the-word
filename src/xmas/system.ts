@@ -133,7 +133,7 @@ const TILE_X0 = (REF.w - (2 * TILE + TILE_GAP)) / 2; // 218
 
 /**
  * One layout block, reference units (1280x720). Numbers come from the look reference (its pixels / 2).
- *   lights    y 40..77   (40 small bulbs on a swagged wire)
+ *   lights    y 40..77   (50 small bulbs on a swagged wire)
  *   caption   centred y 98 (box y 79..117)
  *   tiles     x 218..618 and 662..1062, y 138..538, corner 108 (0.27 of the tile), 44 gap, no plus sign
  *   timer     capsule x 320..960, y 578..642, 8 segments inside
@@ -160,7 +160,8 @@ export const LAYOUT = {
   lights: {
     top: 40,
     bottom: 77,
-    count: 40,
+    /** one bulb per slot: 40 movies + 10 bonus rounds (ui.ts TOTAL_SLOTS) */
+    count: 50,
     firstX: 40,
     lastX: 1240,
     bulbW: 14,
@@ -195,7 +196,7 @@ export const lightWireY = (x: number): number => {
 
 export type Bulb = { i: number; x: number; wireY: number; top: number; color: string };
 const BULB_COLORS = [colors.bulbRed, colors.bulbGreen, colors.bulbGold] as const;
-/** The light string: 40 bulbs, colours cycle red, green, gold. A scene draws each lit (its colour) or unlit (colors.bulbOff). */
+/** The light string geometry: 50 bulbs. `color` is a default cycle only; LightString colours each bulb from data.ts bulbColor(slot). */
 export const bulbs = (): Bulb[] => {
   const L = LAYOUT.lights;
   const step = (L.lastX - L.firstX) / (L.count - 1);

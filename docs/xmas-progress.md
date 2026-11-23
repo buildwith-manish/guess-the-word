@@ -12,7 +12,7 @@ Note: docs/xmas-prompts-split.md has 26 task headings (1a-1e, 2a-2f, 3a-3b, 4a-4
 - [x] 2a  shared parts, system.ts, ui.ts (src/xmas/shared/*, src/xmas/system.ts, src/xmas/ui.ts)
 - [ ] 2b  GlassTile
 - [ ] 2c  TimerToPill, titleFit
-- [ ] 2d  LightString
+- [x] 2d  LightString
 - [ ] 2e  MovieReveal
 - [ ] 2f  BonusScene, registry, XMAS-Bonus
 - [ ] 3a  MovieScene, Preview
