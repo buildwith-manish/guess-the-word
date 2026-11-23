@@ -1,5 +1,5 @@
-import React from 'react';
-import { Audio, Sequence, interpolate, staticFile } from 'remotion';
+import React, { useEffect, useState } from 'react';
+import { Audio, Sequence, continueRender, delayRender, interpolate, staticFile } from 'remotion';
 import { DUCK_KEYS, DUCK_SIGNATURE } from './duckEnvelope.generated';
 import { MIX, sfxGainFor } from './mix';
 import { MUSIC_LICENSE_TEXT } from './musicLicense.generated';
@@ -27,9 +27,51 @@ export type XmasAudioProps = {
   voice?: boolean;
   sfx?: boolean;
   music?: boolean;
+  /** Only play what starts inside this range of master render frames, placed relative to its start (the XMAS-P1..P3 previews). Omit for the whole video. */
+  frames?: { from: number; to: number };
 };
 
-const voiceSrc = (id: string): string => staticFile(`xmas/voiceover/clips_master/${id}.wav`);
+/** Mastered clips first (scripts/master_xmas_voice.py, git-ignored, so absent on a fresh clone); the committed clips are the fallback. */
+const VOICE_DIRS = ['xmas/voiceover/clips_master', 'xmas/voiceover/clips'] as const;
+
+const dirHasClip = async (dir: string, id: string): Promise<boolean> => {
+  try {
+    const res = await fetch(staticFile(`${dir}/${id}.wav`), { method: 'HEAD' });
+    // a dev server may answer a missing file with its HTML page and status 200
+    return res.ok && !(res.headers.get('content-type') ?? '').includes('text/html');
+  } catch {
+    return false;
+  }
+};
+
+let voiceDirPromise: Promise<string> | null = null;
+const resolveVoiceDir = (): Promise<string> => {
+  if (!voiceDirPromise) {
+    const probe = voiceEvents[0]?.id ?? 'xmas_001';
+    voiceDirPromise = (async () => {
+      for (const dir of VOICE_DIRS) if (await dirHasClip(dir, probe)) return dir;
+      return VOICE_DIRS[VOICE_DIRS.length - 1];
+    })().then((dir) => {
+      if (dir !== VOICE_DIRS[0]) console.warn(`XmasAudio: ${VOICE_DIRS[0]} not found, playing the unmastered clips from ${dir}. Run python3 scripts/master_xmas_voice.py for the mastered voice.`);
+      return dir;
+    });
+  }
+  return voiceDirPromise;
+};
+
+/** The folder the voice clips are read from. Holds the frame (delayRender) until the folder is known, so a render never starts silent. */
+const useVoiceDir = (enabled: boolean): string | null => {
+  const [dir, setDir] = useState<string | null>(null);
+  const [handle] = useState(() => (enabled ? delayRender('XmasAudio: finding the voice clips') : null));
+  useEffect(() => {
+    if (handle === null) return;
+    resolveVoiceDir().then((d) => {
+      setDir(d);
+      continueRender(handle);
+    });
+  }, [handle]);
+  return dir;
+};
 
 /** Every sound effect of the video at its render frame of the full timeline. */
 const sfxEvents = [part1Cues, part2Cues, part3Cues].flatMap((cues, i) =>
@@ -61,18 +103,25 @@ const assertMusicAllowed = (): void => {
   }
 };
 
-export const XmasAudio: React.FC<XmasAudioProps> = ({ musicSrc, voice = true, sfx = true, music = true }) => {
+export const XmasAudio: React.FC<XmasAudioProps> = ({ musicSrc, voice = true, sfx = true, music = true, frames }) => {
   if (musicSrc) assertMusicAllowed();
+  const dir = useVoiceDir(voice);
+  const origin = frames?.from ?? 0;
+  const inRange = (f: number): boolean => !frames || (f >= frames.from && f < frames.to);
   return (
     <>
       {voice &&
-        voiceEvents.map((e) => (
-          <Sequence key={e.id} name={`voice ${e.what}`} from={voiceStartFrame(e)} layout="none">
-            <Audio src={voiceSrc(e.id)} volume={MIX.voice} />
-          </Sequence>
-        ))}
+        dir &&
+        voiceEvents
+          .filter((e) => inRange(voiceStartFrame(e)))
+          .map((e) => (
+            <Sequence key={e.id} name={`voice ${e.what}`} from={voiceStartFrame(e) - origin} layout="none">
+              <Audio src={staticFile(`${dir}/${e.id}.wav`)} volume={MIX.voice} />
+            </Sequence>
+          ))}
       {sfx &&
-        sfxEvents.map(({ cue, frame }, i) => {
+        sfxEvents.filter(({ frame }) => inRange(frame)).map(({ cue, frame: absFrame }, i) => {
+          const frame = absFrame - origin;
           const entry = sfxEntry(cue.sfx);
           const rate = cue.rate ?? 1;
           return (

@@ -24,3 +24,19 @@ export const XmasFull: React.FC = () => (
   </>
 );
 export default XmasFull;
+
+/** XMAS-P1..P3: one part with the same mix as XMAS-Full for that part's frames (voice, sfx; music only if MUSIC_FILE is set). */
+const withAudio = (i: 0 | 1 | 2): React.FC => {
+  const Part = PARTS[i];
+  const range = partRanges[i];
+  const Audible: React.FC = () => (
+    <>
+      <Part />
+      <XmasAudio musicSrc={MUSIC_FILE ? staticFile(MUSIC_FILE) : undefined} frames={{ from: range.renderFrom, to: range.renderFrom + range.renderFrames }} />
+    </>
+  );
+  return Audible;
+};
+export const XmasPart1Audio = withAudio(0);
+export const XmasPart2Audio = withAudio(1);
+export const XmasPart3Audio = withAudio(2);
