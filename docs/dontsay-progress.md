@@ -273,3 +273,23 @@ Started, then stopped at the owner's request in favour of 4c. Nothing written. N
 - Result chip outcome uses `defaultOutcome` (High collision = red, else green): editorial choice, not data.
 - Round cue ids/volumes reuse RevealEngine stand-ins (lock-click for the shake, callback-chime-1).
 - Frame numbers are arithmetic on timing.ts ticks (levelCard 120 ticks, 9 rounds x 300, bonus 480); not sampled from a render.
+## Task 4k: DONE (Part3 compiles; `tsc --noEmit` clean for DontSay files; NOT rendered, `remotion still` blocked: ENOTFOUND remotion.media)
+
+- `src/dontsay/parts/Part3.tsx`: `Part3`, `part3Frames` (7260), `part3Range`. Composition `DontSay-P3` in Root.tsx (additive, 1 import + 1 line; the gta6 `Part3` import there is untouched, dontsay one is aliased `DontSayPart3`).
+- `src/dontsay/sfxCues.ts`: `part3Cues()` (level swell + settings slide, per-round reveal cues, check-in tone, bonus chain cues; ticks local to the part).
+- Everything is mounted from timing.ts `segments` (part 3): no round, level, bonus or duration literal in the file. Part2.tsx does not exist on this branch; Part6.tsx was the pattern.
+- Settings card: mounted as `LevelCard sheet` (SettingsCard slides over the level card at tick 54, inside the card's 4 s). timing.ts has no L3 settings segment, so no time was added.
+- Layout (60 fps, absolute in P3): level card 0-240; r19 240; r20 900; r21 1560; r22 2220; r23 2880; check-in 3540-3660; r24 3660; r25 4320; r26 4980; r27 5640; bonus 3 starts 6300 (hard cut, no fade) to 7260.
+
+### Frames to check by eye (DontSay-P3, 60 fps)
+- Check-in placement: 3539 (last frame of round 23, answer/result), 3540 (first check-in frame), 3659 (last), 3660 (round 24 first frame, hearts pill must be static, no spring: it is not level-first).
+- Round 27 -> bonus 3: 6299 (last frame of round 27), 6300 (first bonus frame: sealed bubble/chain intro).
+- Level card + sheet: 0, 108 (sheet slides in, tick 54), 239; round 19 first frame 240 (hearts pill spring-in, level-first only).
+
+### Open points
+- Part3 mounts audio only for LevelCard/SettingsCard cues and the check-in tone (those scenes do not mount their own). `part3Cues()` lists all cues for the mix, so do not also mount it per scene.
+- Not in `part3Cues`: InkBubble's first lock click, ResultBeat chip sound, BONUS pill sound (ticks not exported by their components).
+- Round outcome uses RoundScene's default (derived from `collision` odds); data.ts has no per-round outcome.
+- Voice clips (`level_3`, `check_in`, round intro/reveal) are not mounted here; no clips exist yet (timings.generated.ts empty). Check-in music lift (`heartCheckInMusicGain`) not applied: no music bed mounts.
+- Repo-wide tsc: one error outside DontSay (`src/timing.ts` cannot find `./rounds.json`), present before this task.
+- Read beyond the named files (minimal): timing.ts segment types, SettingsCard/LevelCard/RoundScene/RevealEngine exports, Part6.tsx, sfxCues.ts, Root.tsx registration lines, sfx.ts exports.

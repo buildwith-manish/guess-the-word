@@ -9,6 +9,8 @@ import { levelCardCues } from './scenes/LevelCard';
 import { revealCues } from './components/RevealEngine';
 import { bonusOppositeDayCues } from './scenes/BonusOppositeDay';
 import { rankCardCues } from './scenes/RankCard';
+import { heartCheckInCues } from './scenes/HeartCheckIn';
+import { bonusChainCues } from './scenes/BonusChainReaction';
 import { scoreboardCues } from './scenes/Scoreboard';
 import type { SfxId } from './sfx';
 
@@ -48,6 +50,31 @@ export const part4Cues = (): PartCue[] => {
       out.push(...revealCues(s.round, s.phases.beat.from - s.from).map((c) => ({ name: `r${s.round.n}-${c.name}`, id: c.id, tick: c.tick + base, volume: c.volume })));
     } else if (s.kind === 'bonus') {
       out.push(...bonusOppositeDayCues().map((c) => ({ name: `b${s.bonus.n}-${c.id}`, id: c.id, tick: c.at + base, volume: c.volume })));
+    }
+  }
+  return out;
+};
+
+/**
+ * Part 3 cues (task 4k), ticks local to the part. Reference list for the mix: level card swell + settings slide,
+ * each round's reveal cues (shake, lock clicks, dissolve, chime), the check-in tone and the bonus chain cues.
+ * Part3.tsx mounts only the level card and check-in cues itself; rounds and the bonus mount their own audio.
+ * Not listed (owned inside their components, tick not exported): InkBubble's first lock click, the result
+ * chip sound, the BONUS pill sound.
+ */
+export const part3Cues = (): PartCue[] => {
+  const part3 = partRanges[2];
+  const out: PartCue[] = [];
+  for (const s of segments.filter((x) => x.part === 3)) {
+    const base = s.from - part3.from;
+    if (s.kind === 'levelCard') {
+      out.push(...levelCardCues(s.level, true).map((c) => ({ ...c, name: `level-${s.level}-${c.name}`, tick: c.tick + base })));
+    } else if (s.kind === 'round') {
+      out.push(...revealCues(s.round, s.phases.beat.from - s.from).map((c) => ({ ...c, name: `round-${s.round.n}-${c.name}`, tick: c.tick + base })));
+    } else if (s.kind === 'heartCheckIn') {
+      out.push(...heartCheckInCues().map((c) => ({ ...c, name: `check-in-${c.name}`, tick: c.tick + base })));
+    } else if (s.kind === 'bonus') {
+      out.push(...bonusChainCues().map((c, i) => ({ name: `bonus-${s.bonus.n}-${c.id}-${i}`, id: c.id, tick: c.at + base, volume: c.volume })));
     }
   }
   return out;
