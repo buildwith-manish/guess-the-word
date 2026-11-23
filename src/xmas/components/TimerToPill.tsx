@@ -1,5 +1,5 @@
 import React from 'react';
-import { easeOut } from '../../ios/motion';
+import { clamp01 as clamp01m, easeInOut, easeOut, motionSpringAt } from '../shared/motion';
 import { colors, glassSurface, LAYOUT, px, REF, textStyle, timerColor, useXmasFrame } from '../system';
 import { fitTitle } from '../titleFit';
 import { cue, tickId } from '../sfx';
@@ -26,8 +26,15 @@ export const TIMER = {
   fillTicks: 4,
   /** The full-bar flash lasts this many ticks (peak at the third). */
   flashTicks: 9,
-  /** The capsule becomes the pill over this many ticks. */
+  /** The capsule becomes the pill over this many ticks (the iOS spring is within about 5% of its end here). */
   morphTicks: 14,
+  /** The title starts to fade up this many ticks after the morph starts, and takes titleTicks. */
+  titleDelayTicks: 3,
+  titleTicks: 8,
+  /** Title rise in reference units. */
+  titleRise: 6,
+  /** The glow of the front segment, reference units of blur. */
+  glowBlur: 12,
   /** Most segments (the star timer); tick-01..tick-10 exist. */
   maxSegments: 10,
 } as const;
@@ -86,7 +93,7 @@ export const timerCues = (startFrame: number, segments: number, secondsPerSegmen
 
 /* ------------------------------------------------------------------ drawing */
 
-const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
+const clamp01 = clamp01m;
 const lerp = (a: number, b: number, k: number) => a + (b - a) * k;
 
 /** Segment i of n, relative to the capsule's top-left corner (reference units). */
@@ -125,7 +132,9 @@ export const TimerToPill: React.FC<TimerToPillProps> = ({ segments, startFrame, 
   const cy = cap.y + cap.h / 2;
   const gold = variant === 'bonus';
 
-  const m = easeOut((t - plan.morph.from) / TIMER.morphTicks);
+  // the pill grows out of the bar with the iOS spring (about 1.5% overshoot); the other uses want 0..1
+  const m = t < plan.morph.from ? 0 : motionSpringAt(t, plan.morph.from, 'ios');
+  const mc = clamp01(m);
   const w = lerp(cap.w, fit.pillWidth, m);
   const h = lerp(cap.h, fit.pillHeight, m);
   const x = REF.w / 2 - w / 2;
@@ -135,8 +144,8 @@ export const TimerToPill: React.FC<TimerToPillProps> = ({ segments, startFrame, 
   // flash: quick rise, slower fall, 0..1
   const fk = clamp01((t - plan.flash.from) / TIMER.flashTicks);
   const flash = t < plan.flash.from ? 0 : fk < 0.3 ? fk / 0.3 : 1 - (fk - 0.3) / 0.7;
-  const barOpacity = 1 - clamp01(m / 0.45);
-  const titleK = clamp01((m - 0.45) / 0.55);
+  const barOpacity = 1 - clamp01(mc / 0.45);
+  const titleK = easeOut((t - (plan.morph.from + TIMER.titleDelayTicks)) / TIMER.titleTicks);
 
   const glass = glassSurface(radius, {
     edge: 0.6,
@@ -169,24 +178,29 @@ export const TimerToPill: React.FC<TimerToPillProps> = ({ segments, startFrame, 
             width: px(cap.w),
             height: px(cap.h),
             opacity: barOpacity,
-            transform: `scaleX(${1 - 0.3 * m})`,
+            transform: `scaleX(${1 - 0.3 * mc})`,
           }}
         >
           {Array.from({ length: segments }, (_, i) => {
             const r = segmentRect(i, segments);
-            const f = easeOut((t - plan.fills[i]) / TIMER.fillTicks);
+            const f = easeInOut((t - plan.fills[i]) / TIMER.fillTicks);
             const c = litColor(i, segments, variant);
+            // the front segment (the newest one) carries a glow in its own colour; it hands over softly to the next one
+            const handOver = i + 1 < segments ? easeInOut((t - plan.fills[i + 1]) / (TIMER.fillTicks * 2)) : 0;
+            const glow = f * (1 - handOver);
             return (
               <div key={i} style={{ position: 'absolute', left: px(r.x), top: px(r.y), width: px(r.w), height: px(r.h), borderRadius: px(r.h / 2), background: colors.segmentOff }}>
                 {f > 0 ? (
                   <div
                     style={{
                       position: 'absolute',
-                      inset: 0,
+                      left: 0,
+                      top: 0,
+                      bottom: 0,
+                      width: `${f * 100}%`,
                       borderRadius: px(r.h / 2),
                       background: c,
-                      clipPath: `inset(0 ${(1 - f) * 100}% 0 0)`,
-                      boxShadow: `0 0 ${px(8)}px ${c}`,
+                      boxShadow: glow > 0.01 ? `0 0 ${px(TIMER.glowBlur * glow)}px ${c}` : undefined,
                     }}
                   />
                 ) : null}
@@ -205,10 +219,10 @@ export const TimerToPill: React.FC<TimerToPillProps> = ({ segments, startFrame, 
               alignItems: 'center',
               justifyContent: 'center',
               opacity: titleK,
-              transform: `translateY(${px(6 * (1 - titleK))}px)`,
+              transform: `translateY(${px(TIMER.titleRise * (1 - titleK))}px)`,
             }}
           >
-            <span style={{ ...textStyle('title'), fontSize: px(fit.fontSize), whiteSpace: 'nowrap' }}>{title}</span>
+            <span style={{ ...textStyle('title'), fontWeight: 700, fontSize: px(fit.fontSize), whiteSpace: 'nowrap' }}>{title}</span>
           </div>
         ) : null}
       </div>

@@ -46,3 +46,4 @@ Note: docs/xmas-prompts-split.md has 26 task headings (1a-1e, 2a-2f, 3a-3b, 4a-4
 - Boundaries: hook ends tick 180 (6.00 s), slot 5 starts 0:54, slot 20/21 at 4:08 (248 s), slot 40/41 at 8:18 (498 s), score 624 s, outro 644 s.
 
 - [x] 8d  LightString polish (bloom on lit bulbs, wire sway from the frame, wider counter tracking, bolder number). tsc passes; NOT render-checked (no Chromium in the cloud session). Sway uses the local Sequence frame, so its phase restarts at each slot cut.
+- [x] 8c  TimerToPill (soft ease fill, front-segment glow, iOS-spring morph, 8-tick title fade-up) + MovieReveal (ambient depth vignette). tsc passes; NOT render-checked (no Chromium). Check frame 718 of XMAS-Movie slot 2 (end of morph).

@@ -3,6 +3,7 @@ import { slotAt } from '../data';
 import type { MovieSlot, Slot } from '../data';
 import { cue } from '../sfx';
 import type { SfxCue } from '../sfx';
+import { easeWindow, easeInOut } from '../shared/motion';
 import { LAYOUT, lightZoneStyle, px, useXmasFonts, useXmasFrame } from '../system';
 import { pauseTicksOf, playSecOf, secToTicks } from '../timing';
 import { GLASS_TILE, GlassTile, glassTileState } from './GlassTile';
@@ -29,6 +30,11 @@ export const MOVIE_REVEAL = {
   chimeAfterMorph: 4,
   /** ticks from the morph start to the tile pulse and the bulb */
   pulseAfterMorph: 8,
+  /** Depth: the ambient layer eases to this much extra dimming (vignette alpha) over depthTicks from the morph start. */
+  depthAlpha: 0.5,
+  depthTicks: 16,
+  /** The light zones lose this fraction of their strength at full depth. */
+  depthZoneDim: 0.12,
 } as const;
 
 export type RevealBeats = {
@@ -96,10 +102,21 @@ export const MovieReveal: React.FC<MovieRevealProps> = ({ slot, start, enterFram
   // ambient light zones (system.ts): green behind the left tile, red behind the right one, drawn under BOTH tiles so a
   // zone never paints over the neighbouring tile. They fade in with the tiles and swell with the pulse.
   const tile = glassTileState(t, enterFrame, undefined, b.pulse);
-  const zoneStrength = tile.opacity * (1 + GLASS_TILE.pulse.zoneBoost * tile.bump);
+  // depth: ambient layers only (a dark vignette behind the tiles and slightly weaker zones); no blur filter, tiles and text stay sharp
+  const depth = easeWindow(t, b.morph.from, MOVIE_REVEAL.depthTicks, easeInOut);
+  const zoneStrength = tile.opacity * (1 + GLASS_TILE.pulse.zoneBoost * tile.bump) * (1 - MOVIE_REVEAL.depthZoneDim * depth);
 
   return (
     <div style={{ position: 'absolute', left: 0, top: 0, width: px(1280), height: px(720) }}>
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          opacity: depth,
+          background: `radial-gradient(75% 80% at 50% 48%, rgba(4,5,9,0) 35%, rgba(4,5,9,${MOVIE_REVEAL.depthAlpha}) 100%)`,
+          pointerEvents: 'none',
+        }}
+      />
       <div style={lightZoneStyle('left', zoneStrength)} />
       <div style={lightZoneStyle('right', zoneStrength)} />
       {(
