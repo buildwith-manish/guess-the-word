@@ -215,3 +215,11 @@ Scenes call `useXmasFonts()` at the top. Layer order (back to front): background
 - Card: x 240..1040, y 108..640 (inside the safe band), rows 78 high, 40-unit type.
 - Frames to check (render frames at 60 fps): 120 all bulbs lit, card in, no band lit; band lighting 224 / 368 / 512 / 656 / 800 (lowest to highest); 924 first frame of the hold.
 - Sounds: `bulb-on` at tick 0 and at each band, `rank-reveal` at the hold.
+
+## Task 6c: voice chain and mix (done)
+- `python3 scripts/master_xmas_voice.py` (needs `pip install numpy pedalboard pyloudnorm`): one chain for every clip (high-pass 80 Hz, compressor 3:1 / -18 dB / 10 ms / 100 ms, +1.5 dB at 3 kHz, limiter -1 dB), then a gain to -16 LUFS; the same -1 dB limiter runs again only on a clip the gain pushed over the ceiling (37 of 110 on the first run). Reads `public/xmas/voiceover/clips/`, writes `clips_master/` (same names, rate and length; the timing build still reads `clips/`). Re-run after any re-recording.
+- `src/xmas/mix.ts`: `MIX` (voice 1, every sfx scaled to 7 dB under the voice by its plain RMS, music bed target -26 LUFS, duck -8 dB, attack 0.25 s, release 0.6 s, fades) and `MUSIC_FILE` (null = no music).
+- `src/xmas/voiceTimeline.ts`: `voiceEvents` (110 clips, absolute ticks, from timing.ts segments and the Hook / ScoreScene / Outro voice marks) and `voiceSignature()`. The reveal line of the slot with the extra pause starts when the pause ends.
+- `src/xmas/Audio.tsx`: `XmasAudio {musicSrc?, voice?, sfx?, music?}`, wired into `src/xmas/Full.tsx` (XMAS-P1..P3 stay silent). Sfx come from `sfxCues.ts` part lists moved to the full timeline.
+- `npx tsx scripts/build_xmas_duck.ts` bakes `duckEnvelope.generated.ts`, copies the licence text of `docs/xmas/music-license.md` into `musicLicense.generated.ts`, and writes `docs/xmas/mix-report.txt` (collisions, thinking-time check, sfx levels). Re-run after any change to clips, timings, parts or the licence text. With `MUSIC_FILE` set, Audio.tsx throws if the licence text is empty or the envelope is stale.
+- Slot clip lengths feed the signature; hook, end, rank and outro clip lengths are read from `src/xmas/timings.csv` by the duck script only, so re-run it after re-recording those.
