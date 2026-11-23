@@ -62,7 +62,7 @@ const local = (r: Range, from: number): Range => ({ from: r.from - from, to: r.t
 
 const fadeOut = (t: number, at: number, ticks: number): number => Math.min(1, Math.max(0, 1 - (t - at) / ticks));
 
-const Body: React.FC<{ round: Round; outcome: ResultOutcome }> = ({ round, outcome }) => {
+const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; chips: boolean }> = ({ round, outcome, slideAt, chips }) => {
   const t = useDontSayFrame();
   const seg = roundSegment(round.n);
   const ph = seg.phases;
@@ -93,7 +93,7 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome }> = ({ round, outco
 
   return (
     <AbsoluteFill style={{ background, overflow: 'hidden' }}>
-      {chipsOpacity > 0 ? (
+      {chips && chipsOpacity > 0 ? (
         <div style={{ position: 'absolute', inset: 0, opacity: chipsOpacity }}>
           <ExclusionChips round={round} at={STAGGER.arrival * 2} />
         </div>
@@ -185,7 +185,7 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome }> = ({ round, outco
         outcome={outcome}
         accent={style.accent}
         centre={BUBBLE_CENTRE}
-        slideAt={sealed.from}
+        slideAt={slideAt ?? sealed.from}
       />
     </AbsoluteFill>
   );
@@ -197,11 +197,15 @@ export type RoundSceneProps = {
   at?: number;
   /** Result chip. Default derived from round.collision (data.ts has no per-round outcome). */
   outcome?: ResultOutcome;
+  /** Local tick (inside the round) where the sealed bubble slides to centre. Default: phases.sealed.from. */
+  slideAt?: number;
+  /** Draw the standard exclusion chips. Default true; Round45Callback draws its own banned box. */
+  chips?: boolean;
 };
 
-export const RoundScene: React.FC<RoundSceneProps> = ({ round, at = 0, outcome }) => (
+export const RoundScene: React.FC<RoundSceneProps> = ({ round, at = 0, outcome, slideAt, chips = true }) => (
   <Sequence from={ticksToFrames(at)} durationInFrames={roundFrames(round.n)}>
-    <Body round={round} outcome={outcome ?? defaultOutcome(round)} />
+    <Body round={round} outcome={outcome ?? defaultOutcome(round)} slideAt={slideAt} chips={chips} />
   </Sequence>
 );
 

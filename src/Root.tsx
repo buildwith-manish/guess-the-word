@@ -9,6 +9,7 @@ import { Part3, part3Frames } from './gta6/parts/Part3';
 import { Part4, part4Frames } from './gta6/parts/Part4';
 import { Gta6Full } from './gta6/Full';
 import { Hook as DontSayHook } from './dontsay/scenes/Hook';
+import { Round45Callback, round45Frames } from './dontsay/scenes/Round45Callback';
 import { WIDTH as DS_WIDTH, HEIGHT as DS_HEIGHT, RENDER_FPS as DS_FPS, hookSec as DS_HOOK_SEC, secToFrames as dsSecToFrames } from './dontsay/timing';
 import { RENDER_TOTAL_FRAMES as GTA6_TOTAL_FRAMES } from './gta6/timing';
 import { RoundPreview, RoundPreviewAll, ROUND_ALL_FRAMES, ROUND_PREVIEW_DEFAULTS, roundPreviewFrames } from './dontsay/Preview';
@@ -65,6 +66,7 @@ export const RemotionRoot: React.FC = () => {
         calculateMetadata={({ props }) => ({ durationInFrames: roundPreviewFrames(props.n) })}
       />
       <Composition id="DontSay-Round-All" component={RoundPreviewAll} durationInFrames={ROUND_ALL_FRAMES} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
+      <Composition id="DontSay-Round45Callback" component={Round45Callback} durationInFrames={round45Frames()} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
     </>
   );
 };

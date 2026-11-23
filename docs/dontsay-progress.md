@@ -132,3 +132,18 @@ Timing (1c) is done, so "Task 2 (timing.ts / system.ts / fonts)" from the older 
 - Layout is guessed from component defaults (card 140-380, glow bars under it, countdown top 520, InkBubble corner top-right, HeartsPill top-left): overlaps not checked by eye.
 - The notification uses its own px()-based banner; `shared/LockNotification` (1920 reference frame) is not used.
 - `remotion still` failed: Chromium download blocked (ENOTFOUND remotion.media).
+
+## Task 3c: DONE (Round45Callback compiles; tsc --noEmit clean; NOT rendered)
+
+- `src/dontsay/scenes/Round45Callback.tsx`: `Round45Callback` (wraps `RoundScene` + an overlay), `round45Cues`, `round45VoiceText`, `callbackAnswers`, `round45SlideTick`, timing constants. Composition `DontSay-Round45Callback` added to `src/Root.tsx` (additive).
+- `RoundScene` got two optional props (defaults unchanged): `slideAt` (local tick of the bubble slide) and `chips` (false hides the standard ExclusionChips).
+- Cards come from `round.callbackFrom` -> `rounds[n].answer` (Banana, Orange, Kiwi, Grapes). Voice text is built from `round.n`, `prompt`, `banned`. Apple is not in the list.
+- Frames at 60 fps: card launch 24/32/40/48, land 52/60/68/76 (chimes `callback-chime-1..4` on landing); bubble slide at 150 (2.5 s); timer starts at 252 (4.2 s); round is 780 frames; next segment is the Voice Only bonus (hard cut, no fade).
+
+### Open points
+- "Slides to centre, then straight into the timer": slide is at 2.5 s, the timer starts at 4.2 s (timing.ts intro). The 1.7 s between is slide + settle; unchecked against InkBubble's slide length. If the slide should start right before the timer, change `SEALED_EXTRA_HOLD_SEC` logic.
+- Standard round slides the bubble after the timer; here it is already centred during the timer, so the box sits at y 592-652 (ref) below the bubble's large state (ends ~590): overlap/clearance not checked by eye.
+- The standard "RULE BREAK = MATCH" chip and the "Banned answers" header are not drawn in this scene (the box replaces ExclusionChips). Add if wanted.
+- Voice clip `r45_intro` plays only if it exists in timings.generated.ts (still empty); `introSecFor` stretches the intro to the clip.
+- Chimes at 4-tick stagger overlap (0.8 s files): intended as a rising run, not listened to.
+- `remotion still` failed (Chromium download blocked). Nothing rendered.
