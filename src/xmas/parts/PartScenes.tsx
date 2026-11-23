@@ -5,6 +5,7 @@ import { BonusScene } from '../scenes/BonusScene';
 import { MovieScene } from '../scenes/MovieScene';
 import { Outro } from '../scenes/Outro';
 import { ScoreScene } from '../scenes/ScoreScene';
+import { WatermarkOverlay } from '../components/Watermark';
 import { SlotTransition } from '../components/SlotTransition';
 import { ticksToFrames } from '../timing';
 import type { PartRange, Segment } from '../timing';
@@ -17,6 +18,7 @@ import type { PartRange, Segment } from '../timing';
  *   outro -> Outro.
  * Each scene reads everything from its own slot and its own local clock (the light string from the slot number, the bokeh
  * from the scene's own time), so no frame depends on an earlier frame and any part renders the same alone or in a full cut.
+ * The QUIZ MATRIX watermark is drawn once per part above all Sequences (components/Watermark.tsx).
  * Nothing is typed here: segment lengths and offsets come from timing.ts.
  */
 const SceneOf: React.FC<{ seg: Segment }> = ({ seg }) => {
@@ -41,6 +43,7 @@ export const PartScenes: React.FC<{ part: PartRange }> = ({ part }) => (
         <SceneOf seg={seg} />
       </Sequence>
     ))}
+    <WatermarkOverlay offsetTick={part.from} />
   </AbsoluteFill>
 );
 

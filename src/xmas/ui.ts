@@ -20,6 +20,8 @@ export const UI = {
   rankCard: 'YOUR RANK',
   /** optional outro ask (see showPartTwoAsk); it has no voice clip yet */
   partTwoAsk: 'Want forty more? Comment part two.',
+  /** channel watermark words (brand, not video content): QUIZ above MATRIX */
+  watermark: { quiz: 'QUIZ', matrix: 'MATRIX' },
   /** empty search field (Spotlight bonus) */
   searchPlaceholder: 'Search',
 } as const;
