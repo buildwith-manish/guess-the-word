@@ -1,13 +1,15 @@
 /**
  * Validates src/nfl/data.ts (which imports docs/nfl/cards.json and picks.json).
  * Run: npx tsx scripts/check_nfl_data.ts
- * Exit 1 on any failure. Warnings (sourceName null, null pick fields) do not fail.
+ * Exit 1 on any failure. Warnings (sourceName null, null pick fields) do not fail, except in QA mode
+ * (`--qa` or NFL_QA=1), where a null pick field fails: the Predictions scene shows FILL IN PICKS until picks.json is filled.
  */
 import { cards, picks, sourceName } from '../src/nfl/data';
 
 const MAX_WORDS = 10;
 const MAX_WORDS_TMW = 6;
 
+const QA = process.argv.includes('--qa') || process.env.NFL_QA === '1';
 const failures: string[] = [];
 const warnings: { what: string; where: string }[] = [];
 const fail = (m: string) => failures.push(m);
@@ -46,9 +48,15 @@ if (unknown.length) fail(`unknown level on card(s) ${unknown}`);
 
 if (sourceName === null || String(sourceName).trim() === '') warnings.push({ what: 'sourceName is null (QA must fail until it is set)', where: 'docs/nfl/cards.json meta.sourceName' });
 for (const p of picks) {
-  if (p.matchup === null) warnings.push({ what: 'matchup is null', where: `docs/nfl/picks.json pick ${p.pick}` });
-  if (p.kickoffET === null) warnings.push({ what: 'kickoffET is null', where: `docs/nfl/picks.json pick ${p.pick}` });
+  for (const f of ['matchup', 'kickoffET'] as const) {
+    const v = p[f];
+    if (v === null || String(v).trim() === '') {
+      if (QA) fail(`docs/nfl/picks.json pick ${p.pick}: ${f} is empty (the Predictions scene would show FILL IN PICKS)`);
+      else warnings.push({ what: `${f} is null`, where: `docs/nfl/picks.json pick ${p.pick}` });
+    }
+  }
 }
+if (picks.length !== 3) fail(`picks.json has ${picks.length} picks, expected 3`);
 
 console.log(`cards ${cards.length} | levels ${lvCounts.join('/')} | two-minute warning [${tmw}] | final [${finals}] | max clue words ${Math.max(...cards.flatMap((c) => c.clues.map(words)))}`);
 console.log(`\nWarnings (${warnings.length}):`);

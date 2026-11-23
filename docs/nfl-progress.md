@@ -24,7 +24,7 @@ Nothing has been rendered by any task yet. 2a: `npx tsc --noEmit` has 0 errors i
 - [x] 3b: Hook (`src/nfl/scenes/Hook.tsx`: `Hook`, `HookLock` (the reusable 1 s piece, takes `at`), `HOOK_LOCK_TICKS`, `hookMarks`, `hookCues`, `hookVoice`; composition `NFL-Hook`; notes below)
 - [ ] 3c: final card + Wallet collection
 - [ ] 4b: Part 1
-- [ ] 4e: Predictions
+- [x] 4e: Predictions (`src/nfl/scenes/Predictions.tsx`; notes below)
 - [ ] 4c: Part 2
 - [ ] 4d: Part 3
 - [ ] 4g: Outro + Part 4
@@ -81,3 +81,13 @@ Run 1b (data + validation) and 2a (system + shared parts) next; both need only 1
 - `LOCK_BEATS` stay literal tick counts in shared/LockNotification.tsx (the piece is 1 s by design).
 - LevelBanner (y 4 to 84, centred) sits over the compact ScoreHud / PointsPill band on card 1: 4b has to decide what hides.
 - Not rendered (no Chromium in the sandbox). Frames at 60 fps: 0, 8 (banner starts), 60 (1 s: notification over, blurred card), 180 (3 s: flip starts), 216 (flip done), 359 (last frame, HUD + chips up).
+
+## 4e notes (Predictions)
+
+- `Predictions({ at?, picks? })`: three lock-screen notification cards (one per game) with kickoff time (ET) and matchup from `docs/nfl/picks.json` via `data.ts`; each enters at the start of its voice slot. Composition `NFL-Predictions` (Root.tsx). Exports `predictionsMarks`, `predictionsCues(at)` (a `notification` sfx per card), `predictionsVoice(at)` (type `prediction`, keys '0'..'3').
+- NEW timing: `predictionsPlan` {intro, picks[3], len} and `predictionsIntroSec` (3 s, assumption) in `timing.ts`. Slots come from the measured clips when `useClipTimings`, else intro 3 s and the picks share the rest of the 25 s equally. **Assumption for 5a:** prediction clip key '0' = intro, '1'..'3' = pick 1..3 (4 clips, `PREDICTION_CLIPS`).
+- data.ts: `picksFilled(list?)`, `predictionsText` (appName, pickLabel, kickoffLabel, placeholder 'FILL IN PICKS'; labels are my wording).
+- The voice line is shown as text under the cards from `lineText('prediction', key)`. There is no audio map file yet (5a), so until `lines.generated.ts` has these rows no caption is drawn.
+- Placeholder: any null pick field draws a full-width red "FILL IN PICKS" bar on every frame, and the empty fields say it too. `npx tsx scripts/check_nfl_data.ts --qa` (or `NFL_QA=1`) now FAILS on any null pick field; without it they stay warnings.
+- Sample data for stills: pass `--props` to `remotion still NFL-Predictions` with a `picks` array. Nothing sample is committed.
+- Frames at 60 fps, local to the segment (fallback timings, 25 s = 1500 frames): intro 0, pick 1 at 180, pick 2 at 620, pick 3 at 1060, end 1500. Check by eye: 100 (intro, no cards), 400 (card 1 settled), 800 (cards 1-2), 1499 (all three, last pick active).

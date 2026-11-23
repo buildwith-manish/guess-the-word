@@ -10,7 +10,8 @@ import { Part4, part4Frames } from './gta6/parts/Part4';
 import { Gta6Full } from './gta6/Full';
 import { RENDER_TOTAL_FRAMES as GTA6_TOTAL_FRAMES } from './gta6/timing';
 import { Hook as NflHook } from './nfl/scenes/Hook';
-import { hookSec as nflHookSec, secToFrames as nflSecToFrames } from './nfl/timing';
+import { Predictions as NflPredictions } from './nfl/scenes/Predictions';
+import { hookSec as nflHookSec, predictionsLenSec as nflPredictionsLenSec, secToFrames as nflSecToFrames } from './nfl/timing';
 import { ALL_FRAMES as NFL_ALL_FRAMES, NflCardPreview, NflCardPreviewAll, PREVIEW_DEFAULTS as NFL_PREVIEW_DEFAULTS, previewFrames as nflPreviewFrames } from './nfl/Preview';
 import { ALL_FRAMES, Gta6Preview, Gta6PreviewAll, PREVIEW_DEFAULTS, previewFrames } from './gta6/Preview';
 
@@ -64,6 +65,7 @@ export const RemotionRoot: React.FC = () => {
         calculateMetadata={({ props }) => ({ durationInFrames: nflPreviewFrames(props.n) })}
       />
       <Composition id="NFL-Hook" component={NflHook} durationInFrames={nflSecToFrames(nflHookSec)} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
+      <Composition id="NFL-Predictions" component={NflPredictions} durationInFrames={nflSecToFrames(nflPredictionsLenSec)} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
       <Composition id="NFL-Card-All" component={NflCardPreviewAll} durationInFrames={NFL_ALL_FRAMES} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
     </>
   );

@@ -95,6 +95,17 @@ export const sourceName: string | null = cardsFile.meta.sourceName ?? null;
 /** The three prediction games (matchup and kickoff time in ET), null until filled in picks.json. */
 export const picks: Pick[] = picksFile.picks as Pick[];
 
+/** True when every pick has a matchup and a kickoff time. The Predictions scene draws a placeholder until this is true. */
+export const picksFilled = (list: Pick[] = picks): boolean => list.length === 3 && list.every((p) => p.matchup !== null && p.kickoffET !== null);
+
+/** UI text of the Predictions scene (labels are mine; the games come from picks.json only). */
+export const predictionsText = {
+  appName: 'Game day',
+  pickLabel: (n: number): string => `Pick ${n}`,
+  kickoffLabel: 'Kickoff (ET)',
+  placeholder: 'FILL IN PICKS',
+} as const;
+
 /** Reveal clip text: the name, then the reveal line and the extra sentence when present. */
 export const spokenReveal = (card: Card): string =>
   [`${card.name}.`, card.revealLine, card.revealExtra].filter((s): s is string => !!s).join(' ');

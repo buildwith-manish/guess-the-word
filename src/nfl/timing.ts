@@ -132,6 +132,28 @@ export const predictionSlotSec: number[] = useClipTimings ? range(PREDICTION_CLI
 export const rankSlotSec: number[] = ranks.map((_, i) => slotOf(rankStepSec, dur('rank', String(i + 1))));
 export const outroSlotSec: number[] = useClipTimings ? range(OUTRO_CLIPS).map((i) => dur('outro', String(i)) + clipPadSec) : [];
 export const predictionsLenSec: number = Math.max(predictionsSec, sum(predictionSlotSec));
+/** Predictions: the intro slot (title) before the first pick, used when no clips are measured; picks then share the rest equally. */
+export const predictionsIntroSec = 3;
+/** Predictions plan in ticks from the segment start. Clip keys: '0' = intro, '1'..'3' = pick 1..3 (assumption for 5a's audio map). */
+export type PredictionsPlan = { intro: Range; picks: Range[]; len: number };
+const buildPredictions = (): PredictionsPlan => {
+  const len = secToTicks(predictionsLenSec);
+  const picksN = PREDICTION_CLIPS - 1;
+  const bounds: number[] = [0];
+  if (useClipTimings) {
+    let cur = 0;
+    predictionSlotSec.forEach((s) => bounds.push((cur += secToTicks(s))));
+  } else {
+    const intro = secToTicks(predictionsIntroSec);
+    const each = Math.floor((len - intro) / picksN);
+    bounds.push(...range(picksN).map((i) => intro + each * i));
+    bounds.push(len);
+  }
+  bounds[bounds.length - 1] = len; // any extra length goes to the last pick
+  const slots = range(PREDICTION_CLIPS).map((i): Range => ({ from: bounds[i], to: bounds[i + 1] }));
+  return { intro: slots[0], picks: slots.slice(1), len };
+};
+export const predictionsPlan: PredictionsPlan = buildPredictions();
 /** One rank step of the scoreboard: `rank` is the index in `ranks` (0 = best), `key` its clip key, `from` / `to` ticks from the scoreboard start. */
 export type ScoreboardStep = { rank: number; key: string; from: number; to: number };
 /**
