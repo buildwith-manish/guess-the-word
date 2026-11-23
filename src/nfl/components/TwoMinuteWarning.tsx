@@ -14,7 +14,8 @@ import { clueBaseSec, clueTmwSec, segments } from '../timing';
  *  - yellow Low Power Mode tint (shared/LowPowerTint) for the whole clue phase,
  *  - a badge (label + clock graphic) in the top band, clear of the clue area (y 168 and below),
  *  - a clock hand that steps once per second, on the same ticks as the `tmw-tick` cues,
- *  - a stronger edge pulse: a steady red glow plus a second one that pulses on every tick,
+ *  - a steady, low red edge glow (no per-tick flash). Each tick is a slow tint breathe instead (A3, photosensitivity):
+ *    the yellow tint eases between its peak (on the tick) and half of it with a smooth 1 s cosine,
  *  - faster clue flips: `tmwFlipTicks(card)` for ClueStack's `flipTicks`.
  * On any other card it renders its children only. The clue text is never covered: the badge sits above the
  * clue area, and the tint and glow are translucent overlays with pointer events off.
@@ -38,8 +39,8 @@ export const tmwMath = (frame: number, start: number, end: number) => {
   const t = Math.max(0, frame - start);
   const step = Math.floor(t / TICK_EVERY);
   const inStep = t - step * TICK_EVERY;
-  /** 1 on the tick, easing to 0 within 10 ticks (as the urgent pulse of timerMath). */
-  const pulse = active && step >= 1 ? Math.pow(Math.max(0, 1 - inStep / 10), 2) : 0;
+  /** Smooth 1 Hz breathe: 1 on the tick (and at the start), 0 half a second later, back to 1 on the next tick. A cosine, so no step in it. */
+  const pulse = active ? 0.5 + 0.5 * Math.cos((2 * Math.PI * inStep) / TICK_EVERY) : 0;
   const angle = step === 0 ? 0 : STEP_DEG * (step - 1 + easeOut(inStep / STEP_TICKS));
   return { active, step, pulse, angle };
 };
@@ -86,12 +87,10 @@ export const TwoMinuteWarning: React.FC<TwoMinuteWarningProps> = ({ card, frame,
       {children}
       {show && (
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-          <LowPowerTint frame={frame} at={start} dur={end - start} />
-          {/* stronger edge pulse: a steady glow, plus a second one that peaks on every tick */}
+          {/* slow tint breathe, one cycle per tick sound (peak on the tick) */}
+          <LowPowerTint frame={frame} at={start} dur={end - start} breatheTicks={TICK_EVERY} breatheDepth={0.5} />
+          {/* steady red glow; the per-tick second layer (a hard 1 Hz flash) is gone */}
           <div style={{ position: 'absolute', inset: 0, opacity: 0.45 * fade }}>
-            <EdgeGlow frame={frame} at={start} dur={TICK_EVERY} />
-          </div>
-          <div style={{ position: 'absolute', inset: 0, opacity: m.pulse * fade }}>
             <EdgeGlow frame={frame} at={start} dur={TICK_EVERY} />
           </div>
           {/* badge */}

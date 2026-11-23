@@ -127,3 +127,13 @@ Nothing has been rendered by any task yet. 2a: `npx tsc --noEmit` has 0 errors i
 ## Next step
 
 Fill `picks.json`, set `meta.sourceName`, then render `NFL-Full` where Chromium works and listen through the mix.
+
+## A3 notes (photosensitivity)
+
+- `shared/EdgeGlow.tsx`: peak alphas are now exported constants `EDGE_GLOW_SHADOW_ALPHA` 0.25 (was 0.70) and `EDGE_GLOW_TINT_ALPHA` 0.12 (was 0.35).
+- `shared/Shake.tsx`: one smooth sine per axis at `SHAKE_HZ` 2.5 (was a new random offset every 30 fps tick = 30 Hz), clamped to `SHAKE_MAX_HZ` 3. Peak offset (amp 5, rot 0.4 deg), duration and seed unchanged. Only user: the lock icon in `WalletCard.tsx`.
+- `shared/LowPowerTint.tsx`: optional `breatheTicks` / `breatheDepth` (cosine between peak and peak x (1 - depth)).
+- `components/TwoMinuteWarning.tsx`: the second per-tick EdgeGlow layer (hard 1 Hz flash) is removed; the tint breathes on the tick period (30 ticks) between 0.16 and 0.08 alpha. `tmwMath.pulse` is now a cosine. Tick sounds, hand steps, slot lengths and cue positions are unchanged.
+- `PointsPill.tsx` was not changed: its last-clue pulse is 1 Hz and scale-only (6%), no brightness change.
+- Not changed, not read, not mounted by any NFL scene: `shared/TimerRing.tsx` (urgent pulse) and `LowPowerRing` (2 turns/s spin). Check them before a scene mounts them.
+- Not rendered. Luminance figures are computed for the glow colour over black, not measured on a rendered frame.

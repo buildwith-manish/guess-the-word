@@ -9,13 +9,18 @@ export type LowPowerTintProps = {
   at: number;
   /** Ticks the tint stays up (fade in 6, fade out 6 inside this). */
   dur: number;
+  /** Slow breathe: ticks per cycle, peak on `at` and every cycle after. Off when undefined. A smooth cosine, never a step. */
+  breatheTicks?: number;
+  /** How far the tint dips at the bottom of a breath, 0..1 of its peak (0.5 = down to half). Default 0.5. */
+  breatheDepth?: number;
 };
 
 /** Yellow Low Power Mode tint over the whole parent. */
-export const LowPowerTint: React.FC<LowPowerTintProps> = ({ frame, at, dur }) => {
+export const LowPowerTint: React.FC<LowPowerTintProps> = ({ frame, at, dur, breatheTicks, breatheDepth = 0.5 }) => {
   const t = frame - at;
   if (t < 0 || t > dur) return null;
-  const a = Math.min(1, t / 6) * Math.min(1, (dur - t) / 6);
+  const breathe = breatheTicks && breatheTicks > 0 ? 1 - breatheDepth * 0.5 * (1 - Math.cos((2 * Math.PI * t) / breatheTicks)) : 1;
+  const a = Math.min(1, t / 6) * Math.min(1, (dur - t) / 6) * breathe;
   return (
     <div
       style={{
