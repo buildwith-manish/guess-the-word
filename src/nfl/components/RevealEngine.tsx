@@ -3,7 +3,7 @@ import { cards, dykText, sourceName, type Card } from '../data';
 import { DidYouKnowCard } from '../shared/DidYouKnowCard';
 import { NotificationBanner } from '../shared/NotificationBanner';
 import { cue, type SfxCue } from '../sfx';
-import { FRAME, SPRINGS, colors, fontStack, px, springAt, textStyle } from '../system';
+import { FRAME, SPRINGS, colors, fontStack, popAt, px, springAt, textStyle } from '../system';
 import { FPS, clipSec, dykTailSec, levelNames, secToTicks, segments, useClipTimings } from '../timing';
 import { WalletCard, type StackCorner } from './WalletCard';
 
@@ -110,7 +110,8 @@ export const RevealEngine: React.FC<RevealEngineProps> = ({ card, frame, frozen,
   const state = frame >= b.stack ? 'stacked' : frame >= b.open ? 'open' : 'locked';
   const since = state === 'stacked' ? b.stack : state === 'open' ? b.open : 0;
 
-  const nameP = springAt(frame, b.name, 'gentle');
+  const nameP = popAt(frame, b.name); // the shared POP spring: overshoots a little, ends exactly at 1
+  const nameShown = Math.min(1, Math.max(0, nameP));
   const sourceP = springAt(frame, b.source, 'gentle');
   const revealText = [card.revealLine, card.revealExtra].filter((s): s is string => !!s).join(' ');
   const dyk = dykText(card);
@@ -123,7 +124,7 @@ export const RevealEngine: React.FC<RevealEngineProps> = ({ card, frame, frozen,
     <div style={{ position: 'absolute', inset: 0 }}>
       <WalletCard card={card} state={state} frame={frame} since={since} jersey={jersey} stackIndex={stackIndex} corner={corner} showName={false}>
         <div style={{ position: 'absolute', inset: 0 }}>
-          {frozen !== undefined && <div style={{ position: 'absolute', inset: 0, opacity: 1 - nameP }}>{frozen}</div>}
+          {frozen !== undefined && <div style={{ position: 'absolute', inset: 0, opacity: 1 - nameShown }}>{frozen}</div>}
           <div
             style={{
               position: 'absolute',
@@ -135,7 +136,7 @@ export const RevealEngine: React.FC<RevealEngineProps> = ({ card, frame, frozen,
               textAlign: 'center',
               gap: px(14),
               paddingBottom: px(36),
-              opacity: nameP,
+              opacity: nameShown,
               transform: `translateY(${(1 - nameP) * px(24)}px) scale(${0.92 + 0.08 * nameP})`,
             }}
           >

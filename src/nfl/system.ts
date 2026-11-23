@@ -111,6 +111,39 @@ export const springAt = (frame: number, at: number, preset: SpringName = 'snappy
 /** The same preset length over an explicit number of ticks (the caller's slot from timing.ts). */
 export const springOver = (frame: number, at: number, ticks: number): number => spring(ticks > 0 ? (frame - at) / ticks : 1);
 
+/**
+ * POP: the one spring with a slight overshoot, shared by the chips, the points pill and the answer reveal (iOS-2).
+ * A real damped spring, evaluated in closed form so it is a pure function of the frame (no state, no timers):
+ *   stiffness 180, damping 18, mass 1  ->  natural frequency sqrt(k/m) = 13.4 rad/s, damping ratio c / (2 sqrt(k m)) = 0.67
+ *   overshoot exp(-pi z / sqrt(1 - z^2)) = 5.8 % of the travel, settled to about 1 % at 0.5 s.
+ * The curve is evaluated over `windowSec` and normalised so it lands exactly on 1 there. Lengths are motion, not scene timing.
+ */
+export const POP = {
+  stiffness: 180,
+  damping: 18,
+  mass: 1,
+  windowSec: 0.6,
+  /** Seconds until the curve is visually at rest; the next motion in a component starts after this. */
+  settleSec: 0.5,
+  /** Toast press-down: scale at the bottom of the press, and the seconds it takes to get there. */
+  pressScale: 0.96,
+  pressDownSec: 0.1,
+} as const;
+export const POP_SETTLE_TICKS = Math.round(POP.settleSec * FPS);
+export const POP_PRESS_DOWN_TICKS = Math.round(POP.pressDownSec * FPS);
+
+const popCurve = (sec: number): number => {
+  if (sec <= 0) return 0;
+  const w0 = Math.sqrt(POP.stiffness / POP.mass);
+  const z = POP.damping / (2 * Math.sqrt(POP.stiffness * POP.mass));
+  const wd = w0 * Math.sqrt(1 - z * z);
+  const at = (t: number) => 1 - Math.exp(-z * w0 * t) * (Math.cos(wd * t) + ((z * w0) / wd) * Math.sin(wd * t));
+  return at(Math.min(sec, POP.windowSec)) / at(POP.windowSec);
+};
+
+/** Progress of the POP spring that starts at design tick `at`: 0 before, about 1.058 at the peak, exactly 1 after `windowSec`. */
+export const popAt = (frame: number, at: number): number => popCurve((frame - at) / FPS);
+
 export { easeOut };
 
 /** Dark background gradient per level (low-key, tinted by the level colour). */

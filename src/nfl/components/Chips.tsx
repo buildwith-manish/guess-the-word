@@ -18,8 +18,7 @@ import React from 'react';
 import { cards, maxPoints, sourceName } from '../data';
 import type { Card, Level } from '../data';
 import { clamp01 } from '../shared/fade';
-import { presence } from '../shared/presence';
-import { SAFE, blurPx, colors, radius, safeBox, textStyle, px } from '../system';
+import { POP, POP_PRESS_DOWN_TICKS, POP_SETTLE_TICKS, SAFE, blurPx, colors, easeOut, popAt, radius, safeBox, springAt, textStyle, px } from '../system';
 
 /* ---------- helpers ---------- */
 
@@ -57,12 +56,25 @@ type ToastProps = Timing & {
   children: React.ReactNode;
 };
 
-/** Pop: the iOS spring plus a small extra bounce (scale peaks about 6% over mid-way, ends exactly at 1). */
+/**
+ * Pop: the shared POP spring (system.ts: stiffness 180, damping 18, mass 1, about 6% overshoot) drives the entrance. Once it
+ * has settled (POP_SETTLE_TICKS) the toast presses down to POP.pressScale (0.96) and the POP spring brings it back, so
+ * the entrance and the press never run together. The press is skipped when the slot is too short to hold it before the exit.
+ * The exit keeps the snappy iOS spring.
+ */
 const Toast: React.FC<ToastProps> = ({ frame, at, dur, outTicks, accent, maxWidth, children }) => {
-  const p = presence(frame, at, dur, outTicks);
+  const exitAt = at + dur - outTicks;
+  const exit = springAt(frame, exitAt, 'snappy');
+  if (frame < at || exit >= 0.999) return null;
+  const p = Math.max(0, popAt(frame, at)) * (1 - exit);
   if (p <= 0.001) return null;
   const s = clamp01(p);
-  const scale = 0.8 + 0.2 * p + 0.06 * Math.sin(Math.PI * s);
+  const pressAt = at + POP_SETTLE_TICKS;
+  const hasPress = pressAt + POP_PRESS_DOWN_TICKS + POP_SETTLE_TICKS <= exitAt;
+  const down = easeOut(clamp01((frame - pressAt) / POP_PRESS_DOWN_TICKS));
+  const back = popAt(frame, pressAt + POP_PRESS_DOWN_TICKS);
+  const press = hasPress ? 1 - (1 - POP.pressScale) * down * (1 - back) : 1;
+  const scale = (0.7 + 0.3 * p) * press;
   return (
     <div
       style={{

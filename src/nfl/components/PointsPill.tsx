@@ -3,7 +3,7 @@ import type { Level } from '../data';
 import { FPS } from '../shared/clock';
 import { BloomLayer } from '../shared/BloomLayer';
 import { EdgeGlow } from '../shared/EdgeGlow';
-import { colors, px, SPRINGS, springAt, textStyle, type } from '../system';
+import { POP_SETTLE_TICKS, colors, easeOut, popAt, px, textStyle, type } from '../system';
 import { pillLastSec, pillPulseSec } from '../timing';
 
 export type PointsPillProps = {
@@ -24,6 +24,13 @@ export type PointsPillProps = {
 
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 
+/**
+ * Dynamic Island morph on every drop (visual motion only, no timing): the island swells to `wide` x `tall` over `growSec`,
+ * then the POP spring (system.ts) settles it back with a small overshoot. One motion; the pulse waits until it is done.
+ */
+export const PILL_MORPH = { growSec: 0.1, wide: 0.14, tall: 0.1 } as const;
+const PILL_GROW_TICKS = Math.round(PILL_MORPH.growSec * FPS);
+
 /** Where the clock stands at `frame`. Exported so the scene and the check script read the same numbers. */
 export const pointsPillMath = (frame: number, starts: number[], end: number) => {
   const n = starts.length;
@@ -37,7 +44,7 @@ export const pointsPillMath = (frame: number, starts: number[], end: number) => 
   const last = n > 0 && idx === n - 1;
   // pulse once per pillPulseSec on the last clue, starting after the drop spring has settled
   const pulsePeriod = pillPulseSec * FPS;
-  const pulseSince = since - SPRINGS.snappy * FPS;
+  const pulseSince = since - PILL_GROW_TICKS - POP_SETTLE_TICKS;
   const pulse = last && pulseSince >= 0 ? Math.pow(Math.max(0, 1 - (pulseSince % pulsePeriod) / (pulsePeriod / 3)), 2) : 0;
   // red edge glow: builds over the last pillLastSec of the last slot, never before the slot starts
   const glowAt = n > 0 ? Math.max(starts[n - 1], end - pillLastSec * FPS) : end;
@@ -57,13 +64,17 @@ export const PointsPill: React.FC<PointsPillProps> = ({ frame, starts, end, valu
   const now = values?.[m.idx] ?? m.n - m.idx;
   const before = m.idx > 0 ? values?.[m.idx - 1] ?? m.n - m.idx + 1 : undefined;
 
-  // spring 0..1 from the start of this clue slot
-  const p = springAt(frame, starts[m.idx], 'snappy');
-  const swap = clamp01(p);
-  // shrink: dips on every drop and comes back (clue 1 grows in from smaller instead)
-  const dip = m.idx > 0 ? Math.sin(Math.PI * swap) : 0;
-  const enter = m.idx === 0 ? 0.7 + 0.3 * p : 1;
-  const scale = enter * (1 - 0.16 * dip) * (1 + 0.06 * m.pulse);
+  // POP spring from the start of this clue slot: clue 1 grows in, later clues morph (swell, then settle with a small overshoot)
+  const q = popAt(frame, starts[m.idx]);
+  const p = clamp01(q);
+  const swap = p; // the number swaps during the swell
+  const grow = m.idx > 0 ? easeOut(clamp01((frame - starts[m.idx]) / PILL_GROW_TICKS)) : 0;
+  const settle = m.idx > 0 ? popAt(frame, starts[m.idx] + PILL_GROW_TICKS) : 1;
+  const swell = grow * (1 - settle); // 0 at rest, up to 1 at the top of the swell, a hair below 0 on the overshoot
+  const enter = m.idx === 0 ? 0.7 + 0.3 * q : 1;
+  const pulseScale = 1 + 0.06 * m.pulse;
+  const sx = enter * (1 + PILL_MORPH.wide * swell) * pulseScale;
+  const sy = enter * (1 + PILL_MORPH.tall * swell) * pulseScale;
   const rise = h * 0.7;
 
   const digit: React.CSSProperties = {
@@ -77,26 +88,30 @@ export const PointsPill: React.FC<PointsPillProps> = ({ frame, starts, end, valu
     color: accent,
   };
 
+  // The slot (w x h) never changes, so the pill keeps its position and the card layout. Only the island inside it morphs;
+  // it is sized (not scaled), so the corners stay fully round at every size.
   return (
-    <div
-      style={{
-        boxSizing: 'border-box',
-        position: 'relative',
-        width: w,
-        height: h,
-        borderRadius: h / 2,
-        background: '#000',
-        border: `${px(1)}px solid ${colors.hairline}`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: `0 ${h * 0.36}px`,
-        opacity: m.idx === 0 ? clamp01(p * 2) : 1,
-        transform: `scale(${scale})`,
-        transformOrigin: 'center',
-        overflow: 'hidden',
-      }}
-    >
+    <div style={{ position: 'relative', width: w, height: h, flex: 'none' }}>
+      <div
+        style={{
+          boxSizing: 'border-box',
+          position: 'absolute',
+          left: '50%',
+          top: '50%',
+          width: w * sx,
+          height: h * sy,
+          transform: 'translate(-50%, -50%)',
+          borderRadius: (h * sy) / 2,
+          background: '#000',
+          border: `${px(1)}px solid ${colors.hairline}`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: `0 ${h * 0.36}px`,
+          opacity: m.idx === 0 ? clamp01(p * 2) : 1,
+          overflow: 'hidden',
+        }}
+      >
       {/* one pip per clue, filled up to the current clue */}
       <div style={{ display: 'flex', gap: px(6), alignItems: 'center' }}>
         {starts.map((_, i) => (
@@ -143,6 +158,7 @@ export const PointsPill: React.FC<PointsPillProps> = ({ frame, starts, end, valu
         <div style={{ width: `${m.fill * 100}%`, height: '100%', borderRadius: px(2), background: accent }} />
       </div>
       <BloomLayer radius={height / 2} />
+      </div>
     </div>
   );
 };

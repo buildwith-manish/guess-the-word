@@ -2,7 +2,7 @@ import React from 'react';
 import { cards, type Card } from '../data';
 import { FPS } from '../shared/clock';
 import { Shake } from '../shared/Shake';
-import { SPRINGS, colors, fontStack, px, radius, safeBox, springAt, tabular, textStyle } from '../system';
+import { SPRINGS, colors, fontStack, popAt, px, radius, safeBox, springAt, tabular, textStyle } from '../system';
 import { levelNames } from '../timing';
 
 /**
@@ -96,8 +96,8 @@ export const WalletCard: React.FC<WalletCardProps> = ({ card, state, frame, sinc
 
   // blank: spring in. Later states start from the settled pose.
   const enter = state === 'blank' ? springAt(frame, since, 'gentle') : 1;
-  // open: the answer panel flips (0 = "?" face, 1 = name face)
-  const flip = state === 'open' || state === 'stacked' ? (state === 'open' ? springAt(frame, since, 'slow') : 1) : 0;
+  // open: the answer panel flips (0 = "?" face, 1 = name face) on the shared POP spring, so it overshoots a little
+  const flip = state === 'open' || state === 'stacked' ? (state === 'open' ? popAt(frame, since) : 1) : 0;
   // stacked: shrink into the corner
   const stack = state === 'stacked' ? springAt(frame, since, 'gentle') : 0;
 
