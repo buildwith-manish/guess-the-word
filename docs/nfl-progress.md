@@ -201,3 +201,9 @@ Fill `picks.json`, set `meta.sourceName`, then render `NFL-Full` where Chromium 
 - Top row: watermark, PointsPill and ring chip are all 48 high at y 12 to 60 (`TOP_ROW`, `WATERMARK`). ScoreHud compact is rings only (the "30 cards, 150 points" label is gone there; it stays in the hook chips and the non-compact HUD). The top row sits above the 80% safe line, as before.
 - BROKEN, not fixed (out of scope): `scripts/nfl_contrast.ts` imports `CHIP, COMPACT, layoutOf` etc. from the old ClueStack and will not run until it is rewritten for hero + history. Clue colours changed less than the layout: text is ink on dark glass, history ink at full opacity.
 - NOT verified: nothing rendered (Chromium cannot download here: remotion.media unreachable), so no stills of cards 2, 14, 28, 29. Unverified by eye: the jersey path shape, PointsPill at 48 high (internals untouched), the ring chip at 32, footer fit, the hero emerge, contrast of the tag colours. TwoMinuteWarning not re-checked against the new box. `npx tsc --noEmit` passes.
+
+## iOS-6c notes (revert of 6b, chip left, watermark right)
+
+- Reverted iOS-6b (the merged header bar). Now follows the user's reference (GTA 6 screenshot): top-left chip = progress rings + "n / 30" + a small level pill (`ScoreHud` compact with `tag`, `tagColor`; 48 high), top-right = watermark (`WATERMARK.right`), points pill stays centred. All three share y 12 to 60.
+- Card header is only the 4-unit level bar. The Rookie pill and "CARD n OF 30" are gone from the card (the chip carries them). Freed space goes to the hero: header 8, field 648x488, hero 232 (`clueLayout.ts`). check_nfl_clues: still no failing clue.
+- Hook uses the same chip (done 0) on the left. Not rendered, not looked at. tsc passes. `scripts/nfl_watermark_check.ts` still reads `WATERMARK.left`, now an approximate value derived from `right` (3.1 x height wide): re-check it.

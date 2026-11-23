@@ -23,9 +23,9 @@ import { WalletCard } from '../components/WalletCard';
 import { cue, type SfxCue } from '../sfx';
 import { LOCK_BEATS, LOCK_NOTIFICATION_TICKS, LockNotification } from '../shared/LockNotification';
 import { clamp01 } from '../shared/fade';
-import { SPRINGS, blurPx, levelBackground, px, springAt } from '../system';
-import { FPS, chipStaggerSec, hookBeats, hookSec, secToTicks, useNflFrame } from '../timing';
-import { ANSWER_BOX, BAND_TOP } from './CardScene';
+import { SPRINGS, blurPx, colors, levelBackground, px, springAt } from '../system';
+import { FPS, chipStaggerSec, hookBeats, levelNames, hookSec, secToTicks, useNflFrame } from '../timing';
+import { ANSWER_BOX, TOP_ROW } from './CardScene';
 
 /** Start tick so far back that every entrance spring has settled. */
 const ENTERED = -1e6;
@@ -109,7 +109,7 @@ export const Hook: React.FC<{ at?: number }> = ({ at = 0 }) => {
 
       {/* "30 cards, 150 points" */}
       <div style={{ position: 'absolute', inset: 0, opacity: clamp01(hudP), transform: `translateY(${px(-16 * (1 - hudP))}px)` }}>
-        <ScoreHud done={0} frame={f} top={BAND_TOP} compact />
+        <ScoreHud done={0} frame={f} top={TOP_ROW.top} side="left" compact tag={levelNames[first.level]} tagColor={colors.level[first.level]} />
       </div>
 
       {/* rules, on the "?" panel; never spoken. dur runs past the hook's end: card 1's segment carries them on. */}

@@ -26,8 +26,8 @@ import { RuleChips } from '../components/Chips';
 import { ScoreHud } from '../components/ScoreHud';
 import { TwoMinuteWarning, tmwFlipTicks } from '../components/TwoMinuteWarning';
 import { WALLET_LAYOUT, WalletCard } from '../components/WalletCard';
-import { SPRINGS, levelBackground, px } from '../system';
-import { FPS, chipStaggerSec, secToTicks, segments, ticksToFrames, useNflFrame } from '../timing';
+import { SPRINGS, colors, levelBackground, px } from '../system';
+import { FPS, chipStaggerSec, levelNames, secToTicks, segments, ticksToFrames, useNflFrame } from '../timing';
 
 const segmentOf = (card: Card) => {
   const seg = segments.find((s) => s.kind === 'card' && s.card.n === card.n);
@@ -104,7 +104,7 @@ export const CardScene: React.FC<CardSceneProps> = ({ card, at = 0, jersey, from
   return (
     <AbsoluteFill style={{ background: levelBackground[card.level], overflow: 'hidden' }}>
       {/* rings fill with cards completed: card n-1 before the lock opens, n after (not the viewer's score) */}
-      <ScoreHud done={card.n} from={card.n - 1} frame={f} at={revealOpen} top={TOP_ROW.top} compact />
+      <ScoreHud done={card.n} from={card.n - 1} frame={f} at={revealOpen} top={TOP_ROW.top} side="left" compact tag={levelNames[card.level]} tagColor={colors.level[card.level]} />
 
       <TwoMinuteWarning card={card} frame={f} starts={starts} end={clueEnd} label={tmwLabel}>
         {content}

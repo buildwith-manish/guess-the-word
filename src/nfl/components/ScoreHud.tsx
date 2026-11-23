@@ -48,13 +48,16 @@ export type ScoreHudProps = {
   top?: number;
   /** Rings + label only, for the 72-unit band above the card: smaller rings, no "n / total" counter (the card header already shows the card number). Label stays at type.caption. */
   compact?: boolean;
+  /** Compact only: small level pill after the count (words from the scene), drawn in `tagColor`. */
+  tag?: string;
+  tagColor?: string;
 };
 
 const RING_W = 6;
 const SIZE = 70;
-const SIZE_COMPACT = 32; // compact chip is 48 high: 32 ring + 2 x 8 padding (iOS-6: rings only, the count is on the card header)
+const SIZE_COMPACT = 32; // compact chip is 48 high: 32 ring + 2 x 8 padding
 
-export const ScoreHud: React.FC<ScoreHudProps> = ({ done, frame, from, at = 0, side = 'right', inset = SAFE.x, scale = 1, top = SAFE.top, compact = false }) => {
+export const ScoreHud: React.FC<ScoreHudProps> = ({ done, frame, from, at = 0, side = 'right', inset = SAFE.x, scale = 1, top = SAFE.top, compact = false, tag, tagColor }) => {
   const ring = compact ? SIZE_COMPACT : SIZE;
   const { total, levelTotals } = hudCounts();
   const shown = from !== undefined ? from + (done - from) * springAt(frame, at, 'snappy') : done;
@@ -97,10 +100,10 @@ export const ScoreHud: React.FC<ScoreHudProps> = ({ done, frame, from, at = 0, s
         transformOrigin: side === 'left' ? 'top left' : 'top right',
         display: 'flex',
         alignItems: 'center',
-        gap: px(compact ? 0 : 16),
+        gap: px(compact ? 12 : 16),
         boxSizing: 'border-box',
         height: compact ? px(48) : undefined,
-        padding: compact ? `${px(8)}px` : `${px(12)}px ${px(22)}px ${px(12)}px ${px(12)}px`,
+        padding: compact ? `${px(8)}px ${px(18)}px ${px(8)}px ${px(8)}px` : `${px(12)}px ${px(22)}px ${px(12)}px ${px(12)}px`,
         borderRadius: px(radius.xl),
         background: colors.glass,
         border: `${px(1)}px solid ${colors.hairline}`,
@@ -112,14 +115,17 @@ export const ScoreHud: React.FC<ScoreHudProps> = ({ done, frame, from, at = 0, s
         {rings}
       </svg>
       <div style={{ display: 'flex', flexDirection: 'column', gap: px(2) }}>
-        {!compact && (
-          <div style={{ ...textStyle('counter'), color: colors.ink, whiteSpace: 'nowrap' }}>
+        {(
+          <div style={{ ...textStyle('counter'), ...(compact ? { fontSize: px(32) } : {}), color: colors.ink, whiteSpace: 'nowrap' }}>
             {Math.round(shown)}
             <span style={{ color: colors.muted }}> / {total}</span>
           </div>
         )}
         {!compact && <div style={{ ...textStyle('caption'), color: colors.muted, whiteSpace: 'nowrap' }}>{hudLabel()}</div>}
       </div>
+      {compact && tag !== undefined && (
+        <div style={{ ...textStyle('chip'), height: px(32), padding: `0 ${px(12)}px`, display: 'flex', alignItems: 'center', borderRadius: px(16), color: tagColor ?? colors.ink, border: `${px(1)}px solid ${tagColor ?? colors.hairline}`, textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{tag}</div>
+      )}
     </div>
   );
 };

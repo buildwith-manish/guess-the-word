@@ -4,7 +4,6 @@ import { LAYOUT } from './clueLayout';
 import { FPS } from '../shared/clock';
 import { Shake } from '../shared/Shake';
 import { SPRINGS, colors, fontStack, popAt, px, radius, safeBox, springAt, tabular, textStyle } from '../system';
-import { levelNames } from '../timing';
 
 /**
  * Wallet-style scouting pass. States are driven by props only:
@@ -101,7 +100,6 @@ const cornerBox = (corner: StackCorner): { left: number; top: number } => {
 
 export const WalletCard: React.FC<WalletCardProps> = ({ card, state, frame, since, jersey, stackIndex = 0, corner = 'bottom-left', showName = true, guess, children }) => {
   const level = colors.level[card.level];
-  const total = cards.length;
 
   // blank: spring in. Later states start from the settled pose.
   const enter = state === 'blank' ? springAt(frame, since, 'gentle') : 1;
@@ -172,21 +170,8 @@ export const WalletCard: React.FC<WalletCardProps> = ({ card, state, frame, sinc
           boxShadow: `0 ${px(2)}px ${px(6)}px rgba(0,0,0,0.30), 0 ${px(24)}px ${px(60)}px ${colors.shadow}, inset 0 1px 0 rgba(255,255,255,0.22)`,
         }}
       >
-        {/* soft header: thin level bar, small level pill, "Card n of 30" */}
+        {/* header: the thin level bar only. Level, count and rings are in the top-left chip. */}
         <div style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: px(4), background: level }} />
-        <div
-          style={{
-            position: 'absolute', left: 0, top: px(4), width: '100%', height: px(HEADER_H - 4), display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: `0 ${px(PAD)}px`, boxSizing: 'border-box',
-          }}
-        >
-          <span style={{ ...textStyle('chip'), height: px(32), padding: `0 ${px(14)}px`, display: 'flex', alignItems: 'center', borderRadius: px(16), background: 'rgba(255,255,255,0.10)', border: `${px(1)}px solid ${colors.hairline}`, color: colors.ink, textTransform: 'uppercase' }}>
-            {levelNames[card.level]}
-          </span>
-          <span style={{ ...textStyle('chip'), color: colors.muted, textTransform: 'uppercase' }}>
-            {cardUiText.card} {card.n} {cardUiText.of} {total}
-          </span>
-        </div>
 
         {/* field area: clue content from the caller */}
         <div

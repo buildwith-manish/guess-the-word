@@ -22,7 +22,8 @@ import { hookSec, outroFadeSec, partRanges, secToTicks, segments, useNflFrame } 
 export const NFL_WATERMARK_LOGO: QuizMatrixLogo = { file: 'nfl/quiz-matrix-bulb.png', cols: 1, rows: 1, frames: 1, fps: 30 };
 
 /** Reference units. `top` puts the badge on the middle line of the ScoreHud (HUD top 4). */
-export const WATERMARK = { height: 48, left: SAFE.x, top: 12 } as const; // iOS-6: same height and centre line (y 36) as the points pill and the ring chip
+/** Top right (swapped with the ring chip, which is top left). Same height and centre line (y 36) as the points pill and the chip. `left` is the badge's approximate left edge (3.1 x height wide), for nfl_watermark_check only. */
+export const WATERMARK = { height: 48, right: SAFE.x, top: 12, left: 1280 - SAFE.x - 3.1 * 48 } as const;
 
 const outro = segments.find((s) => s.kind === 'outro');
 const FADE_START = outro ? outro.to - secToTicks(outroFadeSec) : Infinity;
@@ -36,7 +37,7 @@ export const WatermarkOverlay: React.FC<{ offsetTick?: number }> = ({ offsetTick
   const fade = tick <= FADE_START ? 1 : Math.max(0, 1 - (tick - FADE_START) / (FADE_END - FADE_START));
   if (fade <= 0) return null;
   return (
-    <div style={{ position: 'absolute', left: px(WATERMARK.left), top: px(WATERMARK.top), opacity: fade, pointerEvents: 'none' }}>
+    <div style={{ position: 'absolute', right: px(WATERMARK.right), top: px(WATERMARK.top), opacity: fade, pointerEvents: 'none' }}>
       <QuizMatrixBadge frame={tick} since={since} height={px(WATERMARK.height)} logo={NFL_WATERMARK_LOGO} quiz={watermarkText.quiz} matrix={watermarkText.matrix} />
     </div>
   );

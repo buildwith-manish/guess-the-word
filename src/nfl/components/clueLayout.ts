@@ -5,13 +5,13 @@ import { INTER_600_EM } from './clueMetrics.generated';
  * no React and no system.ts import, so scripts/check_nfl_clues.ts can run it under tsx. All sizes are 1280x720 reference
  * units on an 8-unit grid. Card box = the centre 80% of the frame (1024 x 576).
  *
- *   card 1024 x 576:  header 56 | field 440 (16 above and below) | footer 48
- *   field 648 x 440:  hero 184, gap 8, four history rows of 56 with 8 gaps  (184 + 8 + 4 x 56 + 3 x 8 = 440)
+ *   card 1024 x 576:  header = the level bar only (8) | field 488 (16 above and below) | footer 48
+ *   field 648 x 488:  hero 232, gap 8, four history rows of 56 with 8 gaps  (232 + 8 + 4 x 56 + 3 x 8 = 488)
  *   jersey panel 304 wide = 29.7% of the card
  */
 export const LAYOUT = {
   card: { w: 1024, h: 576 },
-  header: 56,
+  header: 8,
   footer: 48,
   pad: 24,
   gap: 24,
@@ -19,7 +19,7 @@ export const LAYOUT = {
   answerW: 304,
   /** Corner radii: card 32; surfaces 16 inside it (card inset 24 -> optical), rows 12. */
   radius: { card: 32, surface: 16, row: 12 },
-  heroH: 184,
+  heroH: 232,
   heroPadY: 8,
   heroPadX: 16,
   rowH: 56,
