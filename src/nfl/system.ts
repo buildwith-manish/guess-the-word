@@ -101,3 +101,10 @@ export const levelBackground: Record<Level, string> = {
   starter: 'radial-gradient(120% 90% at 50% 0%, #2E1E08 0%, #160E04 55%, #080501 100%)',
   hof: 'radial-gradient(120% 90% at 50% 0%, #2F0F0C 0%, #160706 55%, #080303 100%)',
 };
+
+/**
+ * Finish layer strength (components/FinishLayer.tsx): 0 turns it off (nothing is rendered), 1 is full. Clamped to 0..1.
+ * At 1: grain layer at 2% opacity, vignette 50% at the corners, bloom layer at 60%. The 2 unit chromatic split on the
+ * name-reveal frame is fixed and is on for any strength above 0. Default is low.
+ */
+export const finishStrength = 0.5;

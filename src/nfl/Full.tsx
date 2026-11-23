@@ -1,6 +1,7 @@
 import React from 'react';
 import { Sequence } from 'remotion';
 import { NflAudio } from './Audio';
+import { FinishLayer } from './components/FinishLayer';
 import { WatermarkOverlay } from './components/Watermark';
 import { Part1 } from './parts/Part1';
 import { Part2 } from './parts/Part2';
@@ -12,7 +13,8 @@ import { RENDER_TOTAL_FRAMES, partRanges } from './timing';
 const PARTS = [Part1, Part2, Part3, Part4] as const;
 export const nflFullFrames: number = RENDER_TOTAL_FRAMES;
 
-export const NflFull: React.FC<{ musicSrc?: string | null }> = ({ musicSrc }) => (
+/** `finish`: finish-layer strength override for A/B stills (`--props='{"finish":0}'`). Undefined = `finishStrength` in system.ts. */
+export const NflFull: React.FC<{ musicSrc?: string | null; finish?: number }> = ({ musicSrc, finish }) => (
   <>
     {partRanges.map((range, i) => {
       const Part = PARTS[i];
@@ -22,6 +24,8 @@ export const NflFull: React.FC<{ musicSrc?: string | null }> = ({ musicSrc }) =>
         </Sequence>
       );
     })}
+    {/* finish layer: above the parts, below the watermark (never over it), off for the end-screen slot */}
+    <FinishLayer strength={finish} />
     {/* one watermark, above every Sequence */}
     <WatermarkOverlay />
     <NflAudio musicSrc={musicSrc} />
