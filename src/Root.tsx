@@ -17,9 +17,10 @@ import { Outro as XmasOutro, outroFrames } from './xmas/scenes/Outro';
 import { Part1 as XmasPart1, part1Frames as xmasPart1Frames } from './xmas/parts/Part1';
 import { Part2 as XmasPart2, part2Frames as xmasPart2Frames } from './xmas/parts/Part2';
 import { Part3 as XmasPart3, part3Frames as xmasPart3Frames } from './xmas/parts/Part3';
+import { XmasFull } from './xmas/Full';
 import { RENDER_TOTAL_FRAMES as GTA6_TOTAL_FRAMES } from './gta6/timing';
 import { ScoreScene } from './xmas/scenes/ScoreScene';
-import { scoreBeats, ticksToFrames as xmasTicksToFrames } from './xmas/timing';
+import { RENDER_TOTAL_FRAMES as XMAS_TOTAL_FRAMES, scoreBeats, ticksToFrames as xmasTicksToFrames } from './xmas/timing';
 import { LightStringPreview, LIGHT_PREVIEW } from './xmas/components/LightStringPreview';
 import { ALL_FRAMES, Gta6Preview, Gta6PreviewAll, PREVIEW_DEFAULTS, previewFrames } from './gta6/Preview';
 
@@ -99,6 +100,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="XMAS-P1" component={XmasPart1} durationInFrames={xmasPart1Frames} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
       <Composition id="XMAS-P2" component={XmasPart2} durationInFrames={xmasPart2Frames} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
       <Composition id="XMAS-P3" component={XmasPart3} durationInFrames={xmasPart3Frames} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
+      <Composition id="XMAS-Full" component={XmasFull} durationInFrames={XMAS_TOTAL_FRAMES} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
     </>
   );
 };

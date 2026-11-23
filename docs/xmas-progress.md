@@ -24,7 +24,7 @@ Note: docs/xmas-prompts-split.md has 26 task headings (1a-1e, 2a-2f, 3a-3b, 4a-4
 - [x] 5a  ScoreScene
 - [x] 5b  Outro
 - [x] 5c  Part1-3, sfxCues, XMAS-P1..P3 (src/xmas/parts/, src/xmas/sfxCues.ts; tsc passes, boundary stills rendered)
-- [ ] 5d
+- [x] 5d  XMAS-Full (src/xmas/Full.tsx, Root.tsx), scripts/xmas_chapters.ts -> docs/xmas/chapters.txt (tsc passes, not render-checked)
 - [ ] 6a
 - [ ] 6b  xmas_voice_fit.ts
 - [ ] 6c  master_xmas_voice.py, Audio.tsx, music-license.md
