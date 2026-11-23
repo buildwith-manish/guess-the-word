@@ -17,6 +17,7 @@ import { Outro as XmasOutro, outroFrames } from './xmas/scenes/Outro';
 import { part1Frames as xmasPart1Frames } from './xmas/parts/Part1';
 import { part2Frames as xmasPart2Frames } from './xmas/parts/Part2';
 import { part3Frames as xmasPart3Frames } from './xmas/parts/Part3';
+import { AudibleBonus, AudibleHook, AudibleMovie, AudibleMoviesAll, AudibleOutro, AudibleScore } from './xmas/PreviewAudio';
 import { XmasFull, XmasPart1Audio, XmasPart2Audio, XmasPart3Audio } from './xmas/Full';
 import { Thumb } from './xmas/thumbs/Thumb';
 import { RENDER_TOTAL_FRAMES as GTA6_TOTAL_FRAMES } from './gta6/timing';
@@ -66,12 +67,12 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="Xmas-GlassTile" component={GlassTilePreview} durationInFrames={GLASS_TILE_PREVIEW_FRAMES} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} defaultProps={GLASS_TILE_PREVIEW_DEFAULTS} />
       <Composition id="Xmas-MovieReveal" component={MovieRevealPreview} durationInFrames={MOVIE_REVEAL_PREVIEW_FRAMES} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} defaultProps={MOVIE_REVEAL_PREVIEW_DEFAULTS} />
       <Composition id="GTA6-Full" component={Gta6Full} durationInFrames={GTA6_TOTAL_FRAMES} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
-      <Composition id="Xmas-Score" component={ScoreScene} durationInFrames={xmasTicksToFrames(scoreBeats().total)} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
+      <Composition id="Xmas-Score" component={AudibleScore} durationInFrames={xmasTicksToFrames(scoreBeats().total)} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
       <Composition id="Xmas-LightString" component={LightStringPreview} durationInFrames={LIGHT_PREVIEW.frames} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
-      <Composition id="XMAS-Hook" component={Hook} durationInFrames={hookFrames()} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
+      <Composition id="XMAS-Hook" component={AudibleHook} durationInFrames={hookFrames()} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
       <Composition
         id="XMAS-Movie"
-        component={XmasMovie}
+        component={AudibleMovie}
         durationInFrames={movieDurationFor(1)}
         fps={RENDER_FPS}
         width={WIDTH}
@@ -79,10 +80,10 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={MOVIE_PREVIEW_DEFAULTS}
         calculateMetadata={({ props }) => ({ durationInFrames: movieDurationFor(props.slot) })}
       />
-      <Composition id="XMAS-Movies-All" component={XmasMoviesAll} durationInFrames={MOVIES_ALL_FRAMES} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
+      <Composition id="XMAS-Movies-All" component={AudibleMoviesAll} durationInFrames={MOVIES_ALL_FRAMES} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
       <Composition
         id="XMAS-Outro"
-        component={XmasOutro}
+        component={AudibleOutro}
         durationInFrames={outroFrames}
         fps={RENDER_FPS}
         width={WIDTH}
@@ -90,7 +91,7 @@ export const RemotionRoot: React.FC = () => {
       />
       <Composition
         id="XMAS-Bonus"
-        component={BonusSceneById}
+        component={AudibleBonus}
         durationInFrames={bonusSceneFramesById(1)}
         fps={RENDER_FPS}
         width={WIDTH}
