@@ -1,18 +1,13 @@
-import { useCurrentFrame } from 'remotion';
-import root from '../../settings.json';
 import { slots } from './data';
 import type { Slot } from './data';
 import { clipTimings } from './timings.generated';
 
-/* ---------- clock (same convention as the other videos) ----------
- * Output is root settings.json (fps 60, 2560x1440). Scenes are authored in 30 fps "design frames"
- * (ticks); `TIME_SCALE` turns ticks into render frames. All `from` / `to` below are ticks, `to` exclusive.
- * Sizes are 1280x720 reference units through px() in src/xmas/system.ts. */
-export const WIDTH: number = root.width;
-export const HEIGHT: number = root.height;
-export const RENDER_FPS: number = root.fps;
-export const FPS = 30;
-export const TIME_SCALE = RENDER_FPS / FPS;
+/* ---------- clock ----------
+ * Frame size, fps, TIME_SCALE and the tick helpers live in shared/clock.ts (one place for this video); re-exported here.
+ * Scenes author in 30 fps design ticks; all `from` / `to` below are ticks, `to` exclusive. Sizes are 1280x720
+ * reference units through px() in system.ts. */
+import { FPS, HEIGHT, RENDER_FPS, TIME_SCALE, WIDTH, secToTicks, ticksToFrames, useXmasFrame } from './shared/clock';
+export { FPS, HEIGHT, RENDER_FPS, TIME_SCALE, WIDTH, secToTicks, ticksToFrames, useXmasFrame };
 
 /* ---------- durations in seconds: the only place they are written ---------- */
 export const hookSec = 6;
@@ -45,16 +40,11 @@ export const assumedBonusSlotSec = 16;
 export const targetSec = { target: 12 * 60, tolerance: 30 } as const;
 
 /* ---------- frame helpers ---------- */
-export const secToTicks = (sec: number): number => Math.round(sec * FPS);
 /** Like secToTicks but never rounds down: slots built from a clip must not cut it. */
 const secToTicksUp = (sec: number): number => Math.ceil(sec * FPS - 1e-9);
 export const ticksToSec = (ticks: number): number => ticks / FPS;
-/** Design ticks -> render frames (60 fps). */
-export const ticksToFrames = (ticks: number): number => Math.round(ticks * TIME_SCALE);
 export const secToFrames = (sec: number): number => ticksToFrames(secToTicks(sec));
 export const framesToSec = (frames: number): number => frames / RENDER_FPS;
-/** Current time in design ticks (fractional), like useDesignFrame in src/clock.ts. */
-export const useXmasFrame = (): number => useCurrentFrame() / TIME_SCALE;
 
 /** "m:ss" for a time in seconds. */
 export const timecode = (sec: number): string => {
