@@ -48,6 +48,7 @@ export const pillLastSec = 1; // points pill: the red edge glow builds over the 
 export const pillPulseSec = 1; // points pill: on the last clue it pulses once per this-many seconds
 /* Not given in the task; assumptions to confirm: */
 export const cardIntroSec = 1.0; // "Card n." slot when no clip is measured
+export const dykTailSec = 0.2; // the did-you-know chip stays this long after its clip ends
 export const dykSec = 2.8; // did-you-know after the reveal when no clip is measured (gta6 value)
 
 /** Clip counts per type (structure, not seconds). */

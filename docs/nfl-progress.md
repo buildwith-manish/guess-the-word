@@ -17,7 +17,7 @@ Nothing has been rendered by any task yet. 2a: `npx tsc --noEmit` has 0 errors i
 - [x] 2e: ScoreHud, chips (`src/nfl/components/ScoreHud.tsx`, `Chips.tsx`; notes below)
 - [ ] 5a: audio pipeline (clips, timings, map)
 - [ ] 2f: Two-Minute Warning
-- [ ] 2g: RevealEngine + lock
+- [x] 2g: RevealEngine + lock (`src/nfl/components/RevealEngine.tsx`: `RevealEngine`, `revealBeats`, `revealCues`, `SourceLine`)
 - [ ] 4a: level cards (Starter, Hall of Fame), Rookie banner, score cards
 - [ ] 3a: CardScene + Preview
 - [ ] 4f: Scoreboard + rank card

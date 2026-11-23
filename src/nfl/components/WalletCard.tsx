@@ -29,6 +29,8 @@ export type WalletCardProps = {
   /** Wallet stack position when `state` is 'stacked': 0 = newest (on top). */
   stackIndex?: number;
   corner?: StackCorner;
+  /** Draw the name in the answer panel (default). The reveal draws it big in the field instead and passes false. */
+  showName?: boolean;
   /** Clue content, drawn in the field area (see WALLET_LAYOUT.field). */
   children?: React.ReactNode;
 };
@@ -88,7 +90,7 @@ const cornerBox = (corner: StackCorner): { left: number; top: number } => {
   return { left, top };
 };
 
-export const WalletCard: React.FC<WalletCardProps> = ({ card, state, frame, since, jersey, stackIndex = 0, corner = 'bottom-left', children }) => {
+export const WalletCard: React.FC<WalletCardProps> = ({ card, state, frame, since, jersey, stackIndex = 0, corner = 'bottom-left', showName = true, children }) => {
   const level = colors.level[card.level];
   const total = cards.length;
 
@@ -223,8 +225,8 @@ export const WalletCard: React.FC<WalletCardProps> = ({ card, state, frame, sinc
               style={{
                 ...face,
                 transform: 'rotateY(180deg)',
-                justifyContent: 'flex-start',
-                paddingTop: px(20),
+                justifyContent: showName ? 'flex-start' : 'center',
+                paddingTop: showName ? px(20) : 0,
                 boxSizing: 'border-box',
                 borderRadius: px(radius.lg),
                 background: `${level}22`,
@@ -239,7 +241,7 @@ export const WalletCard: React.FC<WalletCardProps> = ({ card, state, frame, sinc
                   </div>
                 )}
               </div>
-              <div style={{ ...textStyle('name'), marginTop: px(8), width: px(ANSWER_W - 32), textAlign: 'center', overflowWrap: 'anywhere', textWrap: 'balance' as React.CSSProperties['textWrap'] }}>{nameText}</div>
+              {showName && <div style={{ ...textStyle('name'), marginTop: px(8), width: px(ANSWER_W - 32), textAlign: 'center', overflowWrap: 'anywhere', textWrap: 'balance' as React.CSSProperties['textWrap'] }}>{nameText}</div>}
             </div>
           </div>
         </div>
