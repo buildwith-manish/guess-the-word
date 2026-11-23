@@ -16,7 +16,7 @@
  */
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
-import { cards, hookText } from '../data';
+import { cards, hookText, type Card } from '../data';
 import { RuleChips } from '../components/Chips';
 import { ScoreHud } from '../components/ScoreHud';
 import { WalletCard } from '../components/WalletCard';
@@ -60,13 +60,17 @@ export const hookVoice = (at: number) => ({ type: 'hook' as const, key: '', tick
 const first = cards[0];
 
 /** The first card as the lock screen's wallpaper: blank, already settled, drawn the same way everywhere it appears. */
-const BlankCard: React.FC<{ frame: number }> = ({ frame }) => <WalletCard card={first} state="blank" frame={frame} since={ENTERED} />;
+const BlankCard: React.FC<{ frame: number; card?: Card }> = ({ frame, card = first }) => <WalletCard card={card} state="blank" frame={frame} since={ENTERED} />;
 
 /**
  * The reusable 1-second lock-screen piece (HOOK_LOCK_TICKS): blurred backdrop in, notification banner slides down, holds,
  * slides out. Starts at design tick `at`; renders nothing outside [at, at + HOOK_LOCK_TICKS].
  */
-export const HookLock: React.FC<{ frame: number; at: number }> = ({ frame, at }) => (
+export const HookLock: React.FC<{ frame: number; at: number; /** Card used as the wallpaper and for the level colour. Default: card 1 (the hook). FinalCard passes card 30. */ card?: Card }> = ({
+  frame,
+  at,
+  card = first,
+}) => (
   <LockNotification
     frame={frame}
     at={at}
@@ -74,9 +78,9 @@ export const HookLock: React.FC<{ frame: number; at: number }> = ({ frame, at })
     title={hookText.title}
     body={hookText.body}
     timeLabel={hookText.timeLabel}
-    level={first.level}
+    level={card.level}
   >
-    <BlankCard frame={frame} />
+    <BlankCard frame={frame} card={card} />
   </LockNotification>
 );
 

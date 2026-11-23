@@ -40,6 +40,10 @@ export const levelCardSec = 3.5; // Starter and Hall of Fame (Rookie has a banne
 export const scoreCardSec = 5;
 export const predictionsSec = 25;
 export const scoreboardSec = 20;
+export const finalLockSec = 1; // lock-screen replay at the start of card 30's segment (the shared piece is 1 s by design)
+/** Wallet collection after card 30's reveal: seconds from the segment start. Cards land one by one, the pile holds, then fans out one by one and holds. Assumptions, not in the brief. */
+export const collectionBeats = { stackAt: 0.3, stackStagger: 0.06, fanAt: 3.2, fanStagger: 0.02 } as const;
+export const collectionSec = 6; // assumption
 export const scoreboardRingsSec = 2; // scoreboard: the activity rings fill before the first rank lights
 export const rankStepSec = 2.8; // scoreboard: minimum per rank step (the rank lights and its clip plays); 2 + 5 x 2.8 + 4 = 20 s
 export const rankFinalHoldSec = 4; // scoreboard: the final card (all five tiers on one card) holds at least this long
@@ -74,6 +78,8 @@ export const scriptEstimateSec = 13.3 * 60;
 /* ---------- segments ---------- */
 export type Range = { from: number; to: number };
 export type CardPhases = {
+  /** Card 30 only: the lock-screen replay (`finalLockSec`), the first part of its segment, before "Card n.". */
+  lock?: Range;
   /** "Card n." */
   intro: Range;
   /** Five clue slots, hardest first. The points pill drops at each `from`. */
@@ -91,6 +97,7 @@ export type Segment =
   | ({ kind: 'levelCard'; level: Level } & Range)
   | ({ kind: 'card'; card: Card; phases: CardPhases } & Range)
   | ({ kind: 'scoreCard'; level: Level; after: Card } & Range)
+  | ({ kind: 'collection' } & Range)
   | ({ kind: 'predictions' } & Range)
   | ({ kind: 'scoreboard' } & Range)
   | ({ kind: 'outro'; endScreenFrom: number } & Range);
@@ -198,6 +205,8 @@ const buildSegments = (): Segment[] => {
       if (card.level !== 'rookie') out.push({ kind: 'levelCard', level: card.level, ...span(slotOf(levelCardSec, dur('level', card.level))) });
     }
     const from = cur;
+    // the final card opens with the lock-screen replay: it is the start of the card's own segment, so every offset from `from` stays valid
+    const lock = card.final ? span(finalLockSec) : undefined;
     const n = String(card.n);
     const clueMin = card.twoMinuteWarning ? clueTmwSec : clueBaseSec;
     const intro = span(slotOf(cardIntroSec, dur('cardintro', n)));
@@ -208,8 +217,11 @@ const buildSegments = (): Segment[] => {
     const dykClip = card.didYouKnow ? (useClipTimings ? dur('dyk', n) : dykSec) : 0;
     const reveal = span(useClipTimings ? Math.max(revealSec, revealClip + dykClip + clipPadSec) : revealSec + dykClip);
     const phases: CardPhases = { intro, clues, beat, reveal };
+    if (lock) phases.lock = lock;
     if (card.didYouKnow) phases.dyk = { from: reveal.from + secToTicks(revealClip), to: reveal.to };
     out.push({ kind: 'card', card, from, to: cur, phases });
+    // the 30 solved cards stack into the Wallet collection after the final reveal, then it cuts to the next scene
+    if (card.final) out.push({ kind: 'collection', ...span(collectionSec) });
     // score cards after card 10 and 20 only: the Hall of Fame has none and cuts on to the rest of the video
     if ((!next || next.level !== card.level) && card.level !== 'hof') {
       out.push({ kind: 'scoreCard', level: card.level, after: card, ...span(slotOf(scoreCardSec, dur('scorecard', card.level))) });
@@ -243,6 +255,7 @@ export type PartRange = Range & { name: string; frames: number; renderFrom: numb
 /** Part1 = hook + Rookie (through its score card), Part2 = Starter, Part3 = Hall of Fame + final card, Part4 = predictions + scoreboard + outro. */
 const partOf = (s: Segment): number => {
   if (s.kind === 'hook') return 0;
+  if (s.kind === 'collection') return 2; // final card staging belongs to Part 3
   const level: Level | undefined = s.kind === 'card' ? s.card.level : s.kind === 'levelCard' || s.kind === 'scoreCard' ? s.level : undefined;
   if (level) return level === 'rookie' ? 0 : level === 'starter' ? 1 : 2;
   return 3;
