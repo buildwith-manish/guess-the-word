@@ -19,6 +19,8 @@ import { BonusMindReader, bonusMindReaderFrames } from './dontsay/scenes/BonusMi
 import { BonusOppositeDay, bonusOppositeDayFrames } from './dontsay/scenes/BonusOppositeDay';
 import { BonusVoiceOnly as DontSayBonusVoice } from './dontsay/scenes/BonusVoiceOnly';
 import { Part6 as DontSayPart6, part6Frames as dsPart6Frames } from './dontsay/parts/Part6';
+import { RankCard as DontSayRankCard, rankCardFrames as dsRankCardFrames } from './dontsay/scenes/RankCard';
+import { Scoreboard as DontSayScoreboard, scoreboardFrames as dsScoreboardFrames } from './dontsay/scenes/Scoreboard';
 import { WIDTH as DS_WIDTH, HEIGHT as DS_HEIGHT, RENDER_FPS as DS_FPS, hookSec as DS_HOOK_SEC, levelCardSec as DS_LEVEL_SEC, settingsCardSec as DS_SETTINGS_SEC, heartCheckInSec as DS_CHECKIN_SEC, bonusSec as DS_BONUS_SEC, secToFrames as dsSecToFrames } from './dontsay/timing';
 import { RENDER_TOTAL_FRAMES as GTA6_TOTAL_FRAMES } from './gta6/timing';
 import { RoundPreview, RoundPreviewAll, ROUND_ALL_FRAMES, ROUND_PREVIEW_DEFAULTS, roundPreviewFrames } from './dontsay/Preview';
@@ -73,6 +75,8 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="DontSay-Bonus-3" component={DontSayBonusChain} durationInFrames={dsSecToFrames(DS_BONUS_SEC)} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
       <Composition id="DontSay-Bonus-5" component={DontSayBonusVoice} durationInFrames={dsSecToFrames(DS_BONUS_SEC)} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
       <Composition id="DontSay-P6" component={DontSayPart6} durationInFrames={dsPart6Frames} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
+      <Composition id="DontSay-RankCard" component={DontSayRankCard} durationInFrames={dsRankCardFrames()} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
+      <Composition id="DontSay-Scoreboard" component={DontSayScoreboard} durationInFrames={dsScoreboardFrames()} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
       <Composition id="GTA6-Full" component={Gta6Full} durationInFrames={GTA6_TOTAL_FRAMES} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
       <Composition
         id="DontSay-Round"

@@ -5,6 +5,8 @@
  */
 import { partRanges, segments } from './timing';
 import { outroCues } from './scenes/Outro';
+import { rankCardCues } from './scenes/RankCard';
+import { scoreboardCues } from './scenes/Scoreboard';
 import type { SfxId } from './sfx';
 
 export type PartCue = { name: string; id: SfxId; tick: number; volume: number };
@@ -17,10 +19,11 @@ const seg = (kind: 'rankCard' | 'scoreboard' | 'outro') => {
 };
 
 /**
- * Part 6 cues. Rank card: rank-reveal when it lands. Outro: its own cue list shifted to the outro start.
- * Scoreboard per-rank cues belong to task 4g (Scoreboard.tsx) and are NOT here yet.
+ * Part 6 cues. Rank card and scoreboard cue lists (task 4g) are reused here, shifted from their
+ * own local clock to the part-6 clock. Outro: its own cue list shifted to the outro start.
  */
 export const part6Cues = (): PartCue[] => [
-  { name: 'rank-card', id: 'rank-reveal', tick: seg('rankCard').from - part6.from, volume: 0.8 },
+  ...rankCardCues().map((c) => ({ ...c, name: `rank-card-${c.name}`, tick: c.tick + seg('rankCard').from - part6.from })),
+  ...scoreboardCues().map((c) => ({ ...c, name: `scoreboard-${c.name}`, tick: c.tick + seg('scoreboard').from - part6.from })),
   ...outroCues.map((c) => ({ ...c, name: `outro-${c.name}`, tick: c.tick + seg('outro').from - part6.from })),
 ];
