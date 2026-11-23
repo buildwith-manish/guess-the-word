@@ -31,6 +31,8 @@ export type GlassTileProps = {
   pulseFrame?: number;
   /** Override the blur rule: true = backdrop blur, false = none. Default: blur for left, right and bonus, none for `none`. */
   frosted?: boolean;
+  /** Draw the tile's own light zone behind it (default true). A scene that draws the two ambient zones itself passes false. */
+  light?: boolean;
 };
 
 /** Motion constants. Distances are fractions of the tile size so they scale with `size`. */
@@ -69,7 +71,7 @@ export const glassTileState = (t: number, enterFrame?: number, glideFrame?: numb
 
 const glowColor = (side: GlassTileSide): string => (side === 'left' ? colors.green : side === 'right' ? colors.red : side === 'bonus' ? colors.gold : '#FFFFFF');
 
-export const GlassTile: React.FC<GlassTileProps> = ({ imageId, side, size = LAYOUT.tile.size, enterFrame, glideFrame, pulseFrame, frosted }) => {
+export const GlassTile: React.FC<GlassTileProps> = ({ imageId, side, size = LAYOUT.tile.size, enterFrame, glideFrame, pulseFrame, frosted, light = true }) => {
   const t = useXmasFrame();
   const s = glassTileState(t, enterFrame, glideFrame, pulseFrame);
   const P = GLASS_TILE.pulse;
@@ -88,7 +90,7 @@ export const GlassTile: React.FC<GlassTileProps> = ({ imageId, side, size = LAYO
 
   // The light zone sits behind the tile, centred on it, and moves with it. Same gradient as system.ts lightZoneStyle.
   let zone: React.CSSProperties | null = null;
-  if (side !== 'none') {
+  if (side !== 'none' && light) {
     const k = size / LAYOUT.tile.size;
     const w = 780 * k;
     const h = 640 * k;

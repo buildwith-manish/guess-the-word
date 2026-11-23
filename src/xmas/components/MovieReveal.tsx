@@ -3,9 +3,9 @@ import { slotAt } from '../data';
 import type { MovieSlot, Slot } from '../data';
 import { cue } from '../sfx';
 import type { SfxCue } from '../sfx';
-import { LAYOUT, px, useXmasFonts, useXmasFrame } from '../system';
+import { LAYOUT, lightZoneStyle, px, useXmasFonts, useXmasFrame } from '../system';
 import { pauseTicksOf, playSecOf, secToTicks } from '../timing';
-import { GLASS_TILE, GlassTile } from './GlassTile';
+import { GLASS_TILE, GlassTile, glassTileState } from './GlassTile';
 import { bulbCues, LightString } from './LightString';
 import { TIMER, TimerToPill, timerPropsOf } from './TimerToPill';
 
@@ -93,8 +93,15 @@ export const MovieReveal: React.FC<MovieRevealProps> = ({ slot, start, enterFram
   const timer = timerPropsOf(slot);
   const timerStart = start - secToTicks(playSecOf(slot));
 
+  // ambient light zones (system.ts): green behind the left tile, red behind the right one, drawn under BOTH tiles so a
+  // zone never paints over the neighbouring tile. They fade in with the tiles and swell with the pulse.
+  const tile = glassTileState(t, enterFrame, undefined, b.pulse);
+  const zoneStrength = tile.opacity * (1 + GLASS_TILE.pulse.zoneBoost * tile.bump);
+
   return (
     <div style={{ position: 'absolute', left: 0, top: 0, width: px(1280), height: px(720) }}>
+      <div style={lightZoneStyle('left', zoneStrength)} />
+      <div style={lightZoneStyle('right', zoneStrength)} />
       {(
         [
           ['left', slot.clue1.id, LAYOUT.tile.left],
@@ -102,7 +109,7 @@ export const MovieReveal: React.FC<MovieRevealProps> = ({ slot, start, enterFram
         ] as const
       ).map(([side, id, r]) => (
         <div key={side} style={{ position: 'absolute', left: px(r.x), top: px(r.y) }}>
-          <GlassTile imageId={id} side={side} enterFrame={enterFrame} glideFrame={b.glide} pulseFrame={b.pulse} />
+          <GlassTile imageId={id} side={side} enterFrame={enterFrame} glideFrame={b.glide} pulseFrame={b.pulse} light={false} />
         </div>
       ))}
       <TimerToPill {...timer} startFrame={timerStart} morphFrame={b.morph.from} title={slot.answer} />
