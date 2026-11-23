@@ -147,3 +147,19 @@ Timing (1c) is done, so "Task 2 (timing.ts / system.ts / fonts)" from the older 
 - Voice clip `r45_intro` plays only if it exists in timings.generated.ts (still empty); `introSecFor` stretches the intro to the clip.
 - Chimes at 4-tick stagger overlap (0.8 s files): intended as a rising run, not listened to.
 - `remotion still` failed (Chromium download blocked). Nothing rendered.
+
+## Task 4a: DONE (tsc --noEmit clean; NOT rendered, remotion still blocked: remotion.media unreachable)
+
+- `src/dontsay/scenes/LevelCard.tsx`: icon-launch spring (levelCardLaunch/Exit), level colour fills frame, title + reset line + "Round 1 of N". Exports `levelCardCopy`, `levelCardVoice`, `levelCardCues` (level-card-N swell at tick 0), prop `sheet` (slides SettingsCard over the card at tick 54, default false).
+- `src/dontsay/scenes/SettingsCard.tsx`: 4 s sheet, thin wrapper on SettingsSheet; `settingsCardVoice`, `settingsCardCues`.
+- `src/dontsay/scenes/HeartCheckIn.tsx`: 2 s card, static HeartsPill (no `at`), caption = first sentence of voice, `heartCheckInCues` (check-in-tone), `heartCheckInMusicGain(tick)` (1 -> 1.12 over 18 ticks, drops at the cut).
+- Compositions in Root.tsx: DontSay-LevelCard-L1..L5 (L2 has sheet on), DontSay-SettingsCard-L2, DontSay-HeartCheckIn.
+- Edit outside scope: SettingsSheet copy `No extra rules` -> `None` (task asks for "None").
+- Frames to check (60 fps): LevelCard 0, 20, 60, 120 (settled), 220 (exiting); L2 with sheet: 150, 200; SettingsCard-L2: 30, 120; HeartCheckIn: 0, 30, 119.
+
+### Open points
+- timing.ts schedules ONE settingsCard segment (before L1) and a 4 s levelCard per level. Nothing schedules the sheet for L2-L5, so the L2-only line never shows unless the L2 card is mounted with `sheet`. Needs a decision.
+- "Round counter resets" is shown level-local ("Round 1 of N"), not global.
+- Voice clip ids `level_<n>` and `check_in` are guesses; music lift 1.12x is a guess; nothing mounts the music bed yet.
+- Level fill is the wallpaper gradient + accent glow (white text on raw amber would be low contrast). Not checked by eye.
+- Caption on the check-in is my addition ("voice only"): `showCaption={false}` removes it.

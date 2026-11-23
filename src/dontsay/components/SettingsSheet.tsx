@@ -14,7 +14,7 @@ import { WIDTH, secToTicks, settingsCardSec, timerSecFor, useDontSayFrame } from
 const px = (v: number): number => (v * WIDTH) / 1280;
 
 const COPY = {
-  ruleLabel: { banned: 'Banned list', filter: 'Filters', heavy: 'Two rules at once', none: 'No extra rules' } as Record<RuleType, string>,
+  ruleLabel: { banned: 'Banned list', filter: 'Filters', heavy: 'Two rules at once', none: 'None' } as Record<RuleType, string>,
   ruleKey: 'Rule type',
   timerKey: 'Timer',
   heartsKey: 'Hearts',
