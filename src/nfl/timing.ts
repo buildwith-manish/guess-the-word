@@ -44,6 +44,8 @@ export const rankHoldSec = 4; // each rank card holds at least this long
 export const outroSec = 30;
 export const endScreenSec = 15; // the end screen is the last part of the outro
 export const clipPadSec = 0.3; // added to a clip's length when it sets a slot
+export const pillLastSec = 1; // points pill: the red edge glow builds over the last this-many seconds of clue 5
+export const pillPulseSec = 1; // points pill: on the last clue it pulses once per this-many seconds
 /* Not given in the task; assumptions to confirm: */
 export const cardIntroSec = 1.0; // "Card n." slot when no clip is measured
 export const dykSec = 2.8; // did-you-know after the reveal when no clip is measured (gta6 value)
