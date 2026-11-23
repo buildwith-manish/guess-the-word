@@ -33,8 +33,8 @@ from pedalboard.io import AudioFile
 SR = 48000
 ROOT = Path(__file__).resolve().parent.parent
 MAP = ROOT / "docs" / "xmas" / "music-map.json"
-OUT = ROOT / "public" / "xmas" / "music" / "bed.mp3"
-NOTES_TXT = ROOT / "docs" / "xmas" / "music-notes.txt"
+OUT = ROOT / "public" / "xmas" / "music" / "bed-calm.mp3"
+NOTES_TXT = ROOT / "docs" / "xmas" / "music-notes-calm.txt"
 
 BPM = 64.0
 BEAT = 60.0 / BPM            # 0.9375 s

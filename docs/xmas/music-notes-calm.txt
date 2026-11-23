@@ -1,0 +1,169 @@
+# music bed, seed 2025, 142 bells; pitch = note name + octave; gaps are at least 2.8 s (no phrase can form)
+   2.81s  bell      A5  vel 0.75
+  12.19s  bell      C5  vel 0.99
+  18.75s  bell      G5  vel 0.49
+  27.19s  bell      A6  vel 0.58
+  37.50s  bell      C5  vel 0.62
+  45.94s  bell      A6  vel 0.94
+  57.19s  bell      A5  vel 0.48
+  62.81s  bell      C6  vel 0.49
+  66.09s  gold-bell G6  vel 0.59
+  68.44s  gold-bell E6  vel 0.45
+  70.31s  bell      D5  vel 0.84
+  70.78s  gold-bell D7  vel 0.72
+  74.06s  gold-bell G6  vel 0.42
+  77.81s  bell      C5  vel 0.46
+  89.06s  bell      G5  vel 0.58
+  98.44s  bell      E5  vel 0.87
+ 109.69s  bell      C5  vel 0.70
+ 117.19s  bell      D5  vel 0.87
+ 126.56s  bell      D6  vel 0.77
+ 137.81s  bell      C6  vel 0.72
+ 138.28s  gold-bell G7  vel 0.66
+ 140.62s  gold-bell G6  vel 0.70
+ 142.97s  gold-bell C7  vel 0.43
+ 145.78s  gold-bell C6  vel 0.64
+ 147.19s  bell      D6  vel 1.00
+ 152.81s  bell      G5  vel 0.75
+ 160.31s  bell      D5  vel 0.60
+ 165.94s  bell      A5  vel 0.69
+ 175.31s  bell      E5  vel 0.47
+ 185.62s  bell      C6  vel 0.82
+ 193.12s  bell      C5  vel 0.63
+ 198.75s  bell      G5  vel 0.64
+ 208.12s  bell      E5  vel 0.90
+ 209.06s  gold-bell E6  vel 0.56
+ 212.81s  gold-bell A7  vel 0.63
+ 215.16s  gold-bell C7  vel 0.62
+ 217.97s  gold-bell E6  vel 0.65
+ 218.44s  bell      E6  vel 0.57
+ 228.75s  bell      G5  vel 0.89
+ 236.25s  bell      G6  vel 0.71
+ 244.69s  bell      C5  vel 0.87
+ 250.31s  bell      E5  vel 0.90
+ 256.88s  bell      C5  vel 0.59
+ 262.50s  bell      A5  vel 0.67
+ 272.81s  bell      C6  vel 0.62
+ 279.84s  gold-bell C6  vel 0.52
+ 282.19s  bell      E6  vel 0.61
+ 283.59s  gold-bell D7  vel 0.44
+ 287.81s  bell      A5  vel 0.74
+ 287.81s  gold-bell C6  vel 0.75
+ 293.91s  bell      C5  vel 0.80
+ 300.47s  bell      E5  vel 0.72
+ 305.16s  bell      C5  vel 0.81
+ 315.47s  bell      D5  vel 0.73
+ 322.97s  bell      G6  vel 0.74
+ 332.34s  bell      D5  vel 0.45
+ 337.03s  bell      E5  vel 0.62
+ 346.41s  bell      A5  vel 0.88
+ 351.09s  bell      E5  vel 0.83
+ 352.03s  gold-bell G6  vel 0.79
+ 354.84s  gold-bell D6  vel 0.46
+ 356.72s  gold-bell A7  vel 0.52
+ 359.06s  gold-bell G6  vel 0.48
+ 360.47s  bell      G5  vel 0.90
+ 366.09s  bell      C5  vel 0.77
+ 372.66s  bell      G5  vel 0.45
+ 382.03s  bell      C5  vel 0.51
+ 391.41s  bell      D6  vel 0.55
+ 396.09s  bell      D5  vel 0.69
+ 402.66s  bell      C5  vel 0.75
+ 408.28s  bell      A6  vel 0.96
+ 415.78s  bell      D5  vel 0.92
+ 423.28s  bell      C6  vel 0.90
+ 426.56s  gold-bell E7  vel 0.58
+ 428.91s  bell      D5  vel 0.74
+ 429.84s  gold-bell D6  vel 0.59
+ 433.59s  bell      A6  vel 0.47
+ 434.06s  gold-bell D7  vel 0.67
+ 440.16s  bell      C5  vel 0.96
+ 446.72s  bell      D5  vel 0.98
+ 456.09s  bell      E6  vel 0.90
+ 463.59s  bell      E5  vel 0.85
+ 472.97s  bell      C6  vel 0.82
+ 482.34s  bell      A6  vel 0.99
+ 490.78s  bell      G5  vel 0.77
+ 497.34s  bell      C5  vel 0.96
+ 504.38s  gold-bell E6  vel 0.55
+ 507.66s  bell      E6  vel 0.98
+ 507.66s  gold-bell E7  vel 0.55
+ 509.53s  gold-bell E6  vel 0.59
+ 515.16s  bell      G5  vel 0.65
+ 522.66s  bell      E5  vel 0.47
+ 528.28s  bell      C6  vel 0.61
+ 532.97s  bell      E6  vel 0.80
+ 543.28s  bell      G6  vel 0.89
+ 553.59s  bell      C5  vel 0.55
+ 563.91s  bell      G5  vel 0.56
+ 570.47s  bell      D5  vel 0.52
+ 574.22s  gold-bell D7  vel 0.40
+ 577.03s  bell      G5  vel 0.57
+ 577.50s  gold-bell C6  vel 0.78
+ 580.31s  gold-bell D6  vel 0.70
+ 583.12s  gold-bell C6  vel 0.76
+ 586.88s  bell      A6  vel 0.77
+ 590.62s  bell      D6  vel 0.94
+ 597.19s  bell      E6  vel 0.81
+ 606.56s  bell      G5  vel 0.71
+ 614.06s  bell      C5  vel 0.53
+ 623.44s  bell      G6  vel 0.56
+ 631.88s  bell      A6  vel 0.70
+ 640.31s  bell      E5  vel 0.70
+ 644.06s  bell      A5  vel 0.48
+ 646.41s  gold-bell E6  vel 0.76
+ 649.69s  bell      D5  vel 0.80
+ 649.69s  gold-bell D7  vel 0.71
+ 652.03s  gold-bell E6  vel 0.57
+ 654.38s  gold-bell D6  vel 0.58
+ 657.19s  bell      C6  vel 0.70
+ 666.56s  bell      D5  vel 0.61
+ 675.94s  bell      G6  vel 0.66
+ 685.31s  bell      G5  vel 0.71
+ 691.88s  bell      C6  vel 0.50
+ 695.62s  bell      A5  vel 0.58
+ 702.19s  bell      E6  vel 0.84
+ 707.81s  bell      D5  vel 0.57
+ 712.50s  bell      A6  vel 0.66
+ 719.06s  bell      E6  vel 0.54
+ 720.47s  gold-bell E7  vel 0.43
+ 722.34s  gold-bell D7  vel 0.46
+ 724.69s  gold-bell E7  vel 0.71
+ 727.50s  bell      C5  vel 0.83
+ 728.44s  gold-bell G6  vel 0.43
+ 730.31s  gold-bell C6  vel 0.77
+ 734.06s  bell      A5  vel 0.97
+ 742.50s  bell      E5  vel 0.96
+ 749.06s  bell      A6  vel 0.89
+ 752.81s  bell      D5  vel 0.68
+ 762.19s  bell      G6  vel 0.94
+ 770.62s  bell      D5  vel 0.91
+ 776.25s  bell      D6  vel 0.87
+ 782.81s  bell      G5  vel 0.83
+ 789.38s  bell      D6  vel 0.83
+# pad chords (start, end, chord)
+    0.0s    32.3s C
+   32.3s    64.7s F
+   64.7s    97.0s C
+   97.0s   129.3s F
+  129.3s   161.6s C
+  161.6s   194.0s F
+  194.0s   226.3s C
+  226.3s   258.6s F
+  258.6s   290.9s C
+  290.9s   323.7s F
+  323.7s   356.4s Am
+  356.4s   389.2s F
+  389.2s   421.9s Am
+  421.9s   454.6s F
+  454.6s   487.4s Am
+  487.4s   520.1s F
+  520.1s   552.9s Am
+  552.9s   585.6s F
+  585.6s   616.1s Am
+  616.1s   646.6s C
+  646.6s   677.1s Am
+  677.1s   707.5s C
+  707.5s   738.0s Am
+  738.0s   768.5s C
+  768.5s   799.0s Am

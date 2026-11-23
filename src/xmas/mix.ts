@@ -15,7 +15,7 @@ export const MIX = {
    * Music bed: the track must be prepared to this loudness before it goes in public/ (see docs/xmas/music-license.md),
    * so the gain here is 1. About 10 dB under the voice while nobody speaks.
    */
-  musicTargetLufs: -26,
+  musicTargetLufs: -24,
   musicGain: 1,
   /** While a voice clip plays the bed drops by this many dB (about 8 dB, so about 18 dB under the voice). */
   musicDuckDb: -8,

@@ -1,169 +1,400 @@
-# music bed, seed 2025, 142 bells; pitch = note name + octave; gaps are at least 2.8 s (no phrase can form)
-   2.81s  bell      A5  vel 0.75
-  12.19s  bell      C5  vel 0.99
-  18.75s  bell      G5  vel 0.49
-  27.19s  bell      A6  vel 0.58
-  37.50s  bell      C5  vel 0.62
-  45.94s  bell      A6  vel 0.94
-  57.19s  bell      A5  vel 0.48
-  62.81s  bell      C6  vel 0.49
-  66.09s  gold-bell G6  vel 0.59
-  68.44s  gold-bell E6  vel 0.45
-  70.31s  bell      D5  vel 0.84
-  70.78s  gold-bell D7  vel 0.72
-  74.06s  gold-bell G6  vel 0.42
-  77.81s  bell      C5  vel 0.46
-  89.06s  bell      G5  vel 0.58
-  98.44s  bell      E5  vel 0.87
- 109.69s  bell      C5  vel 0.70
- 117.19s  bell      D5  vel 0.87
- 126.56s  bell      D6  vel 0.77
- 137.81s  bell      C6  vel 0.72
- 138.28s  gold-bell G7  vel 0.66
- 140.62s  gold-bell G6  vel 0.70
- 142.97s  gold-bell C7  vel 0.43
- 145.78s  gold-bell C6  vel 0.64
- 147.19s  bell      D6  vel 1.00
- 152.81s  bell      G5  vel 0.75
- 160.31s  bell      D5  vel 0.60
- 165.94s  bell      A5  vel 0.69
- 175.31s  bell      E5  vel 0.47
- 185.62s  bell      C6  vel 0.82
- 193.12s  bell      C5  vel 0.63
- 198.75s  bell      G5  vel 0.64
- 208.12s  bell      E5  vel 0.90
- 209.06s  gold-bell E6  vel 0.56
- 212.81s  gold-bell A7  vel 0.63
- 215.16s  gold-bell C7  vel 0.62
- 217.97s  gold-bell E6  vel 0.65
- 218.44s  bell      E6  vel 0.57
- 228.75s  bell      G5  vel 0.89
- 236.25s  bell      G6  vel 0.71
- 244.69s  bell      C5  vel 0.87
- 250.31s  bell      E5  vel 0.90
- 256.88s  bell      C5  vel 0.59
- 262.50s  bell      A5  vel 0.67
- 272.81s  bell      C6  vel 0.62
- 279.84s  gold-bell C6  vel 0.52
- 282.19s  bell      E6  vel 0.61
- 283.59s  gold-bell D7  vel 0.44
- 287.81s  bell      A5  vel 0.74
- 287.81s  gold-bell C6  vel 0.75
- 293.91s  bell      C5  vel 0.80
- 300.47s  bell      E5  vel 0.72
- 305.16s  bell      C5  vel 0.81
- 315.47s  bell      D5  vel 0.73
- 322.97s  bell      G6  vel 0.74
- 332.34s  bell      D5  vel 0.45
- 337.03s  bell      E5  vel 0.62
- 346.41s  bell      A5  vel 0.88
- 351.09s  bell      E5  vel 0.83
- 352.03s  gold-bell G6  vel 0.79
- 354.84s  gold-bell D6  vel 0.46
- 356.72s  gold-bell A7  vel 0.52
- 359.06s  gold-bell G6  vel 0.48
- 360.47s  bell      G5  vel 0.90
- 366.09s  bell      C5  vel 0.77
- 372.66s  bell      G5  vel 0.45
- 382.03s  bell      C5  vel 0.51
- 391.41s  bell      D6  vel 0.55
- 396.09s  bell      D5  vel 0.69
- 402.66s  bell      C5  vel 0.75
- 408.28s  bell      A6  vel 0.96
- 415.78s  bell      D5  vel 0.92
- 423.28s  bell      C6  vel 0.90
- 426.56s  gold-bell E7  vel 0.58
- 428.91s  bell      D5  vel 0.74
- 429.84s  gold-bell D6  vel 0.59
- 433.59s  bell      A6  vel 0.47
- 434.06s  gold-bell D7  vel 0.67
- 440.16s  bell      C5  vel 0.96
- 446.72s  bell      D5  vel 0.98
- 456.09s  bell      E6  vel 0.90
- 463.59s  bell      E5  vel 0.85
- 472.97s  bell      C6  vel 0.82
- 482.34s  bell      A6  vel 0.99
- 490.78s  bell      G5  vel 0.77
- 497.34s  bell      C5  vel 0.96
- 504.38s  gold-bell E6  vel 0.55
- 507.66s  bell      E6  vel 0.98
- 507.66s  gold-bell E7  vel 0.55
- 509.53s  gold-bell E6  vel 0.59
- 515.16s  bell      G5  vel 0.65
- 522.66s  bell      E5  vel 0.47
- 528.28s  bell      C6  vel 0.61
- 532.97s  bell      E6  vel 0.80
- 543.28s  bell      G6  vel 0.89
- 553.59s  bell      C5  vel 0.55
- 563.91s  bell      G5  vel 0.56
- 570.47s  bell      D5  vel 0.52
- 574.22s  gold-bell D7  vel 0.40
- 577.03s  bell      G5  vel 0.57
- 577.50s  gold-bell C6  vel 0.78
- 580.31s  gold-bell D6  vel 0.70
- 583.12s  gold-bell C6  vel 0.76
- 586.88s  bell      A6  vel 0.77
- 590.62s  bell      D6  vel 0.94
- 597.19s  bell      E6  vel 0.81
- 606.56s  bell      G5  vel 0.71
- 614.06s  bell      C5  vel 0.53
- 623.44s  bell      G6  vel 0.56
- 631.88s  bell      A6  vel 0.70
- 640.31s  bell      E5  vel 0.70
- 644.06s  bell      A5  vel 0.48
- 646.41s  gold-bell E6  vel 0.76
- 649.69s  bell      D5  vel 0.80
- 649.69s  gold-bell D7  vel 0.71
- 652.03s  gold-bell E6  vel 0.57
- 654.38s  gold-bell D6  vel 0.58
- 657.19s  bell      C6  vel 0.70
- 666.56s  bell      D5  vel 0.61
- 675.94s  bell      G6  vel 0.66
- 685.31s  bell      G5  vel 0.71
- 691.88s  bell      C6  vel 0.50
- 695.62s  bell      A5  vel 0.58
- 702.19s  bell      E6  vel 0.84
- 707.81s  bell      D5  vel 0.57
- 712.50s  bell      A6  vel 0.66
- 719.06s  bell      E6  vel 0.54
- 720.47s  gold-bell E7  vel 0.43
- 722.34s  gold-bell D7  vel 0.46
- 724.69s  gold-bell E7  vel 0.71
- 727.50s  bell      C5  vel 0.83
- 728.44s  gold-bell G6  vel 0.43
- 730.31s  gold-bell C6  vel 0.77
- 734.06s  bell      A5  vel 0.97
- 742.50s  bell      E5  vel 0.96
- 749.06s  bell      A6  vel 0.89
- 752.81s  bell      D5  vel 0.68
- 762.19s  bell      G6  vel 0.94
- 770.62s  bell      D5  vel 0.91
- 776.25s  bell      D6  vel 0.87
- 782.81s  bell      G5  vel 0.83
- 789.38s  bell      D6  vel 0.83
-# pad chords (start, end, chord)
-    0.0s    32.3s C
-   32.3s    64.7s F
-   64.7s    97.0s C
-   97.0s   129.3s F
-  129.3s   161.6s C
-  161.6s   194.0s F
-  194.0s   226.3s C
-  226.3s   258.6s F
-  258.6s   290.9s C
-  290.9s   323.7s F
-  323.7s   356.4s Am
-  356.4s   389.2s F
-  389.2s   421.9s Am
-  421.9s   454.6s F
-  454.6s   487.4s Am
-  487.4s   520.1s F
-  520.1s   552.9s Am
-  552.9s   585.6s F
-  585.6s   616.1s Am
-  616.1s   646.6s C
-  646.6s   677.1s Am
-  677.1s   707.5s C
-  707.5s   738.0s Am
-  738.0s   768.5s C
-  768.5s   799.0s Am
+# lively bed, 120 BPM, seed 2025
+bar   0     0.0s  part 1  C   intro
+bar   1     2.0s  part 1  Am  intro
+bar   2     4.0s  part 1  F 
+bar   3     6.0s  part 1  G 
+bar   4     8.0s  part 1  C 
+bar   5    10.0s  part 1  Am
+bar   6    12.0s  part 1  F 
+bar   7    14.0s  part 1  G 
+bar   8    16.0s  part 1  C 
+bar   9    18.0s  part 1  Am
+bar  10    20.0s  part 1  F 
+bar  11    22.0s  part 1  G 
+bar  12    24.0s  part 1  C 
+bar  13    26.0s  part 1  Am
+bar  14    28.0s  part 1  F 
+bar  15    30.0s  part 1  G 
+bar  16    32.0s  part 1  C 
+bar  17    34.0s  part 1  Am
+bar  18    36.0s  part 1  F 
+bar  19    38.0s  part 1  G 
+bar  20    40.0s  part 1  C 
+bar  21    42.0s  part 1  Am
+bar  22    44.0s  part 1  F 
+bar  23    46.0s  part 1  G 
+bar  24    48.0s  part 1  C 
+bar  25    50.0s  part 1  Am
+bar  26    52.0s  part 1  F 
+bar  27    54.0s  part 1  G 
+bar  28    56.0s  part 1  C 
+bar  29    58.0s  part 1  Am
+bar  30    60.0s  part 1  F 
+bar  31    62.0s  part 1  G 
+bar  32    64.0s  part 1  C   GOLD
+bar  33    66.0s  part 1  Am  GOLD
+bar  34    68.0s  part 1  F   GOLD
+bar  35    70.0s  part 1  G   GOLD
+bar  36    72.0s  part 1  C   GOLD
+bar  37    74.0s  part 1  Am  GOLD
+bar  38    76.0s  part 1  F   GOLD
+bar  39    78.0s  part 1  G 
+bar  40    80.0s  part 1  C 
+bar  41    82.0s  part 1  Am
+bar  42    84.0s  part 1  F 
+bar  43    86.0s  part 1  G 
+bar  44    88.0s  part 1  C 
+bar  45    90.0s  part 1  Am
+bar  46    92.0s  part 1  F 
+bar  47    94.0s  part 1  G 
+bar  48    96.0s  part 1  C 
+bar  49    98.0s  part 1  Am
+bar  50   100.0s  part 1  F 
+bar  51   102.0s  part 1  G 
+bar  52   104.0s  part 1  C 
+bar  53   106.0s  part 1  Am
+bar  54   108.0s  part 1  F 
+bar  55   110.0s  part 1  G 
+bar  56   112.0s  part 1  C 
+bar  57   114.0s  part 1  Am
+bar  58   116.0s  part 1  F 
+bar  59   118.0s  part 1  G 
+bar  60   120.0s  part 1  C 
+bar  61   122.0s  part 1  Am
+bar  62   124.0s  part 1  F 
+bar  63   126.0s  part 1  G 
+bar  64   128.0s  part 1  C 
+bar  65   130.0s  part 1  Am
+bar  66   132.0s  part 1  F 
+bar  67   134.0s  part 1  G   GOLD
+bar  68   136.0s  part 1  C   GOLD
+bar  69   138.0s  part 1  Am  GOLD
+bar  70   140.0s  part 1  F   GOLD
+bar  71   142.0s  part 1  G   GOLD
+bar  72   144.0s  part 1  C   GOLD
+bar  73   146.0s  part 1  Am  GOLD
+bar  74   148.0s  part 1  F   GOLD
+bar  75   150.0s  part 1  G 
+bar  76   152.0s  part 1  C 
+bar  77   154.0s  part 1  Am
+bar  78   156.0s  part 1  F 
+bar  79   158.0s  part 1  G 
+bar  80   160.0s  part 1  C 
+bar  81   162.0s  part 1  Am
+bar  82   164.0s  part 1  F 
+bar  83   166.0s  part 1  G 
+bar  84   168.0s  part 1  C 
+bar  85   170.0s  part 1  Am
+bar  86   172.0s  part 1  F 
+bar  87   174.0s  part 1  G 
+bar  88   176.0s  part 1  C 
+bar  89   178.0s  part 1  Am
+bar  90   180.0s  part 1  F 
+bar  91   182.0s  part 1  G 
+bar  92   184.0s  part 1  C 
+bar  93   186.0s  part 1  Am
+bar  94   188.0s  part 1  F 
+bar  95   190.0s  part 1  G 
+bar  96   192.0s  part 1  C 
+bar  97   194.0s  part 1  Am
+bar  98   196.0s  part 1  F 
+bar  99   198.0s  part 1  G 
+bar 100   200.0s  part 1  C 
+bar 101   202.0s  part 1  Am
+bar 102   204.0s  part 1  F 
+bar 103   206.0s  part 1  G   GOLD
+bar 104   208.0s  part 1  C   GOLD
+bar 105   210.0s  part 1  Am  GOLD
+bar 106   212.0s  part 1  F   GOLD
+bar 107   214.0s  part 1  G   GOLD
+bar 108   216.0s  part 1  C   GOLD
+bar 109   218.0s  part 1  Am  GOLD
+bar 110   220.0s  part 1  F 
+bar 111   222.0s  part 1  G 
+bar 112   224.0s  part 1  C 
+bar 113   226.0s  part 1  Am
+bar 114   228.0s  part 1  F 
+bar 115   230.0s  part 1  G 
+bar 116   232.0s  part 1  C 
+bar 117   234.0s  part 1  Am
+bar 118   236.0s  part 1  F 
+bar 119   238.0s  part 1  G 
+bar 120   240.0s  part 1  C 
+bar 121   242.0s  part 1  Am
+bar 122   244.0s  part 1  F 
+bar 123   246.0s  part 1  G 
+bar 124   248.0s  part 1  C 
+bar 125   250.0s  part 1  Am
+bar 126   252.0s  part 1  F 
+bar 127   254.0s  part 1  G 
+bar 128   256.0s  part 1  C 
+bar 129   258.0s  part 1  Am
+bar 130   260.0s  part 1  F 
+bar 131   262.0s  part 1  G 
+bar 132   264.0s  part 1  C 
+bar 133   266.0s  part 1  Am
+bar 134   268.0s  part 1  F 
+bar 135   270.0s  part 1  G 
+bar 136   272.0s  part 1  C 
+bar 137   274.0s  part 1  Am
+bar 138   276.0s  part 1  F   GOLD
+bar 139   278.0s  part 1  G   GOLD
+bar 140   280.0s  part 1  C   GOLD
+bar 141   282.0s  part 1  Am  GOLD
+bar 142   284.0s  part 1  F   GOLD
+bar 143   286.0s  part 1  G   GOLD
+bar 144   288.0s  part 1  C   GOLD
+bar 145   290.0s  part 1  Am
+bar 146   292.0s  part 2  C 
+bar 147   294.0s  part 2  G 
+bar 148   296.0s  part 2  Am
+bar 149   298.0s  part 2  F 
+bar 150   300.0s  part 2  C 
+bar 151   302.0s  part 2  G 
+bar 152   304.0s  part 2  Am
+bar 153   306.0s  part 2  F   riser
+bar 154   308.0s  part 2  C 
+bar 155   310.0s  part 2  G 
+bar 156   312.0s  part 2  Am
+bar 157   314.0s  part 2  F 
+bar 158   316.0s  part 2  C 
+bar 159   318.0s  part 2  G 
+bar 160   320.0s  part 2  Am
+bar 161   322.0s  part 2  F   riser
+bar 162   324.0s  part 2  C 
+bar 163   326.0s  part 2  G 
+bar 164   328.0s  part 2  Am
+bar 165   330.0s  part 2  F 
+bar 166   332.0s  part 2  C 
+bar 167   334.0s  part 2  G 
+bar 168   336.0s  part 2  Am
+bar 169   338.0s  part 2  F   riser
+bar 170   340.0s  part 2  C 
+bar 171   342.0s  part 2  G 
+bar 172   344.0s  part 2  Am
+bar 173   346.0s  part 2  F 
+bar 174   348.0s  part 2  C   GOLD
+bar 175   350.0s  part 2  G   GOLD
+bar 176   352.0s  part 2  Am  GOLD
+bar 177   354.0s  part 2  F   GOLD  riser
+bar 178   356.0s  part 2  C   GOLD
+bar 179   358.0s  part 2  G   GOLD
+bar 180   360.0s  part 2  Am  GOLD
+bar 181   362.0s  part 2  F   GOLD
+bar 182   364.0s  part 2  C 
+bar 183   366.0s  part 2  G 
+bar 184   368.0s  part 2  Am
+bar 185   370.0s  part 2  F   riser
+bar 186   372.0s  part 2  C 
+bar 187   374.0s  part 2  G 
+bar 188   376.0s  part 2  Am
+bar 189   378.0s  part 2  F 
+bar 190   380.0s  part 2  C 
+bar 191   382.0s  part 2  G 
+bar 192   384.0s  part 2  Am
+bar 193   386.0s  part 2  F   riser
+bar 194   388.0s  part 2  C 
+bar 195   390.0s  part 2  G 
+bar 196   392.0s  part 2  Am
+bar 197   394.0s  part 2  F 
+bar 198   396.0s  part 2  C 
+bar 199   398.0s  part 2  G 
+bar 200   400.0s  part 2  Am
+bar 201   402.0s  part 2  F   riser
+bar 202   404.0s  part 2  C 
+bar 203   406.0s  part 2  G 
+bar 204   408.0s  part 2  Am
+bar 205   410.0s  part 2  F 
+bar 206   412.0s  part 2  C 
+bar 207   414.0s  part 2  G 
+bar 208   416.0s  part 2  Am
+bar 209   418.0s  part 2  F   riser
+bar 210   420.0s  part 2  C 
+bar 211   422.0s  part 2  G 
+bar 212   424.0s  part 2  Am  GOLD
+bar 213   426.0s  part 2  F   GOLD
+bar 214   428.0s  part 2  C   GOLD
+bar 215   430.0s  part 2  G   GOLD
+bar 216   432.0s  part 2  Am  GOLD
+bar 217   434.0s  part 2  F   GOLD  riser
+bar 218   436.0s  part 2  C   GOLD
+bar 219   438.0s  part 2  G   GOLD
+bar 220   440.0s  part 2  Am
+bar 221   442.0s  part 2  F 
+bar 222   444.0s  part 2  C 
+bar 223   446.0s  part 2  G 
+bar 224   448.0s  part 2  Am
+bar 225   450.0s  part 2  F   riser
+bar 226   452.0s  part 2  C 
+bar 227   454.0s  part 2  G 
+bar 228   456.0s  part 2  Am
+bar 229   458.0s  part 2  F 
+bar 230   460.0s  part 2  C 
+bar 231   462.0s  part 2  G 
+bar 232   464.0s  part 2  Am
+bar 233   466.0s  part 2  F   riser
+bar 234   468.0s  part 2  C 
+bar 235   470.0s  part 2  G 
+bar 236   472.0s  part 2  Am
+bar 237   474.0s  part 2  F 
+bar 238   476.0s  part 2  C 
+bar 239   478.0s  part 2  G 
+bar 240   480.0s  part 2  Am
+bar 241   482.0s  part 2  F   riser
+bar 242   484.0s  part 2  C 
+bar 243   486.0s  part 2  G 
+bar 244   488.0s  part 2  Am
+bar 245   490.0s  part 2  F 
+bar 246   492.0s  part 2  C 
+bar 247   494.0s  part 2  G 
+bar 248   496.0s  part 2  Am
+bar 249   498.0s  part 2  F   riser
+bar 250   500.0s  part 2  C   GOLD
+bar 251   502.0s  part 2  G   GOLD
+bar 252   504.0s  part 2  Am  GOLD
+bar 253   506.0s  part 2  F   GOLD
+bar 254   508.0s  part 2  C   GOLD
+bar 255   510.0s  part 2  G   GOLD
+bar 256   512.0s  part 2  Am  GOLD
+bar 257   514.0s  part 2  F   riser
+bar 258   516.0s  part 2  C 
+bar 259   518.0s  part 2  G 
+bar 260   520.0s  part 2  Am
+bar 261   522.0s  part 2  F 
+bar 262   524.0s  part 2  C 
+bar 263   526.0s  part 2  G 
+bar 264   528.0s  part 2  Am
+bar 265   530.0s  part 2  F   riser
+bar 266   532.0s  part 2  C 
+bar 267   534.0s  part 2  G 
+bar 268   536.0s  part 2  Am
+bar 269   538.0s  part 2  F 
+bar 270   540.0s  part 2  C 
+bar 271   542.0s  part 2  G 
+bar 272   544.0s  part 2  Am
+bar 273   546.0s  part 2  F   riser
+bar 274   548.0s  part 2  C 
+bar 275   550.0s  part 2  G 
+bar 276   552.0s  part 2  Am
+bar 277   554.0s  part 2  F 
+bar 278   556.0s  part 2  C 
+bar 279   558.0s  part 2  G 
+bar 280   560.0s  part 2  Am
+bar 281   562.0s  part 2  F   riser
+bar 282   564.0s  part 2  C 
+bar 283   566.0s  part 2  G 
+bar 284   568.0s  part 2  Am
+bar 285   570.0s  part 2  F 
+bar 286   572.0s  part 2  C   GOLD
+bar 287   574.0s  part 2  G   GOLD
+bar 288   576.0s  part 2  Am  GOLD
+bar 289   578.0s  part 2  F   GOLD  riser
+bar 290   580.0s  part 2  C   GOLD
+bar 291   582.0s  part 2  G   GOLD
+bar 292   584.0s  part 2  Am  GOLD
+bar 293   586.0s  part 3  F 
+bar 294   588.0s  part 3  G 
+bar 295   590.0s  part 3  C 
+bar 296   592.0s  part 3  Am
+bar 297   594.0s  part 3  F 
+bar 298   596.0s  part 3  G 
+bar 299   598.0s  part 3  C 
+bar 300   600.0s  part 3  Am  riser
+bar 301   602.0s  part 3  F 
+bar 302   604.0s  part 3  G 
+bar 303   606.0s  part 3  C 
+bar 304   608.0s  part 3  Am
+bar 305   610.0s  part 3  F 
+bar 306   612.0s  part 3  G 
+bar 307   614.0s  part 3  C 
+bar 308   616.0s  part 3  Am  riser
+bar 309   618.0s  part 3  F 
+bar 310   620.0s  part 3  G 
+bar 311   622.0s  part 3  C 
+bar 312   624.0s  part 3  Am
+bar 313   626.0s  part 3  F 
+bar 314   628.0s  part 3  G 
+bar 315   630.0s  part 3  C 
+bar 316   632.0s  part 3  Am  riser
+bar 317   634.0s  part 3  F 
+bar 318   636.0s  part 3  G 
+bar 319   638.0s  part 3  C 
+bar 320   640.0s  part 3  Am
+bar 321   642.0s  part 3  F   GOLD
+bar 322   644.0s  part 3  G   GOLD
+bar 323   646.0s  part 3  C   GOLD
+bar 324   648.0s  part 3  Am  GOLD  riser
+bar 325   650.0s  part 3  F   GOLD
+bar 326   652.0s  part 3  G   GOLD
+bar 327   654.0s  part 3  C   GOLD
+bar 328   656.0s  part 3  Am  GOLD
+bar 329   658.0s  part 3  F 
+bar 330   660.0s  part 3  G 
+bar 331   662.0s  part 3  C 
+bar 332   664.0s  part 3  Am  riser
+bar 333   666.0s  part 3  F 
+bar 334   668.0s  part 3  G 
+bar 335   670.0s  part 3  C 
+bar 336   672.0s  part 3  Am
+bar 337   674.0s  part 3  F 
+bar 338   676.0s  part 3  G 
+bar 339   678.0s  part 3  C 
+bar 340   680.0s  part 3  Am  riser
+bar 341   682.0s  part 3  F 
+bar 342   684.0s  part 3  G 
+bar 343   686.0s  part 3  C 
+bar 344   688.0s  part 3  Am
+bar 345   690.0s  part 3  F 
+bar 346   692.0s  part 3  G 
+bar 347   694.0s  part 3  C 
+bar 348   696.0s  part 3  Am  riser
+bar 349   698.0s  part 3  F 
+bar 350   700.0s  part 3  G 
+bar 351   702.0s  part 3  C 
+bar 352   704.0s  part 3  Am
+bar 353   706.0s  part 3  F 
+bar 354   708.0s  part 3  G 
+bar 355   710.0s  part 3  C 
+bar 356   712.0s  part 3  Am  riser
+bar 357   714.0s  part 3  F 
+bar 358   716.0s  part 3  G 
+bar 359   718.0s  part 3  C   GOLD
+bar 360   720.0s  part 3  Am  GOLD
+bar 361   722.0s  part 3  F   GOLD
+bar 362   724.0s  part 3  G   GOLD
+bar 363   726.0s  part 3  C   GOLD
+bar 364   728.0s  part 3  Am  GOLD  riser
+bar 365   730.0s  part 3  F   GOLD
+bar 366   732.0s  part 3  G   GOLD
+bar 367   734.0s  part 3  C 
+bar 368   736.0s  part 3  Am
+bar 369   738.0s  part 3  F 
+bar 370   740.0s  part 3  G 
+bar 371   742.0s  part 3  C 
+bar 372   744.0s  part 3  Am  riser
+bar 373   746.0s  part 3  F 
+bar 374   748.0s  part 3  G 
+bar 375   750.0s  part 3  C 
+bar 376   752.0s  part 3  Am
+bar 377   754.0s  part 3  F 
+bar 378   756.0s  part 3  G 
+bar 379   758.0s  part 3  C 
+bar 380   760.0s  part 3  Am  riser
+bar 381   762.0s  part 3  F 
+bar 382   764.0s  part 3  G 
+bar 383   766.0s  part 3  C 
+bar 384   768.0s  part 3  Am
+bar 385   770.0s  part 3  F 
+bar 386   772.0s  part 3  G 
+bar 387   774.0s  part 3  C 
+bar 388   776.0s  part 3  Am  riser
+bar 389   778.0s  part 3  F 
+bar 390   780.0s  part 3  G 
+bar 391   782.0s  part 3  C 
+bar 392   784.0s  part 3  Am
+bar 393   786.0s  part 3  F 
+bar 394   788.0s  part 3  G 
+bar 395   790.0s  part 3  C 
+bar 396   792.0s  part 3  Am  riser
+bar 397   794.0s  part 3  C 
+bar 398   796.0s  part 3  C 
