@@ -1,0 +1,199 @@
+{
+  "sampleRate": 48000,
+  "lengthUnit": "seconds",
+  "framesUnit": "design frames at 30 fps (ceil)",
+  "sfx": [
+    {
+      "id": "tiles-in",
+      "file": "tiles-in.wav",
+      "length": 0.52,
+      "frames": 16,
+      "peakDb": -3.0,
+      "rmsDb": -17.2
+    },
+    {
+      "id": "tick-01",
+      "file": "tick-01.wav",
+      "length": 0.11,
+      "frames": 4,
+      "peakDb": -3.0,
+      "rmsDb": -18.5
+    },
+    {
+      "id": "tick-02",
+      "file": "tick-02.wav",
+      "length": 0.11,
+      "frames": 4,
+      "peakDb": -3.0,
+      "rmsDb": -18.4
+    },
+    {
+      "id": "tick-03",
+      "file": "tick-03.wav",
+      "length": 0.11,
+      "frames": 4,
+      "peakDb": -3.0,
+      "rmsDb": -18.4
+    },
+    {
+      "id": "tick-04",
+      "file": "tick-04.wav",
+      "length": 0.11,
+      "frames": 4,
+      "peakDb": -3.0,
+      "rmsDb": -18.5
+    },
+    {
+      "id": "tick-05",
+      "file": "tick-05.wav",
+      "length": 0.11,
+      "frames": 4,
+      "peakDb": -3.0,
+      "rmsDb": -18.4
+    },
+    {
+      "id": "tick-06",
+      "file": "tick-06.wav",
+      "length": 0.11,
+      "frames": 4,
+      "peakDb": -3.0,
+      "rmsDb": -18.4
+    },
+    {
+      "id": "tick-07",
+      "file": "tick-07.wav",
+      "length": 0.11,
+      "frames": 4,
+      "peakDb": -3.0,
+      "rmsDb": -18.4
+    },
+    {
+      "id": "tick-08",
+      "file": "tick-08.wav",
+      "length": 0.11,
+      "frames": 4,
+      "peakDb": -3.0,
+      "rmsDb": -18.5
+    },
+    {
+      "id": "tick-09",
+      "file": "tick-09.wav",
+      "length": 0.11,
+      "frames": 4,
+      "peakDb": -3.0,
+      "rmsDb": -18.4
+    },
+    {
+      "id": "tick-10",
+      "file": "tick-10.wav",
+      "length": 0.11,
+      "frames": 4,
+      "peakDb": -3.0,
+      "rmsDb": -18.4
+    },
+    {
+      "id": "timer-full",
+      "file": "timer-full.wav",
+      "length": 0.24,
+      "frames": 8,
+      "peakDb": -3.0,
+      "rmsDb": -21.0
+    },
+    {
+      "id": "reveal-chime",
+      "file": "reveal-chime.wav",
+      "length": 1.12,
+      "frames": 34,
+      "peakDb": -3.0,
+      "rmsDb": -16.9
+    },
+    {
+      "id": "bulb-on",
+      "file": "bulb-on.wav",
+      "length": 0.15,
+      "frames": 5,
+      "peakDb": -3.0,
+      "rmsDb": -14.1
+    },
+    {
+      "id": "bonus-banner",
+      "file": "bonus-banner.wav",
+      "length": 0.82,
+      "frames": 25,
+      "peakDb": -3.0,
+      "rmsDb": -15.4
+    },
+    {
+      "id": "gold-bulb",
+      "file": "gold-bulb.wav",
+      "length": 0.52,
+      "frames": 16,
+      "peakDb": -3.0,
+      "rmsDb": -17.0
+    },
+    {
+      "id": "rank-reveal",
+      "file": "rank-reveal.wav",
+      "length": 1.32,
+      "frames": 40,
+      "peakDb": -3.0,
+      "rmsDb": -16.1
+    },
+    {
+      "id": "type-key",
+      "file": "type-key.wav",
+      "length": 0.075,
+      "frames": 3,
+      "peakDb": -3.0,
+      "rmsDb": -19.4
+    },
+    {
+      "id": "focus-lock",
+      "file": "focus-lock.wav",
+      "length": 0.28,
+      "frames": 9,
+      "peakDb": -3.0,
+      "rmsDb": -11.5
+    },
+    {
+      "id": "clean-sparkle",
+      "file": "clean-sparkle.wav",
+      "length": 0.72,
+      "frames": 22,
+      "peakDb": -3.0,
+      "rmsDb": -17.5
+    },
+    {
+      "id": "flash-blip",
+      "file": "flash-blip.wav",
+      "length": 0.095,
+      "frames": 3,
+      "peakDb": -3.0,
+      "rmsDb": -14.4
+    },
+    {
+      "id": "swipe",
+      "file": "swipe.wav",
+      "length": 0.32,
+      "frames": 10,
+      "peakDb": -3.0,
+      "rmsDb": -19.8
+    },
+    {
+      "id": "widget-pop",
+      "file": "widget-pop.wav",
+      "length": 0.18,
+      "frames": 6,
+      "peakDb": -3.0,
+      "rmsDb": -13.7
+    },
+    {
+      "id": "ring-glow",
+      "file": "ring-glow.wav",
+      "length": 0.87,
+      "frames": 27,
+      "peakDb": -3.0,
+      "rmsDb": -13.6
+    }
+  ]
+}

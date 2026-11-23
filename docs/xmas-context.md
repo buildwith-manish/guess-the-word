@@ -129,3 +129,36 @@ Other scripts: `make_gta6_sfx.py` (numpy synthesis + pedalboard Compressor/Limit
 - `master_nfl_voice.py`, `render_nfl.sh`, `nfl_chapters.ts`, `nfl_qa.ts` on `nfl-quiz`.
 - A keyboard drawing on `search-history`; a dedicated tile and a segmented timer on `us-states`.
 - `src/ios/index.ts`, `fonts.ts`, `layout.ts`, `IosBackground.tsx` on this branch.
+
+## Sound effects (task 1d)
+Made by `python3 scripts/make_xmas_sfx.py` (numpy synthesis + pedalboard high-pass, gentle compressor, limiter; needs `pip install numpy pedalboard`).
+48 kHz 16-bit mono wavs in `public/xmas/sfx/` with `manifest.json`; ids are generated into `src/xmas/sfx-ids.ts` and typed in `src/xmas/sfx.ts`
+(`SfxId, SfxCue, sfxEntry, sfxLength, sfxFrames, sfxSrc, tickId(n 1..10), cue`). Every file peaks at -3.0 dBFS; set relative loudness with Remotion `volume`.
+No samples, no tunes, no film or song audio.
+
+| id | length s | frames (30 fps) | rms dB | use |
+|---|---|---|---|---|
+| tiles-in | 0.520 | 16 | -17.2 | two clue tiles glide in |
+| tick-01 | 0.110 | 4 | -18.5 | one timer segment tick, pitch rises with the number (760 Hz to 980 Hz) |
+| tick-02 | 0.110 | 4 | -18.4 | one timer segment tick, pitch rises with the number (760 Hz to 980 Hz) |
+| tick-03 | 0.110 | 4 | -18.4 | one timer segment tick, pitch rises with the number (760 Hz to 980 Hz) |
+| tick-04 | 0.110 | 4 | -18.5 | one timer segment tick, pitch rises with the number (760 Hz to 980 Hz) |
+| tick-05 | 0.110 | 4 | -18.4 | one timer segment tick, pitch rises with the number (760 Hz to 980 Hz) |
+| tick-06 | 0.110 | 4 | -18.4 | one timer segment tick, pitch rises with the number (760 Hz to 980 Hz) |
+| tick-07 | 0.110 | 4 | -18.4 | one timer segment tick, pitch rises with the number (760 Hz to 980 Hz) |
+| tick-08 | 0.110 | 4 | -18.5 | one timer segment tick, pitch rises with the number (760 Hz to 980 Hz) |
+| tick-09 | 0.110 | 4 | -18.4 | one timer segment tick, pitch rises with the number (760 Hz to 980 Hz) |
+| tick-10 | 0.110 | 4 | -18.4 | one timer segment tick, pitch rises with the number (760 Hz to 980 Hz) |
+| timer-full | 0.240 | 8 | -21.0 | timer fills (short flash) |
+| reveal-chime | 1.120 | 34 | -16.9 | movie answer reveal |
+| bulb-on | 0.150 | 5 | -14.1 | a bulb lights |
+| bonus-banner | 0.820 | 25 | -15.4 | bonus round banner |
+| gold-bulb | 0.520 | 16 | -17.0 | gold (bonus) bulb |
+| rank-reveal | 1.320 | 40 | -16.1 | rank card reveal |
+| type-key | 0.075 | 3 | -19.4 | Spotlight typing |
+| focus-lock | 0.280 | 9 | -11.5 | Focus bonus locks |
+| clean-sparkle | 0.720 | 22 | -17.5 | Clean Up bonus |
+| flash-blip | 0.095 | 3 | -14.4 | Count the Lights flash |
+| swipe | 0.320 | 10 | -19.8 | Double Feature app-switcher card |
+| widget-pop | 0.180 | 6 | -13.7 | Finale widget |
+| ring-glow | 0.870 | 27 | -13.6 | Odd One Out ring |
