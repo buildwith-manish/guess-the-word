@@ -176,3 +176,16 @@ Started, then stopped at the owner's request in favour of 4c. Nothing written. N
 - Dissolve = 20 ticks each after the 0.5 s beat with a 0.5 s tail hold, fitted into the 3 s reveal phase; voice "Cow. Pig. Chicken." is not synced (no clips measured).
 - UI copy owned here: none beyond data (prompt line shown above the widgets). Layout fits the wrapper stage (1024 x ~386 ref units): prompt 40 + three rows of 100 + gaps; clearance not checked by eye.
 - `ink-dissolve.wav` (1.85 s) is cut to about 0.9 s per dissolve with a fade.
+
+## Task 4d: DONE (BonusChainReaction compiles; tsc --noEmit clean; NOT rendered, remotion still blocked: remotion.media unreachable)
+
+- `src/dontsay/scenes/BonusChainReaction.tsx`: `BonusChainReaction` (BonusWrapper + chain + InkBubble), `bonusChainCues`, `bonusChainVoice`, `chainLinkTick`, `chainSlideTick`, `chainDissolveFrom/To`. Composition `DontSay-Bonus-3` in Root.tsx (additive), length `bonusSec`.
+- Words parsed from `bonus.prompt` (split on `->`); hint letter = last letter of the previous word; rule line from `bonus.rule`. Nothing hard-coded.
+- Ticks (30 fps, local): words arrive 6/18/30/42; links land at intro + (i+0.5) * 0.6 * play / 3 = 78, 138, 198; next first letter lights +5; bubble slides at 90 (reveal start); dissolve 120-165; voice reveal at 165. Frames at 60 fps = ticks x 2: check 156, 276, 396 (links), 240-330 (dissolve), 360.
+- `chain-link` x3 and `ink-dissolve` cues are in `bonusChainCues()`; nothing mounts voice clips yet.
+
+### Open points
+- Note line shows data text `Tiger is mine - you can't reuse it` (hyphen). Change the dash in rounds.json/data.ts if you want an em dash.
+- Bubble large state (300 high at centre y 500) spans y 350-650: 2 ref units under the 648 safe line, 4 above the chain cards. Not checked by eye.
+- Rule line fades out when the bubble enlarges so they do not overlap.
+- Read beyond the named files (minimal greps): data.ts Bonus type, bonus 3 JSON, timing.ts bonus constants, InkBubble props, Root.tsx registration lines.
