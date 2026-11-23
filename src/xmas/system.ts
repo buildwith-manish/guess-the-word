@@ -140,9 +140,11 @@ const TILE_X0 = (REF.w - (2 * TILE + TILE_GAP)) / 2; // 218
  *   caption   movie caption: plain text centred y 108 (textBox y 89..127, no pill); `cy`/`box` (y 98) stay for the bonus banner
  *   tiles     x 218..618 and 662..1062, y 138..538, corner 108 (0.27 of the tile), 44 gap, no plus sign
  *   timer     capsule x 320..960, y 578..642, 8 segments inside
- *   counter   small glass pill, top left of the safe box: x 128, y 88..128 (centre y 108, the same line as the caption and the watermark); box.w is the widest case ("50 OF 50")
+ *   counter   small glass pill, top left corner (cornerInset 96): x 96, y 88..128 (centre y 108, the same line as the caption and the watermark); box.w is the widest case ("50 OF 50")
  */
 export const LAYOUT = {
+  /** the two top corner items (counter pill on the left, watermark on the right) sit this far from the frame edge: 32 outside the safe box, by choice */
+  cornerInset: 96,
   tile: {
     size: TILE,
     gap: TILE_GAP,
@@ -178,7 +180,7 @@ export const LAYOUT = {
     wireSag: 14,
   },
   caption: { cy: 98, box: { x: (REF.w - 560) / 2, y: 79, w: 560, h: 38 } as Rect, textCy: 108, textBox: { x: (REF.w - 560) / 2, y: 89, w: 560, h: 38 } as Rect },
-  counter: { cy: 108, box: { x: 128, y: 88, w: 210, h: 40 } as Rect, padX: 24, gap: 12, tracking: 0.2 },
+  counter: { cy: 108, box: { x: 96, y: 88, w: 210, h: 40 } as Rect, padX: 24, gap: 12, tracking: 0.2 },
 } as const;
 
 /** x, y, w, h of timer segment `i` (0..7) relative to the capsule's top-left corner, reference units. */
@@ -239,7 +241,8 @@ export const checkLayout = (): string[] => {
     counter: counter.box,
   };
   for (const [n, r] of Object.entries(rects)) inFrame(n, r);
-  for (const n of ['tileLeft', 'tileRight', 'timer', 'caption', 'captionText', 'counter']) inSafe(n, rects[n]);
+  if (counter.box.x !== LAYOUT.cornerInset) bad.push('counter is not on the corner inset');
+  for (const n of ['tileLeft', 'tileRight', 'timer', 'caption', 'captionText']) inSafe(n, rects[n]);
   if (tile.left.w < 400 || tile.left.h < 400) bad.push('tile smaller than 400');
   if (tile.right.x - (tile.left.x + tile.left.w) < 24) bad.push('gap between tiles is not visible');
   if (Math.abs(tile.left.x + tile.left.w / 2 + (tile.right.x + tile.right.w / 2) - REF.w) > 0.5) bad.push('tiles are not centred');

@@ -3,7 +3,7 @@
  * badge the NFL and GTA6 videos use. Words come from ui.ts; the logo is a copy of the shared bulb in public/xmas/.
  * Size and position are 1280x720 reference units through px().
  *
- * Position: top-right corner of the safe box (right edge on SAFE.right, centre 80% of the frame). It sits below the light
+ * Position: top-right corner, LAYOUT.cornerInset (96) from the frame edge, the mirror of the counter pill on the left. It sits below the light
  * string (bulbs end at y 77), right of the caption box (ends x 920) and above the right tile (starts y 138).
  *
  * Mounting: PartScenes draws ONE overlay per part, above all its Sequences, with `offsetTick` = the part's first tick,
@@ -13,15 +13,15 @@
 import React from 'react';
 import { QuizMatrixBadge } from '../../ios/QuizMatrixBadge';
 import type { QuizMatrixLogo } from '../../ios/QuizMatrixBadge';
-import { REF, px } from '../shared/px';
-import { SAFE } from '../system';
+import { px } from '../shared/px';
+import { LAYOUT } from '../system';
 import { hookSec, outroFadeSec, secToTicks, segments, useXmasFrame } from '../timing';
 import { UI } from '../ui';
 
 export const XMAS_WATERMARK_LOGO: QuizMatrixLogo = { file: 'xmas/quiz-matrix-bulb.png', cols: 1, rows: 1, frames: 1, fps: 30 };
 
 /** Reference units. `top` is the badge box top; the logo overhangs it by 0.14 x height. */
-export const WATERMARK = { height: 40, right: REF.w - SAFE.right, top: 88 } as const;
+export const WATERMARK = { height: 40, right: LAYOUT.cornerInset, top: 88 } as const;
 
 const outro = segments.find((s) => s.kind === 'outro');
 const FADE_START = outro ? outro.to - secToTicks(outroFadeSec) : Infinity;
