@@ -221,3 +221,8 @@ Fill `picks.json`, set `meta.sourceName`, then render `NFL-Full` where Chromium 
 - Footer: "Guess the NFL player" (data.ts `cardUiText.guessPlayer`, replaces `guessNow`) left of nothing but the lock, points ("1 pt", from the card via `pointsLabel`) right-aligned in the level colour, thin timer line kept.
 - Not changed: timing, clip positions, card text, emerge animation, SFX.
 - NOT verified: nothing rendered (remotion.media unreachable). Not looked at: footer fit, jersey panel at 520 high, hero/history spacing, LevelBanner and TwoMinuteWarning against the taller card, Captions strip (y 650 to 716) now sits 14 units below the card bottom, WalletCollection/stack scale. `nfl_watermark_check.ts` still reports OVERLAP with its stale "ScoreHud (right)" rectangle (the chip has been on the left since iOS-6c; it overlapped before this task too).
+
+## iOS-8 notes (clue card travel)
+
+- `ClueStack.tsx` motion only (layout numbers, timing, clip positions untouched). When clue m arrives, the card holding clue m-1 travels from the hero slot down into history row m-1 (top, height, radius, border/background look interpolate; hero text fades out in the first ~45% of the spring, row text fades in from ~45%; the points tag glides). The new hero card rises 24 units, scales 0.94 to 1 and fades in on the same spring. Spring = `gentle` (or `tmwFlipTicks` on Two-Minute Warning cards). Empty slots keep a faint outline that fades as the card lands.
+- NOT rendered, not looked at. tsc: only the known `rounds.json` error. Check by eye: NFL-Card n=1 around each clue start (60 fps, e.g. clue 2 near frame 668): the card should slide down into row 1 without the text re-wrapping visibly; clue 5 into row 4.
