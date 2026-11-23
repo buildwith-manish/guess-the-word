@@ -23,7 +23,7 @@ Nothing has been rendered by any task yet. 2a: `npx tsc --noEmit` has 0 errors i
 - [x] 4f: `src/nfl/scenes/Scoreboard.tsx` (`Scoreboard`, `scoreboardCues`, `scoreboardVoice`). One card with all five tiers (names and ranges from data.ts); rings fill, tiers light lowest to highest, then a still hold of at least 4 s. timing.ts: new `scoreboardPlan` {rings, steps (lit order, clip key = position in `ranks`, best = '1'), hold, len}, `scoreboardRingsSec`, `rankStepSec`, `rankFinalHoldSec` (replaces `rankHoldSec`); `rankSlotSec` is now per rank step. 5a: the audio map must give the five rank clips keys '1'..'5' with '1' = Hall of Famer, and they play lowest first (key '5' first). Not rendered; nothing mounts it until 4h.
 - [x] 3b: Hook (`src/nfl/scenes/Hook.tsx`: `Hook`, `HookLock` (the reusable 1 s piece, takes `at`), `HOOK_LOCK_TICKS`, `hookMarks`, `hookCues`, `hookVoice`; composition `NFL-Hook`; notes below)
 - [x] 3c: `src/nfl/scenes/FinalCard.tsx` (`FinalCard`, `finalCardTicks/Frames`, `finalCardCues`) and `WalletCollection.tsx` (`WalletCollection`, `WalletCollectionView`, `collectionMarks`, `walletCollectionCues`). FinalCard = `HookLock` (now takes an optional `card`, default card 1) over `CardScene` for card 30. The lock second is the start of card 30's own segment (`phases.lock`, `finalLockSec`), so card 30's segment is 1 s longer and every other card offset is unchanged; NFL-Card for n=30 therefore starts with 1 s of empty level background (use FinalCard for the real thing). New `collection` segment after card 30 (`collectionSec` 6 s, `collectionBeats`: assumptions, not in the brief) in Part 3 (`partOf`). Cards show only number + level colour. Fan = two arcs of 15. Open: the final lock repeats the hook's notification text (`hookText`). Not rendered; nothing mounts them until 4d.
-- [ ] 4b: Part 1
+- [x] 4b: Part 1 (`src/nfl/parts/Part1.tsx`, `src/nfl/sfxCues.ts`, composition `NFL-P1`; notes below)
 - [x] 4e: Predictions (`src/nfl/scenes/Predictions.tsx`; notes below)
 - [ ] 4c: Part 2
 - [ ] 4d: Part 3
@@ -50,10 +50,6 @@ Nothing has been rendered by any task yet. 2a: `npx tsc --noEmit` has 0 errors i
 - `docs/nfl/cards.json` `meta.sourceName`: `null` (set to the site actually checked).
 - Three prediction lines in `lines.csv` marked `FILL:` need the real games.
 - `docs/nfl/changes.json` (57 clue rewrites) was supplied but is not on the file list; not committed.
-
-## Next step
-
-Run 1b (data + validation) and 2a (system + shared parts) next; both need only 1a.
 
 ## 2e notes (ScoreHud, Chips)
 
@@ -91,3 +87,16 @@ Run 1b (data + validation) and 2a (system + shared parts) next; both need only 1
 - Placeholder: any null pick field draws a full-width red "FILL IN PICKS" bar on every frame, and the empty fields say it too. `npx tsx scripts/check_nfl_data.ts --qa` (or `NFL_QA=1`) now FAILS on any null pick field; without it they stay warnings.
 - Sample data for stills: pass `--props` to `remotion still NFL-Predictions` with a `picks` array. Nothing sample is committed.
 - Frames at 60 fps, local to the segment (fallback timings, 25 s = 1500 frames): intro 0, pick 1 at 180, pick 2 at 620, pick 3 at 1060, end 1500. Check by eye: 100 (intro, no cards), 400 (card 1 settled), 800 (cards 1-2), 1499 (all three, last pick active).
+
+## 4b notes (Part 1)
+
+- `Part1.tsx` exports `Part1`, `Placed`, `part1Plan`, `part1Ticks`, `part1Frames` (= `partRanges[0]`), `part1BannerAt`, `part1BannerTicks`. Plan = every segment inside `partRanges[0]`: hook, cards 1 to 10, Rookie score card. Offsets are `seg.from - partRanges[0].from`.
+- Card 1 is mounted `fromHook`. The Rookie `LevelBanner` is its own Sequence over card 1, starting at card 1's first tick (6.00 s, the "Card 1." slot), 2 s long, so it is on screen over the intro and the first second of clue 1. It is drawn last and covers the compact ScoreHud and the points pill in the top band while it is up; nothing is hidden on purpose. Confirm that start (the brief does not say whether it should be during the hook's last second).
+- Card 5 gets the Two-Minute Warning from `CardScene` (it reads `card.twoMinuteWarning`); Part1 adds no wrapper of its own.
+- `sfxCues.ts`: `part1Cues` (ticks local to the part, sorted), `cardCues(card, at)` (card-in except card 1, clue-flip-N, points-drop-P from `card.points`, `tmwCues`, `revealCues`). `cuesOf` throws on segment kinds other than hook, card, scoreCard: later parts extend the `switch` (levelCard, etc.).
+- Fallback timings (no clips measured): Part 1 = 234.4 s = 14064 frames. Hook 0 to 6 s; card 1 6.00 to 28.00 s (clues 7.00 / 10.50 / 14.00 / 17.50 / 21.00, reveal 25.00); card 5 96.80 to 113.80 s (clues 97.80 / 100.30 / 102.80 / 105.30 / 107.80, reveal 110.80); score card 229.40 to 234.40 s. All change once 5a writes real clip lengths.
+- Not rendered: Chromium could not be downloaded (remotion.media unreachable). `npx tsc --noEmit`: 0 errors in `src/nfl/` and `src/Root.tsx`; the 3 known pre-existing errors remain.
+
+## Next step
+
+4c (Part 2) and 4d (Part 3) next; 4g (outro + Part 4) and 4h (full) after.
