@@ -23,7 +23,7 @@ const NflP2 = nflWithWatermark(NflPart2, 1);
 const NflP3 = nflWithWatermark(NflPart3, 2);
 const NflP4 = nflWithWatermark(NflPart4, 3);
 import { hookSec as nflHookSec, predictionsLenSec as nflPredictionsLenSec, secToFrames as nflSecToFrames } from './nfl/timing';
-import { ALL_FRAMES as NFL_ALL_FRAMES, NflCardPreview, NflCardPreviewAll, PREVIEW_DEFAULTS as NFL_PREVIEW_DEFAULTS, previewFrames as nflPreviewFrames } from './nfl/Preview';
+import { ALL_FRAMES as NFL_ALL_FRAMES, NflCardPreview, NflCardPreviewAll, PREVIEW_DEFAULTS as NFL_PREVIEW_DEFAULTS, PREVIEW_3D_DEFAULTS as NFL_PREVIEW_3D_DEFAULTS, previewFrames as nflPreviewFrames } from './nfl/Preview';
 import { ALL_FRAMES, Gta6Preview, Gta6PreviewAll, PREVIEW_DEFAULTS, previewFrames } from './gta6/Preview';
 
 /**
@@ -73,6 +73,16 @@ export const RemotionRoot: React.FC = () => {
         width={WIDTH}
         height={HEIGHT}
         defaultProps={NFL_PREVIEW_DEFAULTS}
+        calculateMetadata={({ props }) => ({ durationInFrames: nflPreviewFrames(props.n) })}
+      />
+      <Composition
+        id="NFL-Card3D"
+        component={NflCardPreview}
+        durationInFrames={nflPreviewFrames(NFL_PREVIEW_3D_DEFAULTS.n)}
+        fps={RENDER_FPS}
+        width={WIDTH}
+        height={HEIGHT}
+        defaultProps={NFL_PREVIEW_3D_DEFAULTS}
         calculateMetadata={({ props }) => ({ durationInFrames: nflPreviewFrames(props.n) })}
       />
       <Composition id="NFL-Hook" component={NflHook} durationInFrames={nflSecToFrames(nflHookSec)} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />

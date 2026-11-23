@@ -4,6 +4,7 @@ import { FPS } from '../shared/clock';
 import { Shake } from '../shared/Shake';
 import { SPRINGS, colors, fontStack, px, radius, safeBox, springAt, tabular, textStyle } from '../system';
 import { levelNames } from '../timing';
+import { Hero3DContext } from './hero3dContext';
 
 /**
  * Wallet-style scouting pass. States are driven by props only:
@@ -56,7 +57,7 @@ export const WALLET_LAYOUT = {
 
 const JERSEY_W = 220;
 const JERSEY_H = 242;
-const STACK_SCALE = 0.2;
+export const STACK_SCALE = 0.2;
 const STACK_MARGIN = 40;
 const STACK_STEP = { x: 6, y: 10 };
 const STACK_VISIBLE = 4;
@@ -82,7 +83,7 @@ const Lock: React.FC<{ closed: boolean; color: string; size: number }> = ({ clos
   </svg>
 );
 
-const cornerBox = (corner: StackCorner): { left: number; top: number } => {
+export const cornerBox = (corner: StackCorner): { left: number; top: number } => {
   const w = CARD_W * STACK_SCALE;
   const h = CARD_H * STACK_SCALE;
   const left = corner.endsWith('left') ? STACK_MARGIN : 1280 - STACK_MARGIN - w;
@@ -93,6 +94,8 @@ const cornerBox = (corner: StackCorner): { left: number; top: number } => {
 export const WalletCard: React.FC<WalletCardProps> = ({ card, state, frame, since, jersey, stackIndex = 0, corner = 'bottom-left', showName = true, children }) => {
   const level = colors.level[card.level];
   const total = cards.length;
+  // hero3d: a WalletCard3D above us draws the glass body and the answer slab in WebGL; this DOM layer keeps all text and goes transparent.
+  const hero = React.useContext(Hero3DContext);
 
   // blank: spring in. Later states start from the settled pose.
   const enter = state === 'blank' ? springAt(frame, since, 'gentle') : 1;
@@ -156,11 +159,15 @@ export const WalletCard: React.FC<WalletCardProps> = ({ card, state, frame, sinc
           inset: 0,
           borderRadius: px(radius.xl),
           overflow: 'hidden',
-          background: `linear-gradient(160deg, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0.07) 55%, ${level}14 100%)`,
-          backdropFilter: `blur(${px(22)}px) saturate(1.4)`,
-          WebkitBackdropFilter: `blur(${px(22)}px) saturate(1.4)`,
-          border: `${px(1.5)}px solid ${colors.hairline}`,
-          boxShadow: `0 ${px(24)}px ${px(60)}px ${colors.shadow}`,
+          ...(hero
+            ? { background: 'none', border: `${px(1.5)}px solid transparent`, boxSizing: 'border-box' as const }
+            : {
+                background: `linear-gradient(160deg, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0.07) 55%, ${level}14 100%)`,
+                backdropFilter: `blur(${px(22)}px) saturate(1.4)`,
+                WebkitBackdropFilter: `blur(${px(22)}px) saturate(1.4)`,
+                border: `${px(1.5)}px solid ${colors.hairline}`,
+                boxShadow: `0 ${px(24)}px ${px(60)}px ${colors.shadow}`,
+              }),
         }}
       >
         {/* header band: level name and card number */}
@@ -207,7 +214,9 @@ export const WalletCard: React.FC<WalletCardProps> = ({ card, state, frame, sinc
             top: px(WALLET_LAYOUT.answer.top),
             width: px(WALLET_LAYOUT.answer.w),
             height: px(WALLET_LAYOUT.answer.h),
-            perspective: px(1400),
+            // hero3d: same eye distance as the WebGL camera and the vanishing point at the frame centre, so this CSS flip and the 3D slab behind it turn alike
+            perspective: hero ? hero.perspective : px(1400),
+            perspectiveOrigin: hero ? `${px(1280 / 2 - (WALLET_LAYOUT.card.left + WALLET_LAYOUT.answer.left))}px ${px(720 / 2 - (WALLET_LAYOUT.card.top + WALLET_LAYOUT.answer.top))}px` : undefined,
           }}
         >
           <div style={{ position: 'absolute', inset: 0, transformStyle: 'preserve-3d', transform: `rotateY(${angle}deg)` }}>

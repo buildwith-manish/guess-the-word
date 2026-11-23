@@ -20,7 +20,8 @@ import type { Card } from '../data';
 import { cards, tmwLabel } from '../data';
 import { ClueStack } from '../components/ClueStack';
 import { PointsPill, PointsPillGlow } from '../components/PointsPill';
-import { RevealEngine } from '../components/RevealEngine';
+import { RevealEngine, revealBeats } from '../components/RevealEngine';
+import { WalletCard3D } from '../components/WalletCard3D';
 import { RuleChips } from '../components/Chips';
 import { ScoreHud } from '../components/ScoreHud';
 import { TwoMinuteWarning, tmwFlipTicks } from '../components/TwoMinuteWarning';
@@ -66,9 +67,11 @@ export type CardSceneProps = {
   jersey?: string | number;
   /** Card 1 only: the hook already showed the card, the HUD and the rule chips, so this scene continues from them without a new entrance (no card spring-in, no chip pop-in). */
   fromHook?: boolean;
+  /** Draw the card body in 3D (WebGL glass, camera drift, 3D flip) behind the same DOM text. Default false: the 2D card is the fallback. */
+  hero3d?: boolean;
 };
 
-export const CardScene: React.FC<CardSceneProps> = ({ card, at = 0, jersey, fromHook = false }) => {
+export const CardScene: React.FC<CardSceneProps> = ({ card, at = 0, jersey, fromHook = false, hero3d = false }) => {
   const f = useNflFrame() - at;
   const seg = segmentOf(card);
   const { phases } = seg;
@@ -93,6 +96,15 @@ export const CardScene: React.FC<CardSceneProps> = ({ card, at = 0, jersey, from
     </WalletCard>
   );
 
+  const beats = revealBeats(card);
+  const body = hero3d ? (
+    <WalletCard3D card={card} frame={f} enterAt={fromHook ? ENTERED : introFrom} openAt={beatFrom + beats.open} stackAt={beatFrom + beats.stack}>
+      {content}
+    </WalletCard3D>
+  ) : (
+    content
+  );
+
   const first = card.n === cards[0].n;
 
   return (
@@ -101,7 +113,7 @@ export const CardScene: React.FC<CardSceneProps> = ({ card, at = 0, jersey, from
       <ScoreHud done={card.n} from={card.n - 1} frame={f} at={revealOpen} top={BAND_TOP} compact />
 
       <TwoMinuteWarning card={card} frame={f} starts={starts} end={clueEnd} label={tmwLabel}>
-        {content}
+        {body}
       </TwoMinuteWarning>
 
       {/* points pill: Dynamic Island position, centred in the top band, only while a clue is live */}
