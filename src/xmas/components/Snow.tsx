@@ -3,27 +3,27 @@ import type { CSSProperties } from 'react';
 import { REF, px, useXmasFrame } from '../system';
 
 /**
- * Snow: about 12 tiny, slow, out-of-focus snow dots on the background layer.
+ * Snow: a light, slow snowfall of soft, out-of-focus dots on the background layer (small far flakes plus a few larger, softer near ones).
  * Deterministic: positions come from a seeded generator and the time comes from the frame, so every render is identical.
  * Place it BEHIND the tiles, caption and timer (right after the bokeh layer); it never draws over text.
  * Units: reference units (1280x720) through px(). Time: design ticks (30 per second) from useXmasFrame.
  */
 
 export const SNOW = {
-  count: 12,
+  count: 44,
   /** radius range in reference units (tiny) */
-  rMin: 2.2,
-  rMax: 4.6,
+  rMin: 1.8,
+  rMax: 7,
   /** fall speed in reference units per second (slow) */
-  speedMin: 6,
-  speedMax: 13,
+  speedMin: 9,
+  speedMax: 24,
   /** sideways sway: amplitude (units) and period (seconds) */
-  swayAmp: 6,
+  swayAmp: 9,
   periodMin: 7,
   periodMax: 13,
   /** peak opacity range (low) */
-  alphaMin: 0.1,
-  alphaMax: 0.22,
+  alphaMin: 0.2,
+  alphaMax: 0.5,
   /** dots wrap this far above and below the frame so they never pop in view */
   margin: 16,
 } as const;

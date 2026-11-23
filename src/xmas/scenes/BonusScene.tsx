@@ -6,6 +6,7 @@ import { BonusReveal, BONUS_REVEAL, revealLayout } from '../components/BonusReve
 import { FrameShimmer } from '../components/FrameShimmer';
 import { LightString, bulbCues } from '../components/LightString';
 import { Snow } from '../components/Snow';
+import { Vignette } from '../components/Vignette';
 import { TIMER, TimerToPill, defaultMorphFrame, timerCues, timerPropsOf, withoutBackdrop } from '../components/TimerToPill';
 import { PLAY_AREA, passRuleText, roundOf } from '../bonus/registry';
 import { cue } from '../sfx';
@@ -114,6 +115,7 @@ export const BonusScene: React.FC<{ slot: BonusSlot }> = ({ slot }) => {
         ))}
       </div>
       <Snow />
+      <Vignette />
       <div style={lightZoneStyle('left', 0.9, 'gold')} />
       <div style={lightZoneStyle('right', 0.9, 'gold')} />
       <div

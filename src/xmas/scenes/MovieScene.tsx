@@ -5,6 +5,7 @@ import type { MovieSlot } from '../data';
 import { FrameShimmer } from '../components/FrameShimmer';
 import { MovieReveal, revealCues } from '../components/MovieReveal';
 import { Snow } from '../components/Snow';
+import { Vignette } from '../components/Vignette';
 import { timerCues, timerPropsOf } from '../components/TimerToPill';
 import { cue } from '../sfx';
 import type { SfxCue } from '../sfx';
@@ -109,6 +110,7 @@ export const MovieScene: React.FC<{ slot: MovieSlot }> = ({ slot }) => {
         ))}
       </div>
       <Snow />
+      <Vignette />
       <div style={frameBorderStyle()} />
       <FrameShimmer />
 
