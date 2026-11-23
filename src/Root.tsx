@@ -11,6 +11,7 @@ import { Gta6Full } from './gta6/Full';
 import { Hook as DontSayHook } from './dontsay/scenes/Hook';
 import { WIDTH as DS_WIDTH, HEIGHT as DS_HEIGHT, RENDER_FPS as DS_FPS, hookSec as DS_HOOK_SEC, secToFrames as dsSecToFrames } from './dontsay/timing';
 import { RENDER_TOTAL_FRAMES as GTA6_TOTAL_FRAMES } from './gta6/timing';
+import { RoundPreview, RoundPreviewAll, ROUND_ALL_FRAMES, ROUND_PREVIEW_DEFAULTS, roundPreviewFrames } from './dontsay/Preview';
 import { ALL_FRAMES, Gta6Preview, Gta6PreviewAll, PREVIEW_DEFAULTS, previewFrames } from './gta6/Preview';
 
 /**
@@ -53,6 +54,17 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="GTA6-P4" component={Part4} durationInFrames={part4Frames} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
       <Composition id="DontSay-Hook" component={DontSayHook} durationInFrames={dsSecToFrames(DS_HOOK_SEC)} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
       <Composition id="GTA6-Full" component={Gta6Full} durationInFrames={GTA6_TOTAL_FRAMES} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
+      <Composition
+        id="DontSay-Round"
+        component={RoundPreview}
+        durationInFrames={roundPreviewFrames(ROUND_PREVIEW_DEFAULTS.n)}
+        fps={RENDER_FPS}
+        width={WIDTH}
+        height={HEIGHT}
+        defaultProps={ROUND_PREVIEW_DEFAULTS}
+        calculateMetadata={({ props }) => ({ durationInFrames: roundPreviewFrames(props.n) })}
+      />
+      <Composition id="DontSay-Round-All" component={RoundPreviewAll} durationInFrames={ROUND_ALL_FRAMES} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
     </>
   );
 };

@@ -58,6 +58,8 @@ export type InkBubbleProps = {
   sfx?: boolean;
   /** Centre of the large state, in 1280x720 units. */
   centre?: { x: number; y: number };
+  /** Design tick (local to the enclosing Sequence) at which the bubble slides to centre. Default inkSlideTick. */
+  slideAt?: number;
 };
 
 const rng = (seed: number) => {
@@ -105,6 +107,7 @@ export const InkBubble: React.FC<InkBubbleProps> = ({
   accent,
   sfx = true,
   centre = LARGE_CENTRE,
+  slideAt = inkSlideTick,
 }) => {
   const tick = useDesignFrame();
   const dots = React.useMemo(() => makeDots(seed, DOT_COUNT), [seed]);
@@ -114,7 +117,7 @@ export const InkBubble: React.FC<InkBubbleProps> = ({
       ? 0
       : state === 'large'
         ? 1
-        : spring({ frame: Math.max(0, tick - inkSlideTick), fps: FPS, config: INK_SPRING });
+        : spring({ frame: Math.max(0, tick - slideAt), fps: FPS, config: INK_SPRING });
 
   // Geometry (reference units)
   const w = lerp(SMALL.w, LARGE.w, p);
@@ -150,7 +153,7 @@ export const InkBubble: React.FC<InkBubbleProps> = ({
           <Sequence from={0} layout="none">
             <Audio src={sfxSrc('lock-click')} />
           </Sequence>
-          <Sequence from={Math.round(inkSlideTick * TIME_SCALE)} layout="none">
+          <Sequence from={Math.round(slideAt * TIME_SCALE)} layout="none">
             <Audio src={sfxSrc('lock-click')} volume={0.3} />
           </Sequence>
         </>
