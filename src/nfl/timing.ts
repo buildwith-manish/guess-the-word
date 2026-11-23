@@ -197,7 +197,7 @@ export const partRanges: PartRange[] = [0, 1, 2, 3].map((p) => {
 });
 
 /** Level names for chapter titles. */
-const levelNames: Record<Level, string> = { rookie: 'Rookie', starter: 'Starter', hof: 'Hall of Fame' };
+export const levelNames: Record<Level, string> = { rookie: 'Rookie', starter: 'Starter', hof: 'Hall of Fame' };
 export type Chapter = { sec: number; title: string };
 
 const startOf = (kind: Segment['kind'], level?: Level): number => {

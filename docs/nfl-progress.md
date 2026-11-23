@@ -11,7 +11,7 @@ Nothing has been rendered by any task yet. 2a: `npx tsc --noEmit` has 0 errors i
 - [x] 1d: sfx (pedalboard). `scripts/make_nfl_sfx.py`, `public/nfl/sfx/`, `src/nfl/sfx.ts`, `src/nfl/sfx-ids.ts` (generated)
 - [x] 2a: copy shared parts + system (`src/nfl/system.ts`, `src/nfl/shared/*`, `src/ios/fonts.ts` + Inter files). See context section 7.
 - [x] 1c: timing (`src/nfl/timing.ts`, `scripts/nfl_runtime.ts`, placeholder `src/nfl/timings.generated.ts` for 5a to overwrite)
-- [ ] 2b: WalletCard
+- [x] 2b: WalletCard (`src/nfl/components/WalletCard.tsx`, stills-only preview `src/nfl/WalletCardPreview.tsx`)
 - [ ] 2c: PointsPill + clue timer
 - [ ] 2d: ClueStack
 - [ ] 2e: ScoreHud, chips
