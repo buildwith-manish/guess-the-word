@@ -83,5 +83,5 @@ export const clueImages: Record<string, ClueImageEntry> = {
   "s48_c2": { src: "xmas/clues/s48_c2.png", isPlaceholder: false },
   "s49_c1": { src: "xmas/clues/s49_c1.png", isPlaceholder: false },
   "s49_c2": { src: "xmas/clues/s49_c2.png", isPlaceholder: false },
-  "bonus08_snowglobe": { src: "xmas/clues/placeholders/bonus08_snowglobe.svg", isPlaceholder: true },
+  "bonus08_snowglobe": { src: "xmas/clues/bonus08_snowglobe.png", isPlaceholder: false },
 };
