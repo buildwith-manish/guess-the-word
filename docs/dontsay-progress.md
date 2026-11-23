@@ -181,7 +181,7 @@ Started, then stopped at the owner's request in favour of 4c. Nothing written. N
 
 - `src/dontsay/scenes/BonusChainReaction.tsx`: `BonusChainReaction` (BonusWrapper + chain + InkBubble), `bonusChainCues`, `bonusChainVoice`, `chainLinkTick`, `chainSlideTick`, `chainDissolveFrom/To`. Composition `DontSay-Bonus-3` in Root.tsx (additive), length `bonusSec`.
 - Words parsed from `bonus.prompt` (split on `->`); hint letter = last letter of the previous word; rule line from `bonus.rule`. Nothing hard-coded.
-- Ticks (30 fps, local): words arrive 6/18/30/42; links land at intro + (i+0.5) * 0.6 * play / 3 = 78, 138, 198; next first letter lights +5; bubble slides at 90 (reveal start); dissolve 120-165; voice reveal at 165. Frames at 60 fps = ticks x 2: check 156, 276, 396 (links), 240-330 (dissolve), 360.
+- Ticks (30 fps, local; frames = ticks x 2, computed by script): words arrive ticks 6/18/30/42; links land at ticks 84/132/180 = frames 168/264/360; bubble slides at tick 300 = frame 600 (reveal phase start); dissolve frames 660-750; voice reveal at frame 750. (An earlier version of this note had wrong numbers.)
 - `chain-link` x3 and `ink-dissolve` cues are in `bonusChainCues()`; nothing mounts voice clips yet.
 
 ### Open points
@@ -201,3 +201,16 @@ Started, then stopped at the owner's request in favour of 4c. Nothing written. N
 - Bubble large state spans y 290-590; prompt at y 232-284; strip y 598-648. Tight; clearance not checked by eye. The BonusWrapper chip ends near y 225 (estimate).
 - Strip height 50 ref units: the "+1 point" text is 28 units, possibly small for a phone; bump if needed.
 - Voice is not synced (no clips measured). SFX: chip-land at chip, ink-dissolve at dissolve, safe-pulse at match.
+
+## Task 4f: DONE (BonusVoiceOnly compiles; tsc --noEmit clean; NOT rendered, remotion still blocked: remotion.media unreachable)
+
+- `src/dontsay/scenes/BonusVoiceOnly.tsx`: `BonusVoiceOnly`, `voiceOnlyTicks`, `voiceOnlyCategory`, `bonusVoiceOnlyCues`, `bonusVoiceOnlyVoice`. Composition `DontSay-Bonus-5` in Root.tsx (additive), length `bonusSec`. No sealed bubble.
+- Frames at 60 fps (computed): category text visible from 0, voice starts 12, text fade 12-40; glow + waveform + "Listen" wake over the same span; intro voice ends 220 (estimated: 10 words at 2.6 words/s, replaced by the clip length when `b5_intro` is in timings.generated.ts); caption fades in 280-320 (max opacity 0.5); reveal phase 600, "Violin" answer springs in 624; corner mic pulses with the voice level at all times.
+- Check by eye: 0 (text), 40 (text gone, glow + bars), 150 (mid-voice), 300 (caption), 640 (answer).
+
+### Open points
+- Data has one voiceIntro string ("Final bonus. Voice only. Listen. Name a musical instrument."), so the category line is not a separate clip: caption timing uses the end of that whole line.
+- Category on screen = `prompt` minus the "(spoken)" suffix. It shows large at tick 0 (so the prompt is also text before the voice), fades out as the voice starts, and returns as the faint caption.
+- "Listen" label is UI copy owned by the scene. Voice level is a deterministic fake envelope, not read from audio.
+- `onScreenNote` for bonus 5 in data.ts is a production note ("Faint caption fades in ~1s..."). The scene passes the bonus to BonusWrapper with `onScreenNote` removed so it is never drawn; the data itself is unchanged.
+- Waveform/glow geometry unchecked by eye.
