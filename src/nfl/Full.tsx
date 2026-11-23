@@ -1,6 +1,7 @@
 import React from 'react';
 import { Sequence } from 'remotion';
 import { NflAudio } from './Audio';
+import { WatermarkOverlay } from './components/Watermark';
 import { Part1 } from './parts/Part1';
 import { Part2 } from './parts/Part2';
 import { Part3 } from './parts/Part3';
@@ -21,6 +22,8 @@ export const NflFull: React.FC<{ musicSrc?: string | null }> = ({ musicSrc }) =>
         </Sequence>
       );
     })}
+    {/* one watermark, above every Sequence */}
+    <WatermarkOverlay />
     <NflAudio musicSrc={musicSrc} />
   </>
 );

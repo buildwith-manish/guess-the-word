@@ -72,6 +72,9 @@ export const levelText: Record<Level, { title: string; subtitle: string }> = {
 };
 
 /** Lock-screen notification of the hook (task 3b). On-screen only: the hook clip is spoken from the script, never from here. */
+/** QUIZ MATRIX watermark words (channel brand, not card content). */
+export const watermarkText = { quiz: 'QUIZ', matrix: 'MATRIX' } as const;
+
 export const hookText = {
   appName: 'Scouting',
   title: `Scouting report: ${cards.length} players.`,
