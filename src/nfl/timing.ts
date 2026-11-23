@@ -49,6 +49,9 @@ export const rankStepSec = 2.8; // scoreboard: minimum per rank step (the rank l
 export const rankFinalHoldSec = 4; // scoreboard: the final card (all five tiers on one card) holds at least this long
 export const outroSec = 30;
 export const endScreenSec = 15; // the end screen is the last part of the outro
+export const outroFadeSec = 1; // the outro goes to black over its last this-many seconds
+export const outroLeadSec = 1; // outro: the first line starts this long after the outro does when no clips are measured
+export const rookieGapSec = 0.1; // card 1: gap between the Rookie level clip (banner) and the "Card 1." clip
 export const clipPadSec = 0.3; // added to a clip's length when it sets a slot
 export const pillLastSec = 1; // points pill: the red edge glow builds over the last this-many seconds of clue 5
 export const pillPulseSec = 1; // points pill: on the last clue it pulses once per this-many seconds
@@ -153,11 +156,11 @@ const buildPredictions = (): PredictionsPlan => {
   } else {
     const intro = secToTicks(predictionsIntroSec);
     const each = Math.floor((len - intro) / picksN);
-    bounds.push(...range(picksN).map((i) => intro + each * i));
+    bounds.push(...range0(picksN).map((i) => intro + each * i));
     bounds.push(len);
   }
   bounds[bounds.length - 1] = len; // any extra length goes to the last pick
-  const slots = range(PREDICTION_CLIPS).map((i): Range => ({ from: bounds[i], to: bounds[i + 1] }));
+  const slots = range0(PREDICTION_CLIPS).map((i): Range => ({ from: bounds[i], to: bounds[i + 1] }));
   return { intro: slots[0], picks: slots.slice(1), len };
 };
 export const predictionsPlan: PredictionsPlan = buildPredictions();
@@ -184,6 +187,20 @@ const buildScoreboard = () => {
 };
 export const scoreboardPlan = buildScoreboard();
 export const scoreboardLenSec: number = ticksToSec(scoreboardPlan.len);
+/** Outro line starts in ticks from the outro start (clip keys '1'..'5'): back to back from the clips, else spread evenly before the end screen. */
+export const outroLineStarts: number[] = (() => {
+  if (useClipTimings) {
+    let cur = 0;
+    return outroSlotSec.map((s) => {
+      const at = cur;
+      cur += secToTicks(s);
+      return at;
+    });
+  }
+  const lead = secToTicks(outroLeadSec);
+  const each = Math.floor((secToTicks(Math.max(outroSec, 0) - endScreenSec) - lead) / OUTRO_CLIPS);
+  return range0(OUTRO_CLIPS).map((i) => lead + each * i);
+})();
 /** The end screen needs its last `endScreenSec`, so the outro never goes below `outroSec`. */
 export const outroLenSec: number = Math.max(outroSec, sum(outroSlotSec));
 
@@ -209,7 +226,12 @@ const buildSegments = (): Segment[] => {
     const lock = card.final ? span(finalLockSec) : undefined;
     const n = String(card.n);
     const clueMin = card.twoMinuteWarning ? clueTmwSec : clueBaseSec;
-    const intro = span(slotOf(cardIntroSec, dur('cardintro', n)));
+    // card 1: the Rookie banner clip plays first (it starts as the banner settles), then "Card 1.", so the intro slot holds both
+    const introSec =
+      idx === 0 && useClipTimings
+        ? Math.max(cardIntroSec, levelBannerInSec + dur('level', 'rookie') + rookieGapSec + dur('cardintro', n) + clipPadSec)
+        : slotOf(cardIntroSec, dur('cardintro', n));
+    const intro = span(introSec);
     const clues = range(5).map((i) => span(slotOf(clueMin, dur('clue', `${card.n}.${i}`))));
     const beat = span(silenceBeatSec);
     // reveal clip, then the did-you-know clip, then the pad
@@ -221,7 +243,7 @@ const buildSegments = (): Segment[] => {
     if (card.didYouKnow) phases.dyk = { from: reveal.from + secToTicks(revealClip), to: reveal.to };
     out.push({ kind: 'card', card, from, to: cur, phases });
     // the 30 solved cards stack into the Wallet collection after the final reveal, then it cuts to the next scene
-    if (card.final) out.push({ kind: 'collection', ...span(collectionSec) });
+    if (card.final) out.push({ kind: 'collection', ...span(useClipTimings ? Math.max(collectionSec, collectionBeats.stackAt + dur('scorecard', 'hof') + clipPadSec) : collectionSec) });
     // score cards after card 10 and 20 only: the Hall of Fame has none and cuts on to the rest of the video
     if ((!next || next.level !== card.level) && card.level !== 'hof') {
       out.push({ kind: 'scoreCard', level: card.level, after: card, ...span(slotOf(scoreCardSec, dur('scorecard', card.level))) });

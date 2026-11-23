@@ -114,6 +114,16 @@ Nothing has been rendered by any task yet. 2a: `npx tsc --noEmit` has 0 errors i
 - Result with measured clips: 16:47.2 (target 12 to 14). Part 1 5:13.5, Part 2 5:12.8, Part 3 5:02.5, Part 4 1:18.4. Clue slots stretch 152 s above their minimums.
 - Open: `part3Voice()` still returns type 'collection'; the clip is `scorecard:hof` (2.94 s, fits `collectionSec` 6). Predictions lines 229 to 231 name real games, `picks.json` is still null.
 
+## 4c / 4g / 4h + audio notes (Part 2, Part 4, Outro, Full)
+
+- New: `parts/Part2.tsx` (NFL-P2), `parts/Part4.tsx` (NFL-P4: Predictions, Scoreboard, Outro), `scenes/Outro.tsx`, `voiceTimeline.ts`, `Audio.tsx` (`NflAudio`), `Full.tsx` (`NFL-Full`, Parts 1 to 4 at `partRanges` + audio). Root.tsx has NFL-P2, NFL-P4, NFL-Full.
+- Outro: the five script lines (keys '1'..'5') are drawn as text one at a time in the top half from their voice slot (`outroLineStarts` in timing.ts); bottom half empty for the end screen; fade to black over `outroFadeSec` (1 s); `end-sting` at the fade start. No copy written in the scene.
+- Audio: one `<Audio>` per voice clip (241 of 241 placed, no overlaps), every SFX cue of `fullCues` 7 dB under the voice (a cue within 3 ticks of a voice start is moved 0.2 s after it: 359 of 530), music bed `public/sounds/music-base.wav` looped, ducked to 0.5 while a voice clip plays (computed at runtime, nothing baked), fades 1 s in / 2 s out. Props: `musicSrc`, `voice`, `sfx`, `music`.
+- Bug fixed in timing.ts: `buildPredictions` used the 1-based `range` for the slots, so every prediction slot was shifted by one and clip '3' was dropped.
+- timing.ts changes: card 1's intro slot now holds the Rookie clip (starts as the banner settles) then "Card 1." (`rookieGapSec` 0.1); the collection slot grows to hold the `scorecard:hof` clip.
+- Measured: total 16:50 (target 12 to 14). Parts: 0:00, 5:17, 10:29, 15:32. Chapters: 0:00 / 5:17 / 10:29 / 15:32 / 15:59 / 16:20.
+- NOT done / open: nothing rendered (no Chromium). `docs/nfl/picks.json` is still null, so Predictions draws the red FILL IN PICKS bar. Music is the shared repo bed, not NFL-specific. Runtime is over target because clue slots stretch to their clips.
+
 ## Next step
 
-4c (Part 2); 4g (outro + Part 4) and 4h (full) after.
+Fill `picks.json`, set `meta.sourceName`, then render `NFL-Full` where Chromium works and listen through the mix.

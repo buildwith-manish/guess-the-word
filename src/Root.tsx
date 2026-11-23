@@ -12,7 +12,10 @@ import { RENDER_TOTAL_FRAMES as GTA6_TOTAL_FRAMES } from './gta6/timing';
 import { Hook as NflHook } from './nfl/scenes/Hook';
 import { Predictions as NflPredictions } from './nfl/scenes/Predictions';
 import { Part1 as NflPart1, part1Frames as nflPart1Frames } from './nfl/parts/Part1';
+import { Part2 as NflPart2, part2Frames as nflPart2Frames } from './nfl/parts/Part2';
 import { Part3 as NflPart3, part3Frames as nflPart3Frames } from './nfl/parts/Part3';
+import { Part4 as NflPart4, part4Frames as nflPart4Frames } from './nfl/parts/Part4';
+import { NflFull, nflFullFrames } from './nfl/Full';
 import { hookSec as nflHookSec, predictionsLenSec as nflPredictionsLenSec, secToFrames as nflSecToFrames } from './nfl/timing';
 import { ALL_FRAMES as NFL_ALL_FRAMES, NflCardPreview, NflCardPreviewAll, PREVIEW_DEFAULTS as NFL_PREVIEW_DEFAULTS, previewFrames as nflPreviewFrames } from './nfl/Preview';
 import { ALL_FRAMES, Gta6Preview, Gta6PreviewAll, PREVIEW_DEFAULTS, previewFrames } from './gta6/Preview';
@@ -69,7 +72,10 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="NFL-Hook" component={NflHook} durationInFrames={nflSecToFrames(nflHookSec)} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
       <Composition id="NFL-Predictions" component={NflPredictions} durationInFrames={nflSecToFrames(nflPredictionsLenSec)} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
       <Composition id="NFL-P1" component={NflPart1} durationInFrames={nflPart1Frames} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
+      <Composition id="NFL-P2" component={NflPart2} durationInFrames={nflPart2Frames} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
       <Composition id="NFL-P3" component={NflPart3} durationInFrames={nflPart3Frames} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
+      <Composition id="NFL-P4" component={NflPart4} durationInFrames={nflPart4Frames} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
+      <Composition id="NFL-Full" component={NflFull} durationInFrames={nflFullFrames} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
       <Composition id="NFL-Card-All" component={NflCardPreviewAll} durationInFrames={NFL_ALL_FRAMES} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
     </>
   );

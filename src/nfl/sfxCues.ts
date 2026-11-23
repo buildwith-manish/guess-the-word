@@ -12,7 +12,12 @@ import { cards } from './data';
 import { tmwCues } from './components/TwoMinuteWarning';
 import { revealCues } from './components/RevealEngine';
 import { part1BannerAt, part1Plan, type Placed } from './parts/Part1';
+import { part2Plan } from './parts/Part2';
 import { part3Plan } from './parts/Part3';
+import { part4Plan } from './parts/Part4';
+import { outroCues } from './scenes/Outro';
+import { predictionsCues } from './scenes/Predictions';
+import { scoreboardCues } from './scenes/Scoreboard';
 import { finalCardCues } from './scenes/FinalCard';
 import { levelCardCues } from './scenes/LevelCard';
 import { walletCollectionCues } from './scenes/WalletCollection';
@@ -45,7 +50,7 @@ export const cardCues = (card: Card, at: number): SfxCue[] => {
 
 const byFrame = (a: SfxCue, b: SfxCue) => a.frame - b.frame;
 
-const cuesOf = (plan: Placed[]): SfxCue[] =>
+export const cuesOf = (plan: Placed[]): SfxCue[] =>
   plan
     .flatMap(({ seg, at }): SfxCue[] => {
       switch (seg.kind) {
@@ -61,8 +66,12 @@ const cuesOf = (plan: Placed[]): SfxCue[] =>
           return walletCollectionCues(at);
         case 'scoreCard':
           return scoreCardCues(at);
-        default:
-          throw new Error(`sfxCues: no cues for segment "${seg.kind}" yet`);
+        case 'predictions':
+          return predictionsCues(at);
+        case 'scoreboard':
+          return scoreboardCues(at);
+        case 'outro':
+          return outroCues(at);
       }
     })
     .sort(byFrame);
@@ -72,3 +81,15 @@ export const part1Cues: SfxCue[] = [...cuesOf(part1Plan), ...levelBannerCues(par
 
 /** Part 3: Hall of Fame level card, cards 21 to 29, card 30 (lock replay + card), Wallet collection. Ticks local to the part. */
 export const part3Cues: SfxCue[] = cuesOf(part3Plan);
+
+/** Part 2: Starter level card, cards 11 to 20, Starter score card. Ticks local to the part. */
+export const part2Cues: SfxCue[] = cuesOf(part2Plan);
+
+/** Part 4: predictions, scoreboard, outro. Ticks local to the part. */
+export const part4Cues: SfxCue[] = cuesOf(part4Plan);
+
+/** The whole video, ticks from the start: every segment at its own `from`, plus the Rookie banner cue over card 1. */
+export const fullCues: SfxCue[] = [
+  ...cuesOf(segments.map((seg): Placed => ({ seg, at: seg.from, ticks: seg.to - seg.from }))),
+  ...levelBannerCues(cardSegment(cards[0]).from),
+].sort(byFrame);
