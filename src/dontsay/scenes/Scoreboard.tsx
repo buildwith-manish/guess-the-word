@@ -25,13 +25,17 @@ import { rankVoiceLine } from '../components/rankWords';
 import { sfxSrc } from '../sfx';
 import type { SfxId } from '../sfx';
 import '../shared/fonts';
-import { scoreboardBandAt } from '../slots';
 
 const px = (v: number): number => (v * WIDTH) / 1280;
 
 const TOTAL_TICKS = secToTicks(scoreboardSec);
-/** Band start ticks come from slots.ts, shared with the voice layer (voiceCues.ts). */
-export { scoreboardBandAt };
+/** One slot per rank; the split comes from the two numbers above, not a literal. */
+const SLOT_TICKS = Math.floor(TOTAL_TICKS / ranks.length);
+/** Ticks into a slot before that band's light-up spring starts. */
+const LEAD = 6;
+
+/** Tick each band starts lighting, lowest rank (index 0) first. */
+export const scoreboardBandAt: number[] = ranks.map((_, i) => i * SLOT_TICKS + LEAD);
 
 export const scoreboardFrames = (): number => ticksToFrames(TOTAL_TICKS);
 
