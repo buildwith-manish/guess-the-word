@@ -27,7 +27,7 @@ import { Part6 as DontSayPart6, part6Frames as dsPart6Frames } from './dontsay/p
 import { DontSayFull, dontSayFullFrames } from './dontsay/Full';
 import { RankCard as DontSayRankCard, rankCardFrames as dsRankCardFrames } from './dontsay/scenes/RankCard';
 import { Scoreboard as DontSayScoreboard, scoreboardFrames as dsScoreboardFrames } from './dontsay/scenes/Scoreboard';
-import { WIDTH as DS_WIDTH, HEIGHT as DS_HEIGHT, RENDER_FPS as DS_FPS, hookSec as DS_HOOK_SEC, levelCardSec as DS_LEVEL_SEC, settingsCardSec as DS_SETTINGS_SEC, heartCheckInSec as DS_CHECKIN_SEC, bonusSec as DS_BONUS_SEC, secToFrames as dsSecToFrames } from './dontsay/timing';
+import { WIDTH as DS_WIDTH, HEIGHT as DS_HEIGHT, RENDER_FPS as DS_FPS, hookSec as DS_HOOK_SEC, levelCardSecFor as dsLevelSecFor, settingsCardSecFor as dsSettingsSecFor, checkInSecFor as dsCheckInSecFor, bonusSecFor, secToFrames as dsSecToFrames } from './dontsay/timing';
 import { RENDER_TOTAL_FRAMES as GTA6_TOTAL_FRAMES } from './gta6/timing';
 import { RoundPreview, RoundPreviewAll, ROUND_ALL_FRAMES, ROUND_PREVIEW_DEFAULTS, roundPreviewFrames } from './dontsay/Preview';
 import { ALL_FRAMES, Gta6Preview, Gta6PreviewAll, PREVIEW_DEFAULTS, previewFrames } from './gta6/Preview';
@@ -71,15 +71,15 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="GTA6-P3" component={Part3} durationInFrames={part3Frames} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
       <Composition id="GTA6-P4" component={Part4} durationInFrames={part4Frames} fps={RENDER_FPS} width={WIDTH} height={HEIGHT} />
       <Composition id="DontSay-Hook" component={DontSayHook} durationInFrames={dsSecToFrames(DS_HOOK_SEC)} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
-      <Composition id="DontSay-LevelCard-L1" component={DontSayLevelCard} durationInFrames={dsSecToFrames(DS_LEVEL_SEC)} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} defaultProps={{ level: 1 as const, sheet: false }} />
-      <Composition id="DontSay-LevelCard-L2" component={DontSayLevelCard} durationInFrames={dsSecToFrames(DS_LEVEL_SEC)} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} defaultProps={{ level: 2 as const, sheet: true }} />
-      <Composition id="DontSay-LevelCard-L3" component={DontSayLevelCard} durationInFrames={dsSecToFrames(DS_LEVEL_SEC)} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} defaultProps={{ level: 3 as const, sheet: false }} />
-      <Composition id="DontSay-LevelCard-L4" component={DontSayLevelCard} durationInFrames={dsSecToFrames(DS_LEVEL_SEC)} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} defaultProps={{ level: 4 as const, sheet: false }} />
-      <Composition id="DontSay-LevelCard-L5" component={DontSayLevelCard} durationInFrames={dsSecToFrames(DS_LEVEL_SEC)} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} defaultProps={{ level: 5 as const, sheet: false }} />
-      <Composition id="DontSay-SettingsCard-L2" component={DontSaySettingsCard} durationInFrames={dsSecToFrames(DS_SETTINGS_SEC)} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} defaultProps={{ level: 2 as const }} />
-      <Composition id="DontSay-HeartCheckIn" component={DontSayHeartCheckIn} durationInFrames={dsSecToFrames(DS_CHECKIN_SEC)} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
-      <Composition id="DontSay-Bonus-3" component={DontSayBonusChain} durationInFrames={dsSecToFrames(DS_BONUS_SEC)} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
-      <Composition id="DontSay-Bonus-5" component={DontSayBonusVoice} durationInFrames={dsSecToFrames(DS_BONUS_SEC)} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
+      <Composition id="DontSay-LevelCard-L1" component={DontSayLevelCard} durationInFrames={dsSecToFrames(dsLevelSecFor(1))} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} defaultProps={{ level: 1 as const, sheet: false }} />
+      <Composition id="DontSay-LevelCard-L2" component={DontSayLevelCard} durationInFrames={dsSecToFrames(dsLevelSecFor(2))} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} defaultProps={{ level: 2 as const, sheet: true }} />
+      <Composition id="DontSay-LevelCard-L3" component={DontSayLevelCard} durationInFrames={dsSecToFrames(dsLevelSecFor(3))} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} defaultProps={{ level: 3 as const, sheet: false }} />
+      <Composition id="DontSay-LevelCard-L4" component={DontSayLevelCard} durationInFrames={dsSecToFrames(dsLevelSecFor(4))} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} defaultProps={{ level: 4 as const, sheet: false }} />
+      <Composition id="DontSay-LevelCard-L5" component={DontSayLevelCard} durationInFrames={dsSecToFrames(dsLevelSecFor(5))} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} defaultProps={{ level: 5 as const, sheet: false }} />
+      <Composition id="DontSay-SettingsCard-L2" component={DontSaySettingsCard} durationInFrames={dsSecToFrames(dsSettingsSecFor())} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} defaultProps={{ level: 2 as const }} />
+      <Composition id="DontSay-HeartCheckIn" component={DontSayHeartCheckIn} durationInFrames={dsSecToFrames(dsCheckInSecFor())} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
+      <Composition id="DontSay-Bonus-3" component={DontSayBonusChain} durationInFrames={dsSecToFrames(bonusSecFor(3))} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
+      <Composition id="DontSay-Bonus-5" component={DontSayBonusVoice} durationInFrames={dsSecToFrames(bonusSecFor(5))} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
       <Composition id="DontSay-P5" component={DontSayPart5} durationInFrames={dsPart5Frames} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
       <Composition id="DontSay-P4" component={DontSayPart4} durationInFrames={dsPart4Frames} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />
       <Composition id="DontSay-P3" component={DontSayPart3} durationInFrames={dsPart3Frames} fps={DS_FPS} width={DS_WIDTH} height={DS_HEIGHT} />

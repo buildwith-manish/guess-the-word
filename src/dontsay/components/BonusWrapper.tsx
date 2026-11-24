@@ -27,11 +27,9 @@ import {
   FPS,
   TIME_SCALE,
   WIDTH,
-  bonusIntroSec,
-  bonusPlaySec,
-  bonusResultSec,
-  bonusRevealSec,
+  bonusTicksFor,
 } from '../timing';
+export { bonusTicksFor };
 
 /** 1280x720 reference units -> 2560x1440 screen px. */
 const REF_W = 1280;
@@ -52,17 +50,9 @@ export const BONUS_HEARTS_LABEL = 'BONUS';
 
 export type BonusPhase = 'intro' | 'play' | 'reveal' | 'result';
 
-/** Phase boundaries in design ticks (30 fps), local to the wrapper's start. */
-export const bonusTicks = (() => {
-  const intro = Math.round(bonusIntroSec * FPS);
-  const play = intro + Math.round(bonusPlaySec * FPS);
-  const reveal = play + Math.round(bonusRevealSec * FPS);
-  const result = reveal + Math.round(bonusResultSec * FPS);
-  return { intro, play, reveal, result, chipAt: Math.round(intro / 2) } as const;
-})();
-
-export const bonusPhaseAt = (tick: number): BonusPhase =>
-  tick < bonusTicks.intro ? 'intro' : tick < bonusTicks.play ? 'play' : tick < bonusTicks.reveal ? 'reveal' : 'result';
+export type BonusTicks = ReturnType<typeof bonusTicksFor>;
+export const bonusPhaseAt = (tick: number, t: BonusTicks): BonusPhase =>
+  tick < t.intro ? 'intro' : tick < t.play ? 'play' : tick < t.reveal ? 'reveal' : 'result';
 
 export type BonusContextValue = { bonus: Bonus; level: Level; phase: BonusPhase; tick: number };
 const BonusContext = createContext<BonusContextValue | null>(null);
@@ -92,7 +82,8 @@ export const BonusWrapper: React.FC<BonusWrapperProps> = ({ bonus: bonusProp, le
   const tick = useDesignFrame();
   const bonus = typeof bonusProp === 'number' ? (bonuses.find((b) => b.n === bonusProp) as Bonus) : bonusProp;
   const level: Level = levelProp ?? rounds.find((r) => r.n === bonus.afterRound)?.level ?? 1;
-  const phase = bonusPhaseAt(tick);
+  const bonusTicks = bonusTicksFor(bonus.n);
+  const phase = bonusPhaseAt(tick, bonusTicks);
 
   // Warm glaze: amber over the level colour, ramps in over the first half-second.
   const warm = clamp01(tick / (FPS / 2));

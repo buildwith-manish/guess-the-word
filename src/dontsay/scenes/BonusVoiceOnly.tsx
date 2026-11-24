@@ -13,14 +13,16 @@
 import React from 'react';
 import { AbsoluteFill, Audio, Sequence } from 'remotion';
 import { bonuses, type Bonus } from '../data';
-import { BonusWrapper, bonusTicks, px, useBonus } from '../components/BonusWrapper';
+import { BonusWrapper, px, useBonus } from '../components/BonusWrapper';
 import { sfxSrc, type SfxId } from '../sfx';
 import { clamp01 } from '../shared/fade';
 import { colours, fontHeadline, springAt } from '../system';
-import { FPS, TIME_SCALE, bonusClipId, clipSec } from '../timing';
+import { FPS, TIME_SCALE, bonusClipId, clipSec, bonusTicksFor } from '../timing';
 
 const BONUS_N = 5;
 const bonus5 = (): Bonus => bonuses.find((b) => b.n === BONUS_N) as Bonus;
+/** Phase boundaries of this bonus; intro and reveal stretch to their voice clips. */
+const bonusTicks = bonusTicksFor(BONUS_N);
 
 /** UI copy owned by this scene (not in data.ts). */
 const LISTEN_LABEL = 'Listen';

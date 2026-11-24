@@ -12,16 +12,18 @@
 import React from 'react';
 import { AbsoluteFill, Audio, Sequence } from 'remotion';
 import { bonuses, type Bonus } from '../data';
-import { BonusWrapper, bonusGlass, bonusTicks, px, useBonus } from '../components/BonusWrapper';
+import { BonusWrapper, bonusGlass, px, useBonus } from '../components/BonusWrapper';
 import { InkBubble } from '../components/InkBubble';
 import { sfxSrc } from '../sfx';
 import { useDesignFrame } from '../shared/clock';
 import { clamp01 } from '../shared/fade';
 import { colours, fontHeadline, springAt } from '../system';
-import { TIME_SCALE } from '../timing';
+import { TIME_SCALE, bonusTicksFor } from '../timing';
 
 const BONUS_N = 3;
 const bonus3 = (): Bonus => bonuses.find((b) => b.n === BONUS_N) as Bonus;
+/** Phase boundaries of this bonus; intro and reveal stretch to their voice clips. */
+const bonusTicks = bonusTicksFor(BONUS_N);
 
 /** Layout in 1280x720 reference units, relative to the wrapper's mechanic slot (x 128..1152, y 262..648). */
 const L = {

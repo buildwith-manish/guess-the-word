@@ -13,16 +13,18 @@
 import React from 'react';
 import { AbsoluteFill, Audio, Sequence } from 'remotion';
 import { bonuses, type Bonus } from '../data';
-import { BonusWrapper, bonusTicks, px } from '../components/BonusWrapper';
+import { BonusWrapper, px } from '../components/BonusWrapper';
 import { InkBubble } from '../components/InkBubble';
 import { sfxSrc } from '../sfx';
 import { useDesignFrame } from '../shared/clock';
 import { clamp01 } from '../shared/fade';
 import { colours, fontHeadline, springAt } from '../system';
-import { TIME_SCALE, secToFrames, bonusSec } from '../timing';
+import { TIME_SCALE, secToFrames, bonusSecFor, bonusTicksFor } from '../timing';
 
 const BONUS_N = 4;
 const bonus4 = (): Bonus => bonuses.find((b) => b.n === BONUS_N) as Bonus;
+/** Phase boundaries of this bonus; intro and reveal stretch to their voice clips. */
+const bonusTicks = bonusTicksFor(BONUS_N);
 const answerOf = (b: Bonus): string => (Array.isArray(b.answer) ? b.answer[0] : b.answer);
 
 /** Layout in 1280x720 reference units. Centre 80% = x 128..1152, y 72..648. */
@@ -63,7 +65,7 @@ export const bonusOppositeDayVoice = () => ({
   revealAt: oppositeDayTicks.dissolveTo,
 });
 
-export const bonusOppositeDayFrames = (): number => secToFrames(bonusSec);
+export const bonusOppositeDayFrames = (): number => secToFrames(bonusSecFor(BONUS_N));
 
 const invertAmount = (tick: number): number => {
   const { invertStart: s } = oppositeDayTicks;

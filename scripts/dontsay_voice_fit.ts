@@ -13,18 +13,16 @@
  * "Overrun" = clip length - slot (only lines with a positive overrun are listed). A slot also needs clipPadSec (0.3 s) after
  * the clip (timing.ts: slot = max(base, clip + 0.3)), so lines that fit by less than 0.3 s are counted separately.
  *
- * Two runtimes are printed, because timing.ts only stretches round intro and reveal slots today:
- *   AS BUILT   = timing.ts as it is now (TOTAL_SEC). Result, level, check-in and bonus slots are fixed, so a longer clip there
- *                runs past its scene instead of adding time; a heavy round's rule clip is not in this number.
- *   ALL FIT    = every slot stretched to max(slot, clip + 0.3), the runtime the video needs for no clip to be cut or overlap.
- * "Shortened" = the 15 worst lines cut to (slot - 0.3 s), so they add nothing. A heavy pair is cut proportionally.
+ * Every voiced slot stretches in timing.ts: slot = max(base, clips + 0.3 s). The runtime printed equals TOTAL_SEC (self-checked).
+ * "Shortened" = the worst lines cut to (slot - 0.3 s), so they add nothing. A heavy pair is cut as a whole.
  */
 import { readFileSync } from 'node:fs';
 import { bonuses, heartCheckIn, rounds } from '../src/dontsay/data';
 import { bonusAudio, checkInId, levelIds, roundAudio } from '../src/dontsay/audioMap';
 import {
-  TOTAL_TICKS, bonusIntroSec, bonusRevealSec, clipPadSec, clipSec, heartCheckInSec, introBaseSec, introSecFor, levelCardSec,
-  resultSec, revealSec, revealSecFor, secToTicks, targetSec, timecode,
+  TOTAL_TICKS, bonusIntroSec, bonusPhaseSecs, bonusRevealSec, checkInSecFor, clipPadSec, clipSec, heartCheckInSec, introBaseSec,
+  introSecFor, levelCardSec, levelCardSecFor, resultSec, resultSecFor, revealSec, revealSecFor, secToTicks, settingsCardSec,
+  settingsCardSecFor, targetSec, timecode,
 } from '../src/dontsay/timing';
 
 const TOP = Number(process.env.FIT_TOP ?? 15);
@@ -64,7 +62,7 @@ const dur = (id: string): number => {
 };
 
 /* ---------- one entry per slot ---------- */
-type Kind = 'intro' | 'reveal' | 'result' | 'level' | 'check-in' | 'bonus intro' | 'bonus reveal';
+type Kind = 'settings' | 'intro' | 'reveal' | 'result' | 'level' | 'check-in' | 'bonus intro' | 'bonus reveal';
 type Entry = {
   where: string; kind: Kind; ids: string[]; durs: number[]; slot: number; len: number; over: number; text: string;
   /** For a round intro/reveal: how timing.ts stretches that slot today. */
@@ -85,6 +83,7 @@ for (const r of rounds) {
   if (a.result) add(`R${r.n}`, 'result', [a.result], resultSec);
 }
 for (const [lv, ids] of Object.entries(levelIds)) add(`L${lv}`, 'level', [ids.level], levelCardSec);
+if (levelIds[1].settings) add('L1', 'settings' as Kind, [levelIds[1].settings], settingsCardSec);
 add(`after R${heartCheckIn.afterRound}`, 'check-in', [checkInId], heartCheckInSec);
 for (const b of bonuses) {
   const a = bonusAudio.find((x) => x.n === b.n);
@@ -96,31 +95,25 @@ if (problems.length) { console.error('FAIL:\n  ' + problems.join('\n  ')); proce
 
 /* ---------- runtimes (in ticks, exactly as timing.ts rounds its slots) ---------- */
 const T = (s: number): number => secToTicks(s);
-/** Ticks timing.ts spends today because of clips: round intro/reveal slots longer than their base. */
-const grownNow = rounds.reduce((s, r) => s + (T(introSecFor(r)) - T(introBaseSec(r))) + (T(revealSecFor(r)) - T(revealSec)), 0);
+/** Ticks timing.ts adds because of clips: every voiced slot is max(base, clip + pad) now. */
+const grownNow = rounds.reduce((sum, r) => sum + (T(introSecFor(r)) - T(introBaseSec(r))) + (T(revealSecFor(r)) - T(revealSec)) + (T(resultSecFor(r)) - T(resultSec)), 0)
+  + (Object.keys(levelIds) as unknown as (1 | 2 | 3 | 4 | 5)[]).reduce((sum, lv) => sum + T(levelCardSecFor(lv)) - T(levelCardSec), 0)
+  + (T(settingsCardSecFor()) - T(settingsCardSec))
+  + (T(checkInSecFor()) - T(heartCheckInSec))
+  + bonuses.reduce((sum, b) => { const p = bonusPhaseSecs(b.n); return sum + (T(p.intro) - T(bonusIntroSec)) + (T(p.reveal) - T(bonusRevealSec)); }, 0);
 const BASE_TICKS = TOTAL_TICKS - grownNow;
 /** Length of an entry after shortening (the 15 worst are cut to slot - pad; a pair is cut proportionally). */
 const cutLen = (e: Entry): number => Math.min(e.len, e.slot - clipPadSec);
 
-const asBuilt = (cut: Set<Entry>): number => {
-  let ticks = BASE_TICKS;
-  for (const e of entries) {
-    if (!e.grows) continue;
-    const f = cut.has(e) ? cutLen(e) / e.len : 1;
-    const first = dur(e.ids[0]) * f; // timing.ts measures the first clip only (the intro line, not the rule line)
-    ticks += T(Math.max(e.slot, first + clipPadSec)) - T(e.slot);
-  }
-  return ticks;
-};
 const allFit = (cut: Set<Entry>): number => {
   let ticks = BASE_TICKS;
   for (const e of entries) ticks += T(Math.max(e.slot, (cut.has(e) ? cutLen(e) : e.len) + clipPadSec)) - T(e.slot);
   return ticks;
 };
 
-/* self-check: the AS BUILT model must give back timing.ts's own total, or the numbers below cannot be trusted */
-if (asBuilt(new Set()) !== TOTAL_TICKS) {
-  console.error(`FAIL: AS BUILT model gives ${asBuilt(new Set())} ticks, timing.ts gives ${TOTAL_TICKS}`);
+/* self-check: the model must give back timing.ts's own total, or the numbers below cannot be trusted */
+if (allFit(new Set()) !== TOTAL_TICKS) {
+  console.error(`FAIL: model gives ${allFit(new Set())} ticks, timing.ts gives ${TOTAL_TICKS}`);
   process.exit(1);
 }
 
@@ -146,13 +139,9 @@ console.log('By slot: ' + (['intro', 'reveal', 'result', 'level', 'check-in', 'b
   return `${k} ${xs.length}/${entries.filter((e) => e.kind === k).length}`;
 }).join(' | '));
 
-const base = BASE_TICKS / 30, now = TOTAL_TICKS / 30, fitAll = allFit(new Set()) / 30;
-const nowCut = asBuilt(worstSet) / 30, fitCut = allFit(worstSet) / 30;
+const base = BASE_TICKS / 30, now = TOTAL_TICKS / 30, fitCut = allFit(worstSet) / 30;
 const row = (label: string, s: number, ref: number): string => `${label.padEnd(34)} ${s.toFixed(1).padStart(7)} s  ${timecode(s).padStart(5)}  ${(s >= ref ? '+' : '') + (s - ref).toFixed(1).padStart(6)} s vs target ${timecode(targetSec)}`;
-console.log('\nRuntime');
+console.log('\nRuntime (timing.ts stretches every voiced slot to its clip + pad)');
 console.log(row('base (no voice, base slots)', base, targetSec));
-console.log(row('AS BUILT, clips as they are', now, targetSec) + `   added by clips: ${(now - base).toFixed(1)} s`);
-console.log(row(`AS BUILT, ${worst.length} worst shortened`, nowCut, targetSec) + `   saves ${(now - nowCut).toFixed(1)} s`);
-console.log(row('ALL FIT, clips as they are', fitAll, targetSec) + `   added: ${(fitAll - base).toFixed(1)} s`);
-console.log(row(`ALL FIT, ${worst.length} worst shortened`, fitCut, targetSec) + `   saves ${(fitAll - fitCut).toFixed(1)} s`);
-console.log('\nAS BUILT counts only round intro/reveal stretching (timing.ts today). ALL FIT also stretches result, level, check-in and bonus slots and counts a heavy round\'s rule line.');
+console.log(row('clips as they are (= timing.ts)', now, targetSec) + `   added by clips: ${(now - base).toFixed(1)} s`);
+console.log(row(`${worst.length} worst shortened`, fitCut, targetSec) + `   saves ${(now - fitCut).toFixed(1)} s`);

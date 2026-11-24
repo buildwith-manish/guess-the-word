@@ -9,7 +9,7 @@
  */
 import React from 'react';
 import { heartCheckIn, rounds } from '../data';
-import { WIDTH, heartCheckInSec, secToTicks, useDontSayFrame } from '../timing';
+import { WIDTH, checkInSecFor, secToTicks, useDontSayFrame } from '../timing';
 import { colours, fontHeadline, levelBackground, springAt } from '../system';
 import { clamp01 } from '../shared/fade';
 import { HeartsPill } from '../components/HeartsPill';
@@ -35,7 +35,7 @@ export const heartCheckInVoice = (): { text: string; clipId: string } => ({ text
 /** Music bed gain multiplier across the card: a slight lift (guess 1.12x), ramped in, hard stop at the cut. */
 export const MUSIC_LIFT = { to: 1.12, rampTicks: 18 } as const;
 export const heartCheckInMusicGain = (tick: number): number => {
-  if (tick < 0 || tick >= secToTicks(heartCheckInSec)) return 1;
+  if (tick < 0 || tick >= secToTicks(checkInSecFor())) return 1;
   return 1 + (MUSIC_LIFT.to - 1) * clamp01(tick / MUSIC_LIFT.rampTicks);
 };
 

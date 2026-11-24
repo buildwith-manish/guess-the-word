@@ -17,10 +17,12 @@ import { bonuses, type Bonus } from '../data';
 import { sfxSrc } from '../sfx';
 import { clamp01 } from '../shared/fade';
 import { colours, fontHeadline, springAt, STAGGER } from '../system';
-import { FPS, RENDER_FPS, TIME_SCALE, WIDTH, HEIGHT, beatSec, bonusClipId, bonusSec, secToFrames } from '../timing';
-import { BonusWrapper, bonusGlass, bonusTicks, px, useBonus } from '../components/BonusWrapper';
+import { FPS, RENDER_FPS, TIME_SCALE, WIDTH, HEIGHT, beatSec, bonusClipId, bonusSecFor, secToFrames, bonusTicksFor } from '../timing';
+import { BonusWrapper, bonusGlass, px, useBonus } from '../components/BonusWrapper';
 
 const bonusData = (): Bonus => bonuses.find((b) => b.name === 'triple-lock') as Bonus;
+/** Phase boundaries of this bonus; intro and reveal stretch to their voice clips. */
+const bonusTicks = bonusTicksFor(bonusData().n);
 
 const answersOf = (b: Bonus): string[] => (Array.isArray(b.answer) ? b.answer : [b.answer]);
 
@@ -57,7 +59,7 @@ export const bonusTripleLockCues = () => [
   ...tripleLockTicks.dissolveAt.map((at) => ({ id: 'ink-dissolve' as const, at })),
 ];
 
-export const bonusTripleLockFrames = (): number => secToFrames(bonusSec);
+export const bonusTripleLockFrames = (): number => secToFrames(bonusSecFor(bonusData().n));
 
 // ---------- ink ----------
 const rng = (seed: number) => {

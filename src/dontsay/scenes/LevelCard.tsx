@@ -15,7 +15,7 @@
  */
 import React from 'react';
 import { levelColors, rounds, type Level } from '../data';
-import { WIDTH, levelCardSec, secToTicks, useDontSayFrame } from '../timing';
+import { WIDTH, levelCardSecFor, secToTicks, useDontSayFrame } from '../timing';
 import { colours, fontHeadline, fontNumeric, glassSurface, springAt } from '../system';
 import { levelCardId, type SfxId } from '../sfx';
 import { levelCardLaunch, levelCardExit } from '../shared/levelCard';
@@ -76,16 +76,16 @@ export type LevelCardProps = {
   level: Level;
   /** Local design tick (30 fps); defaults to the clock of the enclosing Sequence. */
   frame?: number;
-  /** Total length in seconds. Default levelCardSec. */
+  /** Total length in seconds. Default levelCardSecFor(level). */
   durationSec?: number;
   /** Also slide the rules sheet (SettingsCard) up over the card at LEVEL_SHEET_AT. Default false. */
   sheet?: boolean;
 };
 
-export const LevelCard: React.FC<LevelCardProps> = ({ level, frame: frameProp, durationSec = levelCardSec, sheet = false }) => {
+export const LevelCard: React.FC<LevelCardProps> = ({ level, frame: frameProp, durationSec: durationProp, sheet = false }) => {
   const clock = useDontSayFrame();
   const frame = frameProp ?? clock;
-  const total = secToTicks(durationSec);
+  const total = secToTicks(durationProp ?? levelCardSecFor(level));
 
   const L = levelColors[level];
   const copy = levelCardCopy(level);

@@ -395,3 +395,9 @@ Started, then stopped at the owner's request in favour of 4c. Nothing written. N
 ### Open: the recorded voice does not play yet except in a few places
 - Playing audio from these clips: `ResultBeat` (result lines) and `Round45Callback` (round 45 intro) only. Rounds 1-44 intro/reveal, rule clips, bonus intro/reveal (bonus scenes only read the clip length), level cards (`level_N` ids), check-in (`check_in`), rank (`rankcard_reveal`), outro and `Hook.tsx` (`hook_00`...) do not use the ds_ ids. `Hook.tsx` points at clip files that do not exist: check before any render. A full voice layer (placed from audioMap + segments) is a separate task; an earlier attempt (commit 6452538) was reverted and is not on the branch.
 - Slots that do not stretch with clips (result, level, check-in, bonus intro/reveal, rule line of heavy rounds) are only reported by the fit script; timing.ts is unchanged.
+
+## Slots stretch to their voice clips (after 5b)
+- timing.ts: every voiced slot is now max(base, clips + 0.3 s): round intro (+ rule clip on heavy rounds), reveal, result, level card, settings card, heart check-in, bonus intro and bonus reveal (play and result stay fixed). Functions: resultSecFor, levelCardSecFor, settingsCardSecFor, checkInSecFor, bonusPhaseSecs, bonusSecFor, bonusTicksFor.
+- BonusWrapper and the five bonus scenes read bonusTicksFor(n) (per bonus) instead of a fixed bonusTicks; Root.tsx sizes bonus, level, settings and check-in compositions from the same functions.
+- Runtime with the current clips: 758.2 s (12:38). Shortening the 15 worst gives 727.1 s. dontsay_voice_fit.ts self-checks its model against TOTAL_TICKS.
+- Not done: the scenes still do not play most ds_ clips (rounds 1-44 intro/reveal/rule, hook, level, settings, check-in, rank, outro). Nothing rendered.

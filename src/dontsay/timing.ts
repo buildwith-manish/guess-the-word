@@ -6,7 +6,7 @@
 import { useCurrentFrame } from 'remotion';
 import { bonuses, heartCheckIn, levelColors, rounds } from './data';
 import type { Bonus, Level, Round } from './data';
-import { bonusAudioOf, roundAudio, roundAudioOf } from './audioMap';
+import { bonusAudio, bonusAudioOf, checkInId, levelIds, roundAudio, roundAudioOf } from './audioMap';
 import { clipTimings } from './timings.generated';
 
 /* ---------- clock ----------
@@ -97,10 +97,44 @@ const slotClipSec = (n: number, kind: 'intro' | 'reveal'): number | undefined =>
 export const timerSecFor = (level: Level): number => (level <= 2 ? timerL1L2Sec : level === 3 ? timerL3Sec : timerL4L5Sec);
 /** Base intro length by round kind (callback first: round 45 is also heavy). */
 export const introBaseSec = (r: Round): number => (r.callback ? introCallbackSec : r.heavy ? introHeavySec : introStdSec);
-/** Intro slot = max(base, intro clip + pad) once the clip exists; otherwise the base value. */
-export const introSecFor = (r: Round): number => Math.max(introBaseSec(r), (slotClipSec(r.n, 'intro') ?? -Infinity) + clipPadSec);
+/** Slot rule for every voiced slot: max(base, clips back to back + pad). A missing clip keeps the base length. */
+const fitSec = (base: number, ids: (string | undefined)[]): number => {
+  const lens = ids.filter((i): i is string => !!i).map((i) => clipSec(i));
+  if (!lens.length || lens.some((l) => l === undefined)) return base;
+  return Math.max(base, (lens as number[]).reduce((a, b) => a + b, 0) + clipPadSec);
+};
+/** Intro slot = max(base, intro clip + rule clip (heavy rounds) + pad). */
+export const introSecFor = (r: Round): number => {
+  const a = roundAudio.find((x) => x.n === r.n);
+  return fitSec(introBaseSec(r), [a?.intro, a?.rule]);
+};
 /** Reveal slot = max(revealSec, reveal clip + pad). */
-export const revealSecFor = (r: Round): number => Math.max(revealSec, (slotClipSec(r.n, 'reveal') ?? -Infinity) + clipPadSec);
+export const revealSecFor = (r: Round): number => fitSec(revealSec, [roundAudio.find((a) => a.n === r.n)?.reveal]);
+/** Result slot = max(resultSec, result clip + pad). */
+export const resultSecFor = (r: Round): number => fitSec(resultSec, [roundAudio.find((a) => a.n === r.n)?.result]);
+/** Level card = max(levelCardSec, level clip + pad). */
+export const levelCardSecFor = (level: Level): number => fitSec(levelCardSec, [levelIds[level]?.level]);
+/** Settings card (the rules sheet before level 1) = max(settingsCardSec, settings clip + pad). */
+export const settingsCardSecFor = (): number => fitSec(settingsCardSec, [levelIds[1]?.settings]);
+/** Heart check-in = max(heartCheckInSec, check-in clip + pad). */
+export const checkInSecFor = (): number => fitSec(heartCheckInSec, [checkInId]);
+/** Bonus phases: intro and reveal stretch to their clips; play and result stay fixed. */
+export const bonusPhaseSecs = (n: number): { intro: number; play: number; reveal: number; result: number; total: number } => {
+  const a = bonusAudio.find((x) => x.n === n);
+  const intro = fitSec(bonusIntroSec, [a?.intro]);
+  const reveal = fitSec(bonusRevealSec, [a?.reveal]);
+  return { intro, play: bonusPlaySec, reveal, result: bonusResultSec, total: intro + bonusPlaySec + reveal + bonusResultSec };
+};
+export const bonusSecFor = (n: number): number => bonusPhaseSecs(n).total;
+/** Phase boundaries of a bonus in design ticks, local to its start. */
+export const bonusTicksFor = (n: number) => {
+  const p = bonusPhaseSecs(n);
+  const intro = secToTicks(p.intro);
+  const play = intro + secToTicks(p.play);
+  const reveal = play + secToTicks(p.reveal);
+  const result = reveal + secToTicks(p.result);
+  return { intro, play, reveal, result, chipAt: Math.round(intro / 2) } as const;
+};
 
 /* ---------- segments ---------- */
 export type Range = { from: number; to: number };
@@ -139,13 +173,13 @@ const buildSegments = (): Segment[] => {
   let part: PartNo = 1;
 
   out.push({ kind: 'hook', part, ...span(hookSec) });
-  out.push({ kind: 'settingsCard', part, ...span(settingsCardSec) });
+  out.push({ kind: 'settingsCard', part, ...span(settingsCardSecFor()) });
 
   let lastLevel: Level | undefined;
   rounds.forEach((r) => {
     if (r.level !== lastLevel) {
       if (r.level > 1) part = r.level as PartNo;
-      out.push({ kind: 'levelCard', level: r.level, part, ...span(levelCardSec) });
+      out.push({ kind: 'levelCard', level: r.level, part, ...span(levelCardSecFor(r.level)) });
       lastLevel = r.level;
     }
     const from = cur;
@@ -155,17 +189,18 @@ const buildSegments = (): Segment[] => {
       sealed: span(sealedSlideSec),
       beat: span(beatSec),
       reveal: span(revealSecFor(r)),
-      result: span(resultSec),
+      result: span(resultSecFor(r)),
     };
     out.push({ kind: 'round', round: r, phases, sealedFrom: from, lockClickTicks: [from, phases.reveal.from], part, from, to: cur });
 
     if (r.n === heartCheckIn.afterRound) {
-      out.push({ kind: 'heartCheckIn', afterRound: heartCheckIn.afterRound, beforeRound: heartCheckIn.beforeRound, part, ...span(heartCheckInSec) });
+      out.push({ kind: 'heartCheckIn', afterRound: heartCheckIn.afterRound, beforeRound: heartCheckIn.beforeRound, part, ...span(checkInSecFor()) });
     }
     const b = bonuses.find((x) => x.afterRound === r.n);
     if (b) {
       const bFrom = cur;
-      const bp: BonusPhases = { intro: span(bonusIntroSec), play: span(bonusPlaySec), reveal: span(bonusRevealSec), result: span(bonusResultSec) };
+      const ps = bonusPhaseSecs(b.n);
+      const bp: BonusPhases = { intro: span(ps.intro), play: span(ps.play), reveal: span(ps.reveal), result: span(ps.result) };
       out.push({ kind: 'bonus', bonus: b, phases: bp, part, from: bFrom, to: cur });
     }
   });
