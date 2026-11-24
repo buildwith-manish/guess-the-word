@@ -376,3 +376,12 @@ Started, then stopped at the owner's request in favour of 4c. Nothing written. N
 - Round 30 and 41 answers are numerals in data.ts and words in the CSV (expected, not compared).
 - Nothing mounts rule/result/level/check-in/hook/rank/outro clips by id yet except what scenes already do; `ruleClipId` is exported for that. Scenes that still call `clipSec(...)` with the old id format (BonusVoiceOnly, BonusTripleLock, Round45Callback, Part5) now get ds_ ids through `roundClipId`/`bonusClipId`; their level/rank/outro ids are unchanged and untouched here.
 - Nothing rendered.
+
+## Task 5a follow-up: voice text in rounds.json now matches docs/dontsay/lines.csv (the CSV is final)
+
+- Edited `docs/dontsay/rounds.json` (the source data.ts reads): `bonuses[].voiceIntro` (all 5), `bonuses[].voiceReveal` for bonuses 2-5 (now end "Different from all three? Point for you." / "Different? Point for you."), `levelColors` 2 and 3 `voice`, `heartCheckIn.voice` ("Hearts check. Last one? Careful."), and the unused `levelIntros` copy for 2 and 3. data.ts untouched.
+- Audio map now reports 0 warnings (was 12); 173 of 173 rows mapped; tsc clean. Not rendered.
+- Effects to check by eye (text got longer or different, nothing rendered): level 2 and 3 cards (their third sentence is now "Banned answers count as a match." / "Filters, and four seconds."), the check-in caption ("Hearts check."), and the bonus intro/reveal captions.
+
+### Open: scenes still use old placeholder clip ids, not the ds_ ids
+- `Hook.tsx` (`hook_00`...), `LevelCard.tsx` and `SettingsCard.tsx` (`level_N`), `HeartCheckIn.tsx` (`check_in`), `RankCard.tsx` (`rankcard_reveal`), and the rank/outro/result-line clips do not read `audioMap.ts`. Only round intro/reveal and bonus intro/reveal slots do (via timing.ts). With real ds_ clips in place these voice lines will not be found, and an `<Audio>` mounted on a missing file can fail the render. Needs its own task: point those scenes at `hookIds`, `levelIds`, `checkInId`, `rankIntroId`/`rankIds`, `outroIds` and `ruleClipId`/`result` ids.

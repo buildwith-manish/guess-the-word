@@ -23,12 +23,12 @@
     "2": {
       "name": "Banned list",
       "tint": "blue-violet",
-      "voice": "Level two. Hearts reset. Some answers are banned."
+      "voice": "Level two. Hearts reset. Banned answers count as a match."
     },
     "3": {
       "name": "Filters",
       "tint": "violet",
-      "voice": "Level three. Hearts reset. New filters."
+      "voice": "Level three. Hearts reset. Filters, and four seconds."
     },
     "4": {
       "name": "Under pressure",
@@ -50,8 +50,8 @@
   },
   "levelIntros": {
     "1": "Level one. Warm-up. Three fresh hearts.",
-    "2": "Level two. Hearts reset. Some answers are banned.",
-    "3": "Level three. Hearts reset. New filters.",
+    "2": "Level two. Hearts reset. Banned answers count as a match.",
+    "3": "Level three. Hearts reset. Filters, and four seconds.",
     "4": "Level four. Hearts reset. Three seconds.",
     "5": "Final level. Hearts reset. Two rules at once."
   },
@@ -95,7 +95,7 @@
     "beforeRound": 24,
     "midLevel": 3,
     "durationSec": 2,
-    "voice": "Check your hearts. On your last one? Careful.",
+    "voice": "Hearts check. Last one? Careful.",
     "animateHearts": false,
     "musicBedLift": "slight"
   },
@@ -884,7 +884,7 @@
       "rule": "Match me this time",
       "passCondition": "Match me = 1 point",
       "answer": "Dog",
-      "voiceIntro": "Bonus one. Mind reader. This time, say the same as me.",
+      "voiceIntro": "Bonus one. Mind reader. Name a pet. Match me.",
       "voiceReveal": "Dog. Same? Point for you.",
       "durationSec": 16,
       "costsHearts": false
@@ -902,8 +902,8 @@
         "Pig",
         "Chicken"
       ],
-      "voiceIntro": "Bonus two. Triple lock. Don't say any of my three.",
-      "voiceReveal": "Cow. Pig. Chicken.",
+      "voiceIntro": "Bonus two. Triple lock. Farm animal. Dodge my three.",
+      "voiceReveal": "Cow. Pig. Chicken. Different from all three? Point for you.",
       "durationSec": 16,
       "costsHearts": false
     },
@@ -917,8 +917,8 @@
       "passCondition": "Differ from me = 1 point",
       "onScreenNote": "Tiger is mine - you can't reuse it",
       "answer": "Turkey",
-      "voiceIntro": "Bonus three. Chain reaction. Next animal starts with T.",
-      "voiceReveal": "Turkey.",
+      "voiceIntro": "Bonus three. Chain reaction. Next one starts with T.",
+      "voiceReveal": "Turkey. Different? Point for you.",
       "durationSec": 16,
       "costsHearts": false
     },
@@ -931,8 +931,8 @@
       "rule": "None",
       "passCondition": "Differ from me = 1 point",
       "answer": "Tiny",
-      "voiceIntro": "Bonus four. Opposite day. Say the opposite of big.",
-      "voiceReveal": "Tiny.",
+      "voiceIntro": "Bonus four. Opposite day. Opposite of big.",
+      "voiceReveal": "Tiny. Different? Point for you.",
       "durationSec": 16,
       "costsHearts": false
     },
@@ -946,8 +946,8 @@
       "passCondition": "Differ from me = 1 point",
       "onScreenNote": "Faint caption fades in ~1s after the voice line, for muted viewers",
       "answer": "Violin",
-      "voiceIntro": "Final bonus. Voice only. Listen. Name a musical instrument.",
-      "voiceReveal": "Violin.",
+      "voiceIntro": "Final bonus. Voice only. Name a musical instrument.",
+      "voiceReveal": "Violin. Different? Point for you.",
       "durationSec": 16,
       "costsHearts": false
     }
