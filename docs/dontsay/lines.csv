@@ -1,0 +1,174 @@
+id,type,text
+ds_001,hook,My answer is locked.
+ds_002,hook,"Match me, lose a heart."
+ds_003,hook,Three hearts every level.
+ds_004,hook,Let's go.
+ds_005,settings,Different from me? That's a point. Score out of fifty.
+ds_006,level,Level one. Warm-up. Three fresh hearts.
+ds_007,roundintro,Name a fruit.
+ds_008,reveal,Banana. Classic.
+ds_009,result,Said it? Lose a heart.
+ds_010,roundintro,Name an animal.
+ds_011,reveal,Elephant. Big pick.
+ds_012,result,Different? You're safe.
+ds_013,roundintro,Name a country.
+ds_014,reveal,Japan. Nice one.
+ds_015,result,Not the same? Safe.
+ds_016,roundintro,Name a colour.
+ds_017,reveal,Purple. Bold.
+ds_018,result,Something else? Safe.
+ds_019,roundintro,Name a vegetable.
+ds_020,reveal,Carrot. Of course.
+ds_021,result,Same as me? Heart gone.
+ds_022,roundintro,Name a sport.
+ds_023,reveal,Tennis. Good serve.
+ds_024,result,Different? Heart stays.
+ds_025,roundintro,Name a day of the week.
+ds_026,reveal,Thursday. Underrated.
+ds_027,result,Nothing like mine? Safe.
+ds_028,roundintro,Name an ocean.
+ds_029,reveal,Pacific. Deep.
+ds_030,result,Different? Still safe.
+ds_031,roundintro,Name a breakfast food.
+ds_032,reveal,Pancakes. Fluffy.
+ds_033,result,Not a match? Safe.
+ds_034,bonusintro,Bonus one. Mind reader. Name a pet. Match me.
+ds_035,bonusreveal,Dog. Same? Point for you.
+ds_036,level,Level two. Hearts reset. Banned answers count as a match.
+ds_037,roundintro,Name a fruit.
+ds_038,reveal,Orange. Right on cue.
+ds_039,result,Matched me? Lose one.
+ds_040,roundintro,Name an animal.
+ds_041,reveal,Lion. King of answers.
+ds_042,result,That's a match. Heart gone.
+ds_043,roundintro,Name a city.
+ds_044,rule,"Banned: London, New York, Paris."
+ds_045,reveal,Tokyo. Great city.
+ds_046,result,Different? Hearts stay.
+ds_047,roundintro,Name a drink.
+ds_048,reveal,Tea. Classy.
+ds_049,result,Different? You're safe.
+ds_050,roundintro,Name a superhero.
+ds_051,reveal,Superman. Expected.
+ds_052,result,Same? Lose a heart.
+ds_053,roundintro,Name a pizza topping.
+ds_054,reveal,Mushroom. Controversial.
+ds_055,result,Not the same? Safe.
+ds_056,roundintro,Name a bird.
+ds_057,reveal,Owl. Wise choice.
+ds_058,result,Something else? Safe.
+ds_059,roundintro,Name a dessert.
+ds_060,reveal,Brownie. Sweet.
+ds_061,result,Different? Heart stays.
+ds_062,roundintro,Name a country.
+ds_063,rule,"Banned: USA, China, India."
+ds_064,reveal,Canada. Polite choice.
+ds_065,result,Nothing like mine? Safe.
+ds_066,bonusintro,Bonus two. Triple lock. Farm animal. Dodge my three.
+ds_067,bonusreveal,Cow. Pig. Chicken. Different from all three? Point for you.
+ds_068,level,"Level three. Hearts reset. Filters, and four seconds."
+ds_069,roundintro,Name a fruit. Not red or yellow.
+ds_070,reveal,Kiwi. Fresh.
+ds_071,result,Different? Still safe.
+ds_072,roundintro,Name an animal. Starts with B.
+ds_073,reveal,Bear. Too easy.
+ds_074,result,Said that? One heart.
+ds_075,roundintro,Name something blue. Not the sky.
+ds_076,reveal,Ocean. Deep blue.
+ds_077,result,Not a match? Safe.
+ds_078,roundintro,Name a country. Not in Europe.
+ds_079,reveal,Brazil. Samba time.
+ds_080,result,Different? Hearts stay.
+ds_081,roundintro,Name a round food.
+ds_082,reveal,Cookie. Crumbly.
+ds_083,result,Different? You're safe.
+ds_084,checkin,Hearts check. Last one? Careful.
+ds_085,roundintro,Name an animal. Four letters.
+ds_086,reveal,Frog. Ribbit.
+ds_087,result,Not the same? Safe.
+ds_088,roundintro,Name a ball sport. Not football or soccer.
+ds_089,reveal,Basketball. Classic.
+ds_090,result,Same brain? Lose a heart.
+ds_091,roundintro,Name something cold. Not ice or snow.
+ds_092,reveal,Freezer. Chilly.
+ds_093,result,Something else? Safe.
+ds_094,roundintro,Name a green vegetable. Not broccoli.
+ds_095,reveal,Spinach. Popeye approves.
+ds_096,result,Different? Heart stays.
+ds_097,bonusintro,Bonus three. Chain reaction. Next one starts with T.
+ds_098,bonusreveal,Turkey. Different? Point for you.
+ds_099,level,Level four. Hearts reset. Three seconds.
+ds_100,roundintro,Name a boy's name.
+ds_101,reveal,Liam. Popular name.
+ds_102,result,Nothing like mine? Safe.
+ds_103,roundintro,Name a month.
+ds_104,reveal,July. Summer.
+ds_105,result,Different? Still safe.
+ds_106,roundintro,Name a number from 1 to 10.
+ds_107,reveal,Seven. Everyone's pick.
+ds_108,result,Snap. Heart gone.
+ds_109,roundintro,Name a body part.
+ds_110,reveal,Elbow. Funny bone.
+ds_111,result,Not a match? Safe.
+ds_112,roundintro,Name a school subject.
+ds_113,reveal,Maths. The safe choice.
+ds_114,result,Said it? Lose a heart.
+ds_115,roundintro,Name a car brand.
+ds_116,reveal,Toyota. Reliable.
+ds_117,result,Different? Hearts stay.
+ds_118,roundintro,Name a language.
+ds_119,reveal,Spanish. Popular pick.
+ds_120,result,Same as me? Heart gone.
+ds_121,roundintro,Name a planet.
+ds_122,reveal,Venus. Hot pick.
+ds_123,result,Different? You're safe.
+ds_124,roundintro,Name a girl's name.
+ds_125,reveal,Olivia. Lovely.
+ds_126,result,Not the same? Safe.
+ds_127,bonusintro,Bonus four. Opposite day. Opposite of big.
+ds_128,bonusreveal,Tiny. Different? Point for you.
+ds_129,level,Final level. Hearts reset. Two rules at once.
+ds_130,roundintro,Name a fruit.
+ds_131,rule,"Not red, yellow or orange."
+ds_132,reveal,Grapes. Common one.
+ds_133,result,Matched me? Lose one.
+ds_134,roundintro,"Name a sea animal. Not fish, not whale."
+ds_135,reveal,Dolphin. Tempting.
+ds_136,result,That's a match. Heart gone.
+ds_137,roundintro,"Name a country. Starts with I, not India."
+ds_138,reveal,Italy. Delizioso.
+ds_139,result,Something else? Safe.
+ds_140,roundintro,Name a colour.
+ds_141,rule,"Not red, blue, green or yellow."
+ds_142,reveal,Orange. Bright.
+ds_143,result,Different? Heart stays.
+ds_144,roundintro,Name a number from 1 to 100.
+ds_145,reveal,Thirty-seven. The favourite.
+ds_146,result,Same? Lose a heart.
+ds_147,roundintro,Name a vegetable.
+ds_148,rule,"Banned: Carrot, Potato, Tomato."
+ds_149,reveal,Onion. Common.
+ds_150,result,Said that? One heart.
+ds_151,roundintro,Name a drink.
+ds_152,rule,"Not water, tea, coffee or juice."
+ds_153,reveal,Milk. Obvious one.
+ds_154,result,Same brain? Lose a heart.
+ds_155,roundintro,Name a car brand.
+ds_156,rule,"Banned: Toyota, Ford, BMW."
+ds_157,reveal,Honda. Smooth ride.
+ds_158,result,Nothing like mine? Safe.
+ds_159,roundintro,Name a fruit.
+ds_160,rule,"Banned: Banana, Orange, Kiwi, Grapes."
+ds_161,reveal,Strawberry. Of course.
+ds_162,result,Snap. Heart gone.
+ds_163,bonusintro,Final bonus. Voice only. Name a musical instrument.
+ds_164,bonusreveal,Violin. Different? Point for you.
+ds_165,rank,That was all fifty. Add up your points.
+ds_166,rank,Zero to fifteen: Echo.
+ds_167,rank,Sixteen to twenty-seven: Parrot.
+ds_168,rank,Twenty-eight to thirty-seven: Free Thinker.
+ds_169,rank,Thirty-eight to forty-five: Rare Mind.
+ds_170,rank,Forty-six or more: One of a Kind.
+ds_171,outro,"Comment your rank, and screenshot your card."
+ds_172,outro,Which round got you? Tell me the number.
+ds_173,outro,Subscribe so you do not miss the next game.

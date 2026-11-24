@@ -357,3 +357,22 @@ Started, then stopped at the owner's request in favour of 4c. Nothing written. N
 - The drift is the runtime: 682 s (11:22) against the ~10:44 target, as noted under 1c. Clip-driven intro/reveal slots can only lengthen it.
 - No music bed or voice layer in the Full composition yet (no clips). Part1 plays round 1 twice (see 4i).
 - Nothing rendered, so no frame of the Full composition was checked. Part boundaries to look at: 8399 -> 8400, 16319 -> 16320, 23579 -> 23580, 30179 -> 30180, 37559 -> 37560.
+
+## Task 5a: DONE (tsc --noEmit clean; voice clips do not exist yet, so the pipeline was tested on synthetic tones kept outside the repo)
+
+- `docs/dontsay/lines.csv` (173 rows, ids ds_001 to ds_173) added from the user's attachment.
+- `scripts/clean_dontsay_clips.sh`: wav in `public/dontsay/voiceover/clips/<id>.wav`, trim silence, 0.1 s kept at each end, loudnorm -16 LUFS (2 pass, linear). Originals copied once to `raw/` (already ignored by `.gitignore`: `public/*/voiceover/raw/`), every run cleans from raw/. Fails on an id with no clip or a clip with no row. `DRY_RUN=1` = checks and tables only; `PARTIAL=1` = clean the clips that exist.
+- `scripts/build_dontsay_timings.py`: ffprobe of every clip -> `src/dontsay/timings.csv` + `timings.generated.ts`. Strict by default (exit 1 if any id has no clip, nothing written); `PARTIAL=1` writes only the clips that exist (the rest keep base timing). Committed files are the empty form until real clips exist.
+- `scripts/build_dontsay_audio_map.ts`: walks lines.csv in order against data.ts and writes `src/dontsay/audioMap.ts` (`roundAudio`, `bonusAudio`, `levelIds` with settings, `checkInId`, `hookIds`, `rankIntroId`, `rankIds`, `outroIds`, plus `roundAudioOf` / `bonusAudioOf`). Exit 1, nothing written, on: leftover or out-of-order row, unknown type, duplicate id, round without reveal or result, heavy round without rule row, rule row on a non-heavy round, bonus without intro or reveal, missing level or check-in, rank row that does not name its tier, row count. Soft warnings (printed): spoken text differs from data.ts.
+- `timing.ts` now takes clip ids from `audioMap.ts` (`roundClipId`, `bonusClipId`, new `ruleClipId`; `ClipKind` gains `result`). `introSecFor` = max(base, intro clip + 0.3), `revealSecFor` = max(2.0, reveal clip + 0.3); a clip that is not measured keeps the base value.
+
+### Checked
+- Audio map on the real CSV: 173 of 173 rows mapped, exit 0. Six mutated copies (extra row, missing reveal, round intro typed as bonusintro, rule on a non-heavy round, heavy round without rule, duplicate id) all exit 1 and write nothing.
+- Cleaning on 173 synthetic stereo 24 kHz clips: every clip measures -16.0 LUFS, edge silence cut to 0.1 s (2.90 s -> 2.10 s on ds_001), all 173 originals in raw/, channels and sample rate kept.
+- Runtime with NO clips (what is committed): P1 140 s, P2 132 s, P3 121 s, P4 110 s, P5 123 s, P6 56 s = 682 s (11:22). With the synthetic clips (lengths invented, not real) the total went to 734.6 s and 43 of 45 rounds grew past base: only a test that the rule works. The real runtime is unknown until real clips exist.
+
+### Open points
+- 12 text differences between lines.csv and data.ts (voiceIntro/voiceReveal of bonuses 1-5, level 2 and 3 lines, check-in line). Not changed: the CSV is what gets recorded, data.ts voice fields are only used as fallback text. Decide which side wins.
+- Round 30 and 41 answers are numerals in data.ts and words in the CSV (expected, not compared).
+- Nothing mounts rule/result/level/check-in/hook/rank/outro clips by id yet except what scenes already do; `ruleClipId` is exported for that. Scenes that still call `clipSec(...)` with the old id format (BonusVoiceOnly, BonusTripleLock, Round45Callback, Part5) now get ds_ ids through `roundClipId`/`bonusClipId`; their level/rank/outro ids are unchanged and untouched here.
+- Nothing rendered.
