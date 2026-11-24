@@ -29,9 +29,6 @@ export type HeartCheckInCue = { name: string; id: SfxId; tick: number; volume: n
 /** The rising tone at the start of the card. The file is loud next to the rest: volume kept low. */
 export const heartCheckInCues = (): HeartCheckInCue[] => [{ name: 'tone', id: 'check-in-tone', tick: 0, volume: 0.5 }];
 
-/** Narration clip. Clip id is a guess: `check_in`. */
-export const heartCheckInVoice = (): { text: string; clipId: string } => ({ text: heartCheckIn.voice, clipId: 'check_in' });
-
 /** Music bed gain multiplier across the card: a slight lift (guess 1.12x), ramped in, hard stop at the cut. */
 export const MUSIC_LIFT = { to: 1.12, rampTicks: 18 } as const;
 export const heartCheckInMusicGain = (tick: number): number => {

@@ -15,7 +15,7 @@
  */
 import React from 'react';
 import { ranks } from '../data';
-import { WIDTH, outroSec, endScreenSec, outroFadeSec, secToTicks, secToFrames, useDontSayFrame } from '../timing';
+import { WIDTH, outroSecFor, endScreenSec, outroFadeSec, secToTicks, secToFrames, segments, useDontSayFrame, voiceCues } from '../timing';
 import { colours, fontHeadline, fontNumeric, levelBackground, springAt } from '../system';
 import { clamp01 } from '../shared/fade';
 import '../shared/fonts';
@@ -38,31 +38,32 @@ export const OUTRO_COPY = { subscribe: 'Subscribe', nextSlot: 'Next game' } as c
 /* Timing (local design ticks, 30 fps, outro clock)                    */
 /* ------------------------------------------------------------------ */
 const ASK_COUNT = OUTRO_ASKS.length;
-const ASK_PHASE_TICKS = secToTicks(outroSec - endScreenSec);
-const SLOT_TICKS = Math.floor(ASK_PHASE_TICKS / ASK_COUNT);
-const IN_LEAD = 4; // ticks after a slot starts before its ask springs in
-const OUT_TICKS = 8; // fade-out before the next slot starts
+/** The ask phase is everything before the end screen; the outro is max(outroSec, its clips + gaps + pad). */
+const ASK_PHASE_TICKS = secToTicks(outroSecFor() - endScreenSec);
+const IN_LEAD = 4; // ticks after a voice line starts before its ask springs in
+const OUT_TICKS = 8; // fade-out before the next ask starts
+
+/** Each ask appears with its voice line: the start ticks come from voiceCues (timing.ts), the only source. */
+const outroVoiceTicks = (): number[] => {
+  const seg = segments.find((x) => x.kind === 'outro');
+  if (!seg) throw new Error('Outro: no outro segment in timing.ts');
+  const cues = voiceCues(seg);
+  if (cues.length !== ASK_COUNT) throw new Error(`Outro: ${ASK_COUNT} asks but ${cues.length} voice clips`);
+  return cues.map((c) => c.tick);
+};
 
 export const outroTicks = {
-  /** Start of each ask's slot. */
-  askAt: OUTRO_ASKS.map((_, i) => i * SLOT_TICKS),
+  /** Start of each ask: the tick its voice line starts. */
+  askAt: outroVoiceTicks(),
   endScreen: ASK_PHASE_TICKS,
   subscribeIn: ASK_PHASE_TICKS + 6,
   slotIn: ASK_PHASE_TICKS + 10,
   miniIn: ASK_PHASE_TICKS + 14,
-  end: secToTicks(outroSec),
-  fadeFrom: secToTicks(outroSec - outroFadeSec),
+  end: secToTicks(outroSecFor()),
+  fadeFrom: secToTicks(outroSecFor() - outroFadeSec),
 } as const;
 
-export const outroFrames = secToFrames(outroSec);
-
-/** Spoken asks: same text as on screen. Clip ids are guesses (no clip measured yet). */
-export type OutroVoiceLine = { id: string; text: string; tick: number };
-export const outroVoice: OutroVoiceLine[] = OUTRO_ASKS.map((text, i) => ({
-  id: `outro_${i + 1}`,
-  text,
-  tick: outroTicks.askAt[i] + IN_LEAD,
-}));
+export const outroFrames = secToFrames(outroSecFor());
 
 export type OutroCue = { name: string; id: SfxId; tick: number; volume: number };
 export const outroCues: OutroCue[] = [

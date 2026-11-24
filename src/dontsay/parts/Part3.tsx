@@ -18,6 +18,7 @@ import React from 'react';
 import { Audio, Sequence } from 'remotion';
 import { partRanges, segments, ticksToFrames, TIME_SCALE, WIDTH, HEIGHT, RENDER_FPS } from '../timing';
 import { levelBackground } from '../system';
+import { VoiceLayer } from '../components/VoiceLayer';
 import { sfxFrames, sfxSrc, type SfxId } from '../sfx';
 import { LevelCard, levelCardCues } from '../scenes/LevelCard';
 import { RoundScene } from '../scenes/RoundScene';
@@ -77,6 +78,7 @@ export const Part3: React.FC = () => {
         return (
           <Sequence key={`${s.kind}-${s.from}`} from={from} durationInFrames={dur}>
             {node}
+            <VoiceLayer segment={s} />
           </Sequence>
         );
       })}

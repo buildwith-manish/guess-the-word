@@ -8,6 +8,7 @@ import React from 'react';
 import { AbsoluteFill, Sequence } from 'remotion';
 import { rounds } from './data';
 import { RoundScene, roundFrames } from './scenes/RoundScene';
+import { VoiceLayer, findSegment } from './components/VoiceLayer';
 
 export type RoundPreviewProps = { n: number };
 export const ROUND_PREVIEW_DEFAULTS: RoundPreviewProps = { n: rounds[0].n };
@@ -20,7 +21,12 @@ const roundOf = (n: number) => {
 
 export const roundPreviewFrames = (n: number): number => roundFrames(roundOf(n).n);
 
-export const RoundPreview: React.FC<RoundPreviewProps> = ({ n }) => <RoundScene round={roundOf(n)} />;
+export const RoundPreview: React.FC<RoundPreviewProps> = ({ n }) => (
+  <>
+    <RoundScene round={roundOf(n)} />
+    <VoiceLayer segment={findSegment({ kind: 'round', n })} />
+  </>
+);
 
 /** Start frame of each round in the back-to-back preview. */
 const starts: number[] = [];
@@ -38,6 +44,7 @@ export const RoundPreviewAll: React.FC = () => (
     {rounds.map((r, i) => (
       <Sequence key={r.n} from={starts[i]} durationInFrames={roundFrames(r.n)}>
         <RoundScene round={r} />
+        <VoiceLayer segment={findSegment({ kind: 'round', n: r.n })} />
       </Sequence>
     ))}
   </AbsoluteFill>

@@ -14,6 +14,7 @@ import { Audio, Sequence } from 'remotion';
 import { WIDTH, HEIGHT, RENDER_FPS, frameRange, ticksToFrames, partRanges, segments } from '../timing';
 import { sfxFrames, sfxSrc } from '../sfx';
 import { levelBackground } from '../system';
+import { VoiceLayer } from '../components/VoiceLayer';
 import { Outro, outroCues } from '../scenes/Outro';
 import { RankCard } from '../scenes/RankCard';
 import { Scoreboard } from '../scenes/Scoreboard';
@@ -52,6 +53,7 @@ export const Part6: React.FC<Part6Props> = ({ rankCard = <RankCard />, scoreboar
         return (
           <Sequence key={s.kind} from={from} durationInFrames={dur}>
             {node}
+            <VoiceLayer segment={s} />
           </Sequence>
         );
       })}

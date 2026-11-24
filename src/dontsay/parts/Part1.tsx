@@ -12,6 +12,7 @@ import { Audio, Sequence } from 'remotion';
 import { WIDTH, HEIGHT, RENDER_FPS, partRanges, segments, ticksToFrames } from '../timing';
 import type { Segment } from '../timing';
 import { levelBackground } from '../system';
+import { VoiceLayer } from '../components/VoiceLayer';
 import { sfxSrc } from '../sfx';
 import type { SfxId } from '../sfx';
 import { Hook, hookCues } from '../scenes/Hook';
@@ -68,7 +69,12 @@ export const Part1: React.FC = () => {
 
         if (s.kind === 'round') {
           // RoundScene owns its Sequence (from `at`, length from timing.ts) and its audio.
-          return <RoundScene key={key} round={s.round} at={fromTick} />;
+          return (
+            <React.Fragment key={key}>
+              <RoundScene round={s.round} at={fromTick} />
+              <VoiceLayer segment={s} at={fromTick} />
+            </React.Fragment>
+          );
         }
         return (
           <Sequence key={key} from={from} durationInFrames={dur}>
@@ -91,6 +97,7 @@ export const Part1: React.FC = () => {
               </>
             )}
             {s.kind === 'bonus' && <BonusMindReader />}
+            <VoiceLayer segment={s} />
           </Sequence>
         );
       })}

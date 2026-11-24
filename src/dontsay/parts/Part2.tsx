@@ -11,6 +11,7 @@ import React from 'react';
 import { Sequence } from 'remotion';
 import { WIDTH, HEIGHT, RENDER_FPS, partRanges, segments, ticksToFrames } from '../timing';
 import { levelBackground } from '../system';
+import { VoiceLayer } from '../components/VoiceLayer';
 import { LevelCard } from '../scenes/LevelCard';
 import { RoundScene } from '../scenes/RoundScene';
 import { BonusTripleLock } from '../scenes/BonusTripleLock';
@@ -49,6 +50,7 @@ export const Part2: React.FC = () => (
       return (
         <Sequence key={key} from={from} durationInFrames={dur}>
           {node}
+          <VoiceLayer segment={s} />
         </Sequence>
       );
     })}

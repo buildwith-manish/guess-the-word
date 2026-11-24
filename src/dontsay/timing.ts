@@ -6,7 +6,7 @@
 import { useCurrentFrame } from 'remotion';
 import { bonuses, heartCheckIn, levelColors, rounds } from './data';
 import type { Bonus, Level, Round } from './data';
-import { bonusAudio, bonusAudioOf, checkInId, levelIds, roundAudio, roundAudioOf } from './audioMap';
+import { bonusAudio, bonusAudioOf, checkInId, hookIds, levelIds, outroIds, rankIds, rankIntroId, roundAudio, roundAudioOf } from './audioMap';
 import { clipTimings } from './timings.generated';
 
 /* ---------- clock ----------
@@ -51,6 +51,8 @@ export const endScreenSec = 15;
 export const outroFadeSec = 1;
 /** Slot padding after a voice clip, in seconds. */
 export const clipPadSec = 0.3;
+/** Silence between two voice lines that play back to back in one slot (round intro + rule, hook, rank card, outro). */
+export const voiceGapSec = 0.25;
 /** Target runtime ~10:44. The tolerance is a working assumption, not from the brief. */
 export const targetSec = 10 * 60 + 44;
 export const targetToleranceSec = 30;
@@ -97,11 +99,12 @@ const slotClipSec = (n: number, kind: 'intro' | 'reveal'): number | undefined =>
 export const timerSecFor = (level: Level): number => (level <= 2 ? timerL1L2Sec : level === 3 ? timerL3Sec : timerL4L5Sec);
 /** Base intro length by round kind (callback first: round 45 is also heavy). */
 export const introBaseSec = (r: Round): number => (r.callback ? introCallbackSec : r.heavy ? introHeavySec : introStdSec);
-/** Slot rule for every voiced slot: max(base, clips back to back + pad). A missing clip keeps the base length. */
+/** Slot rule for every voiced slot: max(base, clips back to back + voiceGapSec between them + pad). A missing clip keeps the base length. */
 const fitSec = (base: number, ids: (string | undefined)[]): number => {
-  const lens = ids.filter((i): i is string => !!i).map((i) => clipSec(i));
+  const have = ids.filter((i): i is string => !!i);
+  const lens = have.map((i) => clipSec(i));
   if (!lens.length || lens.some((l) => l === undefined)) return base;
-  return Math.max(base, (lens as number[]).reduce((a, b) => a + b, 0) + clipPadSec);
+  return Math.max(base, (lens as number[]).reduce((a, b) => a + b, 0) + voiceGapSec * (have.length - 1) + clipPadSec);
 };
 /** Intro slot = max(base, intro clip + rule clip (heavy rounds) + pad). */
 export const introSecFor = (r: Round): number => {
@@ -118,6 +121,12 @@ export const levelCardSecFor = (level: Level): number => fitSec(levelCardSec, [l
 export const settingsCardSecFor = (): number => fitSec(settingsCardSec, [levelIds[1]?.settings]);
 /** Heart check-in = max(heartCheckInSec, check-in clip + pad). */
 export const checkInSecFor = (): number => fitSec(heartCheckInSec, [checkInId]);
+/** Hook = max(hookSec, its clips with gaps + pad). */
+export const hookSecFor = (): number => fitSec(hookSec, hookIds);
+/** Rank card = max(rankCardSec, intro line + the five rank lines with gaps + pad). The scoreboard stays fixed. */
+export const rankCardSecFor = (): number => fitSec(rankCardSec, [rankIntroId, ...rankIds]);
+/** Outro = max(outroSec, its three clips with gaps + pad). The end screen stays the last endScreenSec. */
+export const outroSecFor = (): number => fitSec(outroSec, outroIds);
 /** Bonus phases: intro and reveal stretch to their clips; play and result stay fixed. */
 export const bonusPhaseSecs = (n: number): { intro: number; play: number; reveal: number; result: number; total: number } => {
   const a = bonusAudio.find((x) => x.n === n);
@@ -172,7 +181,7 @@ const buildSegments = (): Segment[] => {
   };
   let part: PartNo = 1;
 
-  out.push({ kind: 'hook', part, ...span(hookSec) });
+  out.push({ kind: 'hook', part, ...span(hookSecFor()) });
   out.push({ kind: 'settingsCard', part, ...span(settingsCardSecFor()) });
 
   let lastLevel: Level | undefined;
@@ -206,9 +215,9 @@ const buildSegments = (): Segment[] => {
   });
 
   part = 6;
-  out.push({ kind: 'rankCard', part, ...span(rankCardSec) });
+  out.push({ kind: 'rankCard', part, ...span(rankCardSecFor()) });
   out.push({ kind: 'scoreboard', part, ...span(scoreboardSec) });
-  const o = span(outroSec);
+  const o = span(outroSecFor());
   out.push({ kind: 'outro', part, ...o, endScreen: { from: o.to - secToTicks(endScreenSec), to: o.to } });
   return out;
 };
@@ -218,6 +227,56 @@ export const TOTAL_TICKS = segments[segments.length - 1].to;
 export const TOTAL_SEC = ticksToSec(TOTAL_TICKS);
 /** Composition length at the render rate. */
 export const RENDER_TOTAL_FRAMES = ticksToFrames(TOTAL_TICKS);
+
+/* ---------- voice cues: the ONLY source of when a clip starts ---------- */
+export type VoiceCue = { id: string; tick: number };
+const need = (id: string | undefined, what: string): string => {
+  if (!id) throw new Error(`voiceCues: ${what} has no clip id in audioMap.ts`);
+  return id;
+};
+/** Clips one after another: each starts voiceGapSec after the previous one ends. Ticks local to the segment. */
+const sequential = (ids: string[], startTick = 0): VoiceCue[] => {
+  let tick = startTick;
+  return ids.map((id) => {
+    const cue = { id, tick };
+    tick += secToTicks((clipSec(id) ?? 0) + voiceGapSec);
+    return cue;
+  });
+};
+/** Clips of one segment with the tick each one starts, local to the segment start. Ids come only from audioMap.ts. */
+export const voiceCues = (seg: Segment): VoiceCue[] => {
+  switch (seg.kind) {
+    case 'round': {
+      const a = roundAudioOf(seg.round.n);
+      const out: VoiceCue[] = [{ id: need(a.intro, `round ${seg.round.n} intro`), tick: seg.phases.intro.from - seg.from }];
+      if (seg.round.heavy) out.push({ id: need(a.rule, `round ${seg.round.n} rule`), tick: out[0].tick + secToTicks((clipSec(a.intro) ?? 0) + voiceGapSec) });
+      out.push({ id: need(a.reveal, `round ${seg.round.n} reveal`), tick: seg.phases.reveal.from - seg.from });
+      out.push({ id: need(a.result, `round ${seg.round.n} result`), tick: seg.phases.result.from - seg.from });
+      return out;
+    }
+    case 'levelCard':
+      return [{ id: need(levelIds[seg.level]?.level, `level ${seg.level} card`), tick: 0 }];
+    case 'settingsCard':
+      return [{ id: need(levelIds[1]?.settings, 'settings card'), tick: 0 }];
+    case 'heartCheckIn':
+      return [{ id: need(checkInId, 'heart check-in'), tick: 0 }];
+    case 'bonus': {
+      const a = bonusAudioOf(seg.bonus.n);
+      return [
+        { id: need(a.intro, `bonus ${seg.bonus.n} intro`), tick: 0 },
+        { id: need(a.reveal, `bonus ${seg.bonus.n} reveal`), tick: seg.phases.reveal.from - seg.from },
+      ];
+    }
+    case 'hook':
+      return sequential(hookIds);
+    case 'rankCard':
+      return sequential([rankIntroId, ...rankIds]);
+    case 'outro':
+      return sequential(outroIds);
+    case 'scoreboard':
+      return [];
+  }
+};
 
 /** The segment on screen at design tick `tick`, with the tick local to it. */
 export const locate = (tick: number): { seg: Segment; local: number; index: number } => {

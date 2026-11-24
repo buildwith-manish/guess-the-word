@@ -12,12 +12,13 @@
  * Pattern: Part6.tsx (Sequence per segment, local frames from the part start).
  */
 import React from 'react';
-import { Audio, Sequence, staticFile } from 'remotion';
-import { WIDTH, HEIGHT, RENDER_FPS, clipPath, clipSec, frameRange, partRanges, segments, ticksToFrames, type Segment } from '../timing';
+import { Audio, Sequence } from 'remotion';
+import { WIDTH, HEIGHT, RENDER_FPS, frameRange, partRanges, segments, ticksToFrames, type Segment } from '../timing';
 import { sfxFrames, sfxSrc } from '../sfx';
 import { levelBackground } from '../system';
+import { VoiceLayer } from '../components/VoiceLayer';
 import type { Level } from '../data';
-import { LevelCard, levelCardCues, levelCardVoice } from '../scenes/LevelCard';
+import { LevelCard, levelCardCues } from '../scenes/LevelCard';
 import { RoundScene } from '../scenes/RoundScene';
 import { Round45Callback } from '../scenes/Round45Callback';
 import { BonusVoiceOnly } from '../scenes/BonusVoiceOnly';
@@ -43,10 +44,8 @@ const backdropLevel = (): Level => {
   return Math.max(1, (first ? first.level : 2) - 1) as Level;
 };
 
-/** Level card with its rules sheet, plus the swell/slide cues and the level voice line (when its clip exists). */
+/** Level card with its rules sheet, plus the swell/slide cues. The level voice line is VoiceLayer's. */
 const LevelBlock: React.FC<{ level: Level }> = ({ level }) => {
-  const voice = levelCardVoice(level);
-  const hasVoice = clipSec(voice.clipId) !== undefined;
   return (
     <>
       <LevelCard level={level} sheet />
@@ -55,11 +54,6 @@ const LevelBlock: React.FC<{ level: Level }> = ({ level }) => {
           <Audio src={sfxSrc(c.id)} volume={c.volume} />
         </Sequence>
       ))}
-      {hasVoice ? (
-        <Sequence from={0} layout="none">
-          <Audio src={staticFile(clipPath(voice.clipId))} />
-        </Sequence>
-      ) : null}
     </>
   );
 };
@@ -84,6 +78,7 @@ export const Part5: React.FC = () => (
       return (
         <Sequence key={key} from={from} durationInFrames={dur}>
           {sceneFor(s)}
+          <VoiceLayer segment={s} />
         </Sequence>
       );
     })}

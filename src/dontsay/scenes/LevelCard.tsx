@@ -52,12 +52,6 @@ export const levelCardCopy = (level: Level): { title: string; reset: string; rou
   return { title: `${head}: ${tail}`, reset, roundIndex: 1, roundCount: inLevel.length };
 };
 
-/** Narration for the level intro (spoken over the card). Clip id is a guess: `level_<n>`. */
-export const levelCardVoice = (level: Level): { text: string; clipId: string } => ({
-  text: levelColors[level].voice,
-  clipId: `level_${level}`,
-});
-
 export type LevelCue = { name: string; id: SfxId; tick: number; volume: number };
 /** SFX for the card: the level-card swell at tick 0 (one per level colour). */
 export const levelCardCues = (level: Level, sheet = false): LevelCue[] => [

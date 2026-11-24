@@ -15,12 +15,6 @@ import type { SfxId } from '../sfx';
 
 export type SettingsCue = { name: string; id: SfxId; tick: number; volume: number };
 
-/** Narration spoken over the sheet: the level intro. Clip id matches LevelCard's guess. */
-export const settingsCardVoice = (level: Level): { text: string; clipId: string } => ({
-  text: levelColors[level].voice,
-  clipId: `level_${level}`,
-});
-
 /** SFX for the sheet: a soft card-in as it slides up. */
 export const settingsCardCues = (): SettingsCue[] => [{ name: 'slide', id: 'card-in', tick: 0, volume: 0.5 }];
 

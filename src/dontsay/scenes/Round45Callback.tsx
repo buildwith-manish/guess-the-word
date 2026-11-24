@@ -12,16 +12,13 @@
  * through px(). Nothing here animates a heart.
  */
 import React from 'react';
-import { AbsoluteFill, Audio, Sequence, staticFile } from 'remotion';
+import { AbsoluteFill, Audio, Sequence } from 'remotion';
 import '../shared/fonts';
 import { Shake } from '../shared/Shake';
 import { rounds, type Round } from '../data';
 import { sfxFrames, sfxSrc, type SfxId } from '../sfx';
 import { colours, fontHeadline, glassSurface, SYSTEM, springAt, STAGGER } from '../system';
 import {
-  clipPath,
-  clipSec,
-  roundClipId,
   sealedSlideSec,
   secToTicks,
   ticksToFrames,
@@ -177,8 +174,6 @@ const Overlay: React.FC<{ round: Round }> = ({ round }) => {
   const boxFade = Math.min(1, Math.max(0, 1 - (t - fadeFrom) / 8));
   const boxIn = Math.min(1, springAt(t, STAGGER.arrival, 'gentle'));
   const answers = callbackAnswers(round);
-  const voiceId = roundClipId(round.n, 'intro');
-  const hasVoice = clipSec(voiceId) !== undefined;
 
   return (
     <AbsoluteFill style={{ pointerEvents: 'none' }}>
@@ -208,13 +203,6 @@ const Overlay: React.FC<{ round: Round }> = ({ round }) => {
           <Audio src={sfxSrc(c.id)} volume={c.volume} />
         </Sequence>
       ))}
-
-      {/* the voice line plays from the first frame when its clip exists (timings.generated.ts) */}
-      {hasVoice ? (
-        <Sequence from={0} layout="none">
-          <Audio src={staticFile(clipPath(voiceId))} />
-        </Sequence>
-      ) : null}
     </AbsoluteFill>
   );
 };

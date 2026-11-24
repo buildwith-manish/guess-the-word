@@ -17,7 +17,7 @@
 import React from 'react';
 import { AbsoluteFill, Audio, Sequence } from 'remotion';
 import { bonuses, ranks, rounds } from '../data';
-import { TIME_SCALE, WIDTH, rankCardSec, secToTicks, ticksToFrames, useDontSayFrame } from '../timing';
+import { TIME_SCALE, WIDTH, rankCardSecFor, secToTicks, ticksToFrames, useDontSayFrame } from '../timing';
 import { colours, fontHeadline, fontNumeric, levelBackground, springAt } from '../system';
 import { clamp01 } from '../shared/fade';
 import { numberWords } from '../components/rankWords';
@@ -33,18 +33,12 @@ const COPY = { header: 'Your Rank' } as const;
 /** Total points on offer: 45 rounds + 5 bonuses, computed — never written as a literal. */
 const TOTAL_POINTS = rounds.length + bonuses.length;
 
-/** Spoken line over the card. Clip id is a guess (no clip measured yet). */
-export const rankCardVoice = (): { text: string; clipId: string } => ({
-  text: `That was all ${numberWords(TOTAL_POINTS)}. Add up your points.`,
-  clipId: 'rankcard_reveal',
-});
-
 export type RankCardCue = { name: string; id: SfxId; tick: number; volume: number };
 export const rankCardCues = (): RankCardCue[] => [{ name: 'card-in', id: 'rank-reveal', tick: 0, volume: 0.85 }];
 
 /** Tick the spring is effectively settled: the first tick of the still 6 s hold (an estimate — the 'pop' preset is not sampled here). */
 export const RANK_CARD_SETTLE_TICK = 20;
-export const rankCardFrames = (): number => ticksToFrames(secToTicks(rankCardSec));
+export const rankCardFrames = (): number => ticksToFrames(secToTicks(rankCardSecFor()));
 
 const glass = (radius: number, alpha = 0.12): React.CSSProperties => ({
   boxSizing: 'border-box',
