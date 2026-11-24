@@ -401,3 +401,32 @@ Started, then stopped at the owner's request in favour of 4c. Nothing written. N
 - BonusWrapper and the five bonus scenes read bonusTicksFor(n) (per bonus) instead of a fixed bonusTicks; Root.tsx sizes bonus, level, settings and check-in compositions from the same functions.
 - Runtime with the current clips: 758.2 s (12:38). Shortening the 15 worst gives 727.1 s. dontsay_voice_fit.ts self-checks its model against TOTAL_TICKS.
 - Not done: the scenes still do not play most ds_ clips (rounds 1-44 intro/reveal/rule, hook, level, settings, check-in, rank, outro). Nothing rendered.
+
+## Task 5c: DONE (tsc --noEmit: only the old `src/timing.ts` `./rounds.json` error; `dontsay_voice_check.ts` ok: 173 clips, 0 overlaps; NOTHING rendered, `remotion still` blocked: ENOTFOUND remotion.media)
+
+- `timing.ts`: `voiceGapSec = 0.25` (the only gap constant); `fitSec` now adds the gap between lines of one slot (heavy rounds: intro + gap + rule, so those intro slots grew 0.25 s); new `hookSecFor()`, `rankCardSecFor()`, `outroSecFor()` (max of base, clips + gaps + `clipPadSec`), used in `buildSegments`; `endScreen` is still the last `endScreenSec` of the outro; new `voiceCues(segment) -> { id, tick }[]` (ticks local to the segment), the only source of clip start times. Ids come only from `audioMap.ts` and it throws on a missing one.
+- `src/dontsay/components/VoiceLayer.tsx`: `VoiceLayer` (one `<Audio>` per cue at `ticksToFrames(tick)`, `staticFile(clipPath(id))`), `findSegment`, `withVoice`. Mounted once per segment in Part1 to Part6 (rounds in Part1 with `at`), in `Preview.tsx` (DontSay-Round, -Round-All) and, via `withVoice` wrappers in Root.tsx, in the standalone Hook, LevelCard-L1..L5, SettingsCard-L2, HeartCheckIn, RankCard, Bonus-1..5 and Round45Callback compositions. Scoreboard has no voice.
+- Removed voice from scenes: `ResultBeat` (and `resultClipId`), `Round45Callback`, Part5 `LevelBlock`; deleted `levelCardVoice`, `settingsCardVoice`, `heartCheckInVoice`, `rankCardVoice`, `outroVoice`; Hook narration now uses `hookIds` (4 lines: its old 6-line copy "Say yours before the timer ends." / "Fifty rounds." is gone, no clip exists for it). No `hook_N`, `level_N`, `check_in`, `rankcard_reveal`, `outro_N`, `rNN_result` ids are left.
+- Hook beats (hearts spring, listening glow wake, round live) now start from the clip start ticks; round 1 goes live 0.4 s after "Let's go". Outro asks appear when their clip starts (ask 3 therefore sits on screen about 7 s before the end screen). Rank card holds 16.7 s now (intro + five rank lines read over the card); the scoreboard is still 20 s and silent.
+- `scripts/dontsay_voice_fit.ts`: hook, settings, rank card and outro entries, gaps in the model; self-check against TOTAL_TICKS still passes. `scripts/dontsay_voice_check.ts` (new, exit 1 on failure): every audioMap id cued exactly once, tick + length inside its slot, no overlaps, every file present. Negative-tested with two temporary mutations (a check-in clip removed, hook/rank/outro clips stacked): it failed with 11 problems, then timing.ts was restored.
+
+### Runtime
+- Total 770.9 s (12:50), 46254 frames (was 758.2 s). Parts: P1 147.5 s, P2 146.4, P3 144.8, P4 123.1, P5 142.4, P6 66.7. Part starts (60 fps): 0, 8852, 17636, 26326, 33710, 42254. Target 10:44 (644 s): +127 s.
+- Hook 8.03 s (was 8), rank card 16.7 s (was 6), outro unchanged at 30 s.
+
+### Frames to check by hand (60 fps)
+- Round 12 intro + rule (DontSay-P2, part frame 1786 start): intro clip ds_043 at 0, rule ds_044 at +122 (1908), intro slot ends +302, reveal clip ds_045 at +722, result ds_046 at +850.
+- Round 45 callback (DontSay-P5, start 6574): intro ds_159 at 0, rule ds_160 at +124, fruit cards land around +52..+76 (4g/3c notes), reveal ds_161 at +634. Check that the voice no longer plays twice.
+- Bonus 3 intro (DontSay-P3, start 7568): ds_097 at 0 (4.4 s, the intro phase is stretched to it), reveal ds_098 at +762.
+- Hook (DontSay-P1, 0-482): clips at 0, 132, 262, 394; hearts spring about 262, glow wake 394.
+- Outro (DontSay-P6, start 2200): clips at 0, 170, 316; end screen at +900.
+- Rank card (P6 0-1000): rank lines at 0, 180, 280, 468, 644, 824; scoreboard starts at 1000.
+
+### Open
+- **Ducking: none.** There is no music bed mounted anywhere (Full.tsx has none; `heartCheckInMusicGain` is unused) and no ducking helper in src/dontsay, so nothing was added. When a music bed lands, duck it under `voiceCues` ticks.
+- SFX under voice: the ink-dissolve, chimes, collision/safe sounds and the level swell are not ducked; they can mask a clip. Not listened to.
+- Nothing rendered, so no audio-to-picture sync was checked. Result clips play at phases.result.from while the chip appears at the same tick; the old 4-tick delay is gone.
+- The 4k note said Part3 mounts level/check-in cues itself: unchanged. Part2 and Part4 still do not mount level-card sfx cues (not touched).
+- Rank card is now 10.7 s longer than the base and the scoreboard is silent: decide whether the five rank lines should instead play on the scoreboard bands (would need per-band cues and a longer scoreboard).
+- `SettingsCard-L2` standalone plays the settings clip (ds_005, the L1 rules line) over the L2 sheet: a preview only.
+- Outro `ASK` slots no longer have equal length; the end screen start is unchanged.

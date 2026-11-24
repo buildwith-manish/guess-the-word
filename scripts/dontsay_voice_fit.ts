@@ -13,16 +13,17 @@
  * "Overrun" = clip length - slot (only lines with a positive overrun are listed). A slot also needs clipPadSec (0.3 s) after
  * the clip (timing.ts: slot = max(base, clip + 0.3)), so lines that fit by less than 0.3 s are counted separately.
  *
- * Every voiced slot stretches in timing.ts: slot = max(base, clips + 0.3 s). The runtime printed equals TOTAL_SEC (self-checked).
+ * Every voiced slot stretches in timing.ts: slot = max(base, clips + voiceGapSec between lines + 0.3 s). Hook, settings, rank card and
+ * outro are modelled too (task 5c). The runtime printed equals TOTAL_SEC (self-checked).
  * "Shortened" = the worst lines cut to (slot - 0.3 s), so they add nothing. A heavy pair is cut as a whole.
  */
 import { readFileSync } from 'node:fs';
 import { bonuses, heartCheckIn, rounds } from '../src/dontsay/data';
-import { bonusAudio, checkInId, levelIds, roundAudio } from '../src/dontsay/audioMap';
+import { bonusAudio, checkInId, hookIds, levelIds, outroIds, rankIds, rankIntroId, roundAudio } from '../src/dontsay/audioMap';
 import {
-  TOTAL_TICKS, bonusIntroSec, bonusPhaseSecs, bonusRevealSec, checkInSecFor, clipPadSec, clipSec, heartCheckInSec, introBaseSec,
-  introSecFor, levelCardSec, levelCardSecFor, resultSec, resultSecFor, revealSec, revealSecFor, secToTicks, settingsCardSec,
-  settingsCardSecFor, targetSec, timecode,
+  TOTAL_TICKS, bonusIntroSec, bonusPhaseSecs, bonusRevealSec, checkInSecFor, clipPadSec, clipSec, heartCheckInSec, hookSec, hookSecFor,
+  introBaseSec, introSecFor, levelCardSec, levelCardSecFor, outroSec, outroSecFor, rankCardSec, rankCardSecFor, resultSec, resultSecFor,
+  revealSec, revealSecFor, secToTicks, settingsCardSec, settingsCardSecFor, targetSec, timecode, voiceGapSec,
 } from '../src/dontsay/timing';
 
 const TOP = Number(process.env.FIT_TOP ?? 15);
@@ -62,7 +63,7 @@ const dur = (id: string): number => {
 };
 
 /* ---------- one entry per slot ---------- */
-type Kind = 'settings' | 'intro' | 'reveal' | 'result' | 'level' | 'check-in' | 'bonus intro' | 'bonus reveal';
+type Kind = 'hook' | 'settings' | 'intro' | 'reveal' | 'result' | 'level' | 'check-in' | 'bonus intro' | 'bonus reveal' | 'rank card' | 'outro';
 type Entry = {
   where: string; kind: Kind; ids: string[]; durs: number[]; slot: number; len: number; over: number; text: string;
   /** For a round intro/reveal: how timing.ts stretches that slot today. */
@@ -71,7 +72,8 @@ type Entry = {
 const entries: Entry[] = [];
 const add = (where: string, kind: Kind, ids: string[], slot: number, grows?: Entry['grows']) => {
   const durs = ids.map(dur);
-  const len = durs.reduce((a, b) => a + b, 0);
+  // lines of one slot play back to back with voiceGapSec between them (timing.ts fitSec)
+  const len = durs.reduce((a, b) => a + b, 0) + voiceGapSec * (ids.length - 1);
   entries.push({ where, kind, ids, durs, slot, len, over: len - slot, text: ids.map((i) => text.get(i) ?? '?').join(' '), grows });
 };
 
@@ -82,9 +84,12 @@ for (const r of rounds) {
   add(`R${r.n}`, 'reveal', [a.reveal], revealSec, { round: r.n, part: 'reveal' });
   if (a.result) add(`R${r.n}`, 'result', [a.result], resultSec);
 }
+add('hook', 'hook', hookIds, hookSec);
+if (levelIds[1].settings) add('L1', 'settings', [levelIds[1].settings], settingsCardSec);
 for (const [lv, ids] of Object.entries(levelIds)) add(`L${lv}`, 'level', [ids.level], levelCardSec);
-if (levelIds[1].settings) add('L1', 'settings' as Kind, [levelIds[1].settings], settingsCardSec);
 add(`after R${heartCheckIn.afterRound}`, 'check-in', [checkInId], heartCheckInSec);
+add('rank', 'rank card', [rankIntroId, ...rankIds], rankCardSec);
+add('outro', 'outro', outroIds, outroSec);
 for (const b of bonuses) {
   const a = bonusAudio.find((x) => x.n === b.n);
   if (!a) { problems.push(`bonus ${b.n} is not in audioMap.ts`); continue; }
@@ -99,6 +104,7 @@ const T = (s: number): number => secToTicks(s);
 const grownNow = rounds.reduce((sum, r) => sum + (T(introSecFor(r)) - T(introBaseSec(r))) + (T(revealSecFor(r)) - T(revealSec)) + (T(resultSecFor(r)) - T(resultSec)), 0)
   + (Object.keys(levelIds) as unknown as (1 | 2 | 3 | 4 | 5)[]).reduce((sum, lv) => sum + T(levelCardSecFor(lv)) - T(levelCardSec), 0)
   + (T(settingsCardSecFor()) - T(settingsCardSec))
+  + (T(hookSecFor()) - T(hookSec)) + (T(rankCardSecFor()) - T(rankCardSec)) + (T(outroSecFor()) - T(outroSec))
   + (T(checkInSecFor()) - T(heartCheckInSec))
   + bonuses.reduce((sum, b) => { const p = bonusPhaseSecs(b.n); return sum + (T(p.intro) - T(bonusIntroSec)) + (T(p.reveal) - T(bonusRevealSec)); }, 0);
 const BASE_TICKS = TOTAL_TICKS - grownNow;
@@ -134,7 +140,7 @@ worst.forEach((e, i) => {
 });
 const sumOver = (xs: Entry[]): number => xs.reduce((s, e) => s + e.over, 0);
 console.log(`\nOverrun: worst ${worst.length} = ${sumOver(worst).toFixed(2)} s, all ${over.length} = ${sumOver(over).toFixed(2)} s, the rest = ${sumOver(over.slice(TOP)).toFixed(2)} s`);
-console.log('By slot: ' + (['intro', 'reveal', 'result', 'level', 'check-in', 'bonus intro', 'bonus reveal'] as Kind[]).map((k) => {
+console.log('By slot: ' + (['hook', 'settings', 'intro', 'reveal', 'result', 'level', 'check-in', 'bonus intro', 'bonus reveal', 'rank card', 'outro'] as Kind[]).map((k) => {
   const xs = over.filter((e) => e.kind === k);
   return `${k} ${xs.length}/${entries.filter((e) => e.kind === k).length}`;
 }).join(' | '));
