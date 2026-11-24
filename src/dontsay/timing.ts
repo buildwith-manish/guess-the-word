@@ -6,7 +6,7 @@
 import { useCurrentFrame } from 'remotion';
 import { bonuses, heartCheckIn, levelColors, rounds } from './data';
 import type { Bonus, Level, Round } from './data';
-import { bonusAudioOf, roundAudio, roundAudioOf } from './audioMap';
+import { bonusAudioOf, checkInId, roundAudio, roundAudioOf } from './audioMap';
 import { clipTimings } from './timings.generated';
 
 /* ---------- clock ----------
@@ -97,10 +97,18 @@ const slotClipSec = (n: number, kind: 'intro' | 'reveal'): number | undefined =>
 export const timerSecFor = (level: Level): number => (level <= 2 ? timerL1L2Sec : level === 3 ? timerL3Sec : timerL4L5Sec);
 /** Base intro length by round kind (callback first: round 45 is also heavy). */
 export const introBaseSec = (r: Round): number => (r.callback ? introCallbackSec : r.heavy ? introHeavySec : introStdSec);
-/** Intro slot = max(base, intro clip + pad) once the clip exists; otherwise the base value. */
-export const introSecFor = (r: Round): number => Math.max(introBaseSec(r), (slotClipSec(r.n, 'intro') ?? -Infinity) + clipPadSec);
+/** Intro slot = max(base, spoken intro + pad) once the clip exists; otherwise the base value. A heavy round speaks its
+ *  prompt clip and then its rule clip, so both count (the rule clip is 0 s on the other rounds). */
+export const introSecFor = (r: Round): number => {
+  const intro = slotClipSec(r.n, 'intro');
+  const rule = clipSec(roundAudio.find((a) => a.n === r.n)?.rule) ?? 0;
+  return Math.max(introBaseSec(r), (intro === undefined ? -Infinity : intro + rule) + clipPadSec);
+};
 /** Reveal slot = max(revealSec, reveal clip + pad). */
 export const revealSecFor = (r: Round): number => Math.max(revealSec, (slotClipSec(r.n, 'reveal') ?? -Infinity) + clipPadSec);
+
+/** Heart check-in slot = max(heartCheckInSec, clip + pad): the 2 s card stretches when its line is longer. */
+export const heartCheckInSecFor = (): number => Math.max(heartCheckInSec, (clipSec(checkInId) ?? -Infinity) + clipPadSec);
 
 /* ---------- segments ---------- */
 export type Range = { from: number; to: number };
@@ -160,7 +168,7 @@ const buildSegments = (): Segment[] => {
     out.push({ kind: 'round', round: r, phases, sealedFrom: from, lockClickTicks: [from, phases.reveal.from], part, from, to: cur });
 
     if (r.n === heartCheckIn.afterRound) {
-      out.push({ kind: 'heartCheckIn', afterRound: heartCheckIn.afterRound, beforeRound: heartCheckIn.beforeRound, part, ...span(heartCheckInSec) });
+      out.push({ kind: 'heartCheckIn', afterRound: heartCheckIn.afterRound, beforeRound: heartCheckIn.beforeRound, part, ...span(heartCheckInSecFor()) });
     }
     const b = bonuses.find((x) => x.afterRound === r.n);
     if (b) {

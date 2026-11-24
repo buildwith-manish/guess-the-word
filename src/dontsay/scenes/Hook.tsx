@@ -14,7 +14,9 @@
  */
 import React from 'react';
 import { Sequence } from 'remotion';
-import { rounds, bonuses, type Round } from '../data';
+import { rounds, type Round } from '../data';
+import { hookIds } from '../audioMap';
+import { hookStartSecs } from '../voiceCues';
 import { FPS, WIDTH, hookSec, secToTicks, ticksToFrames, timerSecFor, useDontSayFrame, clipPath } from '../timing';
 import { colours, fontHeadline, levelBackground, springAt } from '../system';
 import { clamp01 } from '../shared/fade';
@@ -30,29 +32,23 @@ const px = (v: number): number => (v * WIDTH) / 1280;
 const ease = (x: number): number => 0.5 - 0.5 * Math.cos(Math.PI * clamp01(x));
 
 /* ------------------------------------------------------------------ */
-/* Narration. Starts are ESTIMATES: no voice clip is measured yet      */
-/* (timings.generated.ts is empty). Replace `startSec` with clip data. */
+/* Narration: the 4 hook lines of docs/dontsay/lines.csv (ds_001..004). */
+/* Start times come from the clip lengths (voiceCues.hookStartSecs):  */
+/* back to back, so the hearts / glow beats stay on the words.         */
 /* ------------------------------------------------------------------ */
 const numberWord = (n: number): string => ({ 3: 'Three', 50: 'Fifty' } as Record<number, string>)[n] ?? String(n);
-const questionCount = rounds.length + bonuses.length;
 
 export type HookVoiceLine = { id: string; text: string; startSec: number; tick: number; clip: string };
-const line = (i: number, text: string, startSec: number): HookVoiceLine => ({
-  id: `hook_${String(i).padStart(2, '0')}`,
+const HOOK_TEXT = ['My answer is locked.', 'Match me, lose a heart.', `${numberWord(HEART_COUNT)} hearts every level.`, "Let's go."];
+if (HOOK_TEXT.length !== hookIds.length) throw new Error(`Hook: ${HOOK_TEXT.length} lines here but audioMap.ts has ${hookIds.length} hook clips`);
+const hookStarts = hookStartSecs();
+export const hookVoice: HookVoiceLine[] = HOOK_TEXT.map((text, i) => ({
+  id: hookIds[i],
   text,
-  startSec,
-  tick: secToTicks(startSec),
-  clip: clipPath(`hook_${String(i).padStart(2, '0')}`),
-});
-
-export const hookVoice: HookVoiceLine[] = [
-  line(1, 'My answer is locked.', 0.2),
-  line(2, 'Say yours before the timer ends.', 1.2),
-  line(3, 'Say the same as me and you lose a heart.', 2.4),
-  line(4, `${numberWord(HEART_COUNT)} hearts every level.`, 4.2),
-  line(5, `${numberWord(questionCount)} rounds.`, 5.1),
-  line(6, "Let's go.", 5.6),
-];
+  startSec: hookStarts[i],
+  tick: secToTicks(hookStarts[i]),
+  clip: clipPath(hookIds[i]),
+}));
 
 /* ------------------------------------------------------------------ */
 /* Beats (seconds on the hook clock), then ticks.                      */
@@ -62,8 +58,8 @@ const BEAT_SEC = {
   lockOut: 2.6, // the notification starts leaving; gone by 3.0
   wallpaperIn: 3.0,
   bubbleIn: 3.0,
-  heartsIn: hookVoice[3].startSec, // "Three hearts every level"
-  wake: hookVoice[5].startSec, // "Let's go"
+  heartsIn: hookVoice[2].startSec, // "Three hearts every level"
+  wake: hookVoice[3].startSec, // "Let's go"
   roundLive: hookSec - 2, // 0:06
 } as const;
 

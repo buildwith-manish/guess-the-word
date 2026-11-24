@@ -177,8 +177,6 @@ const Overlay: React.FC<{ round: Round }> = ({ round }) => {
   const boxFade = Math.min(1, Math.max(0, 1 - (t - fadeFrom) / 8));
   const boxIn = Math.min(1, springAt(t, STAGGER.arrival, 'gentle'));
   const answers = callbackAnswers(round);
-  const voiceId = roundClipId(round.n, 'intro');
-  const hasVoice = clipSec(voiceId) !== undefined;
 
   return (
     <AbsoluteFill style={{ pointerEvents: 'none' }}>
@@ -209,12 +207,7 @@ const Overlay: React.FC<{ round: Round }> = ({ round }) => {
         </Sequence>
       ))}
 
-      {/* the voice line plays from the first frame when its clip exists (timings.generated.ts) */}
-      {hasVoice ? (
-        <Sequence from={0} layout="none">
-          <Audio src={staticFile(clipPath(voiceId))} />
-        </Sequence>
-      ) : null}
+      {/* the spoken intro + rule (ds clips) are played by the voice layer (Voice.tsx), not here */}
     </AbsoluteFill>
   );
 };

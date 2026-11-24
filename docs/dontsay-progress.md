@@ -385,3 +385,20 @@ Started, then stopped at the owner's request in favour of 4c. Nothing written. N
 
 ### Open: scenes still use old placeholder clip ids, not the ds_ ids
 - `Hook.tsx` (`hook_00`...), `LevelCard.tsx` and `SettingsCard.tsx` (`level_N`), `HeartCheckIn.tsx` (`check_in`), `RankCard.tsx` (`rankcard_reveal`), and the rank/outro/result-line clips do not read `audioMap.ts`. Only round intro/reveal and bonus intro/reveal slots do (via timing.ts). With real ds_ clips in place these voice lines will not be found, and an `<Audio>` mounted on a missing file can fail the render. Needs its own task: point those scenes at `hookIds`, `levelIds`, `checkInId`, `rankIntroId`/`rankIds`, `outroIds` and `ruleClipId`/`result` ids.
+
+## Voiceover: one recording -> 173 clips -> wired into DontSay-Full (2026-11-24)
+
+- Push the full recording to `docs/dontsay/raw/voiceover.mp3` on `dontsay-quiz`: `.github/workflows/split-dontsay-voice.yml` runs.
+  Whisper transcribes it, `scripts/split_dontsay_voice.py` aligns the words to `docs/dontsay/lines.csv` and cuts `ds_001..ds_173`
+  at the quietest point between lines (needs no pauses; fails and commits nothing if a row is not found). Then
+  `clean_dontsay_clips.sh` (0.1 s edges, -16 LUFS), `build_dontsay_timings.py`, `build_dontsay_audio_map.ts`, `tsc`, and
+  `scripts/dontsay_voice_fit.ts` (two voices at once / clip longer than its scene / runtime vs 10:44). It commits clips, timings,
+  audio map and `docs/dontsay/voice_alignment.md` (what Whisper heard differently: listen to those clips).
+- Playback: `src/dontsay/Voice.tsx` (one layer in `Full.tsx`) places every clip from `src/dontsay/voiceCues.ts` (audio map + `segments`).
+  Scenes no longer play voice clips themselves (removed from `Round45Callback`); a clip not in `timings.generated.ts` is skipped.
+- Shared slot maths for the scoreboard bands and outro asks is in `src/dontsay/slots.ts` (scenes and voice use the same numbers).
+- `timing.ts`: a heavy round's intro slot now holds prompt + rule clips, and the heart check-in slot stretches to its clip.
+- `Hook.tsx`: the 4 recorded hook lines (was 6); hearts spring on "Three hearts every level", glow wakes on "Let's go";
+  start times follow the clip lengths.
+- Checked locally with stand-in clips: 173/173 mapped, `tsc` clean, rendered audio starts exactly on the cue times.
+  Not checked: a real Whisper run (the runner does it), a full picture render (Inter/Nunito woff2 are not in `public/fonts/`).

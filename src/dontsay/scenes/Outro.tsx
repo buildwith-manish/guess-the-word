@@ -19,6 +19,7 @@ import { WIDTH, outroSec, endScreenSec, outroFadeSec, secToTicks, secToFrames, u
 import { colours, fontHeadline, fontNumeric, levelBackground, springAt } from '../system';
 import { clamp01 } from '../shared/fade';
 import '../shared/fonts';
+import { OUTRO_IN_LEAD, outroAskAt, outroSlotTicks } from '../slots';
 import type { SfxId } from '../sfx';
 
 const px = (v: number): number => (v * WIDTH) / 1280;
@@ -39,13 +40,13 @@ export const OUTRO_COPY = { subscribe: 'Subscribe', nextSlot: 'Next game' } as c
 /* ------------------------------------------------------------------ */
 const ASK_COUNT = OUTRO_ASKS.length;
 const ASK_PHASE_TICKS = secToTicks(outroSec - endScreenSec);
-const SLOT_TICKS = Math.floor(ASK_PHASE_TICKS / ASK_COUNT);
-const IN_LEAD = 4; // ticks after a slot starts before its ask springs in
+const SLOT_TICKS = outroSlotTicks(ASK_COUNT); // slots.ts: shared with the voice layer
+const IN_LEAD = OUTRO_IN_LEAD; // ticks after a slot starts before its ask springs in
 const OUT_TICKS = 8; // fade-out before the next slot starts
 
 export const outroTicks = {
   /** Start of each ask's slot. */
-  askAt: OUTRO_ASKS.map((_, i) => i * SLOT_TICKS),
+  askAt: outroAskAt(ASK_COUNT),
   endScreen: ASK_PHASE_TICKS,
   subscribeIn: ASK_PHASE_TICKS + 6,
   slotIn: ASK_PHASE_TICKS + 10,

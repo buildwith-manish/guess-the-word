@@ -2,9 +2,9 @@
  * Full.tsx: master "DontSay-Full" (task 4o). Part1 to Part6 as Sequences, each at the render-frame
  * offset and length that timing.ts gives in `partRanges`. Nothing is timed here.
  *
- * Parts are back to back: hard cuts, no fades, no overlap. Each part mounts its own scene audio.
- * There is no music bed or voice layer yet (no clips in timings.generated.ts); add it next to the
- * Sequences, not inside a part.
+ * Parts are back to back: hard cuts, no fades, no overlap. Each part mounts its own scene sfx.
+ * The voiceover is ONE layer (Voice.tsx), placed from voiceCues.ts: scenes never play voice clips themselves.
+ * There is no music bed yet; add it next to the Sequences, not inside a part.
  */
 import React from 'react';
 import { Sequence } from 'remotion';
@@ -15,6 +15,7 @@ import { Part3 } from './parts/Part3';
 import { Part4 } from './parts/Part4';
 import { Part5 } from './parts/Part5';
 import { Part6 } from './parts/Part6';
+import { VoiceLayer } from './Voice';
 
 const PARTS: readonly React.FC[] = [Part1, Part2, Part3, Part4, Part5, Part6];
 
@@ -35,5 +36,6 @@ export const DontSayFull: React.FC = () => (
         </Sequence>
       );
     })}
+    <VoiceLayer />
   </div>
 );
