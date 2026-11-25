@@ -1,6 +1,16 @@
 #!/usr/bin/env python3
 """Upload one video to YouTube using a stored OAuth refresh token. Reads everything from env vars."""
 import os, sys
+
+sys.stderr = sys.stdout  # so ::error:: lines from sys.exit(...) show up as run annotations
+
+
+def _report(t, v, tb):
+    print("::error title=Upload failed::%s: %s" % (t.__name__, str(v)[:600].replace("\n", " ")), flush=True)
+    sys.__excepthook__(t, v, tb)
+
+
+sys.excepthook = _report
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
