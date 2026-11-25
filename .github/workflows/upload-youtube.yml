@@ -79,6 +79,17 @@ jobs:
           github-token: ${{ github.token }}
           path: video
 
+      - name: Find the video file
+        id: find
+        env:
+          VIDEO_NAME: ${{ inputs.video_name }}
+        run: |
+          # Render workflows save the file as final.mp4 inside "final-video-<comp>", so fall back to the only .mp4 in the artifact
+          f="video/${VIDEO_NAME}.mp4"
+          if [ ! -f "$f" ]; then f=$(find video -maxdepth 2 -name '*.mp4' | head -n 1); fi
+          [ -n "$f" ] && [ -f "$f" ] || { echo "::error::no .mp4 found in the downloaded artifact"; ls -R video; exit 1; }
+          echo "file=$f" >> "$GITHUB_OUTPUT"
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -91,7 +102,7 @@ jobs:
           YT_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YT_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
-          VIDEO_FILE: video/${{ inputs.video_name }}.mp4
+          VIDEO_FILE: ${{ steps.find.outputs.file }}
           YT_TITLE: ${{ inputs.title }}
           YT_DESCRIPTION: ${{ inputs.description }}
           YT_KEYWORDS: ${{ inputs.keywords }}
