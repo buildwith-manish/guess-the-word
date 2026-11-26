@@ -750,3 +750,7 @@ Files: `scenes/RoundScene.tsx`, `components/HeartsPill.tsx`, `components/Countdo
 - Rounds 19, 37, 40 (swatches), 21, 25, 26, 27, 38 (rule pairs), 42, 43, 44 (icons), 45 (via ExclusionChips only; Round45Callback draws its own cards). Look at: art size inside the chip, the pair overlap, red cross on the red orb, fringe on dark glass.
 ### Open
 - Ice cube keeps a light lavender centre. Art files total 4.8 MB. Waveform vs chip overlap (earlier screenshot) not addressed here.
+
+## Motion blur
+
+Motion blur is intentionally off for this video. `CameraMotionBlur` is only used by the old `src/Main.tsx` composition, and the `motionBlur` block in `settings.json` applies only to that old composition, not to this video.
