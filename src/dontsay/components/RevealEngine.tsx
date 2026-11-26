@@ -95,6 +95,8 @@ export type RevealEngineProps = {
   centre?: { x: number; y: number };
   /** Local design tick where the bubble slides to centre (phases.sealed.from). Default: InkBubble's own. */
   slideAt?: number;
+  /** Forwarded to InkBubble: backdrop blur (reference units) while the bubble is large. Default 0. */
+  backdropBlur?: number;
   /** Local design tick; defaults to the current clock. */
   frame?: number;
 };
@@ -107,6 +109,7 @@ export const RevealEngine: React.FC<RevealEngineProps> = ({
   sfx = true,
   centre = CENTRE,
   slideAt,
+  backdropBlur,
   frame,
 }) => {
   const clock = useDesignFrame();
@@ -142,6 +145,7 @@ export const RevealEngine: React.FC<RevealEngineProps> = ({
         sfx={sfx}
         centre={centre}
         slideAt={slideAt}
+        backdropBlur={backdropBlur}
       />
 
       {showLock ? (

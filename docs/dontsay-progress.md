@@ -473,3 +473,16 @@ Started, then stopped at the owner's request in favour of 4c. Nothing written. N
 - ExclusionChips untouched, so rounds with rules still show chips during the intro.
 - Counter / pill sizes are my picks (44 high, 20-unit text): small by design, check phone readability.
 - Prompt card top (150) was kept; with a single line at 92 units the card has little air. Raise `PROMPT.top` or drop the card if you want more empty space.
+
+## Task M4: DONE (tsc --noEmit clean; NOT rendered, `remotion still` failed: ENOTFOUND remotion.media)
+
+- `InkBubble.tsx`: size, radius and position all follow ONE progress `p` from the system `soft` spring (`INK_SPRING = SPRINGS.soft`, no overshoot; was damping 16 / stiffness 150, about 7% overshoot). New prop `backdropBlur` (reference units, default 0): a full-frame `backdrop-filter` layer under the bubble, strength = backdropBlur x p, so the background softens as the bubble grows.
+- `RevealEngine.tsx`: forwards `backdropBlur`.
+- `RoundScene.tsx`: slide start is `slideAt ?? phases.sealed.from` (timing.ts). The prompt eases away (opacity via `easeOut`, plus a 12-unit rise) over 8 ticks starting `STAGGER.base` (4) ticks BEFORE that. Passes `backdropBlur={6}`. If a scene slides the bubble during the timer (Round 45, slideAt before timer end) the prompt keeps the old behaviour (stays until the beat).
+- Round 1 frames (60 fps, round-local, from timing.ts + sampled `soft` spring): prompt starts easing 372, done 388; bubble slide start 380 (p 0); middle 390 (p about 0.6); end 410 (p 0.99; fully settled about 412). Blur reaches full strength with p.
+
+### Open
+- Lead (4 ticks), exit (8 ticks) and blur (6 units) are my picks and live in RoundScene / system STAGGER, not timing.ts (timing.ts has no slide-length or lead constant). The slide start itself comes only from timing.ts.
+- The lock-pop on the small bubble (tick 0) still uses its own bouncy spring (damping 14, stiffness 180): not touched.
+- Blur applies to everything drawn before the bubble (counter, hearts, chips, wallpaper); the lock and result chip are drawn after and stay sharp. Bonus scenes using InkBubble get no blur (prop defaults to 0).
+- Large bubble spans y 222-522 (centre 372 default) but RoundScene passes centre y 440: unchanged, not rechecked.

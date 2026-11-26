@@ -5,7 +5,8 @@
  * Two states: `small` (corner, ~12% of frame width, lock icon + "locked") and
  * `large` (centred, ~58% of frame width, ready to dissolve). In `auto` it is small
  * from frame 0 of the round and springs to large at the sealed-slide time
- * (sealedSlideSec from timing.ts; spring damping 16, stiffness 150).
+ * (sealedSlideSec from timing.ts). Size, radius and position all use ONE curve: the `soft`
+ * spring (no overshoot). Optional `backdropBlur` softly blurs everything behind the bubble as it grows.
  *
  * The answer text is NEVER rendered while `dissolve` is 0, so it cannot show
  * through the ink. `dissolve` (0..1, driven by the reveal engine, task 2g) sweeps the
@@ -20,7 +21,7 @@ import { Audio, Sequence, spring } from 'remotion';
 import { sfxSrc } from '../sfx';
 import { useDesignFrame } from '../shared/clock';
 import { clamp01 } from '../shared/fade';
-import { colours, fontHeadline, glassSurface } from '../system';
+import { colours, fontHeadline, glassSurface, SPRINGS } from '../system';
 import { FPS, TIME_SCALE, WIDTH, sealedSlideSec } from '../timing';
 
 const REF_W = 1280;
@@ -28,8 +29,8 @@ const px = (v: number): number => Math.round(v * (WIDTH / REF_W) * 100) / 100;
 /** glassSurface() takes 1920-reference radii; convert from 1280 units. */
 const glassR = (r1280: number): number => r1280 * (1920 / REF_W);
 
-/** Slide spring from the task: damping 16, stiffness 150. */
-export const INK_SPRING = { damping: 16, stiffness: 150, mass: 1 } as const;
+/** The one curve for the grow-and-move: system `soft` (damping 20, stiffness 120, no overshoot). */
+export const INK_SPRING = SPRINGS.soft;
 
 /** Geometry in 1280x720 reference units. */
 const SMALL = { w: 0.12 * REF_W, h: 92, right: 1152, top: 72, r: 30 } as const;
@@ -60,6 +61,8 @@ export type InkBubbleProps = {
   centre?: { x: number; y: number };
   /** Design tick (local to the enclosing Sequence) at which the bubble slides to centre. Default inkSlideTick. */
   slideAt?: number;
+  /** Backdrop blur behind the bubble when large, in reference units (scaled by the slide progress). Default 0 = none. */
+  backdropBlur?: number;
 };
 
 const rng = (seed: number) => {
@@ -108,6 +111,7 @@ export const InkBubble: React.FC<InkBubbleProps> = ({
   sfx = true,
   centre = LARGE_CENTRE,
   slideAt = inkSlideTick,
+  backdropBlur = 0,
 }) => {
   const tick = useDesignFrame();
   const dots = React.useMemo(() => makeDots(seed, DOT_COUNT), [seed]);
@@ -157,6 +161,17 @@ export const InkBubble: React.FC<InkBubbleProps> = ({
             <Audio src={sfxSrc('lock-click')} volume={0.3} />
           </Sequence>
         </>
+      ) : null}
+
+      {backdropBlur > 0 && p > 0.001 ? (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backdropFilter: `blur(${px(backdropBlur * clamp01(p))}px)`,
+            WebkitBackdropFilter: `blur(${px(backdropBlur * clamp01(p))}px)`,
+          }}
+        />
       ) : null}
 
       <div

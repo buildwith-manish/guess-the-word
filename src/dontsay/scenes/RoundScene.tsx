@@ -20,7 +20,7 @@ import { HeartsPill } from '../components/HeartsPill';
 import { ListeningGlow } from '../components/ListeningGlow';
 import { RevealEngine } from '../components/RevealEngine';
 import type { ResultOutcome } from '../components/ResultBeat';
-import { colours, fontHeadline, fontNumeric, glassSurface, levelBackground, springAt, STAGGER, tabular } from '../system';
+import { colours, fontHeadline, fontNumeric, easeOut, glassSurface, levelBackground, springAt, STAGGER, tabular } from '../system';
 import { FPS, segments, ticksToFrames, useDontSayFrame, WIDTH, type Range, type RoundPhases, type Segment } from '../timing';
 
 const REF_W = 1280;
@@ -31,6 +31,10 @@ const SAFE_X = 128; // 10% margin each side: text stays in x 128..1152
 const TOP_ROW = 72;
 const ROW_H = 44; // same height as the compact HeartsPill (64 * 0.69)
 const PROMPT = { left: SAFE_X, top: 150, width: REF_W - SAFE_X * 2, height: 130, radius: 44 } as const;
+/** Light blur behind the large bubble, reference units. */
+const BACKDROP_BLUR = 6;
+/** Prompt exit length in ticks: shorter than its entrance. */
+const PROMPT_EXIT_TICKS = 8;
 const PROMPT_MAX_SIZE = 92; // the prompt is the hero
 const PROMPT_FIT_WIDTH = PROMPT.width - 64; // inner width for the one-line fit
 /** Countdown is the Dynamic Island: a black capsule at the top centre. */
@@ -87,7 +91,13 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
 
   // prompt card: arrives early, stays through the timer and the sealed slide, gives way to the lock at the beat
   const promptIn = Math.min(1, springAt(t, STAGGER.arrival, 'soft'));
-  const promptOut = fadeOut(t, beat.from - 2, 6);
+  // The prompt eases away STAGGER.base ticks BEFORE the bubble starts to grow (slide start comes from
+  // timing.ts: phases.sealed.from, or the `slideAt` override). If a scene slides the bubble during the
+  // timer (Round 45), the prompt stays until the beat, as before.
+  const slideTick = slideAt ?? sealed.from;
+  const promptAwayAt = slideTick >= timer.to ? slideTick - STAGGER.base : beat.from - 2;
+  const promptAway = easeOut((t - promptAwayAt) / PROMPT_EXIT_TICKS);
+  const promptOut = 1 - promptAway;
   const fit = Math.min(PROMPT_MAX_SIZE, Math.floor(PROMPT_FIT_WIDTH / (Math.max(round.prompt.length, 1) * 0.6)));
 
   // rule chips: fade away when the answer takes the stage
@@ -154,7 +164,7 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
           alignItems: 'center',
           justifyContent: 'center',
           opacity: promptIn * promptOut,
-          transform: `translateY(${(1 - promptIn) * px(14)}px)`,
+          transform: `translateY(${(1 - promptIn) * px(14) - promptAway * px(12)}px)`,
         }}
       >
         <span
@@ -242,7 +252,8 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
         outcome={outcome}
         accent={style.accent}
         centre={BUBBLE_CENTRE}
-        slideAt={slideAt ?? sealed.from}
+        slideAt={slideTick}
+        backdropBlur={BACKDROP_BLUR}
       />
     </AbsoluteFill>
   );
