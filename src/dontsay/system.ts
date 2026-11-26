@@ -171,19 +171,25 @@ export const glassSurface = (
 };
 
 // ---------------------------------------------------------------------------
-// Spring presets — damping 14-20, stiffness 120-180 (docx section 9).
+// Springs: two real curves (docx section 9 range: damping 14-20, stiffness 120-180).
+//   soft   — damping 20, stiffness 120, no overshoot. Used for everything.
+//   reveal — damping 17.5, stiffness 120 (damping ratio ~0.80, overshoot ~1.5%,
+//            under the 2% cap). Used for the answer reveal ONLY.
+// The old names stay as aliases of `soft` so no other file breaks. Nothing aliases
+// `reveal`: a scene must ask for it by name.
 // ---------------------------------------------------------------------------
+const soft = { damping: 20, stiffness: 120, mass: 1, overshootClamping: true } as const;
+const reveal = { damping: 17.5, stiffness: 120, mass: 1 } as const;
+
 export const SPRINGS = {
-  /** Slow, soft entrance (hearts pill at level start). */
-  gentle:  { damping: 20, stiffness: 120, mass: 1 },
-  /** Default — slight overshoot, settles in ~0.4 s (cards, bubbles). */
-  snappy:  { damping: 16, stiffness: 160, mass: 1 },
-  /** Critically damped — no overshoot (reveal, anything that must feel like iOS). */
-  smooth:  { damping: 20, stiffness: 180, mass: 1 },
-  /** Lively overshoot (BONUS pill, correct pop). */
-  pop:     { damping: 14, stiffness: 180, mass: 1 },
-  /** Most bounce (hearts spring-in, callback cards). */
-  bouncy:  { damping: 14, stiffness: 140, mass: 0.9 },
+  soft,
+  reveal,
+  // Legacy aliases -> soft. Do not use in new code; use `soft`.
+  gentle: soft,
+  snappy: soft,
+  smooth: soft,
+  pop: soft,
+  bouncy: soft,
 } as const;
 export type SpringName = keyof typeof SPRINGS;
 
@@ -192,8 +198,17 @@ export type SpringName = keyof typeof SPRINGS;
  * `frame` and `at` are design ticks (30 fps). Output is sampled at the full
  * 60 fps rate via useDesignFrame() in shared/clock.ts.
  */
-export const springAt = (frame: number, at: number, preset: SpringName = 'snappy'): number =>
+export const springAt = (frame: number, at: number, preset: SpringName = 'soft'): number =>
   spring({ frame: Math.max(0, frame - at), fps: FPS, config: SPRINGS[preset] });
+
+/**
+ * Ease-out for non-spring moves (fades, short slides, exits). `t` is 0..1 and is
+ * clamped. `power` 3 = cubic (default); 2 is gentler, 4 is sharper. Never linear.
+ */
+export const easeOut = (t: number, power = 3): number => {
+  const c = Math.min(1, Math.max(0, t));
+  return 1 - Math.pow(1 - c, power);
+};
 
 // ---------------------------------------------------------------------------
 // Background gradients per level (dark, tinted by the level colour).
@@ -214,10 +229,15 @@ export const levelBackground: Record<Level, string> = {
 export const grainOpacity = 0.03;
 
 // ---------------------------------------------------------------------------
-// Stagger timings (docx section 9): arrivals 3-6 frames, chips 4 frames.
+// Stagger, in design ticks (30 fps), 3 to 6. Named values are the building blocks;
+// arrival / chip / heart are the existing keys, kept at 4 so nothing shifts.
 // ---------------------------------------------------------------------------
 export const STAGGER = {
-  arrival: 4,   // frames between element arrivals
-  chip: 4,      // frames between exclusion chips
-  heart: 4,     // frames between the 3 hearts at level start
+  tight: 3,
+  base: 4,
+  loose: 5,
+  slow: 6,
+  arrival: 4,   // ticks between element arrivals
+  chip: 4,      // ticks between exclusion chips
+  heart: 4,     // ticks between the 3 hearts at level start
 } as const;

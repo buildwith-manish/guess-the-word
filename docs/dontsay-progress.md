@@ -430,3 +430,14 @@ Started, then stopped at the owner's request in favour of 4c. Nothing written. N
 - Rank card is now 10.7 s longer than the base and the scoreboard is silent: decide whether the five rank lines should instead play on the scoreboard bands (would need per-band cues and a longer scoreboard).
 - `SettingsCard-L2` standalone plays the settings clip (ds_005, the L1 rules line) over the L2 sheet: a preview only.
 - Outro `ASK` slots no longer have equal length; the end screen start is unchanged.
+
+## Task M1: DONE (tsc --noEmit clean; NOT rendered, `remotion still` failed: ENOTFOUND remotion.media)
+
+- `src/dontsay/system.ts` only. `SPRINGS` is now two curves: `soft` (damping 20, stiffness 120, mass 1, `overshootClamping`) for everything, and `reveal` (damping 17.5, stiffness 120) for the answer reveal only. Sampled with Remotion's `spring()` at 30 fps: soft max 1.0000 (settled within 1% by tick 15); reveal max 1.0153 (1.5%, under the 2% cap; within 1% by tick 18).
+- Aliases, all -> `soft`: gentle, snappy, smooth, pop, bouncy. Nothing aliases `reveal`.
+- `springAt` default preset is now `soft` (was `snappy`).
+- Added `easeOut(t, power = 3)` (clamped, never linear) and `STAGGER.tight 3 / base 4 / loose 5 / slow 6` (ticks). Existing `arrival/chip/heart` kept at 4.
+
+### Open
+- No scene asks for `reveal` yet: InkBubble / RevealEngine answer reveal must switch to `springAt(..., 'reveal')` in its own task. Until then the reveal has no overshoot.
+- Scenes that used `pop` / `bouncy` (LevelCard, RankCard, Scoreboard, HeartsPill, Round45Callback, BonusWrapper) now settle with no overshoot and a slower curve (stiffness 120 instead of 140-180). Timings that assumed the old settle (e.g. `RANK_CARD_SETTLE_TICK` 20) were not rechecked.
