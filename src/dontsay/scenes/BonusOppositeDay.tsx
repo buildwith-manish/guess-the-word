@@ -1,8 +1,9 @@
 /**
  * BonusOppositeDay (task 4e): bonus 4, "Appearance toggle / Smart Invert" idea.
  *
- * The prompt is shown as text. Part-way through the play phase the whole frame briefly inverts
- * its colours (about 1 s, invert-whoosh sfx) and returns, like an Appearance toggle flipping.
+ * The prompt sits on a glass card. Part-way through the play phase the WALLPAPER briefly inverts
+ * (a lighter dark wash, never near-white; about 1 s, invert-whoosh sfx) and returns, like an
+ * Appearance toggle flipping. The pills, chip, prompt card and bubble are never inverted.
  * The sealed ink bubble is on screen from frame 0 (small, corner); it enlarges to centre at the
  * reveal and dissolves to the answer. No hearts are drawn or animated and there is no collision chip.
  *
@@ -12,8 +13,8 @@
  */
 import React from 'react';
 import { AbsoluteFill, Audio, Sequence } from 'remotion';
-import { bonuses, type Bonus } from '../data';
-import { BonusWrapper, px } from '../components/BonusWrapper';
+import { bonuses, rounds, type Bonus, type Level } from '../data';
+import { BonusWrapper, bonusGlass, px } from '../components/BonusWrapper';
 import { InkBubble } from '../components/InkBubble';
 import { sfxSrc } from '../sfx';
 import { useDesignFrame } from '../shared/clock';
@@ -30,7 +31,8 @@ const answerOf = (b: Bonus): string => (Array.isArray(b.answer) ? b.answer[0] : 
 /** Layout in 1280x720 reference units. Centre 80% = x 128..1152, y 72..648. */
 const L = {
   promptTop: 300,
-  promptH: 90,
+  promptH: 100,
+  promptRadius: 34,
   bubbleCentre: { x: 640, y: 470 },
 } as const;
 
@@ -38,6 +40,8 @@ const L = {
 const INVERT_DELAY = 15; // after the play phase starts
 const INVERT_RAMP = 5; // in and out
 const INVERT_HOLD = 20; // 5 + 20 + 5 = 30 ticks = 1 s
+/** Peak CSS invert() amount on the wallpaper. 0.5 would be flat grey, 1 near-white; 0.08 keeps text contrast >= 4.5:1 at the card centre (see docs/dontsay-progress.md). */
+export const INVERT_PEAK = 0.08;
 const DISSOLVE_DELAY = 30; // after the reveal starts: the slide settles first
 const DISSOLVE_TICKS = 45;
 
@@ -79,26 +83,13 @@ const dissolveAt = (tick: number): number => {
   return t * t * (3 - 2 * t);
 };
 
-/**
- * Colour inversion of everything painted below it (wallpaper, and also the BONUS pill and chip,
- * which BonusWrapper draws in the same layer). hue-rotate(180deg) keeps the hues readable.
- * The prompt and the ink bubble are drawn after this layer, so they are not inverted.
- */
-const InvertVeil: React.FC<{ amount: number }> = ({ amount }) => {
-  if (amount <= 0) return null;
-  const f = `invert(${amount}) hue-rotate(${180 * amount}deg)`;
-  return <AbsoluteFill style={{ backdropFilter: f, WebkitBackdropFilter: f }} />;
-};
-
-const Layer: React.FC<{ bonus: Bonus }> = ({ bonus }) => {
+const Layer: React.FC<{ bonus: Bonus; level: Level }> = ({ bonus, level }) => {
   const tick = useDesignFrame();
   const promptIn = springAt(tick, 8, 'soft');
   const promptOut = 1 - clamp01((tick - oppositeDayTicks.slide) / 10);
   return (
     <AbsoluteFill>
-      <InvertVeil amount={invertAmount(tick)} />
-
-      {/* the prompt, shown as text; the voice says it too */}
+      {/* the prompt on a glass card (same recipe as the round prompt card); readable in both wallpaper states */}
       <div
         style={{
           position: 'absolute',
@@ -111,16 +102,24 @@ const Layer: React.FC<{ bonus: Bonus }> = ({ bonus }) => {
           justifyContent: 'center',
           opacity: promptIn * promptOut,
           transform: `translateY(${(1 - promptIn) * px(16)}px)`,
-          fontFamily: fontHeadline,
-          fontWeight: 800,
-          fontSize: px(56),
-          lineHeight: 1.1,
-          letterSpacing: '-0.02em',
-          color: colours.ink,
-          textAlign: 'center',
         }}
       >
-        {bonus.prompt}
+        <div
+          style={{
+            maxWidth: '100%',
+            padding: `${px(14)}px ${px(48)}px`,
+            textAlign: 'center',
+            ...bonusGlass(L.promptRadius, 0.1, level),
+            fontFamily: fontHeadline,
+            fontWeight: 800,
+            fontSize: px(56),
+            lineHeight: 1.1,
+            letterSpacing: '-0.02em',
+            color: colours.ink,
+          }}
+        >
+          {bonus.prompt}
+        </div>
       </div>
 
       {/* sealed bubble: small from frame 0, centre at the reveal, dissolves last */}
@@ -139,10 +138,13 @@ const Layer: React.FC<{ bonus: Bonus }> = ({ bonus }) => {
 /** Mount in a Sequence of length bonusSec. Bonus 4 only. */
 export const BonusOppositeDay: React.FC = () => {
   const bonus = bonus4();
+  const tick = useDesignFrame();
+  // same level the wrapper uses (the level of the round the bonus follows)
+  const level: Level = rounds.find((r) => r.n === bonus.afterRound)?.level ?? 1;
   return (
     <AbsoluteFill>
-      <BonusWrapper bonus={bonus} />
-      <Layer bonus={bonus} />
+      <BonusWrapper bonus={bonus} level={level} wallpaperInvert={invertAmount(tick) * INVERT_PEAK} />
+      <Layer bonus={bonus} level={level} />
       {bonusOppositeDayCues().map((c, i) => (
         <Sequence key={i} from={Math.round(c.at * TIME_SCALE)} layout="none">
           <Audio src={sfxSrc(c.id)} volume={c.volume} />

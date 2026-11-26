@@ -2,7 +2,7 @@
  * BonusWrapper (task 2f): shared frame for the five bonus scenes.
  *
  * The same wallpaper and glass as the round screen (AuroraWallpaper, glassSurface with the level
- * tint), a gold BONUS pill that rises in (bonus-pill sfx), the hearts pill label switched to "BONUS",
+ * tint), a gold BONUS pill that rises in (bonus-pill sfx), the normal static hearts pill top-left (no second BONUS label),
  * and an explicit pass-condition chip. Bonus rounds never cost hearts: this file has
  * no heart animation and no collision chip.
  *
@@ -13,12 +13,12 @@ import React, { createContext, useContext } from 'react';
 import { AbsoluteFill, Audio, Sequence } from 'remotion';
 import { bonuses, rounds, type Bonus, type Level } from '../data';
 import { AuroraWallpaper } from './AuroraWallpaper';
+import { HeartsPill } from './HeartsPill';
 import { sfxSrc } from '../sfx';
 import { useDesignFrame } from '../shared/clock';
 import {
   colours,
   fontHeadline,
-  fontNumeric,
   glassSurface,
   springAt,
 } from '../system';
@@ -42,10 +42,9 @@ const L = {
   pillH: 52,
   chipTop: 148,
   stageTop: 262,
+  hudLeft: 64, // same top-left spot as RoundScene's hearts pill
+  hudTop: 48,
 } as const;
-
-/** Label the hearts pill shows during a bonus (no hearts drawn, none animated). */
-export const BONUS_HEARTS_LABEL = 'BONUS';
 
 export type BonusPhase = 'intro' | 'play' | 'reveal' | 'result';
 
@@ -77,11 +76,16 @@ export type BonusWrapperProps = {
   bonus: Bonus | Bonus['n'];
   /** Optional override; defaults to the level of the round the bonus follows. */
   level?: Level;
+  /**
+   * Optional, default 0 (no change for the other bonuses). 0..1 colour-invert amount applied to the
+   * WALLPAPER only; the pills, chip and mechanic above it are never filtered.
+   */
+  wallpaperInvert?: number;
   /** The mechanic. Use useBonus() inside for phase/tick. */
   children?: React.ReactNode;
 };
 
-export const BonusWrapper: React.FC<BonusWrapperProps> = ({ bonus: bonusProp, level: levelProp, children }) => {
+export const BonusWrapper: React.FC<BonusWrapperProps> = ({ bonus: bonusProp, level: levelProp, wallpaperInvert = 0, children }) => {
   const tick = useDesignFrame();
   const bonus = typeof bonusProp === 'number' ? (bonuses.find((b) => b.n === bonusProp) as Bonus) : bonusProp;
   const level: Level = levelProp ?? rounds.find((r) => r.n === bonus.afterRound)?.level ?? 1;
@@ -95,8 +99,7 @@ export const BonusWrapper: React.FC<BonusWrapperProps> = ({ bonus: bonusProp, le
   const pillIn = springAt(tick, 0, 'soft');
   const pillY = (1 - pillIn) * -px(16);
 
-  // Hearts pill label and chip arrive in order, STAGGER-style, after the pill.
-  const labelIn = springAt(tick, 4, 'soft');
+  // The pass-condition chip arrives after the pill.
   const chipIn = springAt(tick, bonusTicks.chipAt, 'soft');
 
   const note = bonus.onScreenNote;
@@ -106,34 +109,17 @@ export const BonusWrapper: React.FC<BonusWrapperProps> = ({ bonus: bonusProp, le
     <BonusContext.Provider value={{ bonus, level, phase, tick }}>
       <AbsoluteFill style={{ overflow: 'hidden' }}>
         {/* same wallpaper as the round screen */}
-        <AuroraWallpaper level={level} clock={segFrom + tick} />
+        <AbsoluteFill style={wallpaperInvert > 0 ? { filter: `invert(${wallpaperInvert})` } : undefined}>
+          <AuroraWallpaper level={level} clock={segFrom + tick} />
+        </AbsoluteFill>
 
         <Sequence from={Math.round(sfxFrom * TIME_SCALE)} layout="none">
           <Audio src={sfxSrc('bonus-pill')} />
         </Sequence>
 
-        {/* hearts pill position: label only, no hearts drawn */}
-        <div
-          style={{
-            position: 'absolute',
-            left: px(L.safeX),
-            top: px(L.safeTop),
-            height: px(L.pillH),
-            padding: `0 ${px(22)}px`,
-            display: 'flex',
-            alignItems: 'center',
-            opacity: labelIn,
-            transform: `translateY(${(1 - labelIn) * px(10)}px)`,
-            ...bonusGlass(26, 0.1, level),
-            fontFamily: fontNumeric,
-            fontWeight: 800,
-            fontSize: px(24),
-            letterSpacing: '0.08em',
-            color: colours.bonusGold,
-          }}
-        >
-          {BONUS_HEARTS_LABEL}
-        </div>
+        {/* top-left: the normal hearts pill, same as the round screens (compact, static: no `at`).
+            The gold BONUS pill below is the only BONUS label. Bonus rounds never change hearts. */}
+        <HeartsPill compact level={level} left={L.hudLeft} top={L.hudTop} />
 
         {/* BONUS pill, top centre */}
         <div

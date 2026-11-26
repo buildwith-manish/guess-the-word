@@ -721,3 +721,10 @@ Files: `scenes/RoundScene.tsx`, `components/HeartsPill.tsx`, `components/Countdo
 
 ### Frames to check by eye (DontSay-Round, 60 fps)
 - Round 12 at 200; round 24 at 200; a no-rule round (e.g. 1) at 200; round 28 around 380-420 (bubble slide, HUD stays sharp); round 45 at 150-260.
+## Task F4: DONE (tsc --noEmit: only the old `src/timing.ts` `./rounds.json` error; NOT rendered, `remotion still` failed: Chromium download blocked, ENOTFOUND remotion.media, not retried)
+
+- **One BONUS pill.** `BonusWrapper.tsx`: the top-left "BONUS" div is gone; it now draws the normal `HeartsPill` (`compact`, `level`, no `at`, so static, label "3 HEARTS", left 64 / top 48 like RoundScene). The gold top-centre pill is the only BONUS label. `BONUS_HEARTS_LABEL` removed (no users).
+- **Invert (`BonusOppositeDay.tsx`)**: the full-frame backdrop veil is gone. `BonusWrapper` has a new optional `wallpaperInvert` (0..1, default 0): a CSS `invert()` on the wallpaper layer only. The scene passes `invertAmount(tick) * INVERT_PEAK`, `INVERT_PEAK = 0.08` (one constant). Timing constants untouched. Prompt is on a glass card (`bonusGlass(34, 0.10, level)`, 56-unit text, y 300-400).
+- Contrast (WCAG, #F5F5F7 text, level 4; script-modelled, not measured from a render): at the peak, prompt text on the card 4.89:1 at the card centre / 4.26:1 at the brightest card corner in the worst case (every wallpaper light stacked); typical wallpaper 6.61 / 5.59. Pass chip text 4.59 / 3.90 worst case, 6.11 / 5.01 typical. Wallpaper luminance 0.070 (worst) to 0.033 (typical) against text 0.914.
+- Small bubble: x 998.4-1152, y 552-644. Nothing in BonusWrapper or BonusOppositeDay sits there (stage slot is empty for bonus 4; prompt 300-400; chip ends about y 222).
+- Frames (60 fps, bonus-local, from timing.ts now that intro is voice-stretched to 120 ticks): invert starts 270, full by 280, holds to 320, back to 0 at 330; slide 720; dissolve 780-870; reveal 870.
