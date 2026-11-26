@@ -4,7 +4,8 @@
  * For EVERY round in data.ts it builds the rectangles (reference units, 1280x720) of the HUD (hearts pill, round
  * counter, watermark), the countdown pill, the prompt card, the waveform, the rule block (height from
  * ruleBlockHeight) and the small bubble, prints a table, and exits 1 if any two rectangles overlap or any
- * rectangle leaves the frame. It also checks the prompt text fits one line at its font size.
+ * rectangle leaves the frame. It also checks the prompt text fits one line at its font size, and that the gap between
+ * the round counter pill and the prompt card is at least MIN_COUNTER_GAP.
  *
  * Estimates (not measured): hearts pill / counter / watermark widths are upper bounds taken from layout.ts;
  * text widths use TEXT_EM (0.6 em per glyph); the small bubble mirrors InkBubble's small state. Nothing is rendered.
@@ -21,7 +22,14 @@ const overlap = (a: Rect, b: Rect): boolean => a.l < b.r && b.l < a.r && a.t < b
 const inFrame = (a: Rect): boolean => a.l >= 0 && a.t >= 0 && a.r <= REF.w && a.b <= REF.h;
 const f = (n: number): string => (Math.round(n * 10) / 10).toString();
 
+/** Minimum vertical gap, reference units, between the round counter pill and the prompt card. */
+const MIN_COUNTER_GAP = 12;
+
 const problems: string[] = [];
+const counterGap = layout.prompt.top - layout.hudCounter.bottom;
+if (counterGap < MIN_COUNTER_GAP) {
+  problems.push(`gap between counter pill (bottom ${layout.hudCounter.bottom}) and prompt card (top ${layout.prompt.top}) is ${counterGap}, minimum ${MIN_COUNTER_GAP}`);
+}
 const rows: string[][] = [['round', 'rule', 'block h', 'block bottom', 'slack to 640', 'prompt px', 'prompt w/inner']];
 let worst = { n: 0, h: -1 };
 
@@ -101,6 +109,7 @@ console.log('');
 console.log(`rounds checked: ${rounds.length}  (rect names per round: hearts, counter, watermark, countdown, prompt, waveform, rule, bubbleSmall)`);
 console.log(`worst-case rule block: round ${worst.n}, ${f(worst.h)} units (zone ${layout.ruleZone.top}..${RULE_MAX_BOTTOM} = ${RULE_MAX_BOTTOM - layout.ruleZone.top})`);
 console.log(`longest prompt: round ${longest.n} "${longest.prompt}" (${longest.prompt.length} chars) -> ${lSize}px, est. width ${f(textWidth(longest.prompt, lSize))} of ${promptWidth - PROMPT_PAD_X * 2} (${TEXT_EM} em per glyph)`);
+console.log(`counter pill -> prompt card gap: ${counterGap} units (minimum ${MIN_COUNTER_GAP})`);
 console.log('zones (reference units):');
 for (const [k, z] of Object.entries(layout)) console.log(`  ${k.padEnd(12)} top ${z.top} bottom ${z.bottom}` + ('left' in z ? `  left ${(z as { left: number }).left} right ${(z as { right: number }).right}` : ''));
 

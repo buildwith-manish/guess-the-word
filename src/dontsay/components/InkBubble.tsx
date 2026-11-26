@@ -279,7 +279,7 @@ export const InkBubble: React.FC<InkBubbleProps> = ({
               gap: px(4),
               padding: `${px(9)}px ${px(16)}px`,
               borderRadius: px(18),
-              background: 'rgba(0,0,0,0.55)',
+              background: 'rgba(0,0,0,0.68)',
               border: `${px(0.75)}px solid ${colours.hairline}`,
               opacity: lockIconOpacity,
             }}
@@ -293,7 +293,7 @@ export const InkBubble: React.FC<InkBubbleProps> = ({
                 transform: `translateY(${(1 - lockedIn) * px(4)}px)`,
                 fontFamily: fontHeadline,
                 fontWeight: 600,
-                fontSize: px(19),
+                fontSize: px(24),
                 lineHeight: 1.2,
                 letterSpacing: '0.04em',
                 color: colours.ink,

@@ -35,7 +35,7 @@ export const layout = {
   /** Countdown pill, top centre, same row as the hearts and the watermark: 150 x 56. */
   countdown: { top: 42, bottom: 98, left: (REF.w - 150) / 2, right: (REF.w + 150) / 2 },
   /** Prompt card: FIXED for every round. */
-  prompt: { top: 150, bottom: 280, left: SAFE_X, right: REF.w - SAFE_X },
+  prompt: { top: 160, bottom: 280, left: SAFE_X, right: REF.w - SAFE_X },
   /** Waveform, directly under the card. */
   waveform: { top: 296, bottom: 348, left: 300, right: 980 },
   /** Rule UI: anchored from its TOP edge. `bottom` is the hard maxBottom. x range keeps clear of bubbleSmall. */
