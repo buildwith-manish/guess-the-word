@@ -1,9 +1,9 @@
 /**
  * CountdownNumber: a small plain glass pill (about 150 x 56, glassSurface tinted with the level accent; never filled
  * red) in the top centre, on the HUD row with the hearts pill and the watermark (layout.countdown). Tabular seconds
- * (Nunito ExtraBold), a thin accent progress line inside
- * the pill that fills over the timer. The number and line turn red for the last URGENT_SECONDS
- * (shared/timerMath) and a red edge pulse beats on every remaining frame.
+ * (Nunito ExtraBold) in the ink colour (colours.ink, same as the prompt) at full opacity, and a thin accent progress line
+ * inside the pill that fills over the timer. Only the line turns red for the last URGENT_SECONDS
+ * (shared/timerMath), with a red edge pulse on every remaining frame; the number never changes colour.
  * Timer starts at `at` (the first tick after the intro), so reading time never counts.
  * Duration comes from timing.ts (timerSecFor: 5/4/3 s by level). No sizes, rounds or seconds hard-coded.
  * Sizes in 1280x720 reference units through px(). Our own drawn UI, no logos.
@@ -27,7 +27,7 @@ const L = { w: layout.countdown.right - layout.countdown.left, h: layout.countdo
 const LEAD_IN = 6;
 /** Number crossfade and red fade-in, in ticks. */
 const SWAP_TICKS = 6;
-/** The number and line fade to red over this many ticks at the start of the urgent window. */
+/** The progress line fades to red over this many ticks at the start of the urgent window. */
 const RED_TICKS = 6;
 /** Red edge pulse: fade-in at the urgent start, quick rise then ease-out fall on each second, fade-out at the timer end. */
 const EDGE_IN_TICKS = 8;
@@ -93,7 +93,7 @@ export const CountdownNumber: React.FC<CountdownNumberProps> = ({ level, at, dur
   const inP = springAt(t, at - LEAD_IN, 'snappy');
   // red warning fades in over RED_TICKS from the first urgent tick (no instant switch)
   const redP = m.urgent ? easeOut(m.urgentTicks / RED_TICKS) : 0;
-  // the level's one accent colour; blends to red only in the last URGENT_SECONDS
+  // progress line only: the level's one accent colour, blending to red in the last URGENT_SECONDS. The number stays colours.ink.
   const accent = colours.level[level];
   const tone = mix(accent, SYSTEM.red, redP);
   // the number changes by a short crossfade, no scale, no pop
@@ -135,9 +135,9 @@ export const CountdownNumber: React.FC<CountdownNumberProps> = ({ level, at, dur
       >
         <div style={{ display: 'grid', marginTop: -px(4) }}>
           {swap < 1 ? (
-            <div style={{ gridArea: '1 / 1', ...numberStyle, color: tone, opacity: 1 - swap }}>{shown + 1}</div>
+            <div style={{ gridArea: '1 / 1', ...numberStyle, color: colours.ink, opacity: 1 - swap }}>{shown + 1}</div>
           ) : null}
-          <div style={{ gridArea: '1 / 1', ...numberStyle, color: tone, opacity: swap }}>{shown}</div>
+          <div style={{ gridArea: '1 / 1', ...numberStyle, color: colours.ink, opacity: swap }}>{shown}</div>
         </div>
         {/* thin progress line inside the pill */}
         <div
