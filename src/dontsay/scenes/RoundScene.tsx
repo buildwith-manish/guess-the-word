@@ -1,14 +1,22 @@
 /**
  * RoundScene (task 3a): the standard round layout for rounds 1-45.
  *
- * Layers, back to front: level wallpaper, ExclusionChips (the round's rule), ListeningGlow, prompt card,
- * CountdownNumber, HeartsPill (static), round counter "N OF 45", RevealEngine (owns the InkBubble).
+ * Layers, back to front: level wallpaper, ExclusionChips (the round's rule), ListeningGlow (waveform only,
+ * the one on-screen sign of listening), prompt card (thin accent edge + soft low glow, one accent colour),
+ * CountdownNumber (plain glass pill, under the waveform), HeartsPill (static after level start), round
+ * counter "N OF 45", RevealEngine (owns the InkBubble).
  *
  * Time: every phase comes from the round's segment in timing.ts. Data (prompt, rule, answer, level, counter total)
  * comes from data.ts. No prompt, answer, rule, number, points or duration is written here.
  * Sizes are 1280x720 reference units through px(). Prompt and answer text sits in the centre 80% (x 128..1152).
  * Hearts: HeartsPill is static; it springs in once, and only on the first round of a level. Nothing here animates a heart.
  * The wallpaper follows the LEVEL, never hearts.
+ *
+ * Composition (reference units, y only): top row (hearts + counter) at y 56-100; prompt card y 235-365
+ * (centre y 300); waveform directly under the card at y ~395-475; countdown pill under the waveform at
+ * y 495-607. The enlarged ink bubble is y 290-590 at the sealed phase: the prompt eases up and fades out
+ * before the bubble's growing footprint reaches that range (see promptAwayAt below), and the waveform and
+ * countdown are both gone (faded 4 ticks after timer.to) well before the sealed slide.
  */
 import React from 'react';
 import { AbsoluteFill, Sequence } from 'remotion';
@@ -29,19 +37,19 @@ const px = (v: number): number => (v * WIDTH) / REF_W;
 
 /* ---------- layout, reference units (1280x720) ---------- */
 const SAFE_X = 128; // 10% margin each side: text stays in x 128..1152
-const TOP_ROW = 72;
+/** Top row (hearts pill + round counter), y 56-100: at least 28 units clear of the prompt card below it. */
+const TOP_ROW = 56;
 const ROW_H = 44; // same height as the compact HeartsPill (64 * 0.69)
-const PROMPT = { left: SAFE_X, top: 150, width: REF_W - SAFE_X * 2, height: 130, radius: 44 } as const;
+/** Prompt card: centre y 300 (top 235, bottom 365), well clear of the small ink bubble (y 72-164, top right). */
+const PROMPT = { left: SAFE_X, top: 235, width: REF_W - SAFE_X * 2, height: 130, radius: 44 } as const;
 /** Light blur behind the large bubble, reference units. */
 const BACKDROP_BLUR = 6;
 /** Prompt exit length in ticks: shorter than its entrance. */
 const PROMPT_EXIT_TICKS = 8;
 const PROMPT_MAX_SIZE = 92; // the prompt is the hero
 const PROMPT_FIT_WIDTH = PROMPT.width - 64; // inner width for the one-line fit
-/** Countdown is the Dynamic Island: a black capsule at the top centre. */
-const COUNTDOWN_TOP = 14;
-/** Dictation capsule (bottom centre, above the home indicator). Only while the timer runs. */
-const DICTATION = { width: 360, height: 72, top: 576 } as const;
+/** Countdown: a plain glass pill, centred just under the waveform (which sits right under the card). */
+const COUNTDOWN_TOP = 495;
 /** Centre of the enlarged ink bubble. ResultBeat puts its chip 150 units below this. */
 const BUBBLE_CENTRE = { x: REF_W / 2, y: 440 } as const;
 /** The small bubble is 12% of the width, right-aligned to the safe edge (InkBubble). The counter sits left of it. */
@@ -68,15 +76,6 @@ const local = (r: Range, from: number): Range => ({ from: r.from - from, to: r.t
 
 const fadeOut = (t: number, at: number, ticks: number): number => Math.min(1, Math.max(0, 1 - (t - at) / ticks));
 
-/** Drawn mic (not an SF Symbol). */
-const MicIcon: React.FC = () => (
-  <svg width={px(26)} height={px(34)} viewBox="0 0 26 34" style={{ display: 'block' }}>
-    <rect x="8" y="1" width="10" height="19" rx="5" fill={colours.ink} />
-    <path d="M3 15 a10 10 0 0 0 20 0" fill="none" stroke={colours.ink} strokeWidth="2.6" strokeLinecap="round" />
-    <path d="M13 25 V31" stroke={colours.ink} strokeWidth="2.6" strokeLinecap="round" />
-  </svg>
-);
-
 const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; chips: boolean }> = ({ round, outcome, slideAt, chips }) => {
   const t = useDontSayFrame();
   const seg = roundSegment(round.n);
@@ -86,6 +85,9 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
   const sealed = local(ph.sealed, base);
   const beat = local(ph.beat, base);
   const style = levelColors[round.level];
+  // first round of its level: HeartsPill springs in once here, static (no `at`) on every other round
+  const roundIdx = rounds.findIndex((r) => r.n === round.n);
+  const isLevelFirst = roundIdx <= 0 || rounds[roundIdx - 1].level !== round.level;
 
   // prompt card: arrives early, stays through the timer and the sealed slide, gives way to the lock at the beat
   const promptIn = Math.min(1, springAt(t, STAGGER.arrival, 'soft'));
@@ -106,8 +108,15 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
 
   const counterIn = Math.min(1, springAt(t, STAGGER.arrival * 2, 'soft'));
 
-  // dictation capsule: only while listening (timer.from .. timer.to), same window as the listening glow
-  const dictIn = t >= timer.from ? Math.min(1, springAt(t, timer.from, 'soft')) * fadeOut(t, timer.to, 4) : 0;
+  // prompt card chrome: the usual glass surface, plus one thin accent edge and a soft, low accent glow
+  // appended to (not replacing) the standard card shadow. Accent is style.accent (levelColors, data.ts):
+  // the only glow colour on this card.
+  const promptGlass = glassSurface(PROMPT.radius * (1920 / REF_W), { level: round.level });
+  const promptCardStyle: React.CSSProperties = {
+    ...promptGlass,
+    border: `${px(1.5)}px solid ${style.accent}55`,
+    boxShadow: `${promptGlass.boxShadow}, 0 0 ${px(60)}px ${style.accent}22`,
+  };
 
   return (
     <AbsoluteFill style={{ overflow: 'hidden' }}>
@@ -121,13 +130,15 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
 
       <ListeningGlow
         round={round.n}
+        accent={style.accent}
         wakeAt={timer.from}
         dimAt={timer.to}
         offAt={sealed.to}
         card={{ left: PROMPT.left, top: PROMPT.top, width: PROMPT.width, height: PROMPT.height, radius: PROMPT.radius }}
       />
 
-      {/* the prompt, as text (it is also spoken) */}
+      {/* the prompt, as text (it is also spoken). One thin accent edge + a soft, low accent glow: the
+          listening state itself is shown only by the waveform above, not by this card. */}
       <div
         style={{
           position: 'absolute',
@@ -135,7 +146,7 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
           top: px(PROMPT.top),
           width: px(PROMPT.width),
           height: px(PROMPT.height),
-          ...glassSurface(PROMPT.radius * (1920 / REF_W), { level: round.level }),
+          ...promptCardStyle,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -166,9 +177,11 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
         </div>
       ) : null}
 
-      <HeartsPill compact left={SAFE_X} top={TOP_ROW} />
+      {/* static except on the level's first round, where it springs in once */}
+      <HeartsPill compact left={SAFE_X} top={TOP_ROW} at={isLevelFirst ? STAGGER.arrival : undefined} />
 
-      {/* round counter, top right, left of the small bubble; one line */}
+      {/* round counter, top right, left of the small bubble; one line. Container fades in on entrance only;
+          the label itself stays >=26 units and ~0.9 opacity so it reads clearly. */}
       <div
         style={{
           position: 'absolute',
@@ -179,7 +192,7 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
           display: 'flex',
           alignItems: 'center',
           padding: `0 ${px(18)}px`,
-          opacity: counterIn * 0.72,
+          opacity: counterIn,
           transform: `translateY(${(1 - counterIn) * px(-12)}px)`,
           transformOrigin: 'right top',
         }}
@@ -188,9 +201,10 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
           style={{
             fontFamily: fontNumeric,
             fontWeight: 800,
-            fontSize: px(20),
+            fontSize: px(26),
             letterSpacing: '0.04em',
             color: colours.ink,
+            opacity: 0.9,
             whiteSpace: 'nowrap',
             ...tabular,
           }}
@@ -198,29 +212,6 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
           {round.n} OF {rounds.length}
         </span>
       </div>
-
-      {/* dictation capsule: drawn mic + label, only while the timer runs */}
-      {dictIn > 0 ? (
-        <div
-          style={{
-            position: 'absolute',
-            left: px((REF_W - DICTATION.width) / 2),
-            top: px(DICTATION.top),
-            width: px(DICTATION.width),
-            height: px(DICTATION.height),
-            ...glassSurface(40, { level: round.level }),
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: px(14),
-            opacity: dictIn,
-            transform: `translateY(${(1 - dictIn) * px(18)}px)`,
-          }}
-        >
-          <MicIcon />
-          <span style={{ fontFamily: fontHeadline, fontWeight: 600, fontSize: px(28), color: colours.ink }}>Listening…</span>
-        </div>
-      ) : null}
 
       {/* owns the InkBubble: small from tick 0, enlarges at the sealed phase, then beat, dissolve, answer, result */}
       <RevealEngine

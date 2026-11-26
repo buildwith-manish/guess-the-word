@@ -38,7 +38,7 @@ export type HeartsPillProps = {
   /** Position from the frame's left/top edge in reference units. Default is the safe corner. */
   left?: number;
   top?: number;
-  /** Smaller, quieter pill (44 ref units high, 72% opacity) for the round screen. Default false. */
+  /** Smaller pill (44 ref units high) for the round screen. Label stays at least 26 units / 0.9 opacity. Default false. */
   compact?: boolean;
 };
 
@@ -47,16 +47,15 @@ export const HeartsPill: React.FC<HeartsPillProps> = ({ at, bonus = false, frame
   const frame = frameProp ?? clock;
   const animate = at !== undefined;
   // gentle preset: damping 20 so the one entrance settles without a bounce
-  // compact: smaller and quieter, same shape. Still never animates unless `at` is given.
+  // compact: smaller pill and hearts, same shape. Still never animates unless `at` is given.
   const k = compact ? 0.69 : 1;
-  const quiet = compact ? 0.72 : 1;
   const pill = animate ? Math.min(1, springAt(frame, at as number, 'gentle')) : 1;
 
   return (
     <div style={{
       position: 'absolute', left: px(left), top: px(top), display: 'flex', alignItems: 'center', gap: px(14 * k),
       ...glassSurface(40 * k), padding: `${px(10 * k)}px ${px(24 * k)}px ${px(10 * k)}px ${px(18 * k)}px`, height: px(64 * k),
-      opacity: pill * quiet, transform: `translateY(${(1 - pill) * px(-22)}px) scale(${0.9 + 0.1 * pill})`, transformOrigin: 'left top',
+      opacity: pill, transform: `translateY(${(1 - pill) * px(-22)}px) scale(${0.9 + 0.1 * pill})`, transformOrigin: 'left top',
     }}>
       <div style={{ display: 'flex', gap: px(4) }}>
         {Array.from({ length: HEART_COUNT }, (_, i) => {
@@ -68,8 +67,9 @@ export const HeartsPill: React.FC<HeartsPillProps> = ({ at, bonus = false, frame
           );
         })}
       </div>
+      {/* label text stays >=26 units and ~0.9 opacity (not scaled by `k`), independent of the pill's own quiet chrome */}
       <span style={{
-        fontFamily: fontHeadline, fontWeight: 800, fontSize: px(26 * k), letterSpacing: '0.06em', color: colours.ink, whiteSpace: 'nowrap',
+        fontFamily: fontHeadline, fontWeight: 800, fontSize: px(26), letterSpacing: '0.06em', color: colours.ink, opacity: 0.9, whiteSpace: 'nowrap',
       }}>{bonus ? BONUS_LABEL : HEARTS_LABEL}</span>
     </div>
   );

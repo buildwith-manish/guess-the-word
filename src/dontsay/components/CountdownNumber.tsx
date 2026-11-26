@@ -1,13 +1,14 @@
 /**
- * CountdownNumber: Dynamic Island-style pill under the prompt. Big tabular seconds (Nunito ExtraBold),
- * a thin progress line inside the pill that fills over the timer. The number and line turn red
- * for the last URGENT_SECONDS (shared/timerMath) and a red edge pulse beats on every remaining frame.
+ * CountdownNumber: a plain glass pill (glassSurface, tinted with the level accent) placed just
+ * under the waveform. Big tabular seconds (Nunito ExtraBold), a thin accent progress line inside
+ * the pill that fills over the timer. The number and line turn red for the last URGENT_SECONDS
+ * (shared/timerMath) and a red edge pulse beats on every remaining frame.
  * Timer starts at `at` (the first tick after the intro), so reading time never counts.
  * Duration comes from timing.ts (timerSecFor: 5/4/3 s by level). No sizes, rounds or seconds hard-coded.
  * Sizes in 1280x720 reference units through px(). Our own drawn UI, no logos.
  *
  * Note: shared/EdgeGlow and shared/TimerRing do not exist on this branch, so the red edge pulse
- * is drawn here (EdgeBeat) and the island pill is drawn here too. Swap when 2a lands them.
+ * is drawn here (EdgeBeat) and the pill is drawn here too. Swap when 2a lands them.
  */
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
@@ -76,7 +77,9 @@ export const CountdownNumber: React.FC<CountdownNumberProps> = ({ level, at, dur
   const inP = springAt(t, at - LEAD_IN, 'snappy');
   // red warning fades in over RED_TICKS from the first urgent tick (no instant switch)
   const redP = m.urgent ? easeOut(m.urgentTicks / RED_TICKS) : 0;
-  const tone = mix(colours.ink, SYSTEM.red, redP);
+  // the level's one accent colour; blends to red only in the last URGENT_SECONDS
+  const accent = colours.level[level];
+  const tone = mix(accent, SYSTEM.red, redP);
   // the number changes by a short crossfade, no scale, no pop
   const raw = t - at;
   const since = raw >= dur ? raw - dur : raw % FPS;
@@ -107,9 +110,8 @@ export const CountdownNumber: React.FC<CountdownNumberProps> = ({ level, at, dur
           opacity: Math.min(1, inP * 1.4),
           transform: `translateY(${(1 - inP) * -px(16)}px) scale(${0.86 + 0.14 * inP})`,
           transformOrigin: '50% 0%',
-          ...glassSurface(L.radius * 1.5, { alpha: 0.12 }),
+          ...glassSurface(L.radius * 1.5, { level, alpha: 0.12 }),
           borderRadius: px(L.radius),
-          background: 'linear-gradient(160deg, rgba(0,0,0,0.55), rgba(0,0,0,0.35))',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',

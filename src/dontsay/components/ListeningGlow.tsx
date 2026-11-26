@@ -1,7 +1,10 @@
 /**
- * ListeningGlow: Siri-style multicolour glow (cool blue / violet / soft pink) around the main card,
- * plus a live waveform of 5-7 springy bars. Wakes at `wakeAt` ("Let's go"), stays through the timer,
- * dims to ~40% from `dimAt` (sealed slide and reveal), then fades to off by `offAt`.
+ * ListeningGlow: a live waveform of 5-7 springy bars, in the level's one accent colour
+ * (lighter/darker tints of the same hue, no other hues). Wakes at `wakeAt` ("Let's go"),
+ * stays through the timer, dims to ~40% from `dimAt` (sealed slide and reveal), then fades
+ * to off by `offAt`. This is the ONLY on-screen sign of the listening state: there is no
+ * glow ring or halo around the card here any more (the card carries its own thin accent
+ * edge + soft glow, drawn by the scene).
  * Waveform phase is seeded from the round number: the same round renders identically every time.
  * All timings are local design ticks (30 fps) supplied by the scene from timing.ts; none are fixed here.
  * Sizes in 1280x720 reference units through px().
@@ -13,9 +16,15 @@ import { WIDTH, useDontSayFrame } from '../timing';
 
 const px = (v: number): number => (v * WIDTH) / 1280;
 
-const BLUE = '#5AA9FF';
-const VIOLET = '#9B6BFF';
-const PINK = '#FF8FC8';
+/** Hex -> [r,g,b]. */
+const hex = (c: string): [number, number, number] => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16)) as [number, number, number];
+/** Lighten (amt > 0, toward white) or darken (amt < 0, toward black) one hex colour, same hue. */
+const tint = (c: string, amt: number): string => {
+  const [r, g, b] = hex(c);
+  const mix = (v: number) => Math.round(amt >= 0 ? v + (255 - v) * amt : v * (1 + amt));
+  return `rgb(${mix(r)},${mix(g)},${mix(b)})`;
+};
+
 export const DIM_LEVEL = 0.4;
 
 /** Deterministic 0..1 hash from integers (no Math.random, so renders are repeatable). */
@@ -33,20 +42,26 @@ export const DEFAULT_CARD: GlowBox = { left: 200, top: 210, width: 880, height: 
 export type ListeningGlowProps = {
   /** Round number: seeds bar count and phases. */
   round: number;
+  /** The level's one accent colour (levelColors[level].accent, data.ts). Only colour used here.
+   * Optional only so callers that do not yet pass it (outside the round screen) keep compiling;
+   * every round-screen call passes it explicitly. */
+  accent?: string;
   /** Tick the glow wakes ("Let's go"). */
   wakeAt: number;
   /** Tick it dims to ~40% (start of the sealed slide). */
   dimAt: number;
   /** Tick it is fully off (end of the reveal). */
   offAt: number;
-  /** The main card's rect in reference units. */
+  /** The main card's rect in reference units: only used to position the waveform under it. */
   card?: GlowBox;
   frame?: number;
 };
 
 const BAR_PERIOD = 7; // ticks between new bar targets
 
-const Wave: React.FC<{ round: number; frame: number; wakeAt: number; dimmed: boolean; box: GlowBox }> = ({ round, frame, wakeAt, dimmed, box }) => {
+const Wave: React.FC<{ round: number; frame: number; wakeAt: number; dimmed: boolean; box: GlowBox; accent: string }> = ({ round, frame, wakeAt, dimmed, box, accent }) => {
+  const bright = tint(accent, 0.35);
+  const dark = tint(accent, -0.3);
   const n = 5 + Math.floor(rand(round, 1) * 3); // 5..7 bars
   const barW = px(16), gap = px(14), maxH = px(80), minH = px(14);
   const width = n * barW + (n - 1) * gap;
@@ -67,14 +82,17 @@ const Wave: React.FC<{ round: number; frame: number; wakeAt: number; dimmed: boo
         const grow = springAt(frame, wakeAt + i * 2, 'snappy');
         return (
           <div key={i} style={{ width: barW, height: h * Math.min(1, grow), borderRadius: barW,
-            background: i % 3 === 0 ? BLUE : i % 3 === 1 ? VIOLET : PINK }} />
+            background: i % 3 === 0 ? accent : i % 3 === 1 ? bright : dark }} />
         );
       })}
     </div>
   );
 };
 
-export const ListeningGlow: React.FC<ListeningGlowProps> = ({ round, wakeAt, dimAt, offAt, card = DEFAULT_CARD, frame: frameProp }) => {
+/** Fallback accent (Level 1 blue) for the rare caller that has not been updated to pass one. */
+const DEFAULT_ACCENT = '#4DA3FF';
+
+export const ListeningGlow: React.FC<ListeningGlowProps> = ({ round, accent = DEFAULT_ACCENT, wakeAt, dimAt, offAt, card = DEFAULT_CARD, frame: frameProp }) => {
   const clock = useDontSayFrame();
   const frame = frameProp ?? clock;
   if (frame < wakeAt) return null;
@@ -85,21 +103,9 @@ export const ListeningGlow: React.FC<ListeningGlowProps> = ({ round, wakeAt, dim
   const level = dim * off;
   if (level <= 0) return null;
 
-  const spin = (frame - wakeAt) * 3 + rand(round, 9) * 360; // degrees, deterministic per round
-  const grad = `conic-gradient(from ${spin}deg, ${BLUE}, ${VIOLET}, ${PINK}, ${VIOLET}, ${BLUE})`;
-  const r = px(card.radius ?? 40);
-  const out = px(14);
-  const rect: React.CSSProperties = {
-    position: 'absolute', left: px(card.left) - out, top: px(card.top) - out,
-    width: px(card.width) + out * 2, height: px(card.height) + out * 2, borderRadius: r + out, pointerEvents: 'none',
-  };
   return (
     <div style={{ position: 'absolute', inset: 0, opacity: wake * level }}>
-      <div style={{ ...rect, background: grad, filter: `blur(${px(34)}px)`, opacity: 0.75, transform: `scale(${0.96 + 0.04 * wake})` }} />
-      <div style={{ ...rect, background: grad, padding: px(5), boxSizing: 'border-box',
-        WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)', WebkitMaskComposite: 'xor',
-        mask: 'linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0)' }} />
-      <Wave round={round} frame={frame} wakeAt={wakeAt} dimmed={dim < 1} box={card} />
+      <Wave round={round} frame={frame} wakeAt={wakeAt} dimmed={dim < 1} box={card} accent={accent} />
     </div>
   );
 };
