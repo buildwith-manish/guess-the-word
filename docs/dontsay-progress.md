@@ -662,3 +662,18 @@ Round-screen cleanup. Files touched: `src/dontsay/scenes/RoundScene.tsx`, `src/d
 - Hook and HeartCheckIn still place HeartsPill at left 128 / top 72 (not the new 64 / 48).
 - Small bubble at bottom-right (y 552 to 644): clearance against bonus scenes' bottom content (pass chips, strips) not checked by eye.
 - Watermark over the Outro end screen (top-right) not checked.
+
+## Task F1: DONE (tsc --noEmit clean; NOT rendered, `remotion still` failed: ENOTFOUND remotion.media, not retried)
+
+- `InkBubble.tsx` (small state only): lock icon + "locked" now sit on one dark glass plate (rgba(0,0,0,0.55), 0.75-unit `colours.hairline` border, radius 18, padding 9 x 16). The ink layer with the particles is drawn before this layer, so the particles stay behind the plate. Label: 19 units (was 19), weight 600 (was 700), `colours.ink`, nowrap. Plate fades with the lock icon (`lockIconOpacity`), so it is gone in the large state. Large state, dissolve, slide, particles, SMALL.w/h and corner position untouched.
+- Fit by arithmetic, not by eye: plate content about 30 (lock) + 4 + 23 (label) + 18 padding = 75 units high in a 92-unit bubble; about 92 units wide (label about 64 + 32 padding) in 153.6. The label is not hidden. If a frame check shows it cramped, hide the label while small and keep the lock.
+- `HeartsPill.tsx`: hearts are flat: one solid `SYSTEM.red` path, highlight paths and the inner stroke removed. Size 38 -> 33 units (13% smaller; compact still x0.69). Pill height, gaps, label, glass and the 4-tick stagger spring-in (only when `at` is given) unchanged. Pill is narrower by 15 units (10.4 compact); the round counter shares `HUD_LEFT` (64), so the left edges still line up.
+- What drew the hearts: the inline SVG `Heart` in HeartsPill.tsx only. No emoji or heart glyph (U+2764 etc.) anywhere in src/dontsay, no emoji font in any font stack; "Noto Color Emoji" appears only in a comment in shared/fonts.ts. The label "3 HEARTS" is plain text.
+
+### Frames to check by eye (DontSay-Round, round 1, 60 fps)
+- 0, 60, 200: small bubble bottom-right: plate behind lock + "locked", particles not over the letters, label readable. Frame 0: label still fading in (0.6 s), plate already visible.
+- Round 1 is a level's first round: hearts spring-in ~frames 8-40 (flat red, no highlight); also a later round for the static pill.
+- 380-410: plate fades out as the bubble enlarges.
+
+### Open
+- Nothing rendered. Plate/label size is arithmetic only. Hook.tsx and HeartCheckIn use HeartsPill too (same flat hearts, no code change there).

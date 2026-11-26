@@ -20,13 +20,15 @@ export const HEART_COUNT = 3;
 export const HEARTS_LABEL = `${HEART_COUNT} HEARTS`;
 export const BONUS_LABEL = 'BONUS';
 
-const Heart: React.FC<{ size: number; uid: string }> = ({ size }) => (
+/** Flat drawn heart: one solid SYSTEM.red path. No highlight shapes, no gradient, no text glyph. */
+const Heart: React.FC<{ size: number }> = ({ size }) => (
   <svg width={size} height={size} viewBox="0 0 40 40" style={{ display: 'block', overflow: 'visible' }}>
     <path d="M20 35 C5 25 4 12 11.5 9.5 C16 8 19 11 20 14 C21 11 24 8 28.5 9.5 C36 12 35 25 20 35 Z" fill={SYSTEM.red} />
-    <path d="M20 14 C21 11 24 8 28.5 9.5 C32 10.7 33.6 14 33.4 17.5 C28 15 23 16 20 14 Z M11.5 9.5 C16 8 19 11 20 14 C17 16 12 15 6.6 17.5 C6.4 14 8 10.7 11.5 9.5 Z" fill="#FF8A80" fillOpacity="0.55" />
-    <path d="M11 14 C12 12 14 11.5 16 12.5" stroke="rgba(255,255,255,0.7)" strokeWidth="2.4" strokeLinecap="round" fill="none" />
   </svg>
 );
+
+/** Heart size in reference units (was 38; 13% smaller). */
+const HEART_SIZE = 33;
 
 export type HeartsPillProps = {
   /** Local design tick (30 fps) of the one-time spring-in. Omit for a settled, non-animated pill. */
@@ -62,7 +64,7 @@ export const HeartsPill: React.FC<HeartsPillProps> = ({ at, bonus = false, frame
           const p = animate ? Math.min(1, springAt(frame, (at as number) + 3 + i * STAGGER.heart, 'gentle')) : 1;
           return (
             <div key={i} style={{ opacity: p, transform: `scale(${0.4 + 0.6 * p})` }}>
-              <Heart size={px(38 * k)} uid={String(i)} />
+              <Heart size={px(HEART_SIZE * k)} />
             </div>
           );
         })}

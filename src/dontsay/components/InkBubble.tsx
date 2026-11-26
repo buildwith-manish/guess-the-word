@@ -259,34 +259,49 @@ export const InkBubble: React.FC<InkBubbleProps> = ({
           </div>
         ) : null}
 
-        {/* small-state lock + label */}
+        {/* small-state lock + label, on a dark glass plate. The ink layer (particles) is drawn before this
+            layer, so the particles stay behind the plate and never run through the letters. */}
         <div
           style={{
             position: 'absolute',
             inset: 0,
             display: 'flex',
-            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: px(4),
             pointerEvents: 'none',
           }}
         >
-          <div style={{ opacity: lockIconOpacity, transform: `scale(${0.6 + 0.4 * lockPop})` }}>
-            <Lock size={px(30)} colour={colours.ink} />
-          </div>
           <div
             style={{
-              opacity: lockedIn,
-              transform: `translateY(${(1 - lockedIn) * px(4)}px)`,
-              fontFamily: fontHeadline,
-              fontWeight: 700,
-              fontSize: px(19),
-              letterSpacing: '0.04em',
-              color: colours.ink,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: px(4),
+              padding: `${px(9)}px ${px(16)}px`,
+              borderRadius: px(18),
+              background: 'rgba(0,0,0,0.55)',
+              border: `${px(0.75)}px solid ${colours.hairline}`,
+              opacity: lockIconOpacity,
             }}
           >
-            locked
+            <div style={{ transform: `scale(${0.6 + 0.4 * lockPop})` }}>
+              <Lock size={px(30)} colour={colours.ink} />
+            </div>
+            <div
+              style={{
+                opacity: lockedIn,
+                transform: `translateY(${(1 - lockedIn) * px(4)}px)`,
+                fontFamily: fontHeadline,
+                fontWeight: 600,
+                fontSize: px(19),
+                lineHeight: 1.2,
+                letterSpacing: '0.04em',
+                color: colours.ink,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              locked
+            </div>
           </div>
         </div>
       </div>
