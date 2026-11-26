@@ -12,9 +12,9 @@
  * Hearts: HeartsPill is static; it springs in once, and only on the first round of a level. Nothing here animates a heart.
  * The wallpaper follows the LEVEL, never hearts.
  *
- * Composition (reference units, y only): top row (hearts + counter) at y 56-100; prompt card y 235-365
- * (centre y 300); waveform directly under the card at y ~395-475; countdown pill under the waveform at
- * y 495-607. The enlarged ink bubble is y 290-590 at the sealed phase: the prompt eases up and fades out
+ * Composition: every zone is in src/dontsay/layout.ts (hud row, counter, prompt card, waveform, ruleZone, bubbles).
+ * HUD (hearts, counter, countdown) is drawn above the RevealEngine layer so its backdrop blur never softens it.
+ * The enlarged ink bubble is y 290-590 at the sealed phase: the prompt eases up and fades out
  * before the bubble's growing footprint reaches that range (see promptAwayAt below), and the waveform and
  * countdown are both gone (faded 4 ticks after timer.to) well before the sealed slide.
  */
@@ -23,39 +23,31 @@ import { AbsoluteFill, Sequence } from 'remotion';
 import '../shared/fonts';
 import { levelColors, rounds, type Round } from '../data';
 import { ExclusionChips } from '../components/ExclusionChips';
-import { CountdownNumber } from '../components/CountdownNumber';
+import { CountdownNumber, EdgeBeat } from '../components/CountdownNumber';
 import { HeartsPill, PILL_RADIUS_1920 } from '../components/HeartsPill';
 import { ListeningGlow } from '../components/ListeningGlow';
 import { AuroraWallpaper } from '../components/AuroraWallpaper';
 import { RevealEngine } from '../components/RevealEngine';
 import type { ResultOutcome } from '../components/ResultBeat';
+import { HUD_LEFT, REF, bubbleLargeCentre, layout, promptFontSize, promptHeight, promptWidth } from '../layout';
 import { colours, fontHeadline, easeOut, glassSurface, springAt, STAGGER, tabular } from '../system';
 import { segments, ticksToFrames, useDontSayFrame, WIDTH, type Range, type RoundPhases, type Segment } from '../timing';
 
-const REF_W = 1280;
+const REF_W = REF.w;
 const px = (v: number): number => (v * WIDTH) / REF_W;
 
-/* ---------- layout, reference units (1280x720) ---------- */
-const SAFE_X = 128; // 10% margin each side: text stays in x 128..1152
-/** Top row (hearts pill + round counter), y 56-100: at least 28 units clear of the prompt card below it. */
-const TOP_ROW = 48;
-/** Top-left HUD sits nearer the corner than the text safe margin; the QUIZ MATRIX watermark owns the top-right. */
-const HUD_LEFT = 64;
-const ROW_H = 44; // same height as the compact HeartsPill (64 * 0.69)
-/** Prompt card: centre y 300 (top 235, bottom 365), well clear of the small ink bubble (y 72-164, top right). */
-const PROMPT = { left: SAFE_X, top: 235, width: REF_W - SAFE_X * 2, height: 130, radius: 44 } as const;
+/* ---------- layout: every position comes from src/dontsay/layout.ts ---------- */
+const ROW_H = layout.hudCounter.bottom - layout.hudCounter.top; // counter pill height (44)
+/** Prompt card: one FIXED rect for every round. */
+const PROMPT = { left: layout.prompt.left, top: layout.prompt.top, width: promptWidth, height: promptHeight, radius: 44 } as const;
 /** Light blur behind the large bubble, reference units. */
 const BACKDROP_BLUR = 6;
 /** Prompt exit length in ticks: shorter than its entrance. */
 const PROMPT_EXIT_TICKS = 8;
 /** Glow behind the prompt card: about 60% of the frame width, 16% accent at the centre. */
 const PROMPT_GLOW = { w: 0.6 * REF_W, h: 360, alphaHex: '29', midHex: '14' } as const;
-const PROMPT_MAX_SIZE = 92; // the prompt is the hero
-const PROMPT_FIT_WIDTH = PROMPT.width - 64; // inner width for the one-line fit
-/** Countdown: a plain glass pill, centred just under the waveform (which sits right under the card). */
-const COUNTDOWN_TOP = 495;
 /** Centre of the enlarged ink bubble. ResultBeat puts its chip 150 units below this. */
-const BUBBLE_CENTRE = { x: REF_W / 2, y: 440 } as const;
+const BUBBLE_CENTRE = bubbleLargeCentre;
 
 /* ---------- segment lookup ---------- */
 export type RoundSegment = Extract<Segment, { kind: 'round' }>;
@@ -100,7 +92,7 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
   const promptAwayAt = slideTick >= timer.to ? slideTick - STAGGER.base : beat.from - 2;
   const promptAway = easeOut((t - promptAwayAt) / PROMPT_EXIT_TICKS);
   const promptOut = 1 - promptAway;
-  const fit = Math.min(PROMPT_MAX_SIZE, Math.floor(PROMPT_FIT_WIDTH / (Math.max(round.prompt.length, 1) * 0.6)));
+  const fit = promptFontSize(round.prompt);
 
   // rule chips: fade away when the answer takes the stage
   const chipsOpacity = fadeOut(t, sealed.from, 8);
@@ -180,47 +172,12 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
         </span>
       </div>
 
+      {/* red edge pulse stays under the bubble, as before; the pill itself is in the HUD layer below */}
       {showCountdown ? (
         <div style={{ position: 'absolute', inset: 0, opacity: countdownOpacity }}>
-          <CountdownNumber level={round.level} at={timer.from} top={COUNTDOWN_TOP} />
+          <EdgeBeat level={round.level} at={timer.from} />
         </div>
       ) : null}
-
-      {/* static except on the level's first round, where it springs in once */}
-      <HeartsPill compact level={round.level} left={HUD_LEFT} top={TOP_ROW} at={isLevelFirst ? STAGGER.arrival : undefined} />
-
-      {/* round counter, top right, left of the small bubble; one line. Container fades in on entrance only;
-          the label itself stays >=26 units and ~0.9 opacity so it reads clearly. */}
-      <div
-        style={{
-          position: 'absolute',
-          left: px(HUD_LEFT),
-          top: px(TOP_ROW + ROW_H + 10),
-          height: px(ROW_H),
-          ...glassSurface(PILL_RADIUS_1920, { level: round.level }),
-          display: 'flex',
-          alignItems: 'center',
-          padding: `0 ${px(18)}px`,
-          opacity: counterIn,
-          transform: `translateY(${(1 - counterIn) * px(-12)}px)`,
-          transformOrigin: 'left top',
-        }}
-      >
-        <span
-          style={{
-            fontFamily: fontHeadline,
-            fontWeight: 800,
-            fontSize: px(26),
-            letterSpacing: '0.06em',
-            color: colours.ink,
-            opacity: 0.9,
-            whiteSpace: 'nowrap',
-            ...tabular,
-          }}
-        >
-          {round.n} OF {rounds.length}
-        </span>
-      </div>
 
       {/* owns the InkBubble: small from tick 0, enlarges at the sealed phase, then beat, dissolve, answer, result */}
       <RevealEngine
@@ -232,6 +189,51 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
         slideAt={slideTick}
         backdropBlur={BACKDROP_BLUR}
       />
+
+      {/* HUD layer: drawn AFTER (above) the RevealEngine, whose backdrop blur softens only what is drawn before it.
+          Hearts pill, round counter and countdown pill stay sharp. (The watermark is mounted above everything in Full.tsx.) */}
+      <div style={{ position: 'absolute', inset: 0, zIndex: 10, pointerEvents: 'none' }}>
+        {showCountdown ? (
+          <div style={{ position: 'absolute', inset: 0, opacity: countdownOpacity }}>
+            <CountdownNumber level={round.level} at={timer.from} edge={false} />
+          </div>
+        ) : null}
+
+        {/* static except on the level's first round, where it springs in once */}
+        <HeartsPill compact level={round.level} left={HUD_LEFT} top={layout.hudHearts.top} at={isLevelFirst ? STAGGER.arrival : undefined} />
+
+        {/* round counter, directly under the hearts pill; one line */}
+        <div
+          style={{
+            position: 'absolute',
+            left: px(HUD_LEFT),
+            top: px(layout.hudCounter.top),
+            height: px(ROW_H),
+            ...glassSurface(PILL_RADIUS_1920, { level: round.level }),
+            display: 'flex',
+            alignItems: 'center',
+            padding: `0 ${px(18)}px`,
+            opacity: counterIn,
+            transform: `translateY(${(1 - counterIn) * px(-12)}px)`,
+            transformOrigin: 'left top',
+          }}
+        >
+          <span
+            style={{
+              fontFamily: fontHeadline,
+              fontWeight: 800,
+              fontSize: px(26),
+              letterSpacing: '0.06em',
+              color: colours.ink,
+              opacity: 0.9,
+              whiteSpace: 'nowrap',
+              ...tabular,
+            }}
+          >
+            {round.n} OF {rounds.length}
+          </span>
+        </div>
+      </div>
     </AbsoluteFill>
   );
 };

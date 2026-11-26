@@ -4,7 +4,9 @@
  *   filter -> crossed-out colour swatch(es) (our own drawn swatch, an X over it)
  *   heavy  -> bold chips with crossed-out drawn icons / swatches / plain text
  *   none   -> nothing
- * Appears during the intro beat and never leaves; the scene unmounts it after the timer.
+ * Anchored from the TOP of layout.ruleZone; every size comes from layout.ts ruleLayout() (the same numbers
+ * ruleBlockHeight() reports). Header row: "Banned answers" left, "RULE BREAK = MATCH" inline right.
+ * Appears during the intro beat; the scene fades it out when the answer takes the stage.
  * Sizes are in 1280x720 reference units through px(). No hearts here, nothing is lost.
  * All words come from the Round; the only copy owned here is UI labelling (see COPY).
  */
@@ -13,6 +15,7 @@ import { interpolate, interpolateColors } from 'remotion';
 import type { Round } from '../data';
 import { SYSTEM, colours, fontHeadline, glassSurface, springAt, STAGGER } from '../system';
 import { WIDTH, useDontSayFrame } from '../timing';
+import { CHIP_GAP, CLAR_GAP, HEADER_GAP, HEADER_H, MIN_TEXT, layout, ruleLayout, ruleZoneWidth, type RulePlan } from '../layout';
 
 const px = (v: number): number => (v * WIDTH) / 1280;
 
@@ -35,7 +38,6 @@ const SWATCH: Record<string, string> = {
   white: '#F2F2F7',
 };
 const swatchColour = (name: string): string => SWATCH[name.toLowerCase()] ?? '#8E8E93';
-const cap = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1);
 
 // ---------------------------------------------------------------------------
 // Drawn glyphs (ours, simple shapes, no logos)
@@ -87,21 +89,24 @@ const Swatch: React.FC<{ colour: string; size: number }> = ({ colour, size }) =>
 );
 
 // ---------------------------------------------------------------------------
-// Style 1: banned toggle rows
+// Style 1: banned toggle rows (row height comes from layout.ts, compacted to fit ruleZone)
 // ---------------------------------------------------------------------------
-const ToggleRow: React.FC<{ word: string; frame: number; start: number; last: boolean }> = ({ word, frame, start, last }) => {
+type RowsPlan = Extract<RulePlan, { kind: 'rows' }>;
+type ChipsPlan = Extract<RulePlan, { kind: 'chips' }>;
+
+const ToggleRow: React.FC<{ word: string; plan: RowsPlan; frame: number; start: number; last: boolean }> = ({ word, plan, frame, start, last }) => {
   const arrive = springAt(frame, start, 'snappy');
   const flip = springAt(frame, start + 8, 'pop');
-  const trackW = px(84), trackH = px(50), knob = px(42);
+  const trackW = px(plan.trackW), trackH = px(plan.trackH), knob = px(plan.knob);
   const knobX = interpolate(flip, [0, 1], [trackW - knob - px(4), px(4)]);
   const track = interpolateColors(Math.min(1, flip), [0, 1], [SYSTEM.green, 'rgba(120,120,128,0.55)']);
   return (
     <div style={{
-      height: px(80), padding: `0 ${px(28)}px`, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      boxSizing: 'border-box', height: px(plan.rowH), padding: `0 ${px(28)}px`, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       borderBottom: last ? 'none' : `${px(1)}px solid ${colours.hairline}`,
       opacity: Math.min(1, arrive), transform: `translateY(${(1 - arrive) * px(18)}px)`,
     }}>
-      <span style={{ fontFamily: fontHeadline, fontWeight: 700, fontSize: px(46), color: colours.ink, letterSpacing: '-0.01em' }}>{word}</span>
+      <span style={{ fontFamily: fontHeadline, fontWeight: 700, fontSize: px(plan.font), color: colours.ink, letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>{word}</span>
       <div style={{ width: trackW, height: trackH, borderRadius: trackH, background: track, position: 'relative', flex: '0 0 auto' }}>
         <div style={{ position: 'absolute', top: (trackH - knob) / 2, left: knobX, width: knob, height: knob, borderRadius: '50%',
           background: '#fff', boxShadow: `0 ${px(3)}px ${px(8)}px rgba(0,0,0,0.35)` }} />
@@ -110,15 +115,31 @@ const ToggleRow: React.FC<{ word: string; frame: number; start: number; last: bo
   );
 };
 
-const BannedRows: React.FC<{ words: string[]; frame: number; at: number }> = ({ words, frame, at }) => (
-  <div style={{ width: px(760) }}>
-    <div style={{ fontFamily: fontHeadline, fontWeight: 600, fontSize: px(28), letterSpacing: '0.04em', textTransform: 'uppercase',
-      color: colours.muted, margin: `0 0 ${px(10)}px ${px(28)}px`, opacity: Math.min(1, springAt(frame, at, 'smooth')) }}>
-      {COPY.bannedHeader}
+/** Header row: "Banned answers" at the left, the RULE BREAK = MATCH chip inline at the right. */
+const HeaderRow: React.FC<{ label: boolean; ruleBreak: boolean; frame: number; at: number }> = ({ label, ruleBreak, frame, at }) => {
+  const labelIn = Math.min(1, springAt(frame, at, 'smooth'));
+  const chipIn = Math.min(1, springAt(frame, at + 10, 'smooth'));
+  return (
+    <div style={{ height: px(HEADER_H), marginBottom: px(HEADER_GAP), display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+      <span style={{ fontFamily: fontHeadline, fontWeight: 600, fontSize: px(MIN_TEXT), letterSpacing: '0.04em', textTransform: 'uppercase',
+        color: colours.muted, marginLeft: px(28), opacity: labelIn, whiteSpace: 'nowrap' }}>{label ? COPY.bannedHeader : ''}</span>
+      {ruleBreak ? (
+        <span style={{
+          fontFamily: fontHeadline, fontWeight: 800, fontSize: px(MIN_TEXT), letterSpacing: '0.06em', color: colours.ink, whiteSpace: 'nowrap',
+          lineHeight: 1.2, padding: `${px(3)}px ${px(18)}px`, borderRadius: px(30), background: 'rgba(255,59,48,0.22)',
+          border: `${px(1)}px solid rgba(255,59,48,0.6)`, opacity: chipIn,
+        }}>{COPY.ruleBreak}</span>
+      ) : null}
     </div>
-    <div style={{ ...glassSurface(26), overflow: 'hidden' }}>
-      {words.map((w, i) => (
-        <ToggleRow key={w} word={w} frame={frame} start={at + 2 + i * STAGGER.chip} last={i === words.length - 1} />
+  );
+};
+
+const BannedRows: React.FC<{ plan: RowsPlan; frame: number; at: number }> = ({ plan, frame, at }) => (
+  <div style={{ width: px(plan.width) }}>
+    <HeaderRow label ruleBreak={plan.ruleBreak} frame={frame} at={at} />
+    <div style={{ ...glassSurface(26), boxSizing: 'border-box', overflow: 'hidden' }}>
+      {plan.words.map((w, i) => (
+        <ToggleRow key={w} word={w} plan={plan} frame={frame} start={at + 2 + i * STAGGER.chip} last={i === plan.words.length - 1} />
       ))}
     </div>
   </div>
@@ -129,66 +150,53 @@ const BannedRows: React.FC<{ words: string[]; frame: number; at: number }> = ({ 
 // ---------------------------------------------------------------------------
 type ChipSpec = { key: string; label: string; art: React.ReactNode };
 
-const ChipShell: React.FC<{ big: boolean; frame: number; start: number; spec: ChipSpec }> = ({ big, frame, start, spec }) => {
+const ChipShell: React.FC<{ plan: ChipsPlan; frame: number; start: number; spec: ChipSpec }> = ({ plan, frame, start, spec }) => {
+  const big = plan.heavy;
   const arrive = springAt(frame, start, big ? 'pop' : 'snappy');
   const crossT = Math.min(1, springAt(frame, start + 6, 'smooth'));
-  const art = px(big ? 104 : 72);
+  const art = px(plan.art);
   return (
     <div style={{
-      ...glassSurface(big ? 30 : 26),
+      ...glassSurface(big ? 30 : 26), boxSizing: 'border-box', height: px(plan.chipH), width: big ? px(plan.chipW) : undefined,
       display: 'flex', flexDirection: big ? 'column' : 'row', alignItems: 'center', justifyContent: 'center',
-      gap: px(big ? 10 : 18), padding: big ? `${px(18)}px ${px(26)}px` : `${px(14)}px ${px(28)}px`,
-      minWidth: big ? px(210) : undefined,
+      gap: px(big ? 8 : 18), padding: big ? `${px(14)}px ${px(14)}px` : `${px(14)}px ${px(28)}px`,
       opacity: Math.min(1, arrive), transform: `scale(${0.82 + 0.18 * arrive})`,
     }}>
-      <div style={{ position: 'relative', width: art, height: art }}>
+      <div style={{ position: 'relative', width: art, height: art, flex: '0 0 auto' }}>
         <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{spec.art}</div>
         <Cross size={art} t={crossT} w={big ? 8 : 7} />
       </div>
-      <span style={{ fontFamily: fontHeadline, fontWeight: big ? 800 : 700, fontSize: px(big ? 40 : 44), letterSpacing: '-0.01em',
-        color: colours.ink, textDecoration: 'none' }}>{spec.label}</span>
+      <span style={{ fontFamily: fontHeadline, fontWeight: big ? 800 : 700, fontSize: px(plan.font), letterSpacing: '-0.01em',
+        color: colours.ink, textDecoration: 'none', whiteSpace: 'nowrap', lineHeight: 1.15 }}>{spec.label}</span>
     </div>
   );
 };
 
-const buildChips = (round: Round): ChipSpec[] => {
-  const art = (c: string, big: boolean) => <Swatch colour={c} size={px(big ? 84 : 60)} />;
-  const heavy = round.ruleType === 'heavy';
-  if (round.swatches?.length) {
-    return round.swatches.map((s) => ({ key: s, label: cap(s), art: art(swatchColour(s), heavy) }));
-  }
-  if (round.iconChips?.length) {
-    return round.iconChips.map((n) => ({ key: n, label: n, art: <div style={{ width: px(96), height: px(96) }}><IconArt name={n} /></div> }));
-  }
-  if (heavy && round.banned?.length) {
-    // plain text chips with a neutral drawn swatch, no icon art invented for words we do not know
-    return round.banned.map((n) => ({ key: n, label: n, art: <div style={{ width: px(96), height: px(96) }}><IconArt name={n} /></div> }));
-  }
-  if (round.rule) {
-    // filter with no colour list (e.g. "Not in Europe"): rule text beside one crossed-out neutral swatch
-    return [{ key: 'rule', label: round.rule, art: art('#8E8E93', false) }];
-  }
-  return [];
-};
+const buildChips = (plan: ChipsPlan): ChipSpec[] =>
+  plan.chips.map((c) => {
+    if (c.kind === 'swatch') return { key: c.key, label: c.label, art: <Swatch colour={swatchColour(c.key)} size={px(plan.heavy ? 72 : 52)} /> };
+    if (c.kind === 'icon') return { key: c.key, label: c.label, art: <div style={{ width: px(plan.art), height: px(plan.art) }}><IconArt name={c.key} /></div> };
+    return { key: c.key, label: c.label, art: <Swatch colour="#8E8E93" size={px(52)} /> };
+  });
 
-const Chips: React.FC<{ round: Round; frame: number; at: number }> = ({ round, frame, at }) => {
-  const specs = buildChips(round);
-  const heavy = round.ruleType === 'heavy';
-  const clar = round.clarificationChip;
+const Chips: React.FC<{ plan: ChipsPlan; frame: number; at: number }> = ({ plan, frame, at }) => {
+  const specs = buildChips(plan);
   const clarStart = at + specs.length * STAGGER.chip + 6;
   const clarIn = springAt(frame, clarStart, 'snappy');
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: px(18), maxWidth: px(1024) }}>
-      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: px(heavy ? 20 : 18) }}>
+    <div style={{ width: px(plan.width), display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      {plan.header ? <HeaderRow label={plan.headerLabel} ruleBreak={plan.ruleBreak} frame={frame} at={at} /> : null}
+      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: px(CHIP_GAP), maxWidth: px(ruleZoneWidth) }}>
         {specs.map((s, i) => (
-          <ChipShell key={s.key} big={heavy} frame={frame} start={at + i * STAGGER.chip} spec={s} />
+          <ChipShell key={s.key} plan={plan} frame={frame} start={at + i * STAGGER.chip} spec={s} />
         ))}
       </div>
-      {clar ? (
+      {plan.clar ? (
         <div style={{
-          ...glassSurface(26), padding: `${px(14)}px ${px(30)}px`, fontFamily: fontHeadline, fontWeight: 700, fontSize: px(40),
+          ...glassSurface(26), boxSizing: 'border-box', marginTop: px(CLAR_GAP), height: px(plan.clar.height), padding: `0 ${px(30)}px`,
+          display: 'flex', alignItems: 'center', fontFamily: fontHeadline, fontWeight: 700, fontSize: px(plan.clar.font), whiteSpace: 'nowrap',
           color: colours.ink, letterSpacing: '-0.01em', opacity: Math.min(1, clarIn), transform: `translateY(${(1 - clarIn) * px(14)}px)`,
-        }}>{clar}</div>
+        }}>{plan.clar.text}</div>
       ) : null}
     </div>
   );
@@ -201,32 +209,20 @@ export type ExclusionChipsProps = {
   round: Round;
   /** Local design tick (30 fps) at which the first row or chip arrives. Default 0. */
   at?: number;
-  /** Distance from the frame bottom to the block, in 1280x720 reference units. Default 72 (safe margin). The block grows upward. */
-  bottom?: number;
   /** Optional frame override in design ticks; defaults to the local clock of the enclosing Sequence. */
   frame?: number;
 };
 
-export const ExclusionChips: React.FC<ExclusionChipsProps> = ({ round, at = 0, bottom = 72, frame: frameProp }) => {
+/** Anchored from the TOP of layout.ruleZone (never from the bottom). Size and positions come from ruleLayout(). */
+export const ExclusionChips: React.FC<ExclusionChipsProps> = ({ round, at = 0, frame: frameProp }) => {
   const clock = useDontSayFrame();
   const frame = frameProp ?? clock;
-  const style = round.ruleType ?? 'none';
-  if (style === 'none') return null;
-
-  const ruleBreakIn = springAt(frame, at + 10, 'smooth');
-  const showRuleBreak = Boolean(round.heavy);
-
+  const plan = ruleLayout(round);
+  if (plan.kind === 'none') return null;
   return (
-    <div style={{ position: 'absolute', left: 0, right: 0, bottom: px(bottom), display: 'flex', flexDirection: 'column', alignItems: 'center', gap: px(22) }}>
-      {style === 'banned' && round.banned?.length ? <BannedRows words={round.banned} frame={frame} at={at} /> : null}
-      {style === 'filter' || style === 'heavy' ? <Chips round={round} frame={frame} at={at} /> : null}
-      {showRuleBreak ? (
-        <div style={{
-          fontFamily: fontHeadline, fontWeight: 800, fontSize: px(26), letterSpacing: '0.06em', color: colours.ink,
-          padding: `${px(8)}px ${px(20)}px`, borderRadius: px(30), background: 'rgba(255,59,48,0.22)',
-          border: `${px(1)}px solid rgba(255,59,48,0.6)`, opacity: Math.min(1, ruleBreakIn),
-        }}>{COPY.ruleBreak}</div>
-      ) : null}
+    <div style={{ position: 'absolute', left: px(layout.ruleZone.left), width: px(ruleZoneWidth), top: px(layout.ruleZone.top),
+      display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      {plan.kind === 'rows' ? <BannedRows plan={plan} frame={frame} at={at} /> : <Chips plan={plan} frame={frame} at={at} />}
     </div>
   );
 };

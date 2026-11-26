@@ -25,6 +25,7 @@ import {
   useDontSayFrame,
   WIDTH,
 } from '../timing';
+import { layout } from '../layout';
 import { RoundScene, roundFrames, roundSegment, defaultOutcome } from './RoundScene';
 import type { ResultOutcome } from '../components/ResultBeat';
 
@@ -48,8 +49,8 @@ export const cardLaunchTick = (i: number): number => CARD_FIRST_TICK + i * CARD_
 export const cardLandTick = (i: number): number => cardLaunchTick(i) + CARD_FLIGHT_TICKS;
 
 /* ---------- layout (reference units, 1280x720) ---------- */
-const SAFE_X = 128; // centre 80%: x 128..1152
-const BOX = { left: SAFE_X, width: REF_W - SAFE_X * 2, top: 592, height: 60, radius: 30, pad: 4, gap: 12 } as const;
+/** Banned box: the bottom strip of layout.ruleZone (position only; clear of the large bubble, which ends at y 590). */
+const BOX = { left: layout.round45Box.left, width: layout.round45Box.right - layout.round45Box.left, top: layout.round45Box.top, height: layout.round45Box.bottom - layout.round45Box.top, radius: 24, pad: 4, gap: 12 } as const;
 const CARD_FONT = 30;
 
 /* ---------- data helpers ---------- */

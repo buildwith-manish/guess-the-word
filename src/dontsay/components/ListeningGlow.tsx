@@ -7,12 +7,13 @@
  * edge + soft glow, drawn by the scene).
  * Waveform phase is seeded from the round number: the same round renders identically every time.
  * All timings are local design ticks (30 fps) supplied by the scene from timing.ts; none are fixed here.
- * Sizes in 1280x720 reference units through px().
+ * Sizes in 1280x720 reference units through px(). Position: layout.waveform (src/dontsay/layout.ts).
  */
 import React from 'react';
 import { interpolate } from 'remotion';
 import { springAt } from '../system';
 import { WIDTH, useDontSayFrame } from '../timing';
+import { layout } from '../layout';
 
 const px = (v: number): number => (v * WIDTH) / 1280;
 
@@ -36,8 +37,6 @@ const rand = (...ns: number[]): number => {
 };
 
 export type GlowBox = { left: number; top: number; width: number; height: number; radius?: number };
-/** Default card box: centre of the frame, inside the centre 80%. */
-export const DEFAULT_CARD: GlowBox = { left: 200, top: 210, width: 880, height: 300, radius: 40 };
 
 export type ListeningGlowProps = {
   /** Round number: seeds bar count and phases. */
@@ -52,22 +51,25 @@ export type ListeningGlowProps = {
   dimAt: number;
   /** Tick it is fully off (end of the reveal). */
   offAt: number;
-  /** The main card's rect in reference units: only used to position the waveform under it. */
+  /** Legacy override (Hook): position the waveform 30 units under this card rect. Omit it on the round screen:
+   * the waveform then sits in layout.waveform. */
   card?: GlowBox;
   frame?: number;
 };
 
 const BAR_PERIOD = 7; // ticks between new bar targets
 
-const Wave: React.FC<{ round: number; frame: number; wakeAt: number; dimmed: boolean; box: GlowBox; accent: string }> = ({ round, frame, wakeAt, dimmed, box, accent }) => {
+const Wave: React.FC<{ round: number; frame: number; wakeAt: number; dimmed: boolean; box?: GlowBox; accent: string }> = ({ round, frame, wakeAt, dimmed, box, accent }) => {
   const bright = tint(accent, 0.35);
   const dark = tint(accent, -0.3);
   const n = 5 + Math.floor(rand(round, 1) * 3); // 5..7 bars
-  const barW = px(16), gap = px(14), maxH = px(80), minH = px(14);
+  const zoneH = layout.waveform.bottom - layout.waveform.top;
+  const barW = px(16), gap = px(14), maxH = px(box ? 80 : zoneH), minH = px(14);
   const width = n * barW + (n - 1) * gap;
   const local = Math.max(0, frame - wakeAt);
   return (
-    <div style={{ position: 'absolute', left: px(box.left + box.width / 2) - width / 2, top: px(box.top + box.height + 30),
+    <div style={{ position: 'absolute', left: px(box ? box.left + box.width / 2 : (layout.waveform.left + layout.waveform.right) / 2) - width / 2,
+      top: px(box ? box.top + box.height + 30 : layout.waveform.top),
       height: maxH, width, display: 'flex', alignItems: 'center', gap }}>
       {Array.from({ length: n }, (_, i) => {
         const step = Math.floor((local + rand(round, 2, i) * BAR_PERIOD) / BAR_PERIOD);
@@ -92,7 +94,7 @@ const Wave: React.FC<{ round: number; frame: number; wakeAt: number; dimmed: boo
 /** Fallback accent (Level 1 blue) for the rare caller that has not been updated to pass one. */
 const DEFAULT_ACCENT = '#4DA3FF';
 
-export const ListeningGlow: React.FC<ListeningGlowProps> = ({ round, accent = DEFAULT_ACCENT, wakeAt, dimAt, offAt, card = DEFAULT_CARD, frame: frameProp }) => {
+export const ListeningGlow: React.FC<ListeningGlowProps> = ({ round, accent = DEFAULT_ACCENT, wakeAt, dimAt, offAt, card, frame: frameProp }) => {
   const clock = useDontSayFrame();
   const frame = frameProp ?? clock;
   if (frame < wakeAt) return null;

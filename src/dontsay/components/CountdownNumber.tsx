@@ -1,6 +1,7 @@
 /**
- * CountdownNumber: a plain glass pill (glassSurface, tinted with the level accent; never filled red) placed just
- * under the waveform. Big tabular seconds (Nunito ExtraBold), a thin accent progress line inside
+ * CountdownNumber: a small plain glass pill (about 150 x 56, glassSurface tinted with the level accent; never filled
+ * red) in the top centre, on the HUD row with the hearts pill and the watermark (layout.countdown). Tabular seconds
+ * (Nunito ExtraBold), a thin accent progress line inside
  * the pill that fills over the timer. The number and line turn red for the last URGENT_SECONDS
  * (shared/timerMath) and a red edge pulse beats on every remaining frame.
  * Timer starts at `at` (the first tick after the intro), so reading time never counts.
@@ -15,12 +16,13 @@ import { AbsoluteFill } from 'remotion';
 import type { Level } from '../data';
 import { colours, easeOut, fontNumeric, glassSurface, springAt, SYSTEM, tabular } from '../system';
 import { timerMath } from '../shared/timerMath';
+import { layout } from '../layout';
 import { FPS, WIDTH, secToTicks, timerSecFor, useDontSayFrame } from '../timing';
 
 const px = (v: number): number => (v * WIDTH) / 1280;
 
 /** Pill layout in reference units (centre 80% safe). */
-const L = { w: 220, h: 112, radius: 56, numberSize: 76, lineH: 5, lineInset: 30, lineBottom: 12 } as const;
+const L = { w: layout.countdown.right - layout.countdown.left, h: layout.countdown.bottom - layout.countdown.top, radius: 28, numberSize: 34, lineH: 4, lineInset: 22, lineBottom: 7 } as const;
 /** Ticks the pill springs in before the timer starts. */
 const LEAD_IN = 6;
 /** Number crossfade and red fade-in, in ticks. */
@@ -46,7 +48,7 @@ export type CountdownNumberProps = {
   at: number;
   /** Override only for tests; default is timerSecFor(level). */
   durationSec?: number;
-  /** Top of the pill in reference units (under the prompt). */
+  /** Top of the pill in reference units. Default: layout.countdown.top (top centre, same row as hearts and watermark). */
   top?: number;
   /** Local design tick; defaults to the current clock. */
   frame?: number;
@@ -82,7 +84,7 @@ export const EdgeBeat: React.FC<{ level: Level; at: number; durationSec?: number
   );
 };
 
-export const CountdownNumber: React.FC<CountdownNumberProps> = ({ level, at, durationSec, top = 470, frame, edge = true }) => {
+export const CountdownNumber: React.FC<CountdownNumberProps> = ({ level, at, durationSec, top = layout.countdown.top, frame, edge = true }) => {
   const clock = useDontSayFrame();
   const t = frame ?? clock;
   const dur = secToTicks(durationSec ?? timerSecFor(level));
@@ -131,7 +133,7 @@ export const CountdownNumber: React.FC<CountdownNumberProps> = ({ level, at, dur
           justifyContent: 'center',
         }}
       >
-        <div style={{ display: 'grid', marginTop: -px(6) }}>
+        <div style={{ display: 'grid', marginTop: -px(4) }}>
           {swap < 1 ? (
             <div style={{ gridArea: '1 / 1', ...numberStyle, color: tone, opacity: 1 - swap }}>{shown + 1}</div>
           ) : null}

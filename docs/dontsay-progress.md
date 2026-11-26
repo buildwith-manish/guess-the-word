@@ -700,3 +700,24 @@ Files: `scenes/RoundScene.tsx`, `components/HeartsPill.tsx`, `components/Countdo
 ## Fix: "useBonus must be used inside <BonusWrapper>" (DontSay-Full error)
 - Cause: `BonusMindReader` (Bonus 1) drew `Strip` as a sibling of `<BonusWrapper>`, and Strip called `useBonusGlass()` (needs the wrapper's context), since M6.
 - Fix: `Strip` now takes `level` (derived from `bonus.afterRound` like the wrapper does) and calls `bonusGlass(radius, alpha, level)` directly. Other bonus scenes already call the hooks inside the wrapper. tsc clean; not rendered.
+
+## Task F3: DONE (tsc --noEmit clean; `npx tsx scripts/dontsay_layout_check.ts` passes for all 45 rounds; NOT rendered, `remotion still` (round 12, frame 200) failed: ENOTFOUND remotion.media, not retried)
+
+- `src/dontsay/layout.ts` (new, pure data + functions): the one place for round-screen zones, reference units 1280x720. `ruleLayout(round)` / `ruleBlockHeight(round)` / `ruleBlockWidth(round)` give the rule UI size from the round's rule type, banned / swatch / icon counts, clarification chip and heavy flag; ExclusionChips draws from the same plan. `promptFontSize()` is shared by RoundScene and the check script.
+- Final zones (top / bottom, left / right where needed): hudTopRow 42-98; hearts 48-92 (x 64+); counter 98-142 (x 64+); watermark 42-98 (right 64); countdown 42-98, x 565-715 (150 x 56); prompt card 150-280, x 128-1152 (fixed for every round); waveform 296-348; ruleZone 372-640 (hard maxBottom 640), x 300-980; bubbleSmall 552-644, x 998.4-1152; bubbleLarge 290-590; round45Box 592-640, x 300-980.
+- Worst case: round 12 (and 18): banned rows (3) + RULE BREAK chip, 267 of 268 units. Heavy chip rounds (37, 40, 42-44) 208. Compact rows used when needed (row height 80 down to 48, text >= 26).
+- RoundScene: positions from layout.ts; HUD layer (hearts, counter, countdown pill) is drawn AFTER RevealEngine with zIndex so its backdrop blur cannot soften it; the red edge pulse stays under the bubble. Watermark is already above everything in Full.tsx.
+- CountdownNumber: 150 x 56 glass pill, top centre (`top` prop is now optional, default layout.countdown.top; Hook still passes top=520). Timing, crossfade and red-urgent behaviour unchanged.
+- ListeningGlow: waveform at layout.waveform (height 52). The `card` prop is kept as a legacy override only because Hook passes it.
+- ExclusionChips: anchored from ruleZone.top; header row "Banned answers" left, "RULE BREAK = MATCH" inline right; `bottom` prop removed. Heavy chip styles now also show the header row.
+- Round45Callback: banned box moved to the bottom strip of ruleZone (592-640, x 300-980). Box height 60 -> 48 and radius 30 -> 24 so it fits under bubbleLarge (590) and inside maxBottom 640; animation and timing untouched.
+
+### Open / uncertain
+- Hearts pill, counter and watermark widths are upper bounds written in layout.ts (those files were not read). bubbleSmall x/y come from earlier notes (InkBubble not read): confirm against InkBubble.SMALL.
+- Text widths are estimated at 0.6 em per glyph, not measured. Longest prompt (round 41) gets 59 px on one line, 955.8 of 960 estimated: very tight; check it by eye.
+- Rule block width is now 680 (was up to 1024) so it stays left of the small bubble (x 998).
+- Round 45: the box is at the bottom of ruleZone, not top-anchored, because bubbleLarge covers 290-590 while the timer runs there.
+- Hook.tsx and its own HUD positions were not changed.
+
+### Frames to check by eye (DontSay-Round, 60 fps)
+- Round 12 at 200; round 24 at 200; a no-rule round (e.g. 1) at 200; round 28 around 380-420 (bubble slide, HUD stays sharp); round 45 at 150-260.
