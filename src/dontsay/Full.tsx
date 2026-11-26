@@ -2,9 +2,10 @@
  * Full.tsx: master "DontSay-Full" (task 4o). Part1 to Part6 as Sequences, each at the render-frame
  * offset and length that timing.ts gives in `partRanges`. Nothing is timed here.
  *
- * Parts are back to back: hard cuts, no fades, no overlap. Each part mounts its own scene audio.
- * There is no music bed or voice layer yet (no clips in timings.generated.ts); add it next to the
- * Sequences, not inside a part.
+ * Parts are back to back: hard cuts, no fades, no overlap. Each part mounts its own scene audio and its
+ * own voice layer (VoiceLayer). The music beds (task MU2) are mounted once here by `MusicBeds`, across part
+ * boundaries, so a bed can run through a hard cut and crossfade only where the music changes (plan: music.ts).
+ * The wavs are generated, not in git: run scripts/make_dontsay_music.py before rendering.
  */
 import React from 'react';
 import { Sequence } from 'remotion';
@@ -15,6 +16,7 @@ import { Part3 } from './parts/Part3';
 import { Part4 } from './parts/Part4';
 import { Part5 } from './parts/Part5';
 import { Part6 } from './parts/Part6';
+import { MusicBeds } from './components/MusicBeds';
 
 const PARTS: readonly React.FC[] = [Part1, Part2, Part3, Part4, Part5, Part6];
 
@@ -35,5 +37,6 @@ export const DontSayFull: React.FC = () => (
         </Sequence>
       );
     })}
+    <MusicBeds />
   </div>
 );

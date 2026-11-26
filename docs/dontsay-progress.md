@@ -589,3 +589,46 @@ SFX cue sync. Measured every wav in `public/dontsay/sfx` (active RMS, onset, env
 - Hook ramp: does it start from true near-silence; does the 150 ms/20 ms end fade matter once crossfaded.
 - Outro: the last 6 s fade and the arpeggio on the final Dadd9.
 - Whether the pulse reads as a soft beat or as a thump.
+
+## Task MU2: DONE (tsc --noEmit clean; NOT rendered, NOT listened to; the wavs are git-ignored, so run scripts/make_dontsay_music.py before any render)
+
+- `src/dontsay/music.ts` (pure plan, no React): the knobs at the top (`MUSIC_VOLUME` = 1, `CROSSFADE_SEC` 1, `START_FADE_SEC` 0.1, `DUCK_DB` -6, `DUCK_ATTACK_SEC` 0.15, `DUCK_RELEASE_SEC` 0.5), `musicBeds`, `checkInSwells`, `bedGain`, `duckGain`, `voiceWindows`. Everything else comes from timing.ts (`segments`, `voiceCues`, `clipSec`, `outroFadeSec`) and `public/dontsay/music/manifest.json` (file lengths, loop flags).
+- `src/dontsay/components/MusicBeds.tsx`: one `<Audio>` per bed span inside its own `Sequence`, volume = MUSIC_VOLUME x equal-power crossfade x duck x check-in lift; `loop` with `loopVolumeCurveBehavior="extend"`, `allowAmplificationDuringRender` (the lift goes above 1). Mounted once in `Full.tsx` (stale "no music bed" comment replaced). Only `DontSay-Full` has music; the part and scene compositions do not.
+- `scripts/dontsay_music_plan.ts` (`npx tsx scripts/dontsay_music_plan.ts`): prints the plan below and checks the windows are shared and ordered.
+- Duck: 173 voice windows (every voice cue, length from the measured clip), eased attack 0.15 s, eased release 0.5 s, deepest window wins, so back-to-back clips (intro + rule) stay ducked. About 369 s of the 771 s is more than half ducked.
+- Check-in: `checkin.wav` plays over the card (also ducked); the bed gets HeartCheckIn's own lift (`heartCheckInMusicGain`, 1 -> 1.12) and eases back over 0.3 s after the cut instead of stopping dead.
+- Outro: `outro.wav` is trimmed by 90 frames (1.5 s) at the start so the end of the file (its own 6 s fade) lands on the last frame; the bed also ramps to 0 over the last `outroFadeSec`.
+
+### Bed changes (crossfade windows are 60 frames; frames are 60 fps, absolute and part+local)
+| frame (abs) | time | part+local | change |
+|---|---|---|---|
+| 0 | 0:00 | P1+0 | hook.wav in (0.1 s fade-in) |
+| 420-480 | 0:07 | P1+420 | hook -> level1 (window ends at hook.wav's end, 480) |
+| 7740-7800 | 2:09 | P1+7740 | level1 -> bonus (Mind Reader) |
+| 8822-8882 | 2:27 | P1+8822 (P2 starts 8852) | bonus -> level2 |
+| 16330-16390 | 4:32 | P2+7478 | level2 -> bonus |
+| 17606-17666 | 4:53 | P2+8754 (P3 starts 17636) | bonus -> level3 |
+| 25174-25234 | 6:59 | P3+7538 | level3 -> bonus |
+| 26296-26356 | 7:18 | P3+8660 (P4 starts 26326) | bonus -> level4 |
+| 32600-32660 | 9:03 | P4+6274 | level4 -> bonus |
+| 33680-33740 | 9:21 | P4+7354 (P5 starts 33710) | bonus -> level5 |
+| 41140-41200 | 11:25 | P5+7430 | level5 -> bonus |
+| 42224-42284 | 11:43 | P5+8514 (P6 starts 42254) | bonus -> level5 again (rank card + scoreboard), from the start of the file |
+| 44424-44484 | 12:20 | P6+2170 | level5 -> outro.wav (skip 90 frames) |
+| 46194-46254 | 12:50 | P6+3940 | outro bed ramps to 0 (last outroFadeSec) |
+- Check-in swell: `checkin.wav` 21800-21988 (P3+4164), bed lift over the same frames.
+
+### Choices and guesses (change in music.ts if wrong)
+- **Rank card + scoreboard are not in the brief:** they go back to level5.wav (restarting at the top of the file) after the final bonus. Alternative: carry the bonus bed on, or start outro.wav at the rank card.
+- The settings card (4 s, before level 1) is on the level1 bed, so level1 starts 1 s before the hook ends (the hook's last second is the crossfade).
+- Equal-power (sine/cosine) crossfade, eased duck curves: my choice.
+- `MUSIC_VOLUME` 1 means the MU1 levels (-31 to -29 LUFS) un-attenuated; ducking takes about half the runtime down 6 dB. If the beds are too loud or too quiet under the voice, change that one constant.
+- A bed restarts at the top of its file at each span, so every bed starts on a Dadd9 downbeat; the 1 s crossfade is chord-aligned only by luck of the cycle (same key and tempo, nothing beat-matched to the video).
+- Not verified: that Remotion's `loop` + `extend` + `startFrom` behave as read in node_modules (volume frame is local to the Sequence, loop extends it); never rendered.
+
+### Listen for
+- Each crossfade above (hook -> level1 especially): level dip, doubled chords, a phasey 1 s.
+- Duck pumping on short voice clips and on the 0.25 s gaps between lines; the level before and after.
+- The check-in lift and swell together with the check-in voice (P3+4164).
+- The outro: start of the trimmed file at 44424 and the end fade.
+- Rank card/scoreboard bed restart (P5+8514).
