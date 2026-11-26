@@ -728,3 +728,15 @@ Files: `scenes/RoundScene.tsx`, `components/HeartsPill.tsx`, `components/Countdo
 - Contrast (WCAG, #F5F5F7 text, level 4; script-modelled, not measured from a render): at the peak, prompt text on the card 4.89:1 at the card centre / 4.26:1 at the brightest card corner in the worst case (every wallpaper light stacked); typical wallpaper 6.61 / 5.59. Pass chip text 4.59 / 3.90 worst case, 6.11 / 5.01 typical. Wallpaper luminance 0.070 (worst) to 0.033 (typical) against text 0.914.
 - Small bubble: x 998.4-1152, y 552-644. Nothing in BonusWrapper or BonusOppositeDay sits there (stage slot is empty for bonus 4; prompt 300-400; chip ends about y 222).
 - Frames (60 fps, bonus-local, from timing.ts now that intro is voice-stretched to 120 ticks): invert starts 270, full by 280, holds to 320, back to 0 at 330; slide 720; dissolve 780-870; reveal 870.
+
+## Task F5: bonus timer + dead time (tsc --noEmit: only the old `src/timing.ts` `./rounds.json` error; voice_check, music_plan, voice_fit, layout_check all pass; NOT rendered, `remotion still` failed: ENOTFOUND remotion.media)
+
+- Problem (screenshot of Bonus 2): no timer on any bonus, and the play phase was a fixed 8 s with nothing happening.
+- `timing.ts`: new `bonusPlaySecFor(n)` = `timerSecFor(level of the round the bonus follows)`, so bonus play is timed like the rounds: bonus 1 and 2 = 5 s, bonus 3 = 4 s, bonus 4 and 5 = 3 s (was 8 s each). `bonusPhaseSecs` uses it; `bonusPlaySec` (8) is kept as a fallback only. Total runtime 770.9 s -> 750.9 s (-20 s). Intro (voice), reveal and result are unchanged.
+- `BonusWrapper.tsx` (all five bonuses): the round `CountdownNumber` (+ `EdgeBeat`, red in the last 2 s) runs for exactly the play phase, starting at the end of the intro. The gold BONUS pill is smaller (38 high, y 104-142) and the pass chip starts at y 150, so the countdown has the same top-centre slot (y 42-98) as the rounds.
+- All bonus scenes derive their beats from `bonusTicks.play` (chain links scale with it); none was edited.
+### Check by eye (bonus-local frames, 60 fps = ticks x 2; bonus 2 intro 2 s unless the clip is longer)
+- Timer pill appears about 12 frames before the end of the intro, counts 5-4-3-2-1 over the play phase, red + edge pulse in the last 2 s, leaves 8 frames after play ends. BONUS pill and chip must not touch the countdown. Bonus 4: the invert (tick intro+15, 1 s) now sits inside a 3 s play phase. Bonus 5 and 1: check the caption/strip beats still land inside play.
+### Open
+- 3 s of play for bonuses 4 and 5 is the level 4/5 round timer; if that is too tight for a spoken answer, change `bonusPlaySecFor` only.
+- Not rendered; pill layout is arithmetic (chip may reach y 261 when a note is shown, stage starts 262).

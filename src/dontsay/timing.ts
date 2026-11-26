@@ -35,8 +35,9 @@ export const resultSec = 1.8;
 export const levelCardSec = 4;
 export const settingsCardSec = 4;
 export const heartCheckInSec = 2;
-/** Bonus split: 2 intro, 8 play, 3 reveal, 3 result = 16 s. */
+/** Bonus split: 2 intro, play (= the round timer for the bonus's level, see bonusPlaySecFor), 3 reveal, 3 result. */
 export const bonusIntroSec = 2;
+/** Legacy fixed play length. No longer used: play = timerSecFor(level), so bonuses are timed like the rounds. */
 export const bonusPlaySec = 8;
 export const bonusRevealSec = 3;
 export const bonusResultSec = 3;
@@ -127,12 +128,19 @@ export const hookSecFor = (): number => fitSec(hookSec, hookIds);
 export const rankCardSecFor = (): number => fitSec(rankCardSec, [rankIntroId, ...rankIds]);
 /** Outro = max(outroSec, its three clips with gaps + pad). The end screen stays the last endScreenSec. */
 export const outroSecFor = (): number => fitSec(outroSec, outroIds);
+/** Bonus play phase = the round timer of the level the bonus follows (data: bonus.afterRound -> round.level). The on-screen countdown runs exactly this long. */
+export const bonusPlaySecFor = (n: number): number => {
+  const b = bonuses.find((x) => x.n === n);
+  const level = rounds.find((r) => r.n === b?.afterRound)?.level;
+  return level ? timerSecFor(level) : bonusPlaySec;
+};
 /** Bonus phases: intro and reveal stretch to their clips; play and result stay fixed. */
 export const bonusPhaseSecs = (n: number): { intro: number; play: number; reveal: number; result: number; total: number } => {
   const a = bonusAudio.find((x) => x.n === n);
   const intro = fitSec(bonusIntroSec, [a?.intro]);
   const reveal = fitSec(bonusRevealSec, [a?.reveal]);
-  return { intro, play: bonusPlaySec, reveal, result: bonusResultSec, total: intro + bonusPlaySec + reveal + bonusResultSec };
+  const play = bonusPlaySecFor(n);
+  return { intro, play, reveal, result: bonusResultSec, total: intro + play + reveal + bonusResultSec };
 };
 export const bonusSecFor = (n: number): number => bonusPhaseSecs(n).total;
 /** Phase boundaries of a bonus in design ticks, local to its start. */
