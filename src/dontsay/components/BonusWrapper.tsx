@@ -1,8 +1,8 @@
 /**
  * BonusWrapper (task 2f): shared frame for the five bonus scenes.
  *
- * Warm amber glaze over the level wallpaper, gold-tinted glass, a BONUS pill that
- * slides in from the top (bonus-pill sfx), the hearts pill label switched to "BONUS",
+ * The same wallpaper and glass as the round screen (AuroraWallpaper, glassSurface with the level
+ * tint), a gold BONUS pill that rises in (bonus-pill sfx), the hearts pill label switched to "BONUS",
  * and an explicit pass-condition chip. Bonus rounds never cost hearts: this file has
  * no heart animation and no collision chip.
  *
@@ -12,19 +12,18 @@
 import React, { createContext, useContext } from 'react';
 import { AbsoluteFill, Audio, Sequence } from 'remotion';
 import { bonuses, rounds, type Bonus, type Level } from '../data';
+import { AuroraWallpaper } from './AuroraWallpaper';
 import { sfxSrc } from '../sfx';
 import { useDesignFrame } from '../shared/clock';
-import { clamp01 } from '../shared/fade';
 import {
   colours,
   fontHeadline,
   fontNumeric,
   glassSurface,
-  levelBackground,
   springAt,
 } from '../system';
 import {
-  FPS,
+  segments,
   TIME_SCALE,
   WIDTH,
   bonusTicksFor,
@@ -63,11 +62,15 @@ export const useBonus = (): BonusContextValue => {
   return v;
 };
 
-/** Glass tinted toward gold, for cards and chips inside a bonus. */
-export const bonusGlass = (radiusRef: number, alpha = 0.12): React.CSSProperties => ({
-  ...glassSurface(radiusRef * (WIDTH / REF_W) / (WIDTH / 1920), { tint: colours.bonusGold, alpha }),
-  border: `${px(0.5)}px solid rgba(255,214,10,0.38)`,
-});
+/** Same glass as the round screen (thin bright top edge, soft shadow, light level tint). Pass the bonus level. */
+export const bonusGlass = (radiusRef: number, alpha = 0.12, level?: Level): React.CSSProperties =>
+  glassSurface(radiusRef * (WIDTH / REF_W) / (WIDTH / 1920), { level, alpha });
+
+/** bonusGlass bound to the current bonus level, for use inside the mechanic. */
+export const useBonusGlass = (): ((radiusRef: number, alpha?: number) => React.CSSProperties) => {
+  const { level } = useBonus();
+  return (radiusRef, alpha = 0.12) => bonusGlass(radiusRef, alpha, level);
+};
 
 export type BonusWrapperProps = {
   /** The bonus to show; pass-condition text and sub-line come from it. */
@@ -85,34 +88,25 @@ export const BonusWrapper: React.FC<BonusWrapperProps> = ({ bonus: bonusProp, le
   const bonusTicks = bonusTicksFor(bonus.n);
   const phase = bonusPhaseAt(tick, bonusTicks);
 
-  // Warm glaze: amber over the level colour, ramps in over the first half-second.
-  const warm = clamp01(tick / (FPS / 2));
+  // Wallpaper phase from the video clock (segment start + local tick), like the round screen.
+  const segFrom = segments.find((s) => s.kind === 'bonus' && s.bonus.n === bonus.n)?.from ?? 0;
 
-  // BONUS pill: slides in from the top at tick 0, lively overshoot.
-  const pillIn = springAt(tick, 0, 'pop');
-  const pillY = (1 - pillIn) * -px(L.pillH + L.safeTop + 24);
+  // BONUS pill: a short rise and fade at tick 0, no bounce.
+  const pillIn = springAt(tick, 0, 'soft');
+  const pillY = (1 - pillIn) * -px(16);
 
   // Hearts pill label and chip arrive in order, STAGGER-style, after the pill.
-  const labelIn = springAt(tick, 4, 'gentle');
-  const chipIn = springAt(tick, bonusTicks.chipAt, 'snappy');
+  const labelIn = springAt(tick, 4, 'soft');
+  const chipIn = springAt(tick, bonusTicks.chipAt, 'soft');
 
   const note = bonus.onScreenNote;
   const sfxFrom = 0;
 
   return (
     <BonusContext.Provider value={{ bonus, level, phase, tick }}>
-      <AbsoluteFill style={{ background: levelBackground[level], overflow: 'hidden' }}>
-        {/* amber glaze over the level colour */}
-        <AbsoluteFill
-          style={{
-            opacity: warm,
-            background: [
-              'radial-gradient(120% 80% at 50% -10%, rgba(255,184,48,0.46) 0%, rgba(255,159,10,0.18) 45%, rgba(255,159,10,0) 75%)',
-              'linear-gradient(180deg, rgba(255,214,10,0.10) 0%, rgba(255,140,0,0.14) 100%)',
-            ].join(', '),
-            mixBlendMode: 'screen',
-          }}
-        />
+      <AbsoluteFill style={{ overflow: 'hidden' }}>
+        {/* same wallpaper as the round screen */}
+        <AuroraWallpaper level={level} clock={segFrom + tick} />
 
         <Sequence from={Math.round(sfxFrom * TIME_SCALE)} layout="none">
           <Audio src={sfxSrc('bonus-pill')} />
@@ -129,9 +123,8 @@ export const BonusWrapper: React.FC<BonusWrapperProps> = ({ bonus: bonusProp, le
             display: 'flex',
             alignItems: 'center',
             opacity: labelIn,
-            transform: `scale(${0.92 + 0.08 * labelIn})`,
-            transformOrigin: 'left center',
-            ...bonusGlass(26, 0.1),
+            transform: `translateY(${(1 - labelIn) * px(10)}px)`,
+            ...bonusGlass(26, 0.1, level),
             fontFamily: fontNumeric,
             fontWeight: 800,
             fontSize: px(24),
@@ -151,6 +144,7 @@ export const BonusWrapper: React.FC<BonusWrapperProps> = ({ bonus: bonusProp, le
             right: 0,
             display: 'flex',
             justifyContent: 'center',
+            opacity: pillIn,
             transform: `translateY(${pillY}px)`,
           }}
         >
@@ -160,7 +154,7 @@ export const BonusWrapper: React.FC<BonusWrapperProps> = ({ bonus: bonusProp, le
               padding: `0 ${px(34)}px`,
               display: 'flex',
               alignItems: 'center',
-              ...bonusGlass(26, 0.2),
+              ...bonusGlass(26, 0.2, level),
               background: 'linear-gradient(160deg, rgba(255,214,10,0.55), rgba(255,149,0,0.32))',
               fontFamily: fontHeadline,
               fontWeight: 800,
@@ -183,7 +177,7 @@ export const BonusWrapper: React.FC<BonusWrapperProps> = ({ bonus: bonusProp, le
             display: 'flex',
             justifyContent: 'center',
             opacity: chipIn,
-            transform: `translateY(${(1 - chipIn) * px(18)}px) scale(${0.94 + 0.06 * chipIn})`,
+            transform: `translateY(${(1 - chipIn) * px(16)}px)`,
           }}
         >
           <div
@@ -191,7 +185,7 @@ export const BonusWrapper: React.FC<BonusWrapperProps> = ({ bonus: bonusProp, le
               maxWidth: '100%',
               padding: `${px(14)}px ${px(36)}px`,
               textAlign: 'center',
-              ...bonusGlass(32, 0.14),
+              ...bonusGlass(32, 0.14, level),
               fontFamily: fontHeadline,
               color: colours.ink,
             }}

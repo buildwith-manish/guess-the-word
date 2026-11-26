@@ -18,7 +18,7 @@ import { sfxSrc } from '../sfx';
 import { clamp01 } from '../shared/fade';
 import { colours, fontHeadline, springAt, STAGGER } from '../system';
 import { FPS, RENDER_FPS, TIME_SCALE, WIDTH, HEIGHT, beatSec, bonusClipId, bonusSecFor, secToFrames, bonusTicksFor } from '../timing';
-import { BonusWrapper, bonusGlass, px, useBonus } from '../components/BonusWrapper';
+import { BonusWrapper, px, useBonus, useBonusGlass } from '../components/BonusWrapper';
 
 const bonusData = (): Bonus => bonuses.find((b) => b.name === 'triple-lock') as Bonus;
 /** Phase boundaries of this bonus; intro and reveal stretch to their voice clips. */
@@ -99,14 +99,15 @@ const Lock: React.FC<{ size: number; colour: string; lift: number }> = ({ size, 
 );
 
 const Row: React.FC<{ index: number; answer: string; tick: number }> = ({ index, answer, tick }) => {
+  const glass = useBonusGlass();
   const lockAt = tripleLockTicks.lockAt[index];
   const dAt = tripleLockTicks.dissolveAt[index];
   const dissolve = clamp01((tick - dAt) / tripleLockTicks.dissolveLen);
   const dots = React.useMemo(() => makeDots(index + 1), [index]);
 
   // Lock snaps shut at lockAt (shackle drops from 4 units up), lifts again when its ink dissolves.
-  const closed = springAt(tick, lockAt, 'snappy');
-  const opened = springAt(tick, dAt, 'snappy');
+  const closed = springAt(tick, lockAt, 'soft');
+  const opened = springAt(tick, dAt, 'soft');
   const lift = (1 - closed) * 4 + opened * 4;
   const bump = tick >= lockAt ? Math.max(0, 1 - (tick - lockAt) / 8) : 0;
 
@@ -122,7 +123,7 @@ const Row: React.FC<{ index: number; answer: string; tick: number }> = ({ index,
         position: 'relative',
         height: px(ROW.h),
         transform: `scale(${1 - 0.025 * bump})`,
-        ...bonusGlass(34, 0.12),
+        ...glass(34, 0.12),
       }}
     >
       <div

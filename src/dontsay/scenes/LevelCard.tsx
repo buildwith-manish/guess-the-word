@@ -1,9 +1,8 @@
 /**
  * LevelCard.tsx: the level intro card of "Don't Say The Same As Me" (task 4a).
  *
- * Opens like an app launching from a home-screen icon: the level colour springs up from a small
- * icon-sized rounded square at the lower right until it fills the frame (spring 'pop', via
- * levelCardLaunch), holds, then shrinks back toward the icon (levelCardExit).
+ * Calm zoom: the level colour card fades in while it grows from 97% to 100% (the `soft` spring, no
+ * overshoot), holds, then fades out while it drifts out to 102% (easeOut over EXIT_TICKS).
  * On the card: level title, the hearts reset line, and the round counter reset to the level's first round.
  * The reset is mentioned on every level (decision 5). No heart is drawn, animated or lost (decision 1/14).
  *
@@ -16,10 +15,8 @@
 import React from 'react';
 import { levelColors, rounds, type Level } from '../data';
 import { WIDTH, levelCardSecFor, secToTicks, useDontSayFrame } from '../timing';
-import { colours, fontHeadline, fontNumeric, glassSurface, springAt } from '../system';
+import { colours, easeOut, fontHeadline, fontNumeric, glassSurface, springAt } from '../system';
 import { levelCardId, type SfxId } from '../sfx';
-import { levelCardLaunch, levelCardExit } from '../shared/levelCard';
-import { clamp01 } from '../shared/fade';
 import { SettingsCard, settingsCardCues } from './SettingsCard';
 import '../shared/fonts';
 
@@ -32,10 +29,10 @@ const LEVELS = (Object.keys(levelColors) as unknown as string[]).map(Number).sor
 const FIRST_LEVEL = LEVELS[0];
 const LAST_LEVEL = LEVELS[LEVELS.length - 1];
 
-/** Home-screen icon centre, in reference units (lower right). */
-const ICON = { x: 1280 * 0.82, y: 720 * 0.82 } as const;
-const ICON_SIZE = 150; // ref units, the "icon" the card grows out of
 const EXIT_TICKS = 12;
+/** Card scale at the start of the entrance and at the end of the exit (about 19 ref units at the edge). */
+const ZOOM_IN_FROM = 0.97;
+const ZOOM_OUT_TO = 1.02;
 /** Tick at which the optional rules sheet slides up over the card (see `sheet` prop). */
 export const LEVEL_SHEET_AT = 54;
 
@@ -59,13 +56,6 @@ export const levelCardCues = (level: Level, sheet = false): LevelCue[] => [
   ...(sheet ? settingsCardCues().map((c) => ({ ...c, tick: c.tick + LEVEL_SHEET_AT })) : []),
 ];
 
-const IconGlyph: React.FC<{ colour: string }> = ({ colour }) => (
-  <svg width={px(70)} height={px(84)} viewBox="0 0 54 66" style={{ display: 'block' }}>
-    <path d="M14 26 V18 a13 13 0 0 1 26 0 V26" fill="none" stroke={colour} strokeWidth="5" strokeLinecap="round" />
-    <rect x="3" y="24" width="48" height="40" rx="11" fill={colour} />
-  </svg>
-);
-
 export type LevelCardProps = {
   level: Level;
   /** Local design tick (30 fps); defaults to the clock of the enclosing Sequence. */
@@ -84,44 +74,29 @@ export const LevelCard: React.FC<LevelCardProps> = ({ level, frame: frameProp, d
   const L = levelColors[level];
   const copy = levelCardCopy(level);
 
-  // Launch / exit (helpers give the spring progress; the transform is rebuilt in px()).
-  const launch = levelCardLaunch(frame, 0);
-  const exitP = 1 - levelCardExit(frame, 0, total, EXIT_TICKS).opacity;
-  const p = launch.p * (1 - exitP);
-  const cx = 640;
-  const cy = 360;
-  const tx = px((ICON.x - cx) * (1 - p));
-  const ty = px((ICON.y - cy) * (1 - p));
-  const s0 = ICON_SIZE / 720; // icon height / frame height
-  const scale = s0 + (1 - s0) * p;
-  const radius = px(150) * (1 - clamp01(p)) + px(0); // corners square off as it fills the frame
-  const shown = Math.min(1, frame / 6) * (1 - exitP);
+  // Entrance: soft spring drives fade and zoom together. Exit: easeOut over the last EXIT_TICKS.
+  const inP = springAt(frame, 0, 'soft');
+  const exitP = easeOut((frame - (total - EXIT_TICKS)) / EXIT_TICKS);
+  const shown = inP * (1 - exitP);
+  const scale = ZOOM_IN_FROM + (1 - ZOOM_IN_FROM) * inP + (ZOOM_OUT_TO - 1) * exitP;
 
   // Content arrives after the card is mostly open, staggered 4-8 ticks.
-  const arrive = (at: number) => springAt(frame, at, 'smooth') * (1 - exitP);
-  const rise = (a: number) => `translateY(${(1 - a) * px(28)}px)`;
+  const arrive = (at: number) => springAt(frame, at, 'soft') * (1 - exitP);
+  const rise = (a: number) => `translateY(${(1 - a) * px(16)}px)`;
   const title = arrive(8);
   const reset = arrive(16);
   const counter = arrive(22);
-  const glyphOpacity = 1 - clamp01(p * 2);
 
   return (
     <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-      {/* scene behind dims while the card launches */}
-      <div style={{ position: 'absolute', inset: 0, background: '#000', opacity: launch.dim * (1 - exitP) }} />
-      {/* the app: level colour fills the frame */}
+      {/* the card: level colour fills the frame */}
       <div style={{
         position: 'absolute', inset: 0, opacity: shown,
-        transform: `translate(${tx}px, ${ty}px) scale(${scale})`,
-        borderRadius: radius / Math.max(scale, 0.05),
+        transform: `scale(${scale})`,
         overflow: 'hidden',
         background: `linear-gradient(180deg, ${L.wallpaper[0]} 0%, ${L.wallpaper[1]} 100%)`,
       }}>
         <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(90% 70% at 50% 8%, ${L.accent}8C 0%, transparent 70%)` }} />
-        {/* icon glyph, visible only while the card is still icon-sized */}
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: glyphOpacity }}>
-          <IconGlyph colour="#fff" />
-        </div>
         {/* content, inside the centre 80% */}
         <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: px(30) }}>
           <div style={{ width: px(960), textAlign: 'center', opacity: title, transform: rise(title),

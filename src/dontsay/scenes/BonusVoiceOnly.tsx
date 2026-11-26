@@ -131,7 +131,7 @@ const Stage: React.FC = () => {
   const amp = level(tick);
 
   // Category text: visible from tick 0, fades out as the voice starts.
-  const textIn = springAt(tick, 0, 'gentle');
+  const textIn = springAt(tick, 0, 'soft');
   const textOut = 1 - clamp01((tick - t.introStart) / TEXT_FADE);
   const textOpacity = textIn * textOut;
 
@@ -145,7 +145,7 @@ const Stage: React.FC = () => {
   const captionP = clamp01((tick - t.captionAt) / CAPTION_FADE) * (1 - revealP);
 
   // Answer at the reveal.
-  const ans = springAt(tick, t.answerAt, 'pop');
+  const ans = springAt(tick, t.answerAt, 'reveal'); // the answer reveal: the one slight overshoot
 
   return (
     <div style={{ position: 'relative', width: px(L.slotW), height: px(L.slotH) }}>
@@ -290,7 +290,7 @@ const Stage: React.FC = () => {
 const CornerMic: React.FC = () => {
   const { tick } = useBonus();
   const amp = level(tick);
-  const arrive = springAt(tick, 8, 'gentle');
+  const arrive = springAt(tick, 8, 'soft');
   const size = px(L.micSize);
   return (
     <div

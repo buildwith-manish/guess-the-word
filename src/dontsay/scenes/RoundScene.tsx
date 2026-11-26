@@ -18,10 +18,11 @@ import { ExclusionChips } from '../components/ExclusionChips';
 import { CountdownNumber } from '../components/CountdownNumber';
 import { HeartsPill } from '../components/HeartsPill';
 import { ListeningGlow } from '../components/ListeningGlow';
+import { AuroraWallpaper } from '../components/AuroraWallpaper';
 import { RevealEngine } from '../components/RevealEngine';
 import type { ResultOutcome } from '../components/ResultBeat';
-import { colours, fontHeadline, fontNumeric, easeOut, glassSurface, levelBackground, springAt, STAGGER, tabular } from '../system';
-import { FPS, segments, ticksToFrames, useDontSayFrame, WIDTH, type Range, type RoundPhases, type Segment } from '../timing';
+import { colours, fontHeadline, fontNumeric, easeOut, glassSurface, springAt, STAGGER, tabular } from '../system';
+import { segments, ticksToFrames, useDontSayFrame, WIDTH, type Range, type RoundPhases, type Segment } from '../timing';
 
 const REF_W = 1280;
 const px = (v: number): number => (v * WIDTH) / REF_W;
@@ -86,9 +87,6 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
   const beat = local(ph.beat, base);
   const style = levelColors[round.level];
 
-  // wallpaper: dark level base with one faint accent light (levelBackground)
-  const background = levelBackground[round.level];
-
   // prompt card: arrives early, stays through the timer and the sealed slide, gives way to the lock at the beat
   const promptIn = Math.min(1, springAt(t, STAGGER.arrival, 'soft'));
   // The prompt eases away STAGGER.base ticks BEFORE the bubble starts to grow (slide start comes from
@@ -108,34 +106,13 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
 
   const counterIn = Math.min(1, springAt(t, STAGGER.arrival * 2, 'soft'));
 
-  // Aurora wallpaper: two faint orbs in the level accent only (13%), one slow loop per minute.
-  // Phase comes from the video clock (round start + local tick) so it carries across rounds.
-  const DRIFT_LOOP_TICKS = 60 * FPS;
-  const drift = (ph: number, amp: number): number =>
-    Math.sin(((base + t) / DRIFT_LOOP_TICKS) * Math.PI * 2 + ph) * amp;
-  const orbs = [
-    { x: 16 + drift(0, 6), y: 86 + drift(1, 5), size: 980, colour: style.accent, a: 0.13 },
-    { x: 86 + drift(2, 6), y: 30 + drift(3, 6), size: 860, colour: style.accent, a: 0.13 },
-  ];
   // dictation capsule: only while listening (timer.from .. timer.to), same window as the listening glow
   const dictIn = t >= timer.from ? Math.min(1, springAt(t, timer.from, 'soft')) * fadeOut(t, timer.to, 4) : 0;
 
   return (
-    <AbsoluteFill style={{ background, overflow: 'hidden' }}>
-      {orbs.map((o, i) => (
-        <div
-          key={i}
-          style={{
-            position: 'absolute',
-            left: px((o.x / 100) * REF_W - o.size / 2),
-            top: px((o.y / 100) * 720 - o.size / 2),
-            width: px(o.size),
-            height: px(o.size),
-            borderRadius: '50%',
-            background: `radial-gradient(circle, ${o.colour}${Math.round(o.a * 255).toString(16).padStart(2, '0')} 0%, transparent 68%)`,
-          }}
-        />
-      ))}
+    <AbsoluteFill style={{ overflow: 'hidden' }}>
+      {/* wallpaper: shared with the bonus screens; phase from the video clock so the drift carries across rounds */}
+      <AuroraWallpaper level={round.level} clock={base + t} />
       {chips && chipsOpacity > 0 ? (
         <div style={{ position: 'absolute', inset: 0, opacity: chipsOpacity }}>
           <ExclusionChips round={round} at={STAGGER.arrival * 2} />

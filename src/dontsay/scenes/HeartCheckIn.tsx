@@ -46,14 +46,14 @@ export type HeartCheckInProps = {
 export const HeartCheckIn: React.FC<HeartCheckInProps> = ({ frame: frameProp, showCaption = true }) => {
   const clock = useDontSayFrame();
   const frame = frameProp ?? clock;
-  const a = springAt(frame, 4, 'smooth');
+  const a = springAt(frame, 4, 'soft');
   return (
     <div style={{ position: 'absolute', inset: 0, background: levelBackground[levelOf()] }}>
       {/* static pill: no `at`, so it is settled from the first frame and never animates */}
       <HeartsPill />
       {showCaption ? (
         <div style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ width: px(960), textAlign: 'center', opacity: a, transform: `translateY(${(1 - a) * px(24)}px)`,
+          <div style={{ width: px(960), textAlign: 'center', opacity: a, transform: `translateY(${(1 - a) * px(16)}px)`,
             fontFamily: fontHeadline, fontWeight: 800, fontSize: px(84), lineHeight: 1.05, letterSpacing: '-0.03em', color: colours.ink }}>
             {caption()}
           </div>

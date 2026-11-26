@@ -12,7 +12,7 @@
 import React from 'react';
 import { AbsoluteFill, Audio, Sequence } from 'remotion';
 import { bonuses, type Bonus } from '../data';
-import { BonusWrapper, bonusGlass, px, useBonus } from '../components/BonusWrapper';
+import { BonusWrapper, px, useBonus, useBonusGlass } from '../components/BonusWrapper';
 import { InkBubble } from '../components/InkBubble';
 import { sfxSrc } from '../sfx';
 import { useDesignFrame } from '../shared/clock';
@@ -113,6 +113,7 @@ const WordCard: React.FC<{
   lastLit: number;
   hint: string;
 }> = ({ slot, arrive, firstLit, lastLit, hint }) => {
+  const glass = useBonusGlass();
   const letters = Array.from(slot.text);
   const glow = (a: number): React.CSSProperties => ({
     color: a > 0.01 ? colours.bonusGold : colours.ink,
@@ -130,7 +131,7 @@ const WordCard: React.FC<{
         justifyContent: 'center',
         opacity: arrive,
         transform: `translateY(${(1 - arrive) * px(22)}px) scale(${0.92 + 0.08 * arrive})`,
-        ...bonusGlass(28, 0.12 + 0.1 * Math.max(firstLit, lastLit)),
+        ...glass(28, 0.12 + 0.1 * Math.max(firstLit, lastLit)),
         fontFamily: fontHeadline,
         fontWeight: 800,
         fontSize: px(44),
@@ -169,19 +170,19 @@ const Chain: React.FC = () => {
     return t.charAt(t.length - 1).toUpperCase();
   };
 
-  // light = 1 once the beat has landed (springs, so it overshoots a touch).
+  // light = 1 once the beat has landed (soft springs, no overshoot).
   const linkAt = (i: number) => chainLinkTick(i, links);
 
   const ruleOut = 1 - clamp01((tick - chainSlideTick) / RULE_FADE);
-  const ruleIn = springAt(tick, Math.round(bonusTicks.chipAt + 6), 'gentle');
+  const ruleIn = springAt(tick, Math.round(bonusTicks.chipAt + 6), 'soft');
 
   return (
     <div style={{ position: 'relative', width: px(L.slotW) }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         {slots.map((s, i) => {
-          const arrive = springAt(tick, WORD_FIRST + i * STAGGER_WORDS, 'snappy');
-          const lastLit = i < links ? springAt(tick, linkAt(i), 'pop') : 0;
-          const firstLit = i === 0 ? 0 : springAt(tick, linkAt(i - 1) + LETTER_LAG, 'pop');
+          const arrive = springAt(tick, WORD_FIRST + i * STAGGER_WORDS, 'soft');
+          const lastLit = i < links ? springAt(tick, linkAt(i), 'soft') : 0;
+          const firstLit = i === 0 ? 0 : springAt(tick, linkAt(i - 1) + LETTER_LAG, 'soft');
           return (
             <React.Fragment key={i}>
               <WordCard
@@ -193,8 +194,8 @@ const Chain: React.FC = () => {
               />
               {i < links ? (
                 <ChainLink
-                  progress={springAt(tick, linkAt(i) + 1, 'snappy')}
-                  lit={springAt(tick, linkAt(i) + 1, 'pop')}
+                  progress={springAt(tick, linkAt(i) + 1, 'soft')}
+                  lit={springAt(tick, linkAt(i) + 1, 'soft')}
                 />
               ) : null}
             </React.Fragment>

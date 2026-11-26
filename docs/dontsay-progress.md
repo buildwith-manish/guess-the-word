@@ -503,3 +503,26 @@ Started, then stopped at the owner's request in favour of 4c. Nothing written. N
 - The red pill tint is now a fading overlay on the unchanged black base, so the fully red pill is slightly darker than the old red-gradient background.
 - In the last second the "0" crossfades in around the timer end; the pill leaves 4 ticks after (RoundScene), so it is only briefly visible.
 - Voice, SFX and the lock are unchanged; the wider soft edge makes the sweep look longer but `ink-dissolve.wav` (1.85 s) is untouched.
+
+## Task M6: DONE (tsc --noEmit clean; NOT rendered, `remotion still` failed: ENOTFOUND remotion.media)
+
+Springs: every `springAt` name in the scenes below is now `'soft'`, except the answer reveal in BonusVoiceOnly (`'reveal'`). No raw `spring()` calls existed in these files. Timing and copy untouched.
+
+Scenes / files touched, with one frame to check each (60 fps):
+- `scenes/LevelCard.tsx` (DontSay-LevelCard-L1): icon launch replaced by a calm zoom (97% -> 100%, fade in on the `soft` spring) and an exit that drifts to 102% while fading over the last 12 ticks. Content rises 16 units (was 28). No icon glyph, no dim layer, no corner radius. Check frame 16 (mid-entrance) and 228 (exit). Still the level colour fill, not the dark wallpaper.
+- `scenes/SettingsCard.tsx` (DontSay-SettingsCard-L2): NOT changed (no springs; it only wraps SettingsSheet, which already uses an alias of soft). Check frame 30.
+- `scenes/HeartCheckIn.tsx` (DontSay-HeartCheckIn): 'smooth' -> 'soft', caption rise 24 -> 16 units. Check frame 60.
+- `components/BonusWrapper.tsx` (all five bonuses): amber glaze removed; background is now the shared `AuroraWallpaper` (same as the round screen); glass is `glassSurface` with the level tint (gold border and gold tint removed). BONUS pill now rises 16 units with a fade (was a 148-unit slide with overshoot), hearts-label and chip rise 10/16 units with no scale pop. The pill itself and the BONUS label stay gold. New `useBonusGlass()` hook; `bonusGlass(radius, alpha, level?)` keeps its old name.
+- `components/AuroraWallpaper.tsx` (new, also used by `scenes/RoundScene.tsx`): dark level base + two 13% accent orbs, 60 s drift on the video clock. RoundScene's inline orbs were replaced by it (same values as M2). Check DontSay-Round round 1 frame 120.
+- `scenes/BonusMindReader.tsx` (DontSay-Bonus-1): springs -> soft, strip glass via `useBonusGlass`. Check frame 200.
+- `scenes/BonusTripleLock.tsx` (DontSay-Bonus-2): springs -> soft, row glass via `useBonusGlass`. Check frame 200.
+- `scenes/BonusChainReaction.tsx` (DontSay-Bonus-3): springs -> soft, word-card glass via `useBonusGlass`. Check frame 200.
+- `scenes/BonusOppositeDay.tsx` (DontSay-Bonus-4): 'snappy' -> soft only (it has no glass of its own). Check frame 260 (after the invert at 150-210).
+- `scenes/BonusVoiceOnly.tsx` (DontSay-Bonus-5): 'gentle' -> soft; the answer pop is now `'reveal'` (slight overshoot, max 1.5%). Check frame 760 (reveal phase starts 724).
+
+### Open
+- Not changed (not springs): ChainReaction link pulse (`1 + 0.18 sin`) and letter scale (`1 + 0.22 a`), TripleLock row `bump` scale, MindReader match cell. They still pulse a little; say if they should go.
+- Bonus glow colours stay gold where they carry meaning (lit letters, locks, ink dots, pass chip text); only the glass, background and wrapper chrome were matched to the round screen.
+- `shared/levelCard.ts` (`levelCardLaunch/Exit`, still using 'pop'/'snappy' aliases) is no longer used by LevelCard and was left in place. `SettingsSheet` and `HeartsPill` (other files) untouched.
+- Level card colours are still the bright `levelColors[l].wallpaper`, not the dark wallpaper the rounds use now; a fade into a dark round may look abrupt. Easy follow-up if wanted.
+- Bonus scenes' wallpaper phase uses the bonus segment start from timing.ts, so the drift is continuous with the round before it.

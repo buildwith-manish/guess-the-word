@@ -13,7 +13,7 @@
 import React from 'react';
 import { AbsoluteFill, Audio, Sequence } from 'remotion';
 import { bonuses, type Bonus } from '../data';
-import { BonusWrapper, bonusGlass, px } from '../components/BonusWrapper';
+import { BonusWrapper, px, useBonusGlass } from '../components/BonusWrapper';
 import { InkBubble } from '../components/InkBubble';
 import { sfxSrc } from '../sfx';
 import { useDesignFrame } from '../shared/clock';
@@ -102,8 +102,9 @@ const Check: React.FC<{ size: number; colour: string }> = ({ size, colour }) => 
 );
 
 const Strip: React.FC<{ tick: number; points: string }> = ({ tick, points }) => {
-  const stripIn = springAt(tick, Math.round(bonusTicks.chipAt + 4), 'gentle');
-  const match = springAt(tick, mindReaderMatchAt, 'pop');
+  const glass = useBonusGlass();
+  const stripIn = springAt(tick, Math.round(bonusTicks.chipAt + 4), 'soft');
+  const match = springAt(tick, mindReaderMatchAt, 'soft');
   const sealed = 1 - clamp01(match * 2);
   const cellW = px(L.stripW / 3);
   const cell: React.CSSProperties = {
@@ -126,7 +127,7 @@ const Strip: React.FC<{ tick: number; points: string }> = ({ tick, points }) => 
         transform: `translateY(${(1 - stripIn) * px(20)}px)`,
         display: 'flex',
         alignItems: 'center',
-        ...bonusGlass(18, 0.1),
+        ...glass(18, 0.1),
         overflow: 'hidden',
       }}
     >
@@ -174,8 +175,8 @@ const Strip: React.FC<{ tick: number; points: string }> = ({ tick, points }) => 
 
 const Layer: React.FC<{ bonus: Bonus }> = ({ bonus }) => {
   const tick = useDesignFrame();
-  const promptIn = springAt(tick, 8, 'snappy');
-  const ruleIn = springAt(tick, Math.round(bonusTicks.chipAt + 6), 'gentle');
+  const promptIn = springAt(tick, 8, 'soft');
+  const ruleIn = springAt(tick, Math.round(bonusTicks.chipAt + 6), 'soft');
   const ruleOut = 1 - clamp01((tick - mindReaderSlideTick) / RULE_FADE);
   return (
     <AbsoluteFill>

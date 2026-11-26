@@ -92,7 +92,7 @@ const InvertVeil: React.FC<{ amount: number }> = ({ amount }) => {
 
 const Layer: React.FC<{ bonus: Bonus }> = ({ bonus }) => {
   const tick = useDesignFrame();
-  const promptIn = springAt(tick, 8, 'snappy');
+  const promptIn = springAt(tick, 8, 'soft');
   const promptOut = 1 - clamp01((tick - oppositeDayTicks.slide) / 10);
   return (
     <AbsoluteFill>
