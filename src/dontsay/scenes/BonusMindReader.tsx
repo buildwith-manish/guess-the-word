@@ -16,6 +16,7 @@ import { bonuses, rounds, type Bonus, type Level } from '../data';
 import { BonusWrapper, bonusGlass, px } from '../components/BonusWrapper';
 import { InkBubble } from '../components/InkBubble';
 import { sfxSrc } from '../sfx';
+import { MIND_READER_STRIP } from '../layout';
 import { useDesignFrame } from '../shared/clock';
 import { clamp01 } from '../shared/fade';
 import { colours, fontHeadline, fontNumeric, springAt } from '../system';
@@ -34,9 +35,10 @@ const L = {
   ruleY: 440,
   /** Centre of the enlarged bubble (it is 300 high: y 290..590). */
   bubbleCentre: { x: 640, y: 440 },
-  stripW: 780,
-  stripH: 50,
-  stripBottom: 72, // strip ends on the 648 safe line
+  // strip: layout.ts MIND_READER_STRIP (centred, ends on the 648 safe line, right end stays left of bubbleSmall x 998)
+  stripW: MIND_READER_STRIP.w,
+  stripH: MIND_READER_STRIP.h,
+  stripBottom: MIND_READER_STRIP.bottom,
 } as const;
 
 /** Beats in design ticks (30 fps), local to the bonus start. */

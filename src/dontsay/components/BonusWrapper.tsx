@@ -16,6 +16,7 @@ import { AuroraWallpaper } from './AuroraWallpaper';
 import { HeartsPill } from './HeartsPill';
 import { CountdownNumber, EdgeBeat } from './CountdownNumber';
 import { sfxSrc } from '../sfx';
+import { BONUS_CHIP_TOP, BONUS_STAGE_TOP } from '../layout';
 import { useDesignFrame } from '../shared/clock';
 import {
   colours,
@@ -47,8 +48,8 @@ const L = {
   safeBottom: 72,
   pillTop: 104, // under the countdown slot (layout.countdown, y 42-98)
   pillH: 38,
-  chipTop: 150,
-  stageTop: 262,
+  chipTop: BONUS_CHIP_TOP,
+  stageTop: BONUS_STAGE_TOP,
   hudLeft: 64, // same top-left spot as RoundScene's hearts pill
   hudTop: 48,
 } as const;

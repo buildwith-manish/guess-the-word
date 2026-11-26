@@ -51,6 +51,28 @@ export const layout = {
 export const RULE_MAX_BOTTOM = 640;
 
 /**
+ * Bonus screens (BonusWrapper, BonusMindReader, BonusChainReaction): shared geometry, reference units.
+ * Scenes import these and scripts/dontsay_layout_check.ts checks them against bubbleSmall and each other.
+ */
+/** Pass-condition chip (the "Differ from me = 1 point" header pill): top edge, and the mechanic slot's top edge. */
+export const BONUS_CHIP_TOP = 150;
+export const BONUS_STAGE_TOP = 262;
+/** Chip height from BonusWrapper's type: 14 pad + 40px x 1.15 title + (6 + 26px x 1.2 note) + 14 pad. */
+export const bonusChipHeight = (hasNote: boolean): number => 14 + 40 * 1.15 + (hasNote ? 6 + 26 * 1.2 : 0) + 14;
+/** Least gap between the header chip and the first row of the mechanic. */
+export const BONUS_MIN_CHIP_GAP = 12;
+/** Bonus 1 (mind-reader) bottom lock strip: centred, ends on the 648 safe line, right end clear of bubbleSmall. */
+export const MIND_READER_STRIP = { w: 690, h: 50, bottom: 72 } as const;
+export const mindReaderStripRect = () => ({
+  left: REF.w / 2 - MIND_READER_STRIP.w / 2,
+  right: REF.w / 2 + MIND_READER_STRIP.w / 2,
+  top: REF.h - MIND_READER_STRIP.bottom - MIND_READER_STRIP.h,
+  bottom: REF.h - MIND_READER_STRIP.bottom,
+});
+/** Bonus 3 (chain-reaction): word-card row, offset from the mechanic slot's top, card height, and the rule line's offset. */
+export const CHAIN_LAYOUT = { cardTop: 16, cardH: 84, cardW: 220, linkW: 48, slotW: 1024, ruleTop: 128 } as const;
+
+/**
  * ListeningGlow waveform geometry (reference units): the ONE source of truth for what the round screen draws.
  * ListeningGlow imports these, and scripts/dontsay_layout_check.ts compares glowRect() against ruleZone and the prompt card.
  * Top and max height come from layout.waveform; the bar sizes are the ones ListeningGlow always used.

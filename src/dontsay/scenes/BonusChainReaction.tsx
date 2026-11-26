@@ -15,6 +15,7 @@ import { bonuses, type Bonus } from '../data';
 import { BonusWrapper, px, useBonus, useBonusGlass } from '../components/BonusWrapper';
 import { InkBubble } from '../components/InkBubble';
 import { sfxSrc } from '../sfx';
+import { CHAIN_LAYOUT } from '../layout';
 import { useDesignFrame } from '../shared/clock';
 import { clamp01 } from '../shared/fade';
 import { colours, fontHeadline, springAt } from '../system';
@@ -27,11 +28,13 @@ const bonusTicks = bonusTicksFor(BONUS_N);
 
 /** Layout in 1280x720 reference units, relative to the wrapper's mechanic slot (x 128..1152, y 262..648). */
 const L = {
-  slotW: 1024,
-  cardW: 220,
-  cardH: 84,
-  linkW: 48,
-  ruleTop: 112,
+  // card row sits CHAIN_LAYOUT.cardTop below the slot top so the header chip (with its note) never touches it
+  slotW: CHAIN_LAYOUT.slotW,
+  cardW: CHAIN_LAYOUT.cardW,
+  cardH: CHAIN_LAYOUT.cardH,
+  cardTop: CHAIN_LAYOUT.cardTop,
+  linkW: CHAIN_LAYOUT.linkW,
+  ruleTop: CHAIN_LAYOUT.ruleTop,
   /** Centre of the enlarged bubble, absolute reference units (bubble is 300 high). */
   bubbleCentre: { x: 640, y: 500 },
 } as const;
@@ -177,7 +180,7 @@ const Chain: React.FC = () => {
   const ruleIn = springAt(tick, Math.round(bonusTicks.chipAt + 6), 'soft');
 
   return (
-    <div style={{ position: 'relative', width: px(L.slotW) }}>
+    <div style={{ position: 'relative', width: px(L.slotW), paddingTop: px(L.cardTop) }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         {slots.map((s, i) => {
           const arrive = springAt(tick, WORD_FIRST + i * STAGGER_WORDS, 'soft');

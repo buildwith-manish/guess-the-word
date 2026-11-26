@@ -11,10 +11,10 @@
  * Estimates (not measured): hearts pill / counter / watermark widths are upper bounds taken from layout.ts;
  * text widths use TEXT_EM (0.6 em per glyph); the small bubble mirrors InkBubble's small state. Nothing is rendered.
  */
-import { rounds } from '../src/dontsay/data';
+import { bonuses, rounds } from '../src/dontsay/data';
 import {
-  MIN_TEXT, REF, RULE_MAX_BOTTOM, SAFE_X, TEXT_EM, glowRect, layout, promptFontSize, promptWidth, PROMPT_PAD_X,
-  ruleBlockHeight, ruleBlockWidth, ruleLayout, textWidth,
+  BONUS_CHIP_TOP, BONUS_MIN_CHIP_GAP, BONUS_STAGE_TOP, CHAIN_LAYOUT, MIN_TEXT, REF, RULE_MAX_BOTTOM, SAFE_X, TEXT_EM, glowRect, layout, promptFontSize, promptWidth, PROMPT_PAD_X,
+  bonusChipHeight, mindReaderStripRect, ruleBlockHeight, ruleBlockWidth, ruleLayout, textWidth,
 } from '../src/dontsay/layout';
 
 type Rect = { name: string; l: number; t: number; r: number; b: number };
@@ -113,6 +113,31 @@ for (const round of rounds) {
     f(h), h ? f(bottom) : '-', h ? f(RULE_MAX_BOTTOM - bottom) : '-', String(size), `${f(w)}/${inner}`]);
 }
 
+// ---------- bonus screens: bubbleSmall clearance and header chip -> first row gap ----------
+const bs = layout.bubbleSmall;
+const bubbleRect = rect('bubbleSmall', bs.left, bs.top, bs.right, bs.bottom);
+const strip = mindReaderStripRect();
+const stripRect = rect('mind-reader lock strip', strip.left, strip.top, strip.right, strip.bottom);
+if (overlap(stripRect, bubbleRect)) problems.push(`bonus 1: lock strip (x ${f(strip.left)}..${f(strip.right)}, y ${f(strip.top)}..${f(strip.bottom)}) overlaps bubbleSmall (x ${bs.left}..${bs.right})`);
+const stripGap = bs.left - strip.right;
+if (stripGap < BONUS_MIN_CHIP_GAP) problems.push(`bonus 1: lock strip right end ${f(strip.right)} is ${f(stripGap)} from bubbleSmall x ${bs.left}, minimum ${BONUS_MIN_CHIP_GAP}`);
+const chainRowTop = BONUS_STAGE_TOP + CHAIN_LAYOUT.cardTop;
+const chainRowBottom = chainRowTop + CHAIN_LAYOUT.cardH;
+const chainRow = rect('chain word cards', REF.w * 0.1, chainRowTop, REF.w * 0.9, chainRowBottom);
+if (overlap(chainRow, bubbleRect)) problems.push('bonus 3: word-card row overlaps bubbleSmall');
+const chainRule = rect('chain rule', REF.w * 0.1, BONUS_STAGE_TOP + CHAIN_LAYOUT.ruleTop, REF.w * 0.9, BONUS_STAGE_TOP + CHAIN_LAYOUT.ruleTop + 36 * 1.2);
+if (overlap(chainRule, bubbleRect)) problems.push('bonus 3: rule line overlaps bubbleSmall');
+if (overlap(chainRow, chainRule)) problems.push('bonus 3: word-card row overlaps the rule line');
+const chipGaps: string[] = [];
+for (const b of bonuses) {
+  const chipBottom = BONUS_CHIP_TOP + bonusChipHeight(Boolean(b.onScreenNote));
+  // the first mechanic row: bonus 3 has its card row; the others start at the stage top
+  const rowTop = b.name === 'chain-reaction' ? chainRowTop : BONUS_STAGE_TOP;
+  const gap = rowTop - chipBottom;
+  chipGaps.push(`bonus ${b.n} (${b.name}): chip bottom ${f(chipBottom)} -> first row ${f(rowTop)} = ${f(gap)}`);
+  if (b.name === 'chain-reaction' && gap < BONUS_MIN_CHIP_GAP) problems.push(`bonus ${b.n}: header chip bottom ${f(chipBottom)} to chip row top ${f(rowTop)} is ${f(gap)}, minimum ${BONUS_MIN_CHIP_GAP}`);
+}
+
 // the longest prompt, stated explicitly
 const longest = rounds.reduce((a, b) => (b.prompt.length > a.prompt.length ? b : a));
 const lSize = promptFontSize(longest.prompt);
@@ -125,6 +150,8 @@ console.log(`worst-case rule block: round ${worst.n}, ${f(worst.h)} units (zone 
 console.log(`longest prompt: round ${longest.n} "${longest.prompt}" (${longest.prompt.length} chars) -> ${lSize}px, est. width ${f(textWidth(longest.prompt, lSize))} of ${promptWidth - PROMPT_PAD_X * 2} (${TEXT_EM} em per glyph)`);
 console.log(`counter pill -> prompt card gap: ${counterGap} units (minimum ${MIN_COUNTER_GAP})`);
 console.log(`waveform (ListeningGlow, drawn) -> ruleZone gap: ${f(minWaveGap)} units over all rounds (minimum ${MIN_WAVE_GAP}); waveform y ${glowRect(1).top}..${glowRect(1).bottom}`);
+console.log(`bonus 1 lock strip right end ${f(strip.right)} -> bubbleSmall x ${bs.left}: gap ${f(stripGap)} (minimum ${BONUS_MIN_CHIP_GAP})`);
+for (const g of chipGaps) console.log('  ' + g);
 console.log('zones (reference units):');
 for (const [k, z] of Object.entries(layout)) console.log(`  ${k.padEnd(12)} top ${z.top} bottom ${z.bottom}` + ('left' in z ? `  left ${(z as { left: number }).left} right ${(z as { right: number }).right}` : ''));
 
