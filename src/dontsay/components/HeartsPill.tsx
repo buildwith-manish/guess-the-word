@@ -38,33 +38,38 @@ export type HeartsPillProps = {
   /** Position from the frame's left/top edge in reference units. Default is the safe corner. */
   left?: number;
   top?: number;
+  /** Smaller, quieter pill (44 ref units high, 72% opacity) for the round screen. Default false. */
+  compact?: boolean;
 };
 
-export const HeartsPill: React.FC<HeartsPillProps> = ({ at, bonus = false, frame: frameProp, left = 128, top = 72 }) => {
+export const HeartsPill: React.FC<HeartsPillProps> = ({ at, bonus = false, frame: frameProp, left = 128, top = 72, compact = false }) => {
   const clock = useDontSayFrame();
   const frame = frameProp ?? clock;
   const animate = at !== undefined;
   // gentle preset: damping 20 so the one entrance settles without a bounce
+  // compact: smaller and quieter, same shape. Still never animates unless `at` is given.
+  const k = compact ? 0.69 : 1;
+  const quiet = compact ? 0.72 : 1;
   const pill = animate ? Math.min(1, springAt(frame, at as number, 'gentle')) : 1;
 
   return (
     <div style={{
-      position: 'absolute', left: px(left), top: px(top), display: 'flex', alignItems: 'center', gap: px(14),
-      ...glassSurface(40), padding: `${px(10)}px ${px(24)}px ${px(10)}px ${px(18)}px`, height: px(64),
-      opacity: pill, transform: `translateY(${(1 - pill) * px(-22)}px) scale(${0.9 + 0.1 * pill})`, transformOrigin: 'left top',
+      position: 'absolute', left: px(left), top: px(top), display: 'flex', alignItems: 'center', gap: px(14 * k),
+      ...glassSurface(40 * k), padding: `${px(10 * k)}px ${px(24 * k)}px ${px(10 * k)}px ${px(18 * k)}px`, height: px(64 * k),
+      opacity: pill * quiet, transform: `translateY(${(1 - pill) * px(-22)}px) scale(${0.9 + 0.1 * pill})`, transformOrigin: 'left top',
     }}>
       <div style={{ display: 'flex', gap: px(4) }}>
         {Array.from({ length: HEART_COUNT }, (_, i) => {
           const p = animate ? Math.min(1, springAt(frame, (at as number) + 3 + i * STAGGER.heart, 'gentle')) : 1;
           return (
             <div key={i} style={{ opacity: p, transform: `scale(${0.4 + 0.6 * p})` }}>
-              <Heart size={px(38)} uid={String(i)} />
+              <Heart size={px(38 * k)} uid={String(i)} />
             </div>
           );
         })}
       </div>
       <span style={{
-        fontFamily: fontHeadline, fontWeight: 800, fontSize: px(26), letterSpacing: '0.06em', color: colours.ink, whiteSpace: 'nowrap',
+        fontFamily: fontHeadline, fontWeight: 800, fontSize: px(26 * k), letterSpacing: '0.06em', color: colours.ink, whiteSpace: 'nowrap',
       }}>{bonus ? BONUS_LABEL : HEARTS_LABEL}</span>
     </div>
   );

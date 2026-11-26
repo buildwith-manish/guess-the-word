@@ -455,3 +455,21 @@ Started, then stopped at the owner's request in favour of 4c. Nothing written. N
 - The shadow and top-edge change applies to every `glassSurface` user. Only RoundScene's three cards pass `level`; other cards stay white-tinted until they do.
 - ListeningGlow is still multi-colour (Siri-style) and sits on top of the wallpaper: "one accent per screen" is only applied to the wallpaper.
 - Other scenes' own wallpapers (BonusWrapper etc.) do not drift on the new 60 s clock.
+
+## Task M3: DONE (tsc --noEmit clean; NOT rendered, `remotion still` failed: ENOTFOUND remotion.media)
+
+- `RoundScene.tsx`: prompt is the hero (max 92 ref units, was 64; line height 1.05, tracking -0.03em; card 130 high, still ends at y 280, above the large bubble). The "LEVEL n" label inside the card is gone. Breathing float (sin translate + scale) removed; only the one-time 14-unit entrance remains. Counter pill 44 high, 20-unit text, 72% opacity. Countdown now exists only from timer.from to timer.to (+4-tick exit; it used to be mounted from tick 0). Dictation capsule appears at timer.from (not tick 12) and leaves at timer.to (4-tick exit), same window as the listening glow. `isLevelFirst` removed (unused).
+- `HeartsPill.tsx`: new optional `compact` prop (default false, other uses unchanged): 69% size (44 high), 72% opacity. RoundScene uses `<HeartsPill compact />` with no `at`, so hearts never animate on the round screen (they used to spring in once on each level's first round).
+- Round 1 phases (60 fps, round-local, from timing.ts): intro 0-80, timer 80-380, sealed 380-470, beat 470-500.
+
+### Frames to check (DontSay-Round, round 1)
+- 0: prompt entering (14-unit rise), counter/hearts small and quiet, no countdown, no capsule.
+- 60: same, prompt settled, nothing else on screen but the small bubble.
+- 200: timer running: countdown, "Listening…" capsule and glow visible.
+- 400: sealed phase: countdown and capsule gone, bubble sliding, prompt still shown.
+
+### Open
+- Hook.tsx and HeartCheckIn still draw their own HeartsPill (not compact, Hook may pass `at`): not touched.
+- ExclusionChips untouched, so rounds with rules still show chips during the intro.
+- Counter / pill sizes are my picks (44 high, 20-unit text): small by design, check phone readability.
+- Prompt card top (150) was kept; with a single line at 92 units the card has little air. Raise `PROMPT.top` or drop the card if you want more empty space.

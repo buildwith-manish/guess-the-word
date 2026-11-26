@@ -29,10 +29,10 @@ const px = (v: number): number => (v * WIDTH) / REF_W;
 /* ---------- layout, reference units (1280x720) ---------- */
 const SAFE_X = 128; // 10% margin each side: text stays in x 128..1152
 const TOP_ROW = 72;
-const ROW_H = 64; // same height as HeartsPill
-const PROMPT = { left: SAFE_X, top: 150, width: REF_W - SAFE_X * 2, height: 124, radius: 44 } as const;
-const PROMPT_MAX_SIZE = 64;
-const PROMPT_FIT_WIDTH = PROMPT.width - 80; // inner width for the one-line fit
+const ROW_H = 44; // same height as the compact HeartsPill (64 * 0.69)
+const PROMPT = { left: SAFE_X, top: 150, width: REF_W - SAFE_X * 2, height: 130, radius: 44 } as const;
+const PROMPT_MAX_SIZE = 92; // the prompt is the hero
+const PROMPT_FIT_WIDTH = PROMPT.width - 64; // inner width for the one-line fit
 /** Countdown is the Dynamic Island: a black capsule at the top centre. */
 const COUNTDOWN_TOP = 14;
 /** Dictation capsule (bottom centre, above the home indicator). Only while the timer runs. */
@@ -57,8 +57,6 @@ export const roundFrames = (n: number): number => {
 
 /** Outcome shown by the result chip. data.ts has no per-round outcome; default is derived from the odds. */
 export const defaultOutcome = (r: Round): ResultOutcome => (r.collision === 'High' ? 'collision' : 'safe');
-
-const isLevelFirst = (r: Round): boolean => rounds.find((x) => x.level === r.level)?.n === r.n;
 
 /** Phase range as ticks local to the round. */
 const local = (r: Range, from: number): Range => ({ from: r.from - from, to: r.to - from });
@@ -88,17 +86,17 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
   const background = levelBackground[round.level];
 
   // prompt card: arrives early, stays through the timer and the sealed slide, gives way to the lock at the beat
-  const promptIn = Math.min(1, springAt(t, STAGGER.arrival, 'snappy'));
+  const promptIn = Math.min(1, springAt(t, STAGGER.arrival, 'soft'));
   const promptOut = fadeOut(t, beat.from - 2, 6);
   const fit = Math.min(PROMPT_MAX_SIZE, Math.floor(PROMPT_FIT_WIDTH / (Math.max(round.prompt.length, 1) * 0.6)));
 
   // rule chips: fade away when the answer takes the stage
   const chipsOpacity = fadeOut(t, sealed.from, 8);
-  // countdown: only while the timer runs (+ a short fade)
-  const showCountdown = t < timer.to + 6;
-  const countdownOpacity = fadeOut(t, timer.to, 6);
+  // countdown: only while the timer runs (+ a 4-tick exit)
+  const showCountdown = t >= timer.from && t < timer.to + 4;
+  const countdownOpacity = fadeOut(t, timer.to, 4);
 
-  const counterIn = Math.min(1, springAt(t, STAGGER.arrival * 2, 'gentle'));
+  const counterIn = Math.min(1, springAt(t, STAGGER.arrival * 2, 'soft'));
 
   // Aurora wallpaper: two faint orbs in the level accent only (13%), one slow loop per minute.
   // Phase comes from the video clock (round start + local tick) so it carries across rounds.
@@ -109,7 +107,8 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
     { x: 16 + drift(0, 6), y: 86 + drift(1, 5), size: 980, colour: style.accent, a: 0.13 },
     { x: 86 + drift(2, 6), y: 30 + drift(3, 6), size: 860, colour: style.accent, a: 0.13 },
   ];
-  const dictIn = Math.min(1, springAt(t, STAGGER.arrival * 3, 'gentle')) * fadeOut(t, timer.to, 6);
+  // dictation capsule: only while listening (timer.from .. timer.to), same window as the listening glow
+  const dictIn = t >= timer.from ? Math.min(1, springAt(t, timer.from, 'soft')) * fadeOut(t, timer.to, 4) : 0;
 
   return (
     <AbsoluteFill style={{ background, overflow: 'hidden' }}>
@@ -154,32 +153,20 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: px(2),
           opacity: promptIn * promptOut,
-          transform: `translateY(${(1 - promptIn) * px(14) + Math.sin(t / 45) * px(3)}px) scale(${1 + Math.sin(t / 60) * 0.004})`,
+          transform: `translateY(${(1 - promptIn) * px(14)}px)`,
         }}
       >
         <span
           style={{
             fontFamily: fontHeadline,
-            fontWeight: 600,
-            fontSize: px(20),
-            letterSpacing: '0.14em',
-            color: colours.muted,
-          }}
-        >
-          LEVEL {round.level}
-        </span>
-        <span
-          style={{
-            fontFamily: fontHeadline,
             fontWeight: 800,
             fontSize: px(fit),
-            lineHeight: 1.1,
-            letterSpacing: '-0.025em',
+            lineHeight: 1.05,
+            letterSpacing: '-0.03em',
             color: colours.ink,
             textAlign: 'center',
-            padding: `0 ${px(40)}px`,
+            padding: `0 ${px(32)}px`,
           }}
         >
           {round.prompt}
@@ -192,7 +179,7 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
         </div>
       ) : null}
 
-      <HeartsPill at={isLevelFirst(round) ? 0 : undefined} left={SAFE_X} top={TOP_ROW} />
+      <HeartsPill compact left={SAFE_X} top={TOP_ROW} />
 
       {/* round counter, top right, left of the small bubble; one line */}
       <div
@@ -201,12 +188,12 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
           right: px(REF_W - COUNTER_RIGHT_EDGE),
           top: px(TOP_ROW),
           height: px(ROW_H),
-          ...glassSurface(40, { level: round.level }),
+          ...glassSurface(30, { level: round.level }),
           display: 'flex',
           alignItems: 'center',
-          padding: `0 ${px(24)}px`,
-          opacity: counterIn,
-          transform: `translateY(${(1 - counterIn) * px(-16)}px)`,
+          padding: `0 ${px(18)}px`,
+          opacity: counterIn * 0.72,
+          transform: `translateY(${(1 - counterIn) * px(-12)}px)`,
           transformOrigin: 'right top',
         }}
       >
@@ -214,7 +201,7 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
           style={{
             fontFamily: fontNumeric,
             fontWeight: 800,
-            fontSize: px(28),
+            fontSize: px(20),
             letterSpacing: '0.04em',
             color: colours.ink,
             whiteSpace: 'nowrap',
