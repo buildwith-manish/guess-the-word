@@ -441,3 +441,17 @@ Started, then stopped at the owner's request in favour of 4c. Nothing written. N
 ### Open
 - No scene asks for `reveal` yet: InkBubble / RevealEngine answer reveal must switch to `springAt(..., 'reveal')` in its own task. Until then the reveal has no overshoot.
 - Scenes that used `pop` / `bouncy` (LevelCard, RankCard, Scoreboard, HeartsPill, Round45Callback, BonusWrapper) now settle with no overshoot and a slower curve (stiffness 120 instead of 140-180). Timings that assumed the old settle (e.g. `RANK_CARD_SETTLE_TICK` 20) were not rechecked.
+
+## Task M2: DONE (tsc --noEmit clean; NOT rendered, `remotion still` failed: Chromium download blocked, ENOTFOUND remotion.media)
+
+- `system.ts`: `levelBackground` = near-black base (mid ~#060B16, end ~#03060C per level) + one accent light at 13% (0x21, was 15%). `glassSurface` gets a thin bright top edge (inset 0.75 ref units, white 55%), softer shadows (0.30 wide, 0.14 contact) and a new `level?: Level` option: light tint (~12% to 4% of the level accent) over the white glass. `tint` still works as before (strong tint, unchanged) and wins over `level`.
+- `RoundScene.tsx` (wallpaper + 3 glass call sites): base is `levelBackground[round.level]`; the four multi-colour orbs are now two orbs in the level accent only, 13% each. Drift is one sine loop per 60 s from the video clock (`seg.from + t`), so it carries across rounds. Prompt card, counter pill and dictation capsule pass `{ level: round.level }`. No layout values touched.
+
+### Frames to check (DontSay-Round, round 1, 60 fps)
+- 0, 120, 300: base is near-black, one blue light at the top and bottom-left, no purple/pink; prompt card shows a thin bright top edge and a faint blue tint.
+
+### Open
+- `levelBackground` is shared, so every other scene that uses it (Hook, LevelCard, Parts, RankCard, Scoreboard, Outro, BonusWrapper, HeartCheckIn, LockNotification) also got the darker base and 13% light.
+- The shadow and top-edge change applies to every `glassSurface` user. Only RoundScene's three cards pass `level`; other cards stay white-tinted until they do.
+- ListeningGlow is still multi-colour (Siri-style) and sits on top of the wallpaper: "one accent per screen" is only applied to the wallpaper.
+- Other scenes' own wallpapers (BonusWrapper etc.) do not drift on the new 60 s clock.

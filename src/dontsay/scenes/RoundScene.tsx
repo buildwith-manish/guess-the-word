@@ -20,8 +20,8 @@ import { HeartsPill } from '../components/HeartsPill';
 import { ListeningGlow } from '../components/ListeningGlow';
 import { RevealEngine } from '../components/RevealEngine';
 import type { ResultOutcome } from '../components/ResultBeat';
-import { colours, fontHeadline, fontNumeric, glassSurface, springAt, STAGGER, tabular } from '../system';
-import { segments, ticksToFrames, useDontSayFrame, WIDTH, type Range, type RoundPhases, type Segment } from '../timing';
+import { colours, fontHeadline, fontNumeric, glassSurface, levelBackground, springAt, STAGGER, tabular } from '../system';
+import { FPS, segments, ticksToFrames, useDontSayFrame, WIDTH, type Range, type RoundPhases, type Segment } from '../timing';
 
 const REF_W = 1280;
 const px = (v: number): number => (v * WIDTH) / REF_W;
@@ -84,11 +84,8 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
   const beat = local(ph.beat, base);
   const style = levelColors[round.level];
 
-  // wallpaper: level colour only
-  const background = [
-    `radial-gradient(120% 80% at 50% 0%, ${style.accent}33 0%, transparent 62%)`,
-    `linear-gradient(180deg, ${style.wallpaper[0]} 0%, ${style.wallpaper[1]} 100%)`,
-  ].join(', ');
+  // wallpaper: dark level base with one faint accent light (levelBackground)
+  const background = levelBackground[round.level];
 
   // prompt card: arrives early, stays through the timer and the sealed slide, gives way to the lock at the beat
   const promptIn = Math.min(1, springAt(t, STAGGER.arrival, 'snappy'));
@@ -103,13 +100,14 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
 
   const counterIn = Math.min(1, springAt(t, STAGGER.arrival * 2, 'gentle'));
 
-  // iOS aurora wallpaper: three soft colour orbs drifting slowly (deterministic from the clock)
-  const drift = (ph: number, amp: number): number => Math.sin(t / 150 + ph) * amp;
+  // Aurora wallpaper: two faint orbs in the level accent only (13%), one slow loop per minute.
+  // Phase comes from the video clock (round start + local tick) so it carries across rounds.
+  const DRIFT_LOOP_TICKS = 60 * FPS;
+  const drift = (ph: number, amp: number): number =>
+    Math.sin(((base + t) / DRIFT_LOOP_TICKS) * Math.PI * 2 + ph) * amp;
   const orbs = [
-    { x: 16 + drift(0, 6), y: 86 + drift(1, 5), size: 980, colour: style.accent, a: 0.46 },
-    { x: 86 + drift(2, 6), y: 64 + drift(3, 6), size: 860, colour: '#9B6BFF', a: 0.34 },
-    { x: 70 + drift(4, 7), y: 8 + drift(5, 5), size: 780, colour: '#FF8FC8', a: 0.2 },
-    { x: 28 + drift(6, 6), y: 12 + drift(7, 5), size: 640, colour: '#5AA9FF', a: 0.18 },
+    { x: 16 + drift(0, 6), y: 86 + drift(1, 5), size: 980, colour: style.accent, a: 0.13 },
+    { x: 86 + drift(2, 6), y: 30 + drift(3, 6), size: 860, colour: style.accent, a: 0.13 },
   ];
   const dictIn = Math.min(1, springAt(t, STAGGER.arrival * 3, 'gentle')) * fadeOut(t, timer.to, 6);
 
@@ -151,7 +149,7 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
           top: px(PROMPT.top),
           width: px(PROMPT.width),
           height: px(PROMPT.height),
-          ...glassSurface(PROMPT.radius * (1920 / REF_W)),
+          ...glassSurface(PROMPT.radius * (1920 / REF_W), { level: round.level }),
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -203,7 +201,7 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
           right: px(REF_W - COUNTER_RIGHT_EDGE),
           top: px(TOP_ROW),
           height: px(ROW_H),
-          ...glassSurface(40),
+          ...glassSurface(40, { level: round.level }),
           display: 'flex',
           alignItems: 'center',
           padding: `0 ${px(24)}px`,
@@ -236,7 +234,7 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
             top: px(DICTATION.top),
             width: px(DICTATION.width),
             height: px(DICTATION.height),
-            ...glassSurface(40),
+            ...glassSurface(40, { level: round.level }),
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',

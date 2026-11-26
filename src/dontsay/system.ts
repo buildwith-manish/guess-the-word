@@ -143,29 +143,35 @@ export const saturate = 1.8;
 
 /**
  * Frosted-glass surface used by every card / pill / sheet.
- * Spec (docx section 9): blur(40px) saturate(180%), bright top rim, 0.5px light
- * border, glass tinted toward the wallpaper colour, two or three soft shadows.
+ * Spec (docx section 9): blur(40px) saturate(180%), thin bright top edge, 0.5px light
+ * border, soft shadows.
+ * Tint: `tint` (any colour) is the strong tint used by chips and bubbles.
+ * `level` is the light house tint (about 12% of the level accent) for ordinary cards;
+ * it is ignored when `tint` is given.
  */
 export const glassSurface = (
   radiusUnits: number,
-  opts: { tint?: string; shadow?: number; alpha?: number } = {},
+  opts: { tint?: string; level?: Level; shadow?: number; alpha?: number } = {},
 ): React.CSSProperties => {
-  const { tint, shadow = 1, alpha = 0.10 } = opts;
+  const { tint, level, shadow = 1, alpha = 0.10 } = opts;
   const r = u(radiusUnits);
+  const white = `linear-gradient(160deg, rgba(255,255,255,${alpha + 0.06}), rgba(255,255,255,${alpha * 0.4}))`;
+  const levelTint = level ? levelAccents[level] : undefined;
   return {
     boxSizing: 'border-box',
     borderRadius: r,
     background: tint
       ? `linear-gradient(160deg, ${tint}40, rgba(255,255,255,${alpha * 0.4}))`
-      : `linear-gradient(160deg, rgba(255,255,255,${alpha + 0.06}), rgba(255,255,255,${alpha * 0.4}))`,
+      : levelTint
+        ? `linear-gradient(160deg, ${levelTint}1F 0%, ${levelTint}0A 100%), ${white}`
+        : white,
     border: `${u(0.5)}px solid ${colours.hairline}`,
     backdropFilter: `blur(${u(blurPx)}px) saturate(${saturate})`,
     WebkitBackdropFilter: `blur(${u(blurPx)}px) saturate(${saturate})`,
-    // bright top rim + two soft shadows
     boxShadow: [
-      `inset 0 ${u(1)}px 0 ${colours.hairlineBright}`, // bright top rim
-      `0 ${u(14 * shadow)}px ${u(40 * shadow)}px ${colours.shadow}`, // primary
-      `0 ${u(4 * shadow)}px ${u(12 * shadow)}px ${colours.shadowSoft}`, // contact
+      `inset 0 ${u(0.75)}px 0 rgba(255,255,255,0.55)`, // thin bright top edge
+      `0 ${u(18 * shadow)}px ${u(48 * shadow)}px rgba(0,0,0,0.30)`, // soft, wide
+      `0 ${u(3 * shadow)}px ${u(10 * shadow)}px rgba(0,0,0,0.14)`, // contact
     ].join(', '),
   };
 };
@@ -211,15 +217,16 @@ export const easeOut = (t: number, power = 3): number => {
 };
 
 // ---------------------------------------------------------------------------
-// Background gradients per level (dark, tinted by the level colour).
-// Wallpaper shifts with LEVEL, not with hearts left (decision 1).
+// Background gradients per level: a near-black base with ONE faint accent light
+// (13% = 0x21) at the top. Wallpaper shifts with LEVEL, not with hearts left.
 // ---------------------------------------------------------------------------
+const LIGHT = '21';
 export const levelBackground: Record<Level, string> = {
-  1: `radial-gradient(120% 90% at 50% 0%, ${colours.level[1]}26 0%, #0B1426 55%, #050A14 100%)`,
-  2: `radial-gradient(120% 90% at 50% 0%, ${colours.level[2]}26 0%, #140E26 55%, #0A0514 100%)`,
-  3: `radial-gradient(120% 90% at 50% 0%, ${colours.level[3]}26 0%, #1C0A26 55%, #0E0514 100%)`,
-  4: `radial-gradient(120% 90% at 50% 0%, ${colours.level[4]}26 0%, #26140A 55%, #140A05 100%)`,
-  5: `radial-gradient(120% 90% at 50% 0%, ${colours.level[5]}26 0%, #260A0A 55%, #140505 100%)`,
+  1: `radial-gradient(120% 90% at 50% 0%, ${colours.level[1]}${LIGHT} 0%, #060B16 55%, #03060C 100%)`,
+  2: `radial-gradient(120% 90% at 50% 0%, ${colours.level[2]}${LIGHT} 0%, #0A0716 55%, #050309 100%)`,
+  3: `radial-gradient(120% 90% at 50% 0%, ${colours.level[3]}${LIGHT} 0%, #0E0616 55%, #07030B 100%)`,
+  4: `radial-gradient(120% 90% at 50% 0%, ${colours.level[4]}${LIGHT} 0%, #160B06 55%, #0A0503 100%)`,
+  5: `radial-gradient(120% 90% at 50% 0%, ${colours.level[5]}${LIGHT} 0%, #160606 55%, #0A0303 100%)`,
 };
 
 // ---------------------------------------------------------------------------
