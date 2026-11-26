@@ -740,3 +740,13 @@ Files: `scenes/RoundScene.tsx`, `components/HeartsPill.tsx`, `components/Countdo
 ### Open
 - 3 s of play for bonuses 4 and 5 is the level 4/5 round timer; if that is too tight for a spoken answer, change `bonusPlaySecFor` only.
 - Not rendered; pill layout is arithmetic (chip may reach y 261 when a note is shown, stage starts 262).
+
+## Task F6: iOS-style art for the rule chips (tsc --noEmit: only the old `src/timing.ts` `./rounds.json` error; NOT rendered, `remotion still` blocked)
+
+- Three AI sheets (5 x 2, magenta background) cut into 25 transparent 512 px PNGs in `public/dontsay/art/` by `scripts/slice_dontsay_art.py` (rerun: `python3 scripts/slice_dontsay_art.py <sheet A> <sheet B> <sheet C>`; the source sheets are not in the repo). Names: `swatch-red|yellow|orange|blue|green`, `carrot potato tomato broccoli`, `water tea coffee juice car`, `banana orange kiwi grapes`, `sky football soccer ice snow fish whale`.
+- `ExclusionChips.tsx` (only file wired): swatch chips use `swatch-<colour>` for red/yellow/orange/blue/green (other colours keep the drawn swatch); icon chips use the images (Toyota, Ford, BMW all show the one generic car, no logos); filter-rule chips pick art from the rule TEXT (up to 2 words, shown as an overlapped pair): "Not the sky", "Not football or soccer", "Not ice or snow", "Not broccoli", "Not fish, not whale". Rules with no art word ("Starts with B", "Not in Europe", "Four letters", "Starts with I, not India") keep the grey swatch. The cross now has a white halo so it shows on the red orb. Drawn glyphs stay as fallback.
+- Cleaning: magenta keyed everywhere (also enclosed gaps: mug handle, broccoli, grapes), soft edge un-multiplied, pink tint pulled out of water, juice and ice.
+### Check by eye
+- Rounds 19, 37, 40 (swatches), 21, 25, 26, 27, 38 (rule pairs), 42, 43, 44 (icons), 45 (via ExclusionChips only; Round45Callback draws its own cards). Look at: art size inside the chip, the pair overlap, red cross on the red orb, fringe on dark glass.
+### Open
+- Ice cube keeps a light lavender centre. Art files total 4.8 MB. Waveform vs chip overlap (earlier screenshot) not addressed here.

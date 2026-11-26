@@ -11,7 +11,7 @@
  * All words come from the Round; the only copy owned here is UI labelling (see COPY).
  */
 import React from 'react';
-import { interpolate, interpolateColors } from 'remotion';
+import { Img, interpolate, interpolateColors, staticFile } from 'remotion';
 import type { Round } from '../data';
 import { SYSTEM, colours, fontHeadline, glassSurface, springAt, STAGGER } from '../system';
 import { WIDTH, useDontSayFrame } from '../timing';
@@ -40,12 +40,51 @@ const SWATCH: Record<string, string> = {
 const swatchColour = (name: string): string => SWATCH[name.toLowerCase()] ?? '#8E8E93';
 
 // ---------------------------------------------------------------------------
+// Image art (iOS-style emoji, public/dontsay/art, cut by scripts/slice_dontsay_art.py).
+// Anything not listed here falls back to the drawn swatch / glyph below.
+// ---------------------------------------------------------------------------
+const SWATCH_ART = new Set(['red', 'yellow', 'orange', 'blue', 'green']);
+/** icon key (lower case) -> file. Car brands share one generic car (no logos). */
+const ICON_ART: Record<string, string> = {
+  carrot: 'carrot', potato: 'potato', tomato: 'tomato', broccoli: 'broccoli',
+  water: 'water', tea: 'tea', coffee: 'coffee', juice: 'juice',
+  toyota: 'car', ford: 'car', bmw: 'car', car: 'car',
+  banana: 'banana', orange: 'orange', kiwi: 'kiwi', grapes: 'grapes',
+  sky: 'sky', football: 'football', soccer: 'soccer', ice: 'ice', snow: 'snow', fish: 'fish', whale: 'whale',
+};
+const artSrc = (file: string): string => staticFile(`dontsay/art/${file}.png`);
+const ArtImg: React.FC<{ file: string; size: number }> = ({ file, size }) => (
+  <Img src={artSrc(file)} style={{ width: size, height: size, objectFit: 'contain', filter: `drop-shadow(0 ${px(3)}px ${px(6)}px rgba(0,0,0,0.35))` }} />
+);
+/** Words of a filter rule text that have art, in the order they appear (max 2): "Not ice or snow" -> ice, snow. */
+const ruleArt = (text: string): string[] => {
+  const hits: { at: number; file: string }[] = [];
+  for (const w of Object.keys(ICON_ART)) {
+    const m = new RegExp(`\\b${w}\\b`, 'i').exec(text);
+    if (m) hits.push({ at: m.index, file: ICON_ART[w] });
+  }
+  return hits.sort((a, b) => a.at - b.at).map((h) => h.file).filter((f, i, all) => all.indexOf(f) === i).slice(0, 2);
+};
+const RuleArt: React.FC<{ files: string[]; size: number }> = ({ files, size }) =>
+  files.length === 1 ? <ArtImg file={files[0]} size={size} /> : (
+    <div style={{ position: 'relative', width: size, height: size }}>
+      <div style={{ position: 'absolute', left: 0, top: 0 }}><ArtImg file={files[0]} size={size * 0.7} /></div>
+      <div style={{ position: 'absolute', right: 0, bottom: 0 }}><ArtImg file={files[1]} size={size * 0.7} /></div>
+    </div>
+  );
+
+// ---------------------------------------------------------------------------
 // Drawn glyphs (ours, simple shapes, no logos)
 // ---------------------------------------------------------------------------
 const Cross: React.FC<{ size: number; t: number; w?: number }> = ({ size, t, w = 7 }) => {
   const len = 100;
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" style={{ position: 'absolute', left: 0, top: 0 }}>
+      {/* white halo so the red cross stays visible on a red swatch */}
+      <line x1="14" y1="14" x2="86" y2="86" stroke="rgba(255,255,255,0.92)" strokeWidth={w + 5} strokeLinecap="round"
+        strokeDasharray={len} strokeDashoffset={len * (1 - Math.min(1, t * 2))} />
+      <line x1="86" y1="14" x2="14" y2="86" stroke="rgba(255,255,255,0.92)" strokeWidth={w + 5} strokeLinecap="round"
+        strokeDasharray={len} strokeDashoffset={len * (1 - Math.max(0, Math.min(1, t * 2 - 1)))} />
       <line x1="14" y1="14" x2="86" y2="86" stroke={SYSTEM.red} strokeWidth={w} strokeLinecap="round"
         strokeDasharray={len} strokeDashoffset={len * (1 - Math.min(1, t * 2))} />
       <line x1="86" y1="14" x2="14" y2="86" stroke={SYSTEM.red} strokeWidth={w} strokeLinecap="round"
@@ -54,8 +93,9 @@ const Cross: React.FC<{ size: number; t: number; w?: number }> = ({ size, t, w =
   );
 };
 
-const IconArt: React.FC<{ name: string }> = ({ name }) => {
+const IconArt: React.FC<{ name: string; size: number }> = ({ name, size }) => {
   const k = name.toLowerCase();
+  if (ICON_ART[k]) return <ArtImg file={ICON_ART[k]} size={size} />;
   const body = (() => {
     switch (k) {
       case 'carrot':
@@ -174,8 +214,14 @@ const ChipShell: React.FC<{ plan: ChipsPlan; frame: number; start: number; spec:
 
 const buildChips = (plan: ChipsPlan): ChipSpec[] =>
   plan.chips.map((c) => {
-    if (c.kind === 'swatch') return { key: c.key, label: c.label, art: <Swatch colour={swatchColour(c.key)} size={px(plan.heavy ? 72 : 52)} /> };
-    if (c.kind === 'icon') return { key: c.key, label: c.label, art: <div style={{ width: px(plan.art), height: px(plan.art) }}><IconArt name={c.key} /></div> };
+    const art = px(plan.art);
+    if (c.kind === 'swatch') {
+      const k = c.key.toLowerCase();
+      return { key: c.key, label: c.label, art: SWATCH_ART.has(k) ? <ArtImg file={`swatch-${k}`} size={art} /> : <Swatch colour={swatchColour(c.key)} size={px(plan.heavy ? 72 : 52)} /> };
+    }
+    if (c.kind === 'icon') return { key: c.key, label: c.label, art: <div style={{ width: art, height: art }}><IconArt name={c.key} size={art} /></div> };
+    const files = ruleArt(c.label);
+    if (files.length) return { key: c.key, label: c.label, art: <RuleArt files={files} size={art} /> };
     return { key: c.key, label: c.label, art: <Swatch colour="#8E8E93" size={px(52)} /> };
   });
 
