@@ -2,8 +2,8 @@
  * levelCard.ts — the level-card app-launch transition.
  *
  * An iOS app launching from a home-screen icon: the card starts small at a
- * position (the "icon"), springs up to full size with a slight overshoot, and
- * the background dims behind it. Adapted from the level-card transition helpers
+ * position (the "icon"), springs up to full size without overshoot, and the
+ * background dims behind it. Adapted from the level-card transition helpers
  * in src/gta6 (pattern only — the gta6 version is inlined in LevelCard.tsx;
  * this extracts the math so task 4a can call it without forking).
  *
@@ -33,7 +33,7 @@ export const levelCardLaunch = (
   at: number,
   origin: { x: number; y: number } = { x: FRAME.w * 0.82, y: FRAME.h * 0.82 },
 ): LevelCardLaunch => {
-  const p = springAt(frame, at, 'pop'); // lively overshoot, like an iOS app launch
+  const p = springAt(frame, at, 'soft'); // no overshoot: a scaled-up card must not pass the safe area
   const cx = FRAME.w / 2;
   const cy = FRAME.h / 2;
   // interpolate position from icon origin to frame centre

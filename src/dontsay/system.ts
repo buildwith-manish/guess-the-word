@@ -177,25 +177,32 @@ export const glassSurface = (
 };
 
 // ---------------------------------------------------------------------------
-// Springs: two real curves (docx section 9 range: damping 14-20, stiffness 120-180).
-//   soft   — damping 20, stiffness 120, no overshoot. Used for everything.
-//   reveal — damping 17.5, stiffness 120 (damping ratio ~0.80, overshoot ~1.5%,
-//            under the 2% cap). Used for the answer reveal ONLY.
-// The old names stay as aliases of `soft` so no other file breaks. Nothing aliases
-// `reveal`: a scene must ask for it by name.
+// Springs: four real curves, all mass 1 (damping 17.5-20, stiffness 120-180).
+// Overshoot is the share of the travel past the target.
+//   soft   — damping 20,   stiffness 120, clamped: no overshoot. The default.
+//   reveal — damping 17.5, stiffness 120, overshoot ~1.5%. The answer reveal ONLY.
+//   ios    — damping 20,   stiffness 150, overshoot ~1.2% (the nfl iOS feel).
+//   pop    — damping 18,   stiffness 180, overshoot ~5.8% (same values as the
+//            nfl-quiz POP spring, copied here; nothing is imported from nfl).
+// ios and pop can pass 1: near the safe edge or the HUD, check the peak or use soft.
+// Legacy aliases: snappy, gentle -> ios; bouncy -> pop; smooth -> soft.
+// Nothing aliases `reveal`: a scene must ask for it by name.
 // ---------------------------------------------------------------------------
 const soft = { damping: 20, stiffness: 120, mass: 1, overshootClamping: true } as const;
 const reveal = { damping: 17.5, stiffness: 120, mass: 1 } as const;
+const ios = { damping: 20, stiffness: 150, mass: 1 } as const;
+const pop = { damping: 18, stiffness: 180, mass: 1 } as const;
 
 export const SPRINGS = {
   soft,
   reveal,
-  // Legacy aliases -> soft. Do not use in new code; use `soft`.
-  gentle: soft,
-  snappy: soft,
+  ios,
+  pop,
+  // Legacy aliases. Do not use in new code.
+  gentle: ios,
+  snappy: ios,
   smooth: soft,
-  pop: soft,
-  bouncy: soft,
+  bouncy: pop,
 } as const;
 export type SpringName = keyof typeof SPRINGS;
 

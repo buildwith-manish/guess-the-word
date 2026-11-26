@@ -23,8 +23,8 @@ export type FrostCardProps = {
   height?: number;
   padding?: number;
   radius?: number;
-  /** Override the spring preset (default gentle). */
-  preset?: 'gentle' | 'snappy' | 'smooth' | 'pop' | 'bouncy';
+  /** Override the spring preset (default soft: the card may rest on the safe margin). */
+  preset?: 'soft' | 'gentle' | 'snappy' | 'smooth' | 'pop' | 'bouncy';
   style?: React.CSSProperties;
 };
 
@@ -32,7 +32,7 @@ const tintOf = (level: Level | undefined, alpha: string): string | undefined =>
   level ? `${colours.level[level]}${alpha}` : undefined;
 
 export const FrostCard: React.FC<FrostCardProps> = ({
-  children, frame, at = 0, level, width, height, padding = 32, radius = R.lg, preset = 'gentle', style,
+  children, frame, at = 0, level, width, height, padding = 32, radius = R.lg, preset = 'soft', style,
 }) => {
   const p = frame === undefined ? 1 : springAt(frame, at, preset);
   const tint = tintOf(level, '26');
