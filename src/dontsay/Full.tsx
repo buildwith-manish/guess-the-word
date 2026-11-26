@@ -9,7 +9,8 @@
  */
 import React from 'react';
 import { Sequence } from 'remotion';
-import { RENDER_TOTAL_FRAMES, partRanges } from './timing';
+import { RENDER_TOTAL_FRAMES, partRanges, useDontSayFrame } from './timing';
+import { DontSayWatermark } from './components/Watermark';
 import { Part1 } from './parts/Part1';
 import { Part2 } from './parts/Part2';
 import { Part3 } from './parts/Part3';
@@ -27,7 +28,10 @@ if (PARTS.length !== partRanges.length) {
 /** Composition length: the whole video, from timing.ts. */
 export const dontSayFullFrames = RENDER_TOTAL_FRAMES;
 
-export const DontSayFull: React.FC = () => (
+export const DontSayFull: React.FC = () => {
+  // outside every Sequence: the global design tick, so the watermark entrance plays once for the whole video
+  const globalFrame = useDontSayFrame();
+  return (
   <div style={{ position: 'absolute', inset: 0, background: '#000' }}>
     {partRanges.map((range, i) => {
       const Part = PARTS[i];
@@ -37,6 +41,8 @@ export const DontSayFull: React.FC = () => (
         </Sequence>
       );
     })}
+    <DontSayWatermark globalFrame={globalFrame} since={0} />
     <MusicBeds />
   </div>
-);
+  );
+};

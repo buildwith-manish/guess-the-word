@@ -652,3 +652,13 @@ Round-screen cleanup. Files touched: `src/dontsay/scenes/RoundScene.tsx`, `src/d
 - "8-point spacing" (item E) was not recomputed to exact 8-unit multiples; existing paddings (e.g. 18, 24 ref units) were left as they were, only the two labels' size/opacity changed.
 - Waveform and countdown y-ranges (395-475, 495-607) are computed from the constants above, not sampled from a real render.
 - `remotion still` (round 1, frame 200) failed: 403 Forbidden fetching the Chromium Headless Shell from `remotion.media` — an agent-proxy policy denial (host not allowlisted), not retried per the proxy's own instructions. Nothing in this task was rendered or looked at by eye.
+
+## Task W1: watermark + HUD relayout (tsc clean; NOT rendered)
+- `src/dontsay/components/Watermark.tsx`: `DontSayWatermark` (QUIZ MATRIX badge from `src/ios/QuizMatrixBadge`, top-right, right 64 / top 42 / height 56 ref units). Own logo copy `public/dontsay/quiz-matrix-bulb.png`. Mounted ONCE in `Full.tsx` above all parts (entrance plays once from tick 0). It is NOT in DontSay-P1..P6 or single-scene compositions: preview it in `DontSay-Full`.
+- `InkBubble` small corner moved from top-right (top 72) to BOTTOM-right (top 552), so the watermark owns the top-right. Affects every scene that uses the small bubble (rounds, Hook, bonuses).
+- `RoundScene`: hearts pill left 64 / top 48; round counter directly below it (same left, top 102). Counter no longer sits left of the bubble.
+### Open points
+- BonusVoiceOnly draws a corner mic at the top-right: it now sits under the watermark. Needs moving.
+- Hook and HeartCheckIn still place HeartsPill at left 128 / top 72 (not the new 64 / 48).
+- Small bubble at bottom-right (y 552 to 644): clearance against bonus scenes' bottom content (pass chips, strips) not checked by eye.
+- Watermark over the Outro end screen (top-right) not checked.

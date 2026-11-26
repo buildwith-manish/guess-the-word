@@ -33,7 +33,7 @@ const glassR = (r1280: number): number => r1280 * (1920 / REF_W);
 export const INK_SPRING = SPRINGS.soft;
 
 /** Geometry in 1280x720 reference units. */
-const SMALL = { w: 0.12 * REF_W, h: 92, right: 1152, top: 72, r: 30 } as const;
+const SMALL = { w: 0.12 * REF_W, h: 92, right: 1152, top: 552, r: 30 } as const;
 const LARGE = { w: 0.58 * REF_W, h: 300, r: 56 } as const;
 const LARGE_CENTRE = { x: REF_W / 2, y: 372 } as const;
 

@@ -38,7 +38,9 @@ const px = (v: number): number => (v * WIDTH) / REF_W;
 /* ---------- layout, reference units (1280x720) ---------- */
 const SAFE_X = 128; // 10% margin each side: text stays in x 128..1152
 /** Top row (hearts pill + round counter), y 56-100: at least 28 units clear of the prompt card below it. */
-const TOP_ROW = 56;
+const TOP_ROW = 48;
+/** Top-left HUD sits nearer the corner than the text safe margin; the QUIZ MATRIX watermark owns the top-right. */
+const HUD_LEFT = 64;
 const ROW_H = 44; // same height as the compact HeartsPill (64 * 0.69)
 /** Prompt card: centre y 300 (top 235, bottom 365), well clear of the small ink bubble (y 72-164, top right). */
 const PROMPT = { left: SAFE_X, top: 235, width: REF_W - SAFE_X * 2, height: 130, radius: 44 } as const;
@@ -52,8 +54,6 @@ const PROMPT_FIT_WIDTH = PROMPT.width - 64; // inner width for the one-line fit
 const COUNTDOWN_TOP = 495;
 /** Centre of the enlarged ink bubble. ResultBeat puts its chip 150 units below this. */
 const BUBBLE_CENTRE = { x: REF_W / 2, y: 440 } as const;
-/** The small bubble is 12% of the width, right-aligned to the safe edge (InkBubble). The counter sits left of it. */
-const COUNTER_RIGHT_EDGE = REF_W - SAFE_X - Math.round(0.12 * REF_W) - 18;
 
 /* ---------- segment lookup ---------- */
 export type RoundSegment = Extract<Segment, { kind: 'round' }>;
@@ -178,15 +178,15 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
       ) : null}
 
       {/* static except on the level's first round, where it springs in once */}
-      <HeartsPill compact left={SAFE_X} top={TOP_ROW} at={isLevelFirst ? STAGGER.arrival : undefined} />
+      <HeartsPill compact left={HUD_LEFT} top={TOP_ROW} at={isLevelFirst ? STAGGER.arrival : undefined} />
 
       {/* round counter, top right, left of the small bubble; one line. Container fades in on entrance only;
           the label itself stays >=26 units and ~0.9 opacity so it reads clearly. */}
       <div
         style={{
           position: 'absolute',
-          right: px(REF_W - COUNTER_RIGHT_EDGE),
-          top: px(TOP_ROW),
+          left: px(HUD_LEFT),
+          top: px(TOP_ROW + ROW_H + 10),
           height: px(ROW_H),
           ...glassSurface(30, { level: round.level }),
           display: 'flex',
@@ -194,7 +194,7 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
           padding: `0 ${px(18)}px`,
           opacity: counterIn,
           transform: `translateY(${(1 - counterIn) * px(-12)}px)`,
-          transformOrigin: 'right top',
+          transformOrigin: 'left top',
         }}
       >
         <span
