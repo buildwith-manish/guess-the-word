@@ -556,3 +556,36 @@ SFX cue sync. Measured every wav in `public/dontsay/sfx` (active RMS, onset, env
 ### Frames to check (60 fps)
 - DontSay-Round round 1 (round-local): 500 (dissolve + second click), 545 (mid sweep), 552 (new chime), 590 (sweep end, old chime), 622 (result chip + sound).
 - DontSay-HeartCheckIn: segment-local frame 8 (tone + card starts to move; was frame 0).
+
+## Task MU1: DONE (script runs, files + manifest written, tsc --noEmit clean; NOT mounted in the video; NOT LISTENED TO)
+
+- `scripts/make_dontsay_music.py` (`python3 scripts/make_dontsay_music.py`, needs numpy scipy pedalboard soundfile; about 1 minute): 48 kHz 24-bit stereo wavs + `public/dontsay/music/manifest.json` (file, seconds, bpm, key, loop, plus bars, lufs, samplePeakDb, gainDb). 90 BPM, D major, Dadd9 | Bm7 | Gmaj7 | Asus4, 2 bars each, cycle = 8 bars = 21.333 s.
+- **The wavs are git-ignored** (`public/dontsay/music/*.wav`, 229 MB: five level files of 43 MB). The script is deterministic (seeded); run it before rendering. The manifest is committed. Say if you want the wavs in git (or LFS).
+- Level length = longest part from timing.ts `partRanges` (147.5 s, Part 1) rounded up to whole 8-bar cycles: 7 cycles = 149.33 s = 56 bars (the cycle, not the single bar, is the loop unit). If a part grows past 149.33 s, re-run: it reads timing.ts itself.
+- Loops: one dry cycle rendered 3x, through the chain, the middle copy kept and tiled; chorus rate set to 8 periods per cycle. Seam metric (largest jump across the seam / largest jump inside the file) is 0.11 to 0.32 on every loop file: no jump larger than the music itself. That is a number, not a listen.
+- Chain: HighpassFilter 120, PeakFilter -3 dB at 3 kHz (q 0.5), Chorus (depth 0.08, mix 0.25), Reverb (room 0.85, wet 0.35 / dry 0.65), Compressor (-28 dB, 1.8:1), gain, Limiter -1 dB. pedalboard's Limiter adds a fixed +4.75 dB make-up in its linear region, so the gain is found by measuring AFTER the limiter (`finish_to`).
+- Arrangement: L1 pad + sub; L2 + sparse airy bells; L3 + 3 FM plucks per chord; L4 + 6 plucks, very soft D3 pulse on beats 1 and 3; L5 + 8 plucks, brighter pad, pulse on every beat. Bonus: same chords, syncopated brighter plucks + bells, no pulse (2 cycles, 42.67 s, 16 bars). Hook: 8 s = 3 bars of Gmaj7, Gmaj7, Asus4 (leads into level 1's Dadd9), level-1 material, squared ramp from -36 dB. Check-in: 2 s Asus4 swell + one bell, 150 ms fade. Outro: 32 s = 12 bars, Dadd9 Bm7 Gmaj7 Asus4 then Dadd9 x 4 bars with a slow D F# A E arpeggio, cosine fade over the last 6 s.
+
+| file | seconds | LUFS | sample peak dB |
+|---|---|---|---|
+| level1 / 2 / 3 / 4 / 5 | 149.33 each | -31.0 / -30.5 / -30.0 / -29.5 / -29.0 | -22.2 / -21.7 / -20.4 / -20.4 / -19.1 |
+| bonus | 42.67 | -30.0 | -19.8 |
+| hook | 8.00 | -35.1 | -23.4 |
+| checkin | 2.00 | -32.2 | -22.4 |
+| outro | 32.00 | -31.3 | -21.1 |
+
+### Decisions and guesses
+- Levels rise 0.5 LU per level around -30 (not one flat -30), so the energy rise is also a little louder. Flat -30 is one constant (`LEVEL_LUFS`).
+- Hook, check-in and outro use level 1's gain (not their own LUFS target), so they sit with the beds; their integrated values are lower because of the ramp, the short length and the fade.
+- **Sub is added after the 120 Hz high-pass** (parallel). Inside the chain it would be removed. It is about 17 dB under the 200 Hz to 2 kHz band (`SUB_GAIN`, 0 = off); small speakers will not play it.
+- Pulse is a D3 (147 Hz) sine with a 12 ms attack, inside the chain. It is not a drum and has no noise.
+- Hook does not end at level 1's phase exactly: crossfade it into level1 at its start. Chord phase lands Asus4 -> Dadd9.
+- Band numbers printed by the script (dB re 200 Hz to 2 kHz, first 8 s): 2-4 kHz is -46 (L1) to -30 (L5) and -25 (bonus); the bonus bells are the brightest thing. Not a substitute for listening.
+
+### Owner must listen for
+- Loop seams (each level file and bonus at the 149.33 s / 42.67 s wrap; also the cycle joint every 21.33 s): clicks or a change in the reverb tail.
+- Harshness near 3 kHz: bonus bells and level 4/5 plucks (FM index 1.5 / 1.8).
+- Too busy under the voice: level 4/5 pluck density and the pulse; voice sits near -16 LUFS, music at -29/-31.
+- Hook ramp: does it start from true near-silence; does the 150 ms/20 ms end fade matter once crossfaded.
+- Outro: the last 6 s fade and the arpeggio on the final Dadd9.
+- Whether the pulse reads as a soft beat or as a thump.

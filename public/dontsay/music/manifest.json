@@ -1,0 +1,116 @@
+{
+  "sampleRate": 48000,
+  "bitDepth": 24,
+  "bpm": 90,
+  "key": "D major",
+  "chords": [
+    "Dadd9",
+    "Bm7",
+    "Gmaj7",
+    "Asus4"
+  ],
+  "chordBars": 2,
+  "cycleBars": 8,
+  "cycleSeconds": 21.3333,
+  "music": [
+    {
+      "file": "level1.wav",
+      "seconds": 149.333,
+      "bpm": 90,
+      "key": "D major",
+      "loop": true,
+      "bars": 56,
+      "lufs": -31.0,
+      "samplePeakDb": -22.2,
+      "gainDb": -16.2
+    },
+    {
+      "file": "level2.wav",
+      "seconds": 149.333,
+      "bpm": 90,
+      "key": "D major",
+      "loop": true,
+      "bars": 56,
+      "lufs": -30.5,
+      "samplePeakDb": -21.7,
+      "gainDb": -15.7
+    },
+    {
+      "file": "level3.wav",
+      "seconds": 149.333,
+      "bpm": 90,
+      "key": "D major",
+      "loop": true,
+      "bars": 56,
+      "lufs": -30.0,
+      "samplePeakDb": -20.4,
+      "gainDb": -15.3
+    },
+    {
+      "file": "level4.wav",
+      "seconds": 149.333,
+      "bpm": 90,
+      "key": "D major",
+      "loop": true,
+      "bars": 56,
+      "lufs": -29.5,
+      "samplePeakDb": -20.4,
+      "gainDb": -15.1
+    },
+    {
+      "file": "level5.wav",
+      "seconds": 149.333,
+      "bpm": 90,
+      "key": "D major",
+      "loop": true,
+      "bars": 56,
+      "lufs": -29.0,
+      "samplePeakDb": -19.1,
+      "gainDb": -14.6
+    },
+    {
+      "file": "bonus.wav",
+      "seconds": 42.667,
+      "bpm": 90,
+      "key": "D major",
+      "loop": true,
+      "bars": 16,
+      "lufs": -30.0,
+      "samplePeakDb": -19.8,
+      "gainDb": -15.7
+    },
+    {
+      "file": "hook.wav",
+      "seconds": 8.0,
+      "bpm": 90,
+      "key": "D major",
+      "loop": false,
+      "bars": 3,
+      "lufs": -35.1,
+      "samplePeakDb": -23.4,
+      "gainDb": -16.2
+    },
+    {
+      "file": "checkin.wav",
+      "seconds": 2.0,
+      "bpm": 90,
+      "key": "D major",
+      "loop": false,
+      "bars": 0,
+      "lufs": -32.2,
+      "samplePeakDb": -22.4,
+      "gainDb": -16.2
+    },
+    {
+      "file": "outro.wav",
+      "seconds": 32.0,
+      "bpm": 90,
+      "key": "D major",
+      "loop": false,
+      "bars": 12,
+      "lufs": -31.3,
+      "samplePeakDb": -21.1,
+      "gainDb": -16.2
+    }
+  ]
+}
