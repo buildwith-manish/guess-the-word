@@ -74,24 +74,6 @@ const MicIcon: React.FC = () => (
   </svg>
 );
 
-/** Drawn status-bar icons (signal, wifi, battery), top right, clear of the Dynamic Island. */
-const StatusIcons: React.FC = () => (
-  <svg
-    width={px(96)}
-    height={px(22)}
-    viewBox="0 0 96 22"
-    style={{ position: 'absolute', right: px(SAFE_X), top: px(26), opacity: 0.9 }}
-  >
-    {[0, 1, 2, 3].map((i) => (
-      <rect key={i} x={i * 6} y={16 - i * 4} width="4" height={6 + i * 4} rx="1.4" fill={colours.ink} />
-    ))}
-    <path d="M34 9 a14 14 0 0 1 20 0 M38.5 13.5 a8 8 0 0 1 11 0" fill="none" stroke={colours.ink} strokeWidth="2.6" strokeLinecap="round" />
-    <circle cx="44" cy="18.5" r="2.2" fill={colours.ink} />
-    <rect x="62" y="3" width="30" height="16" rx="5" fill="none" stroke={colours.ink} strokeOpacity="0.6" strokeWidth="1.6" />
-    <rect x="64.5" y="5.5" width="21" height="11" rx="3" fill={colours.ink} />
-  </svg>
-);
-
 const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; chips: boolean }> = ({ round, outcome, slideAt, chips }) => {
   const t = useDontSayFrame();
   const seg = roundSegment(round.n);
@@ -122,11 +104,12 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
   const counterIn = Math.min(1, springAt(t, STAGGER.arrival * 2, 'gentle'));
 
   // iOS aurora wallpaper: three soft colour orbs drifting slowly (deterministic from the clock)
-  const drift = (ph: number, amp: number): number => Math.sin(t / 90 + ph) * amp;
+  const drift = (ph: number, amp: number): number => Math.sin(t / 150 + ph) * amp;
   const orbs = [
-    { x: 14 + drift(0, 3), y: 88 + drift(1, 3), size: 820, colour: style.accent, a: 0.42 },
-    { x: 88 + drift(2, 3), y: 66 + drift(3, 4), size: 700, colour: '#9B6BFF', a: 0.30 },
-    { x: 72 + drift(4, 4), y: 6 + drift(5, 3), size: 640, colour: '#FF8FC8', a: 0.16 },
+    { x: 16 + drift(0, 6), y: 86 + drift(1, 5), size: 980, colour: style.accent, a: 0.46 },
+    { x: 86 + drift(2, 6), y: 64 + drift(3, 6), size: 860, colour: '#9B6BFF', a: 0.34 },
+    { x: 70 + drift(4, 7), y: 8 + drift(5, 5), size: 780, colour: '#FF8FC8', a: 0.2 },
+    { x: 28 + drift(6, 6), y: 12 + drift(7, 5), size: 640, colour: '#5AA9FF', a: 0.18 },
   ];
   const dictIn = Math.min(1, springAt(t, STAGGER.arrival * 3, 'gentle')) * fadeOut(t, timer.to, 6);
 
@@ -146,7 +129,6 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
           }}
         />
       ))}
-      <StatusIcons />
       {chips && chipsOpacity > 0 ? (
         <div style={{ position: 'absolute', inset: 0, opacity: chipsOpacity }}>
           <ExclusionChips round={round} at={STAGGER.arrival * 2} />
@@ -176,7 +158,7 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
           justifyContent: 'center',
           gap: px(2),
           opacity: promptIn * promptOut,
-          transform: `translateY(${(1 - promptIn) * px(14)}px)`,
+          transform: `translateY(${(1 - promptIn) * px(14) + Math.sin(t / 45) * px(3)}px) scale(${1 + Math.sin(t / 60) * 0.004})`,
         }}
       >
         <span
@@ -267,19 +249,6 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
           <span style={{ fontFamily: fontHeadline, fontWeight: 600, fontSize: px(28), color: colours.ink }}>Listening…</span>
         </div>
       ) : null}
-
-      {/* home indicator */}
-      <div
-        style={{
-          position: 'absolute',
-          left: px((REF_W - 160) / 2),
-          top: px(698),
-          width: px(160),
-          height: px(6),
-          borderRadius: px(3),
-          background: 'rgba(255,255,255,0.55)',
-        }}
-      />
 
       {/* owns the InkBubble: small from tick 0, enlarges at the sealed phase, then beat, dissolve, answer, result */}
       <RevealEngine
