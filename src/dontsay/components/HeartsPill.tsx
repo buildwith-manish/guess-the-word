@@ -20,17 +20,11 @@ export const HEART_COUNT = 3;
 export const HEARTS_LABEL = `${HEART_COUNT} HEARTS`;
 export const BONUS_LABEL = 'BONUS';
 
-const Heart: React.FC<{ size: number; uid: string }> = ({ size, uid }) => (
+const Heart: React.FC<{ size: number; uid: string }> = ({ size }) => (
   <svg width={size} height={size} viewBox="0 0 40 40" style={{ display: 'block', overflow: 'visible' }}>
-    <defs>
-      <linearGradient id={`hg-${uid}`} x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#FF6B5E" />
-        <stop offset="1" stopColor={SYSTEM.red} />
-      </linearGradient>
-    </defs>
-    <path d="M20 35 C5 25 4 12 11.5 9.5 C16 8 19 11 20 14 C21 11 24 8 28.5 9.5 C36 12 35 25 20 35 Z"
-      fill={`url(#hg-${uid})`} />
-    <path d="M11 14 C12 12 14 11.5 16 12.5" stroke="rgba(255,255,255,0.65)" strokeWidth="2.4" strokeLinecap="round" fill="none" />
+    <path d="M20 35 C5 25 4 12 11.5 9.5 C16 8 19 11 20 14 C21 11 24 8 28.5 9.5 C36 12 35 25 20 35 Z" fill={SYSTEM.red} />
+    <path d="M20 14 C21 11 24 8 28.5 9.5 C32 10.7 33.6 14 33.4 17.5 C28 15 23 16 20 14 Z M11.5 9.5 C16 8 19 11 20 14 C17 16 12 15 6.6 17.5 C6.4 14 8 10.7 11.5 9.5 Z" fill="#FF8A80" fillOpacity="0.55" />
+    <path d="M11 14 C12 12 14 11.5 16 12.5" stroke="rgba(255,255,255,0.7)" strokeWidth="2.4" strokeLinecap="round" fill="none" />
   </svg>
 );
 

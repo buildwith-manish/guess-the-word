@@ -30,10 +30,13 @@ const px = (v: number): number => (v * WIDTH) / REF_W;
 const SAFE_X = 128; // 10% margin each side: text stays in x 128..1152
 const TOP_ROW = 72;
 const ROW_H = 64; // same height as HeartsPill
-const PROMPT = { left: SAFE_X, top: 168, width: REF_W - SAFE_X * 2, height: 80, radius: 40 } as const;
-const PROMPT_MAX_SIZE = 56;
+const PROMPT = { left: SAFE_X, top: 150, width: REF_W - SAFE_X * 2, height: 124, radius: 44 } as const;
+const PROMPT_MAX_SIZE = 64;
 const PROMPT_FIT_WIDTH = PROMPT.width - 80; // inner width for the one-line fit
-const COUNTDOWN_TOP = 262;
+/** Countdown is the Dynamic Island: a black capsule at the top centre. */
+const COUNTDOWN_TOP = 14;
+/** Dictation capsule (bottom centre, above the home indicator). Only while the timer runs. */
+const DICTATION = { width: 360, height: 72, top: 576 } as const;
 /** Centre of the enlarged ink bubble. ResultBeat puts its chip 150 units below this. */
 const BUBBLE_CENTRE = { x: REF_W / 2, y: 440 } as const;
 /** The small bubble is 12% of the width, right-aligned to the safe edge (InkBubble). The counter sits left of it. */
@@ -61,6 +64,33 @@ const isLevelFirst = (r: Round): boolean => rounds.find((x) => x.level === r.lev
 const local = (r: Range, from: number): Range => ({ from: r.from - from, to: r.to - from });
 
 const fadeOut = (t: number, at: number, ticks: number): number => Math.min(1, Math.max(0, 1 - (t - at) / ticks));
+
+/** Drawn mic (not an SF Symbol). */
+const MicIcon: React.FC = () => (
+  <svg width={px(26)} height={px(34)} viewBox="0 0 26 34" style={{ display: 'block' }}>
+    <rect x="8" y="1" width="10" height="19" rx="5" fill={colours.ink} />
+    <path d="M3 15 a10 10 0 0 0 20 0" fill="none" stroke={colours.ink} strokeWidth="2.6" strokeLinecap="round" />
+    <path d="M13 25 V31" stroke={colours.ink} strokeWidth="2.6" strokeLinecap="round" />
+  </svg>
+);
+
+/** Drawn status-bar icons (signal, wifi, battery), top right, clear of the Dynamic Island. */
+const StatusIcons: React.FC = () => (
+  <svg
+    width={px(96)}
+    height={px(22)}
+    viewBox="0 0 96 22"
+    style={{ position: 'absolute', right: px(SAFE_X), top: px(26), opacity: 0.9 }}
+  >
+    {[0, 1, 2, 3].map((i) => (
+      <rect key={i} x={i * 6} y={16 - i * 4} width="4" height={6 + i * 4} rx="1.4" fill={colours.ink} />
+    ))}
+    <path d="M34 9 a14 14 0 0 1 20 0 M38.5 13.5 a8 8 0 0 1 11 0" fill="none" stroke={colours.ink} strokeWidth="2.6" strokeLinecap="round" />
+    <circle cx="44" cy="18.5" r="2.2" fill={colours.ink} />
+    <rect x="62" y="3" width="30" height="16" rx="5" fill="none" stroke={colours.ink} strokeOpacity="0.6" strokeWidth="1.6" />
+    <rect x="64.5" y="5.5" width="21" height="11" rx="3" fill={colours.ink} />
+  </svg>
+);
 
 const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; chips: boolean }> = ({ round, outcome, slideAt, chips }) => {
   const t = useDontSayFrame();
@@ -91,8 +121,32 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
 
   const counterIn = Math.min(1, springAt(t, STAGGER.arrival * 2, 'gentle'));
 
+  // iOS aurora wallpaper: three soft colour orbs drifting slowly (deterministic from the clock)
+  const drift = (ph: number, amp: number): number => Math.sin(t / 90 + ph) * amp;
+  const orbs = [
+    { x: 14 + drift(0, 3), y: 88 + drift(1, 3), size: 820, colour: style.accent, a: 0.42 },
+    { x: 88 + drift(2, 3), y: 66 + drift(3, 4), size: 700, colour: '#9B6BFF', a: 0.30 },
+    { x: 72 + drift(4, 4), y: 6 + drift(5, 3), size: 640, colour: '#FF8FC8', a: 0.16 },
+  ];
+  const dictIn = Math.min(1, springAt(t, STAGGER.arrival * 3, 'gentle')) * fadeOut(t, timer.to, 6);
+
   return (
     <AbsoluteFill style={{ background, overflow: 'hidden' }}>
+      {orbs.map((o, i) => (
+        <div
+          key={i}
+          style={{
+            position: 'absolute',
+            left: px((o.x / 100) * REF_W - o.size / 2),
+            top: px((o.y / 100) * 720 - o.size / 2),
+            width: px(o.size),
+            height: px(o.size),
+            borderRadius: '50%',
+            background: `radial-gradient(circle, ${o.colour}${Math.round(o.a * 255).toString(16).padStart(2, '0')} 0%, transparent 68%)`,
+          }}
+        />
+      ))}
+      <StatusIcons />
       {chips && chipsOpacity > 0 ? (
         <div style={{ position: 'absolute', inset: 0, opacity: chipsOpacity }}>
           <ExclusionChips round={round} at={STAGGER.arrival * 2} />
@@ -117,12 +171,25 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
           height: px(PROMPT.height),
           ...glassSurface(PROMPT.radius * (1920 / REF_W)),
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
+          gap: px(2),
           opacity: promptIn * promptOut,
           transform: `translateY(${(1 - promptIn) * px(14)}px)`,
         }}
       >
+        <span
+          style={{
+            fontFamily: fontHeadline,
+            fontWeight: 600,
+            fontSize: px(20),
+            letterSpacing: '0.14em',
+            color: colours.muted,
+          }}
+        >
+          LEVEL {round.level}
+        </span>
         <span
           style={{
             fontFamily: fontHeadline,
@@ -177,6 +244,42 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
           {round.n} OF {rounds.length}
         </span>
       </div>
+
+      {/* dictation capsule: drawn mic + label, only while the timer runs */}
+      {dictIn > 0 ? (
+        <div
+          style={{
+            position: 'absolute',
+            left: px((REF_W - DICTATION.width) / 2),
+            top: px(DICTATION.top),
+            width: px(DICTATION.width),
+            height: px(DICTATION.height),
+            ...glassSurface(40),
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: px(14),
+            opacity: dictIn,
+            transform: `translateY(${(1 - dictIn) * px(18)}px)`,
+          }}
+        >
+          <MicIcon />
+          <span style={{ fontFamily: fontHeadline, fontWeight: 600, fontSize: px(28), color: colours.ink }}>Listening…</span>
+        </div>
+      ) : null}
+
+      {/* home indicator */}
+      <div
+        style={{
+          position: 'absolute',
+          left: px((REF_W - 160) / 2),
+          top: px(698),
+          width: px(160),
+          height: px(6),
+          borderRadius: px(3),
+          background: 'rgba(255,255,255,0.55)',
+        }}
+      />
 
       {/* owns the InkBubble: small from tick 0, enlarges at the sealed phase, then beat, dissolve, answer, result */}
       <RevealEngine
