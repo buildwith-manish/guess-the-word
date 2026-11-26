@@ -696,3 +696,7 @@ Files: `scenes/RoundScene.tsx`, `components/HeartsPill.tsx`, `components/Countdo
 - Glow strength (16%), vignette stops (58% / E6 alpha), corner mask (0.5) and peak 0.57 are my picks; not seen. "About a third lower" is peak opacity only, the gradient shape differs from the old inset shadow so perceived strength may differ.
 - Counter text is now Inter; before it was Nunito. Digits use `tabular`. Width changes slightly.
 - Glow sits above the wallpaper and below ExclusionChips; on rounds with chips the glow shows behind them.
+
+## Fix: "useBonus must be used inside <BonusWrapper>" (DontSay-Full error)
+- Cause: `BonusMindReader` (Bonus 1) drew `Strip` as a sibling of `<BonusWrapper>`, and Strip called `useBonusGlass()` (needs the wrapper's context), since M6.
+- Fix: `Strip` now takes `level` (derived from `bonus.afterRound` like the wrapper does) and calls `bonusGlass(radius, alpha, level)` directly. Other bonus scenes already call the hooks inside the wrapper. tsc clean; not rendered.

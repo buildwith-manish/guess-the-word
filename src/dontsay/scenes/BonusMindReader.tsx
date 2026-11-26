@@ -12,8 +12,8 @@
  */
 import React from 'react';
 import { AbsoluteFill, Audio, Sequence } from 'remotion';
-import { bonuses, type Bonus } from '../data';
-import { BonusWrapper, px, useBonusGlass } from '../components/BonusWrapper';
+import { bonuses, rounds, type Bonus, type Level } from '../data';
+import { BonusWrapper, bonusGlass, px } from '../components/BonusWrapper';
 import { InkBubble } from '../components/InkBubble';
 import { sfxSrc } from '../sfx';
 import { useDesignFrame } from '../shared/clock';
@@ -101,8 +101,9 @@ const Check: React.FC<{ size: number; colour: string }> = ({ size, colour }) => 
   </svg>
 );
 
-const Strip: React.FC<{ tick: number; points: string }> = ({ tick, points }) => {
-  const glass = useBonusGlass();
+/** Strip is drawn beside BonusWrapper (not inside it), so it cannot use the wrapper's context: it takes the level instead. */
+const Strip: React.FC<{ tick: number; points: string; level: Level }> = ({ tick, points, level }) => {
+  const glass = (radiusRef: number, alpha = 0.12) => bonusGlass(radiusRef, alpha, level);
   const stripIn = springAt(tick, Math.round(bonusTicks.chipAt + 4), 'soft');
   const match = springAt(tick, mindReaderMatchAt, 'soft');
   const sealed = 1 - clamp01(match * 2);
@@ -229,7 +230,7 @@ const Layer: React.FC<{ bonus: Bonus }> = ({ bonus }) => {
         </div>
       ) : null}
 
-      <Strip tick={tick} points={earnedLabel(bonus)} />
+      <Strip tick={tick} points={earnedLabel(bonus)} level={rounds.find((r) => r.n === bonus.afterRound)?.level ?? 1} />
 
       {/* sealed bubble: small from frame 0, centre at the reveal, dissolves last */}
       <InkBubble
