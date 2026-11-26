@@ -49,6 +49,33 @@ export const layout = {
 } as const satisfies Record<string, Zone>;
 
 export const RULE_MAX_BOTTOM = 640;
+
+/**
+ * ListeningGlow waveform geometry (reference units): the ONE source of truth for what the round screen draws.
+ * ListeningGlow imports these, and scripts/dontsay_layout_check.ts compares glowRect() against ruleZone and the prompt card.
+ * Top and max height come from layout.waveform; the bar sizes are the ones ListeningGlow always used.
+ */
+export const GLOW_TOP = layout.waveform.top;
+export const GLOW_MAX_H = layout.waveform.bottom - layout.waveform.top;
+export const GLOW_BAR_W = 16;
+export const GLOW_BAR_GAP = 14;
+export const GLOW_BAR_MIN_H = 14;
+/** Deterministic 0..1 hash from integers (no Math.random, so renders are repeatable). */
+export const glowRand = (...ns: number[]): number => {
+  let h = 2166136261;
+  for (const n of ns) { h ^= n + 0x9e3779b9; h = Math.imul(h, 16777619); h ^= h >>> 13; }
+  h = Math.imul(h ^ (h >>> 15), 2246822519); h ^= h >>> 13;
+  return ((h >>> 0) % 100000) / 100000;
+};
+/** Bars drawn for a round: 5..7, seeded from the round number. */
+export const glowBarCount = (round: number): number => 5 + Math.floor(glowRand(round, 1) * 3);
+export const glowWidth = (bars: number): number => bars * GLOW_BAR_W + (bars - 1) * GLOW_BAR_GAP;
+/** The rectangle ListeningGlow draws on the round screen (no `card` prop): centred in layout.waveform, GLOW_MAX_H high. */
+export const glowRect = (round: number): { left: number; top: number; right: number; bottom: number } => {
+  const w = glowWidth(glowBarCount(round));
+  const cx = (layout.waveform.left + layout.waveform.right) / 2;
+  return { left: cx - w / 2, top: GLOW_TOP, right: cx + w / 2, bottom: GLOW_TOP + GLOW_MAX_H };
+};
 export const ruleZoneWidth = layout.ruleZone.right - layout.ruleZone.left;
 export const ruleZoneHeight = layout.ruleZone.bottom - layout.ruleZone.top;
 export const bubbleLargeCentre = { x: REF.w / 2, y: (layout.bubbleLarge.top + layout.bubbleLarge.bottom) / 2 } as const;

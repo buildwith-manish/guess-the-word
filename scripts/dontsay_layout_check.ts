@@ -4,7 +4,8 @@
  * For EVERY round in data.ts it builds the rectangles (reference units, 1280x720) of the HUD (hearts pill, round
  * counter, watermark), the countdown pill, the prompt card, the waveform, the rule block (height from
  * ruleBlockHeight) and the small bubble, prints a table, and exits 1 if any two rectangles overlap or any
- * rectangle leaves the frame. It also checks the prompt text fits one line at its font size, and that the gap between
+ * rectangle leaves the frame. The waveform rectangle is the one ListeningGlow really draws (glowRect in layout.ts, shared with
+ * ListeningGlow); it must not overlap ruleZone or the prompt card and must sit at least MIN_WAVE_GAP above ruleZone. It also checks the prompt text fits one line at its font size, and that the gap between
  * the round counter pill and the prompt card is at least MIN_COUNTER_GAP.
  *
  * Estimates (not measured): hearts pill / counter / watermark widths are upper bounds taken from layout.ts;
@@ -12,7 +13,7 @@
  */
 import { rounds } from '../src/dontsay/data';
 import {
-  MIN_TEXT, REF, RULE_MAX_BOTTOM, SAFE_X, TEXT_EM, layout, promptFontSize, promptWidth, PROMPT_PAD_X,
+  MIN_TEXT, REF, RULE_MAX_BOTTOM, SAFE_X, TEXT_EM, glowRect, layout, promptFontSize, promptWidth, PROMPT_PAD_X,
   ruleBlockHeight, ruleBlockWidth, ruleLayout, textWidth,
 } from '../src/dontsay/layout';
 
@@ -24,6 +25,8 @@ const f = (n: number): string => (Math.round(n * 10) / 10).toString();
 
 /** Minimum vertical gap, reference units, between the round counter pill and the prompt card. */
 const MIN_COUNTER_GAP = 12;
+/** Minimum vertical gap, reference units, between the waveform ListeningGlow draws and ruleZone. */
+const MIN_WAVE_GAP = 16;
 
 const problems: string[] = [];
 const counterGap = layout.prompt.top - layout.hudCounter.bottom;
@@ -32,23 +35,25 @@ if (counterGap < MIN_COUNTER_GAP) {
 }
 const rows: string[][] = [['round', 'rule', 'block h', 'block bottom', 'slack to 640', 'prompt px', 'prompt w/inner']];
 let worst = { n: 0, h: -1 };
+let minWaveGap = Infinity;
 
-const fixed = (): Rect[] => {
+const fixed = (roundN: number): Rect[] => {
   const L = layout;
-  const wfW = 7 * 16 + 6 * 14; // 7 bars is the maximum ListeningGlow draws
+  // the rectangle ListeningGlow really draws on the round screen (same constants it renders with, from layout.ts)
+  const g = glowRect(roundN);
   return [
     rect('hearts', L.hudHearts.left, L.hudHearts.top, L.hudHearts.right, L.hudHearts.bottom),
     rect('counter', L.hudCounter.left, L.hudCounter.top, L.hudCounter.right, L.hudCounter.bottom),
     rect('watermark', L.hudWatermark.left, L.hudWatermark.top, L.hudWatermark.right, L.hudWatermark.bottom),
     rect('countdown', L.countdown.left, L.countdown.top, L.countdown.right, L.countdown.bottom),
     rect('prompt', L.prompt.left, L.prompt.top, L.prompt.right, L.prompt.bottom),
-    rect('waveform', REF.w / 2 - wfW / 2, L.waveform.top, REF.w / 2 + wfW / 2, L.waveform.bottom),
+    rect('waveform', g.left, g.top, g.right, g.bottom),
     rect('bubbleSmall', L.bubbleSmall.left, L.bubbleSmall.top, L.bubbleSmall.right, L.bubbleSmall.bottom),
   ];
 };
 
 for (const round of rounds) {
-  const rs = fixed();
+  const rs = fixed(round.n);
   const plan = ruleLayout(round);
   let h = 0, bottom = 0;
   if (round.callback) {
@@ -85,6 +90,15 @@ for (const round of rounds) {
   for (let i = 0; i < rs.length; i++) for (let j = i + 1; j < rs.length; j++) {
     if (overlap(rs[i], rs[j])) problems.push(`round ${round.n}: ${rs[i].name} overlaps ${rs[j].name}`);
   }
+  // waveform (what ListeningGlow draws) vs the prompt card and ruleZone: no overlap, and at least MIN_WAVE_GAP above ruleZone
+  const wf = glowRect(round.n);
+  const wfRect = rect('waveform', wf.left, wf.top, wf.right, wf.bottom);
+  const zone = layout.ruleZone;
+  if (overlap(wfRect, rect('ruleZone', zone.left, zone.top, zone.right, zone.bottom))) problems.push(`round ${round.n}: waveform (bottom ${f(wf.bottom)}) overlaps ruleZone (top ${zone.top})`);
+  if (overlap(wfRect, rect('prompt', layout.prompt.left, layout.prompt.top, layout.prompt.right, layout.prompt.bottom))) problems.push(`round ${round.n}: waveform (top ${f(wf.top)}) overlaps the prompt card (bottom ${layout.prompt.bottom})`);
+  const waveGap = zone.top - wf.bottom;
+  if (waveGap < MIN_WAVE_GAP) problems.push(`round ${round.n}: gap from waveform (bottom ${f(wf.bottom)}) to ruleZone (top ${zone.top}) is ${f(waveGap)}, minimum ${MIN_WAVE_GAP}`);
+  minWaveGap = Math.min(minWaveGap, waveGap);
   // prompt card: centre 80% and one line
   const pc = layout.prompt;
   if (pc.left < SAFE_X || pc.right > REF.w - SAFE_X) problems.push(`round ${round.n}: prompt card outside the centre 80%`);
@@ -110,6 +124,7 @@ console.log(`rounds checked: ${rounds.length}  (rect names per round: hearts, co
 console.log(`worst-case rule block: round ${worst.n}, ${f(worst.h)} units (zone ${layout.ruleZone.top}..${RULE_MAX_BOTTOM} = ${RULE_MAX_BOTTOM - layout.ruleZone.top})`);
 console.log(`longest prompt: round ${longest.n} "${longest.prompt}" (${longest.prompt.length} chars) -> ${lSize}px, est. width ${f(textWidth(longest.prompt, lSize))} of ${promptWidth - PROMPT_PAD_X * 2} (${TEXT_EM} em per glyph)`);
 console.log(`counter pill -> prompt card gap: ${counterGap} units (minimum ${MIN_COUNTER_GAP})`);
+console.log(`waveform (ListeningGlow, drawn) -> ruleZone gap: ${f(minWaveGap)} units over all rounds (minimum ${MIN_WAVE_GAP}); waveform y ${glowRect(1).top}..${glowRect(1).bottom}`);
 console.log('zones (reference units):');
 for (const [k, z] of Object.entries(layout)) console.log(`  ${k.padEnd(12)} top ${z.top} bottom ${z.bottom}` + ('left' in z ? `  left ${(z as { left: number }).left} right ${(z as { right: number }).right}` : ''));
 

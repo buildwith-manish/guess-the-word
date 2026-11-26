@@ -13,7 +13,7 @@ import React from 'react';
 import { interpolate } from 'remotion';
 import { springAt } from '../system';
 import { WIDTH, useDontSayFrame } from '../timing';
-import { layout } from '../layout';
+import { GLOW_BAR_GAP, GLOW_BAR_MIN_H, GLOW_BAR_W, GLOW_MAX_H, GLOW_TOP, glowBarCount, glowRand as rand, layout } from '../layout';
 
 const px = (v: number): number => (v * WIDTH) / 1280;
 
@@ -27,14 +27,6 @@ const tint = (c: string, amt: number): string => {
 };
 
 export const DIM_LEVEL = 0.4;
-
-/** Deterministic 0..1 hash from integers (no Math.random, so renders are repeatable). */
-const rand = (...ns: number[]): number => {
-  let h = 2166136261;
-  for (const n of ns) { h ^= n + 0x9e3779b9; h = Math.imul(h, 16777619); h ^= h >>> 13; }
-  h = Math.imul(h ^ (h >>> 15), 2246822519); h ^= h >>> 13;
-  return ((h >>> 0) % 100000) / 100000;
-};
 
 export type GlowBox = { left: number; top: number; width: number; height: number; radius?: number };
 
@@ -62,14 +54,13 @@ const BAR_PERIOD = 7; // ticks between new bar targets
 const Wave: React.FC<{ round: number; frame: number; wakeAt: number; dimmed: boolean; box?: GlowBox; accent: string }> = ({ round, frame, wakeAt, dimmed, box, accent }) => {
   const bright = tint(accent, 0.35);
   const dark = tint(accent, -0.3);
-  const n = 5 + Math.floor(rand(round, 1) * 3); // 5..7 bars
-  const zoneH = layout.waveform.bottom - layout.waveform.top;
-  const barW = px(16), gap = px(14), maxH = px(box ? 80 : zoneH), minH = px(14);
+  const n = glowBarCount(round); // 5..7 bars
+  const barW = px(GLOW_BAR_W), gap = px(GLOW_BAR_GAP), maxH = px(box ? 80 : GLOW_MAX_H), minH = px(GLOW_BAR_MIN_H);
   const width = n * barW + (n - 1) * gap;
   const local = Math.max(0, frame - wakeAt);
   return (
     <div style={{ position: 'absolute', left: px(box ? box.left + box.width / 2 : (layout.waveform.left + layout.waveform.right) / 2) - width / 2,
-      top: px(box ? box.top + box.height + 30 : layout.waveform.top),
+      top: px(box ? box.top + box.height + 30 : GLOW_TOP),
       height: maxH, width, display: 'flex', alignItems: 'center', gap }}>
       {Array.from({ length: n }, (_, i) => {
         const step = Math.floor((local + rand(round, 2, i) * BAR_PERIOD) / BAR_PERIOD);

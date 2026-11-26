@@ -135,7 +135,6 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
         wakeAt={timer.from}
         dimAt={timer.to}
         offAt={sealed.to}
-        card={{ left: PROMPT.left, top: PROMPT.top, width: PROMPT.width, height: PROMPT.height, radius: PROMPT.radius }}
       />
 
       {/* the prompt, as text (it is also spoken). One thin accent edge + a soft, low accent glow: the
