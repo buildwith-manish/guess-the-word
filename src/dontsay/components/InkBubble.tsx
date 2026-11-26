@@ -21,7 +21,7 @@ import { Audio, Sequence, spring } from 'remotion';
 import { sfxSrc } from '../sfx';
 import { useDesignFrame } from '../shared/clock';
 import { clamp01 } from '../shared/fade';
-import { colours, fontHeadline, glassSurface, SPRINGS } from '../system';
+import { colours, easeOut, fontHeadline, glassSurface, SPRINGS } from '../system';
 import { FPS, TIME_SCALE, WIDTH, sealedSlideSec } from '../timing';
 
 const REF_W = 1280;
@@ -63,6 +63,8 @@ export type InkBubbleProps = {
   slideAt?: number;
   /** Backdrop blur behind the bubble when large, in reference units (scaled by the slide progress). Default 0 = none. */
   backdropBlur?: number;
+  /** 0..1 settle of the revealed answer (rises 10 units, scales 0.9 -> 1). Driven by the reveal engine with the `reveal` spring (about 1.5% overshoot). Default 1 = settled. */
+  answerSpring?: number;
 };
 
 const rng = (seed: number) => {
@@ -112,6 +114,7 @@ export const InkBubble: React.FC<InkBubbleProps> = ({
   centre = LARGE_CENTRE,
   slideAt = inkSlideTick,
   backdropBlur = 0,
+  answerSpring = 1,
 }) => {
   const tick = useDesignFrame();
   const dots = React.useMemo(() => makeDots(seed, DOT_COUNT), [seed]);
@@ -131,7 +134,7 @@ export const InkBubble: React.FC<InkBubbleProps> = ({
   const top = lerp(SMALL.top, centre.y - LARGE.h / 2, p);
 
   const d = clamp01(dissolve);
-  const soft = 22; // % width of the dissolve edge
+  const soft = 36; // % width of the dissolve edge: a long soft sweep
   const edge = d * (100 + soft) - soft;
   const inkMask = `linear-gradient(90deg, transparent ${edge}%, #000 ${edge + soft}%)`;
   const textMask = `linear-gradient(90deg, #000 ${edge}%, transparent ${edge + soft}%)`;
@@ -147,6 +150,8 @@ export const InkBubble: React.FC<InkBubbleProps> = ({
   // Shimmer sweep
   const sweep = ((tick * 0.9) % 160) - 30;
 
+  // the answer fades up underneath the sweep: opacity follows the dissolve, the settle follows `answerSpring`
+  const answerFade = easeOut(clamp01(d * 1.5));
   const fit = Math.min(1, 11 / Math.max(answer.length, 1));
   const answerSize = Math.max(46, 100 * fit);
 
@@ -204,6 +209,8 @@ export const InkBubble: React.FC<InkBubbleProps> = ({
               color: colours.ink,
               WebkitMaskImage: textMask,
               maskImage: textMask,
+              opacity: answerFade,
+              transform: `translateY(${(1 - answerSpring) * px(10)}px) scale(${0.9 + 0.1 * answerSpring})`,
             }}
           >
             {answer}

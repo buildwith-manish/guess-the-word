@@ -12,9 +12,9 @@
 import React from 'react';
 import { AbsoluteFill } from 'remotion';
 import type { Level } from '../data';
-import { colours, fontNumeric, glassSurface, springAt, SYSTEM, tabular } from '../system';
+import { colours, easeOut, fontNumeric, glassSurface, springAt, SYSTEM, tabular } from '../system';
 import { timerMath } from '../shared/timerMath';
-import { WIDTH, secToTicks, timerSecFor, useDontSayFrame } from '../timing';
+import { FPS, WIDTH, secToTicks, timerSecFor, useDontSayFrame } from '../timing';
 
 const px = (v: number): number => (v * WIDTH) / 1280;
 
@@ -22,6 +22,16 @@ const px = (v: number): number => (v * WIDTH) / 1280;
 const L = { w: 220, h: 112, radius: 56, numberSize: 76, lineH: 5, lineInset: 30, lineBottom: 12 } as const;
 /** Ticks the pill springs in before the timer starts. */
 const LEAD_IN = 6;
+/** Number crossfade and red fade-in, in ticks. */
+const SWAP_TICKS = 6;
+const RED_TICKS = 8;
+
+const hex = (c: string): [number, number, number] => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16)) as [number, number, number];
+/** Blend two #rrggbb colours, k 0..1. */
+const mix = (a: string, b: string, k: number): string => {
+  const [x, y] = [hex(a), hex(b)];
+  return `rgb(${[0, 1, 2].map((i) => Math.round(x[i] + (y[i] - x[i]) * k)).join(',')})`;
+};
 
 export type CountdownNumberProps = {
   level: Level;
@@ -45,7 +55,7 @@ export const EdgeBeat: React.FC<{ level: Level; at: number; durationSec?: number
   const m = timerMath(t, at, dur);
   const on = m.urgent && m.left > 0;
   // Never fully off while urgent: 0.35 floor, beats up on each second.
-  const a = on ? 0.35 + 0.5 * m.pulse : 0;
+  const a = on ? (0.35 + 0.5 * m.pulse) * easeOut(m.urgentTicks / RED_TICKS) : 0;
   return (
     <AbsoluteFill
       style={{
@@ -64,11 +74,24 @@ export const CountdownNumber: React.FC<CountdownNumberProps> = ({ level, at, dur
   const m = timerMath(t, at, dur);
 
   const inP = springAt(t, at - LEAD_IN, 'snappy');
-  const red = m.urgent;
-  const tone = red ? SYSTEM.red : colours.ink;
-  const scale = 1 + 0.06 * m.pulse;
+  // red warning fades in over RED_TICKS from the first urgent tick (no instant switch)
+  const redP = m.urgent ? easeOut(m.urgentTicks / RED_TICKS) : 0;
+  const tone = mix(colours.ink, SYSTEM.red, redP);
+  // the number changes by a short crossfade, no scale, no pop
+  const raw = t - at;
+  const since = raw >= dur ? raw - dur : raw % FPS;
+  const swap = raw >= FPS ? easeOut(since / SWAP_TICKS) : 1;
   // Before the timer starts the pill shows the full duration and an empty line.
   const shown = m.started ? m.seconds : Math.ceil(dur / 30);
+
+  const numberStyle: React.CSSProperties = {
+    fontFamily: fontNumeric,
+    fontWeight: 800,
+    fontSize: px(L.numberSize),
+    lineHeight: 1,
+    textAlign: 'center',
+    ...tabular,
+  };
 
   return (
     <>
@@ -86,25 +109,29 @@ export const CountdownNumber: React.FC<CountdownNumberProps> = ({ level, at, dur
           transformOrigin: '50% 0%',
           ...glassSurface(L.radius * 1.5, { alpha: 0.12 }),
           borderRadius: px(L.radius),
-          background: red ? `linear-gradient(160deg, ${SYSTEM.red}55, rgba(0,0,0,0.35))` : 'linear-gradient(160deg, rgba(0,0,0,0.55), rgba(0,0,0,0.35))',
+          background: 'linear-gradient(160deg, rgba(0,0,0,0.55), rgba(0,0,0,0.35))',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
         }}
       >
-        <div
-          style={{
-            fontFamily: fontNumeric,
-            fontWeight: 800,
-            fontSize: px(L.numberSize),
-            lineHeight: 1,
-            color: tone,
-            transform: `scale(${scale})`,
-            marginTop: -px(6),
-            ...tabular,
-          }}
-        >
-          {shown}
+        {/* red tint fades in over the pill (the pill itself is unchanged) */}
+        {redP > 0 ? (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              borderRadius: px(L.radius),
+              background: `linear-gradient(160deg, ${SYSTEM.red}55, transparent)`,
+              opacity: redP,
+            }}
+          />
+        ) : null}
+        <div style={{ display: 'grid', marginTop: -px(6) }}>
+          {swap < 1 ? (
+            <div style={{ gridArea: '1 / 1', ...numberStyle, color: tone, opacity: 1 - swap }}>{shown + 1}</div>
+          ) : null}
+          <div style={{ gridArea: '1 / 1', ...numberStyle, color: tone, opacity: swap }}>{shown}</div>
         </div>
         {/* thin progress line inside the pill */}
         <div

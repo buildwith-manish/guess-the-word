@@ -12,11 +12,20 @@ import React from 'react';
 import { Audio, Sequence } from 'remotion';
 import { resultLineFor } from '../data';
 import type { Round } from '../data';
-import { colours, fontHeadline, glassSurface, springAt, SYSTEM } from '../system';
+import { colours, easeOut, fontHeadline, glassSurface, SYSTEM } from '../system';
 import { sfxSrc } from '../sfx';
-import { TIME_SCALE, WIDTH, useDontSayFrame } from '../timing';
+import { resultSecFor, secToTicks, TIME_SCALE, WIDTH, useDontSayFrame } from '../timing';
 
 const px = (v: number): number => (v * WIDTH) / 1280;
+
+/** Chip motion, ticks (30 fps) and reference units. Exit is shorter than the entrance. */
+const RISE_TICKS = 8;
+const RISE_UNITS = 12;
+const FADE_IN_TICKS = 6;
+const EXIT_TICKS = 6;
+const EXIT_DROP_UNITS = 6;
+/** The exit ends this many ticks before the result slot ends. */
+const EXIT_MARGIN_TICKS = 3;
 
 /** UI copy owned by this component. */
 export const CHIP_COLLISION = 'Same answer';
@@ -57,8 +66,11 @@ export const ResultBeat: React.FC<ResultBeatProps> = ({ round, outcome, at, anch
 
   const safe = outcome === 'safe';
   const tone = safe ? colours.safe : colours.collision;
-  const p = springAt(t, at, 'pop');
-  const fade = Math.min(1, Math.max(0, (t - at) / 4));
+  // short rise + fade in, hold still, quiet fade-out near the end of the result slot (timing.ts resultSecFor)
+  const rise = easeOut((t - at) / RISE_TICKS);
+  const fadeIn = easeOut((t - at) / FADE_IN_TICKS);
+  const exitFrom = at + secToTicks(resultSecFor(round)) - EXIT_MARGIN_TICKS - EXIT_TICKS;
+  const out = easeOut((t - exitFrom) / EXIT_TICKS);
 
   return (
     <>
@@ -70,8 +82,8 @@ export const ResultBeat: React.FC<ResultBeatProps> = ({ round, outcome, at, anch
           position: 'absolute',
           left: px(anchor.x),
           top: px(anchor.y + 150),
-          transform: `translate(-50%, 0) translateY(${(1 - p) * px(14)}px) scale(${0.8 + 0.2 * p})`,
-          opacity: fade,
+          transform: `translate(-50%, 0) translateY(${(1 - rise) * px(RISE_UNITS) + out * px(EXIT_DROP_UNITS)}px)`,
+          opacity: fadeIn * (1 - out),
           display: 'flex',
           alignItems: 'center',
           gap: px(10),

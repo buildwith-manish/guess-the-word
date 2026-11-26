@@ -486,3 +486,20 @@ Started, then stopped at the owner's request in favour of 4c. Nothing written. N
 - The lock-pop on the small bubble (tick 0) still uses its own bouncy spring (damping 14, stiffness 180): not touched.
 - Blur applies to everything drawn before the bubble (counter, hearts, chips, wallpaper); the lock and result chip are drawn after and stay sharp. Bonus scenes using InkBubble get no blur (prop defaults to 0).
 - Large bubble spans y 222-522 (centre 372 default) but RoundScene passes centre y 440: unchanged, not rechecked.
+
+## Task M5: DONE (tsc --noEmit clean; NOT rendered, `remotion still` failed: ENOTFOUND remotion.media)
+
+- **Ink dissolve** (`RevealEngine.tsx`, `InkBubble.tsx`): sweep length is unchanged (timing.ts: revealSec - beatSec = 1.5 s, cosine ease in/out) but the soft edge is wider (36% of the bubble, was 22%). The answer now fades up under the sweep (opacity = easeOut of dissolve x1.5) and settles with the `reveal` spring (rise 10 units, scale 0.9 -> 1) starting 35% into the sweep. New InkBubble prop `answerSpring` (default 1 = settled, so bonus scenes only get the fade). The reveal overshoot is real (spring max 1.0153) but it is 1.5% of a small move: about 0.15% in scale, effectively invisible. Nothing else bounces here.
+- **Result chip** (`ResultBeat.tsx`): no spring or scale pop any more. In: rise 12 units (easeOut, 8 ticks) with fade (6 ticks). Hold still. Out: fade 6 ticks plus a 6-unit drop, ending 3 ticks before the result slot ends (slot = `resultSecFor`, timing.ts). Sound cue unchanged.
+- **Countdown** (`CountdownNumber.tsx`): the 6% pulse scale on the number is gone. A new second crossfades (6 ticks, easeOut, previous digit fades out as the new one fades in). Red fades in over 8 ticks from the first urgent tick: number and progress line colour are blended, a red tint layer fades over the pill, the edge pulse fades in. The pill (size, spring-in, glass, black base) is unchanged.
+
+### Frames (DontSay-Round, round 1, 60 fps, round-local, computed from timing.ts)
+- Dissolve: start 500, middle 545, end 590 (answer spring starts about 532 and is settled by about 568; ink layer unmounts at 590).
+- Result chip: in 622-638 (fade done by 634), hold 638-724, exit 724-736; result slot ends 742.
+- Countdown: timer 80-380; number changes at 140, 200, 260, 320 (crossfade 12 frames each, check 146 for the midpoint); red starts 260 and is full by 276; edge pulse fades in from 260.
+
+### Open
+- Chip exit timing (6 ticks, 3-tick margin), crossfade (6 ticks) and red fade (8 ticks) are my picks, kept as constants at the top of each file, not in timing.ts.
+- The red pill tint is now a fading overlay on the unchanged black base, so the fully red pill is slightly darker than the old red-gradient background.
+- In the last second the "0" crossfades in around the timer end; the pill leaves 4 ticks after (RoundScene), so it is only briefly visible.
+- Voice, SFX and the lock are unchanged; the wider soft edge makes the sweep look longer but `ink-dissolve.wav` (1.85 s) is untouched.

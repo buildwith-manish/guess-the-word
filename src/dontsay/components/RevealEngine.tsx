@@ -18,7 +18,7 @@ import { Audio, Sequence } from 'remotion';
 import { sfxSrc, type SfxId } from '../sfx';
 import { useDesignFrame } from '../shared/clock';
 import { clamp01 } from '../shared/fade';
-import { colours, SYSTEM } from '../system';
+import { colours, springAt, SYSTEM } from '../system';
 import { beatSec, revealSec, revealSecFor, secToTicks, TIME_SCALE, WIDTH } from '../timing';
 import type { Round } from '../data';
 import { InkBubble } from './InkBubble';
@@ -118,6 +118,8 @@ export const RevealEngine: React.FC<RevealEngineProps> = ({
 
   // Ink dissolve: 0 until the second click, then one slow left-to-right sweep.
   const dissolve = easeInOut((t - tm.revealFrom) / tm.dissolveTicks);
+  // The answer settles with the one 'reveal' spring (about 1.5% overshoot), starting 35% into the sweep.
+  const answerSpring = t < tm.revealFrom ? 0 : springAt(t, tm.revealFrom + Math.round(tm.dissolveTicks * 0.35), 'reveal');
 
   // Beat: damped shake of the lock, a fixed number of cycles over exactly beatSec.
   const beatP = clamp01((t - tm.beatFrom) / tm.beatTicks);
@@ -146,6 +148,7 @@ export const RevealEngine: React.FC<RevealEngineProps> = ({
         centre={centre}
         slideAt={slideAt}
         backdropBlur={backdropBlur}
+        answerSpring={answerSpring}
       />
 
       {showLock ? (
