@@ -25,9 +25,12 @@ const levelOf = (): 1 | 2 | 3 | 4 | 5 =>
 /** First sentence of the narration, shown as a quiet caption: "Check your hearts." */
 const caption = (): string => `${heartCheckIn.voice.split('.')[0].trim()}.`;
 
+/** Tick where the card starts to move in (the first 4 ticks are empty wallpaper). The tone is cued here. */
+export const CARD_IN_TICK = 4;
+
 export type HeartCheckInCue = { name: string; id: SfxId; tick: number; volume: number };
-/** The rising tone at the start of the card. The file is loud next to the rest: volume kept low. */
-export const heartCheckInCues = (): HeartCheckInCue[] => [{ name: 'tone', id: 'check-in-tone', tick: 0, volume: 0.5 }];
+/** The tone as the card moves in. Measured active RMS of the file is -11 dB against about -18 dB for the rest: 0.4 brings it to -19 dB, under the voice that starts at tick 0. */
+export const heartCheckInCues = (): HeartCheckInCue[] => [{ name: 'tone', id: 'check-in-tone', tick: CARD_IN_TICK, volume: 0.4 }];
 
 /** Music bed gain multiplier across the card: a slight lift (guess 1.12x), ramped in, hard stop at the cut. */
 export const MUSIC_LIFT = { to: 1.12, rampTicks: 18 } as const;
@@ -46,7 +49,7 @@ export type HeartCheckInProps = {
 export const HeartCheckIn: React.FC<HeartCheckInProps> = ({ frame: frameProp, showCaption = true }) => {
   const clock = useDontSayFrame();
   const frame = frameProp ?? clock;
-  const a = springAt(frame, 4, 'soft');
+  const a = springAt(frame, CARD_IN_TICK, 'soft');
   return (
     <div style={{ position: 'absolute', inset: 0, background: levelBackground[levelOf()] }}>
       {/* static pill: no `at`, so it is settled from the first frame and never animates */}

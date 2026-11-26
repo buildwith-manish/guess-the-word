@@ -132,7 +132,7 @@ export const part2Cues = (): PartCue[] => {
           out.push({ name: `round-${s.round.n}-${c.name}`, id: c.id, tick: c.tick + base, volume: c.volume }),
         );
       } else if (s.kind === 'bonus') {
-        bonusTripleLockCues().forEach((c, i) => out.push({ name: `bonus-${s.bonus.n}-${c.id}-${i}`, id: c.id, tick: c.at + base, volume: 1 }));
+        bonusTripleLockCues().forEach((c, i) => out.push({ name: `bonus-${s.bonus.n}-${c.id}-${i}`, id: c.id, tick: c.at + base, volume: c.volume }));
       }
     });
   return out;

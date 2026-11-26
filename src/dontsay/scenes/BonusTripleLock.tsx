@@ -53,10 +53,14 @@ export const bonusTripleLockVoice = () => {
   };
 };
 
+const LOCK_VOLUME = 0.8;
+/** Start volume of each dissolve; the scene fades it out over its tail. */
+const DISSOLVE_VOLUME = 0.6;
+
 /** SFX cues (design ticks): lock clicks, dissolves. */
 export const bonusTripleLockCues = () => [
-  ...tripleLockTicks.lockAt.map((at) => ({ id: 'triple-lock-click' as const, at })),
-  ...tripleLockTicks.dissolveAt.map((at) => ({ id: 'ink-dissolve' as const, at })),
+  ...tripleLockTicks.lockAt.map((at) => ({ id: 'triple-lock-click' as const, at, volume: LOCK_VOLUME })),
+  ...tripleLockTicks.dissolveAt.map((at) => ({ id: 'ink-dissolve' as const, at, volume: DISSOLVE_VOLUME })),
 ];
 
 export const bonusTripleLockFrames = (): number => secToFrames(bonusSecFor(bonusData().n));
@@ -242,7 +246,7 @@ const Stage: React.FC = () => {
 
       {tripleLockTicks.lockAt.map((at, i) => (
         <Sequence key={`l${i}`} from={Math.round(at * TIME_SCALE)} layout="none">
-          <Audio src={sfxSrc('triple-lock-click')} volume={0.8} />
+          <Audio src={sfxSrc('triple-lock-click')} volume={LOCK_VOLUME} />
         </Sequence>
       ))}
       {tripleLockTicks.dissolveAt.map((at, i) => {
@@ -251,7 +255,7 @@ const Stage: React.FC = () => {
           <Sequence key={`d${i}`} from={Math.round(at * TIME_SCALE)} durationInFrames={len} layout="none">
             <Audio
               src={sfxSrc('ink-dissolve')}
-              volume={(f) => interpolate(f, [len - fadeLen, len], [0.6, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })}
+              volume={(f) => interpolate(f, [len - fadeLen, len], [DISSOLVE_VOLUME, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })}
             />
           </Sequence>
         );

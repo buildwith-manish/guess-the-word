@@ -526,3 +526,33 @@ Scenes / files touched, with one frame to check each (60 fps):
 - `shared/levelCard.ts` (`levelCardLaunch/Exit`, still using 'pop'/'snappy' aliases) is no longer used by LevelCard and was left in place. `SettingsSheet` and `HeartsPill` (other files) untouched.
 - Level card colours are still the bright `levelColors[l].wallpaper`, not the dark wallpaper the rounds use now; a fade into a dark round may look abrupt. Easy follow-up if wanted.
 - Bonus scenes' wallpaper phase uses the bonus segment start from timing.ts, so the drift is continuous with the round before it.
+
+## Task M7: DONE (tsc --noEmit clean; NOT rendered, `remotion still` failed: ENOTFOUND remotion.media)
+
+SFX cue sync. Measured every wav in `public/dontsay/sfx` (active RMS, onset, envelope peak) and sampled Remotion's `soft` / `reveal` springs (soft: 50% at tick 5, 90% at 10, 99% at 15; reveal: 90% at 9). Cue ticks in the bonus scenes are built from the same constants as their visuals, so they cannot drift; the checks below are for the shared cues.
+
+### Cues that moved / changed
+- **Reveal chime** (`RevealEngine.tsx`, every round): was at the sweep end (reveal + 45 ticks), now at the answer landing (reveal + 26 ticks, new `answerLands`, `ANSWER_LANDS = 0.585`). Reason: the answer is fully readable once the sweep edge passes the bubble centre (about tick 26) and the `reveal` spring is at 90% by about tick 25; the old chime came about 19 ticks (0.63 s, 38 frames) late. Round 1 (round-local frames): old 590, new 552 (dissolve starts 500).
+- **Heart check-in tone** (`HeartCheckIn.tsx`): was tick 0, now tick 4 (`CARD_IN_TICK`, the tick the card starts to move; it was cued 4 ticks = 8 frames before any visual). Volume 0.5 -> 0.4: file active RMS -11 dB against about -18 dB for the rest; 0.4 gives about -19 dB, under the check-in voice that starts at tick 0.
+- **Triple Lock** (`BonusTripleLock.tsx`, `sfxCues.ts`): no tick moved. `bonusTripleLockCues()` now carries the volumes the scene really mounts (click 0.8, dissolve 0.6, faded) and `part2Cues` uses them (it listed 1 for all).
+
+### Checked, left as is
+- Level card swell `level-card-N` at tick 0: envelope peak 0.30 s (tick 9), card spring 90% at tick 10. OK.
+- Rules sheet `card-in` at LEVEL_SHEET_AT: sheet spring starts at its own tick 0, file peak 0.25 s (tick 7.5), spring 90% at 10. OK.
+- Round lock: shake click at the beat start (lock appears and shakes there), second click at reveal start (shackle opens over 4 ticks from there), `ink-dissolve` at reveal start: sweep speed peaks at tick 22.5, file energy centroid 0.75 s = tick 22.5. OK. The 1.85 s file ends at tick 55.5, before the result slot (reveal slot is 2.0 s = 60 ticks), so it does NOT run into the result chip (the M5 note said it did; that was wrong).
+- Result chip `collision` / `safe-pulse` at the chip's first tick (fade-in 6 ticks, rise 8 with easeOut): sound transient at the start of the fade. OK.
+- BONUS pill `bonus-pill` at tick 0: peak 0.39 s (tick 12) against pill spring 90% at 10. OK.
+
+### Still guesses
+- **`mic-pulse` is not used by any cue.** No file in `src/dontsay` references it (the corner mic in BonusVoiceOnly pulses visually, no sound), so there was nothing to lower. When it is wired: its active RMS is -9 dB, the loudest file; about 0.4 matches the others.
+- `chip-land` (BonusMindReader, BonusOppositeDay, BonusVoiceOnly answer, Scoreboard bands, Outro subscribe) is cued at the tick the chip STARTS to move; the soft spring arrives about 5 to 10 ticks later. Convention kept, not moved. Bonus Triple Lock and Chain have a pass chip but no chip-land cue.
+- Chime lands on the bubble-centre rule; a long answer (right edge uncovered about tick 31) may read a few ticks after the chime.
+- `lock-shake` / `name-reveal` still stand in as `lock-click` 0.35 / `callback-chime-1`.
+- Nothing listened to, nothing rendered.
+
+### Runtime (`npx tsx scripts/dontsay_runtime.ts`)
+770.9 s (12:50), 46254 frames; parts 147.5 / 146.4 / 144.8 / 123.1 / 142.4 / 66.7 s. Target 10:44: +126.9 s (ABOVE). Unchanged by M7 (no timing constant touched); data/timing cross-check: no mismatches.
+
+### Frames to check (60 fps)
+- DontSay-Round round 1 (round-local): 500 (dissolve + second click), 545 (mid sweep), 552 (new chime), 590 (sweep end, old chime), 622 (result chip + sound).
+- DontSay-HeartCheckIn: segment-local frame 8 (tone + card starts to move; was frame 0).

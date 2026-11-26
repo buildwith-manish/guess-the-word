@@ -45,14 +45,22 @@ export const REVEAL_SFX = {
 
 export type RevealCue = { name: keyof typeof REVEAL_SFX; id: SfxId; tick: number; volume: number };
 
+/**
+ * Where in the sweep the answer is readable: the sweep edge (InkBubble soft edge 36%) has passed the bubble
+ * centre when d = 0.632, i.e. at 0.585 of the cosine-eased sweep. The `reveal` spring is at 90% by then too
+ * (it starts 35% into the sweep and is at 90% 9 ticks later). The chime lands here, not at the sweep end.
+ */
+const ANSWER_LANDS = 0.585;
+
 /** All reveal moments as local design ticks (30 fps), relative to the round's Sequence. */
 export const revealTimes = (card: Round, start: number) => {
   const beat = secToTicks(beatSec);
   const dissolve = secToTicks(revealSec - beatSec);
   const revealFrom = start + beat;
   const answerFull = revealFrom + dissolve;
+  const answerLands = revealFrom + Math.round(dissolve * ANSWER_LANDS);
   const resultAt = revealFrom + secToTicks(revealSecFor(card));
-  return { beatFrom: start, beatTicks: beat, revealFrom, dissolveTicks: dissolve, answerFull, resultAt };
+  return { beatFrom: start, beatTicks: beat, revealFrom, dissolveTicks: dissolve, answerFull, answerLands, resultAt };
 };
 
 /** Sound cues for this reveal. The ink-dissolve file is stereo with its pan baked in. */
@@ -64,7 +72,7 @@ export const revealCues = (card: Round, start: number): RevealCue[] => {
     tick,
     volume: REVEAL_SFX[name].volume,
   });
-  return [cue('shake', t.beatFrom), cue('click', t.revealFrom), cue('dissolve', t.revealFrom), cue('chime', t.answerFull)];
+  return [cue('shake', t.beatFrom), cue('click', t.revealFrom), cue('dissolve', t.revealFrom), cue('chime', t.answerLands)];
 };
 
 const easeInOut = (x: number): number => 0.5 - 0.5 * Math.cos(Math.PI * clamp01(x));
