@@ -1,5 +1,5 @@
 /**
- * CountdownNumber: a plain glass pill (glassSurface, tinted with the level accent) placed just
+ * CountdownNumber: a plain glass pill (glassSurface, tinted with the level accent; never filled red) placed just
  * under the waveform. Big tabular seconds (Nunito ExtraBold), a thin accent progress line inside
  * the pill that fills over the timer. The number and line turn red for the last URGENT_SECONDS
  * (shared/timerMath) and a red edge pulse beats on every remaining frame.
@@ -25,7 +25,13 @@ const L = { w: 220, h: 112, radius: 56, numberSize: 76, lineH: 5, lineInset: 30,
 const LEAD_IN = 6;
 /** Number crossfade and red fade-in, in ticks. */
 const SWAP_TICKS = 6;
-const RED_TICKS = 8;
+/** The number and line fade to red over this many ticks at the start of the urgent window. */
+const RED_TICKS = 6;
+/** Red edge pulse: fade-in at the urgent start, quick rise then ease-out fall on each second, fade-out at the timer end. */
+const EDGE_IN_TICKS = 8;
+const EDGE_RISE_TICKS = 4;
+const EDGE_OUT_TICKS = 6;
+const EDGE_PEAK = 0.57; // old peak was 0.85; about a third lower
 
 const hex = (c: string): [number, number, number] => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16)) as [number, number, number];
 /** Blend two #rrggbb colours, k 0..1. */
@@ -55,14 +61,22 @@ export const EdgeBeat: React.FC<{ level: Level; at: number; durationSec?: number
   const dur = secToTicks(durationSec ?? timerSecFor(level));
   const m = timerMath(t, at, dur);
   const on = m.urgent && m.left > 0;
-  // Never fully off while urgent: 0.35 floor, beats up on each second.
-  const a = on ? (0.35 + 0.5 * m.pulse) * easeOut(m.urgentTicks / RED_TICKS) : 0;
+  // quick rise, then a long ease-out fall to nothing within the second
+  const beat = m.tickInSecond < EDGE_RISE_TICKS
+    ? easeOut(m.tickInSecond / EDGE_RISE_TICKS)
+    : 1 - easeOut((m.tickInSecond - EDGE_RISE_TICKS) / (FPS - EDGE_RISE_TICKS), 2);
+  const a = on ? EDGE_PEAK * beat * easeOut(m.urgentTicks / EDGE_IN_TICKS) * easeOut(m.left / EDGE_OUT_TICKS) : 0;
+  // Soft vignette, not a frame: closest-side so the edges carry the colour, and a corner mask so the
+  // corners are about half as strong (they never go solid dark red).
+  const cornerMask = 'radial-gradient(ellipse farthest-corner at 50% 50%, #000 70%, rgba(0,0,0,0.5) 100%)';
   return (
     <AbsoluteFill
       style={{
         pointerEvents: 'none',
         opacity: a,
-        boxShadow: `inset 0 0 ${px(90)}px ${px(18)}px ${SYSTEM.red}`,
+        background: `radial-gradient(ellipse closest-side at 50% 50%, transparent 58%, ${SYSTEM.red}E6 100%)`,
+        WebkitMaskImage: cornerMask,
+        maskImage: cornerMask,
       }}
     />
   );
@@ -117,18 +131,6 @@ export const CountdownNumber: React.FC<CountdownNumberProps> = ({ level, at, dur
           justifyContent: 'center',
         }}
       >
-        {/* red tint fades in over the pill (the pill itself is unchanged) */}
-        {redP > 0 ? (
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              borderRadius: px(L.radius),
-              background: `linear-gradient(160deg, ${SYSTEM.red}55, transparent)`,
-              opacity: redP,
-            }}
-          />
-        ) : null}
         <div style={{ display: 'grid', marginTop: -px(6) }}>
           {swap < 1 ? (
             <div style={{ gridArea: '1 / 1', ...numberStyle, color: tone, opacity: 1 - swap }}>{shown + 1}</div>

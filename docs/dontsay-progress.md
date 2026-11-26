@@ -677,3 +677,22 @@ Round-screen cleanup. Files touched: `src/dontsay/scenes/RoundScene.tsx`, `src/d
 
 ### Open
 - Nothing rendered. Plate/label size is arithmetic only. Hook.tsx and HeartCheckIn use HeartsPill too (same flat hearts, no code change there).
+
+## Task F2: DONE (tsc --noEmit clean; NOT rendered, `remotion still` failed: ENOTFOUND remotion.media, not retried)
+
+Files: `scenes/RoundScene.tsx`, `components/HeartsPill.tsx`, `components/CountdownNumber.tsx`.
+- **Top-left pills**: HeartsPill gets an optional `level` prop (RoundScene passes it; Hook/HeartCheckIn do not, so they stay white glass). Compact pill is exactly 44 high (`COMPACT_H`) with the same corner radius as the counter (`PILL_RADIUS_1920` = 33, i.e. 22 ref units), both via `glassSurface(..., { level })`, so tint, border, top rim and shadow match. Counter text now uses the same family (Inter, `fontHeadline`), 26 units, weight 800, tracking 0.06em, opacity 0.9 as the hearts label. Left edge (`HUD_LEFT` 64) and the 10-unit gap are unchanged; widths stay natural.
+- **Glow behind the prompt**: static radial ellipse, 60% of frame width (768 x 360 ref), level accent 16% at the centre to 8% at 45% to 0, centred on the card (y 300). It fades with the card (`promptIn * promptOut`). No pulse. The frame corners are untouched by it.
+- **Prompt card**: plain `glassSurface` with `level` (bright inner top rim, soft shadow, faint tint, 0.5-unit hairline). The 1.5-unit accent border and the accent outer glow are gone. Text weight 800 -> 700, size logic unchanged (max 92).
+- **Countdown**: the red tint layer over the pill is removed; the pill stays plain glass. The number and the progress line blend to red only in the urgent window, fade over 6 ticks (`RED_TICKS`, was 8).
+- **Red edge pulse (`EdgeBeat`)**: now a soft radial vignette (edges carry the colour, corner mask at 50%) instead of an inset solid shadow. Per urgent second: rise over 4 ticks, ease-out fall to 0 by the end of the second. Fade-in 8 ticks at the urgent start, fade-out over the last 6 ticks of the timer. Peak opacity 0.57 (was 0.85, about a third lower), no floor between beats.
+
+### Frames to check (DontSay-Round, round 1, 60 fps, round-local; timer 80-380 ticks-based frames from timing.ts)
+- 0 and 60: top-left pills match (tint, height, radius, text); glow behind the prompt; prompt card as glass.
+- Last 2 s of the timer: urgent starts at frame 320; beats at 320 and 380 (as computed from timer 80-380 in the M5 note: number changes at 140, 200, 260, 320); edge fade-in complete by 336; number and line red by about 332; no red fill on the pill.
+- A level's first round: hearts spring-in (flat red hearts, pill height 44).
+
+### Open
+- Glow strength (16%), vignette stops (58% / E6 alpha), corner mask (0.5) and peak 0.57 are my picks; not seen. "About a third lower" is peak opacity only, the gradient shape differs from the old inset shadow so perceived strength may differ.
+- Counter text is now Inter; before it was Nunito. Digits use `tabular`. Width changes slightly.
+- Glow sits above the wallpaper and below ExclusionChips; on rounds with chips the glow shows behind them.

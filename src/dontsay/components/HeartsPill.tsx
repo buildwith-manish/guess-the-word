@@ -9,6 +9,7 @@
  * the pill is then fully settled from frame 0 and does not animate at all.
  */
 import React from 'react';
+import type { Level } from '../data';
 import { colours, fontHeadline, glassSurface, springAt, STAGGER, SYSTEM } from '../system';
 import { WIDTH, useDontSayFrame } from '../timing';
 
@@ -27,6 +28,10 @@ const Heart: React.FC<{ size: number }> = ({ size }) => (
   </svg>
 );
 
+/** Compact pill: same height and corner radius as the round counter pill (RoundScene ROW_H = 44; radius 22 ref = 33 in glassSurface's 1920 units). */
+export const COMPACT_H = 44;
+export const PILL_RADIUS_1920 = 33;
+
 /** Heart size in reference units (was 38; 13% smaller). */
 const HEART_SIZE = 33;
 
@@ -42,9 +47,11 @@ export type HeartsPillProps = {
   top?: number;
   /** Smaller pill (44 ref units high) for the round screen. Label stays at least 26 units / 0.9 opacity. Default false. */
   compact?: boolean;
+  /** Level accent tint (glassSurface `level` option). Omit for the plain white glass used by other scenes. */
+  level?: Level;
 };
 
-export const HeartsPill: React.FC<HeartsPillProps> = ({ at, bonus = false, frame: frameProp, left = 128, top = 72, compact = false }) => {
+export const HeartsPill: React.FC<HeartsPillProps> = ({ at, bonus = false, frame: frameProp, left = 128, top = 72, compact = false, level }) => {
   const clock = useDontSayFrame();
   const frame = frameProp ?? clock;
   const animate = at !== undefined;
@@ -56,7 +63,7 @@ export const HeartsPill: React.FC<HeartsPillProps> = ({ at, bonus = false, frame
   return (
     <div style={{
       position: 'absolute', left: px(left), top: px(top), display: 'flex', alignItems: 'center', gap: px(14 * k),
-      ...glassSurface(40 * k), padding: `${px(10 * k)}px ${px(24 * k)}px ${px(10 * k)}px ${px(18 * k)}px`, height: px(64 * k),
+      ...glassSurface(compact ? PILL_RADIUS_1920 : 40, level ? { level } : {}), padding: `${px(10 * k)}px ${px(24 * k)}px ${px(10 * k)}px ${px(18 * k)}px`, height: px(compact ? COMPACT_H : 64 * k),
       opacity: pill, transform: `translateY(${(1 - pill) * px(-22)}px) scale(${0.9 + 0.1 * pill})`, transformOrigin: 'left top',
     }}>
       <div style={{ display: 'flex', gap: px(4) }}>

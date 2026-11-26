@@ -24,12 +24,12 @@ import '../shared/fonts';
 import { levelColors, rounds, type Round } from '../data';
 import { ExclusionChips } from '../components/ExclusionChips';
 import { CountdownNumber } from '../components/CountdownNumber';
-import { HeartsPill } from '../components/HeartsPill';
+import { HeartsPill, PILL_RADIUS_1920 } from '../components/HeartsPill';
 import { ListeningGlow } from '../components/ListeningGlow';
 import { AuroraWallpaper } from '../components/AuroraWallpaper';
 import { RevealEngine } from '../components/RevealEngine';
 import type { ResultOutcome } from '../components/ResultBeat';
-import { colours, fontHeadline, fontNumeric, easeOut, glassSurface, springAt, STAGGER, tabular } from '../system';
+import { colours, fontHeadline, easeOut, glassSurface, springAt, STAGGER, tabular } from '../system';
 import { segments, ticksToFrames, useDontSayFrame, WIDTH, type Range, type RoundPhases, type Segment } from '../timing';
 
 const REF_W = 1280;
@@ -48,6 +48,8 @@ const PROMPT = { left: SAFE_X, top: 235, width: REF_W - SAFE_X * 2, height: 130,
 const BACKDROP_BLUR = 6;
 /** Prompt exit length in ticks: shorter than its entrance. */
 const PROMPT_EXIT_TICKS = 8;
+/** Glow behind the prompt card: about 60% of the frame width, 16% accent at the centre. */
+const PROMPT_GLOW = { w: 0.6 * REF_W, h: 360, alphaHex: '29', midHex: '14' } as const;
 const PROMPT_MAX_SIZE = 92; // the prompt is the hero
 const PROMPT_FIT_WIDTH = PROMPT.width - 64; // inner width for the one-line fit
 /** Countdown: a plain glass pill, centred just under the waveform (which sits right under the card). */
@@ -108,20 +110,27 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
 
   const counterIn = Math.min(1, springAt(t, STAGGER.arrival * 2, 'soft'));
 
-  // prompt card chrome: the usual glass surface, plus one thin accent edge and a soft, low accent glow
-  // appended to (not replacing) the standard card shadow. Accent is style.accent (levelColors, data.ts):
-  // the only glow colour on this card.
-  const promptGlass = glassSurface(PROMPT.radius * (1920 / REF_W), { level: round.level });
-  const promptCardStyle: React.CSSProperties = {
-    ...promptGlass,
-    border: `${px(1.5)}px solid ${style.accent}55`,
-    boxShadow: `${promptGlass.boxShadow}, 0 0 ${px(60)}px ${style.accent}22`,
-  };
+  // prompt card: the same glass recipe as the pills (bright inner top rim, soft shadow, faint level tint,
+  // thin hairline border). No ring, no coloured outline.
+  const promptCardStyle: React.CSSProperties = glassSurface(PROMPT.radius * (1920 / REF_W), { level: round.level });
 
   return (
     <AbsoluteFill style={{ overflow: 'hidden' }}>
       {/* wallpaper: shared with the bonus screens; phase from the video clock so the drift carries across rounds */}
       <AuroraWallpaper level={round.level} clock={base + t} />
+      {/* soft accent glow centred behind the prompt card: static, no hard edge, frame corners stay dark */}
+      <div
+        style={{
+          position: 'absolute',
+          left: px(REF_W / 2 - PROMPT_GLOW.w / 2),
+          top: px(PROMPT.top + PROMPT.height / 2 - PROMPT_GLOW.h / 2),
+          width: px(PROMPT_GLOW.w),
+          height: px(PROMPT_GLOW.h),
+          background: `radial-gradient(ellipse closest-side at 50% 50%, ${style.accent}${PROMPT_GLOW.alphaHex} 0%, ${style.accent}${PROMPT_GLOW.midHex} 45%, transparent 100%)`,
+          opacity: promptIn * promptOut,
+          pointerEvents: 'none',
+        }}
+      />
       {chips && chipsOpacity > 0 ? (
         <div style={{ position: 'absolute', inset: 0, opacity: chipsOpacity }}>
           <ExclusionChips round={round} at={STAGGER.arrival * 2} />
@@ -158,7 +167,7 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
         <span
           style={{
             fontFamily: fontHeadline,
-            fontWeight: 800,
+            fontWeight: 700,
             fontSize: px(fit),
             lineHeight: 1.05,
             letterSpacing: '-0.03em',
@@ -178,7 +187,7 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
       ) : null}
 
       {/* static except on the level's first round, where it springs in once */}
-      <HeartsPill compact left={HUD_LEFT} top={TOP_ROW} at={isLevelFirst ? STAGGER.arrival : undefined} />
+      <HeartsPill compact level={round.level} left={HUD_LEFT} top={TOP_ROW} at={isLevelFirst ? STAGGER.arrival : undefined} />
 
       {/* round counter, top right, left of the small bubble; one line. Container fades in on entrance only;
           the label itself stays >=26 units and ~0.9 opacity so it reads clearly. */}
@@ -188,7 +197,7 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
           left: px(HUD_LEFT),
           top: px(TOP_ROW + ROW_H + 10),
           height: px(ROW_H),
-          ...glassSurface(30, { level: round.level }),
+          ...glassSurface(PILL_RADIUS_1920, { level: round.level }),
           display: 'flex',
           alignItems: 'center',
           padding: `0 ${px(18)}px`,
@@ -199,10 +208,10 @@ const Body: React.FC<{ round: Round; outcome: ResultOutcome; slideAt?: number; c
       >
         <span
           style={{
-            fontFamily: fontNumeric,
+            fontFamily: fontHeadline,
             fontWeight: 800,
             fontSize: px(26),
-            letterSpacing: '0.04em',
+            letterSpacing: '0.06em',
             color: colours.ink,
             opacity: 0.9,
             whiteSpace: 'nowrap',
