@@ -44,11 +44,13 @@ export const layout = {
   bubbleSmall: { top: 552, bottom: 644, left: 998.4, right: 1152 },
   /** Enlarged bubble, centre. Exists only after ruleZone and the prompt card have faded. */
   bubbleLarge: { top: 290, bottom: 590, left: 490, right: 790 },
-  /** Round 45 callback banned box: the bottom strip of ruleZone, clear of bubbleLarge (ends 590). */
-  round45Box: { top: 592, bottom: 640, left: 300, right: 980 },
+  /** Round 45 callback banned box: the bottom strip of ruleZone, at least ROUND45_MIN_GAP below bubbleLarge (ends 590). */
+  round45Box: { top: 600, bottom: 640, left: 300, right: 980 },
 } as const satisfies Record<string, Zone>;
 
 export const RULE_MAX_BOTTOM = 640;
+/** Least gap, reference units, between bubbleLarge's bottom and the round 45 banned strip. */
+export const ROUND45_MIN_GAP = 8;
 
 /**
  * Bonus screens (BonusWrapper, BonusMindReader, BonusChainReaction): shared geometry, reference units.

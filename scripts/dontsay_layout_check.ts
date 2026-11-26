@@ -13,7 +13,7 @@
  */
 import { bonuses, rounds } from '../src/dontsay/data';
 import {
-  BONUS_CHIP_TOP, BONUS_MIN_CHIP_GAP, BONUS_STAGE_TOP, CHAIN_LAYOUT, MIN_TEXT, REF, RULE_MAX_BOTTOM, SAFE_X, TEXT_EM, glowRect, layout, promptFontSize, promptWidth, PROMPT_PAD_X,
+  BONUS_CHIP_TOP, BONUS_MIN_CHIP_GAP, BONUS_STAGE_TOP, CHAIN_LAYOUT, MIN_TEXT, REF, ROUND45_MIN_GAP, RULE_MAX_BOTTOM, SAFE_X, TEXT_EM, glowRect, layout, promptFontSize, promptWidth, PROMPT_PAD_X,
   bonusChipHeight, mindReaderStripRect, ruleBlockHeight, ruleBlockWidth, ruleLayout, textWidth,
 } from '../src/dontsay/layout';
 
@@ -64,6 +64,9 @@ for (const round of rounds) {
     if (b.top < layout.ruleZone.top || b.bottom > RULE_MAX_BOTTOM || b.left < layout.ruleZone.left || b.right > layout.ruleZone.right) {
       problems.push(`round ${round.n}: callback box leaves ruleZone`);
     }
+    const bubbleGap = b.top - layout.bubbleLarge.bottom;
+    if (bubbleGap < ROUND45_MIN_GAP) problems.push(`round ${round.n}: callback box top ${b.top} is ${bubbleGap} below bubbleLarge bottom ${layout.bubbleLarge.bottom}, minimum ${ROUND45_MIN_GAP}`);
+    if (b.bottom > REF.h) problems.push(`round ${round.n}: callback box leaves the frame`);
   } else if (plan.kind !== 'none') {
     h = ruleBlockHeight(round);
     const w = ruleBlockWidth(round);
@@ -152,6 +155,7 @@ console.log(`counter pill -> prompt card gap: ${counterGap} units (minimum ${MIN
 console.log(`waveform (ListeningGlow, drawn) -> ruleZone gap: ${f(minWaveGap)} units over all rounds (minimum ${MIN_WAVE_GAP}); waveform y ${glowRect(1).top}..${glowRect(1).bottom}`);
 console.log(`bonus 1 lock strip right end ${f(strip.right)} -> bubbleSmall x ${bs.left}: gap ${f(stripGap)} (minimum ${BONUS_MIN_CHIP_GAP})`);
 for (const g of chipGaps) console.log('  ' + g);
+console.log(`round 45 banned strip: y ${layout.round45Box.top}..${layout.round45Box.bottom} (${layout.round45Box.bottom - layout.round45Box.top} high), gap to bubbleLarge bottom ${layout.bubbleLarge.bottom}: ${layout.round45Box.top - layout.bubbleLarge.bottom} units (minimum ${ROUND45_MIN_GAP})`);
 console.log('zones (reference units):');
 for (const [k, z] of Object.entries(layout)) console.log(`  ${k.padEnd(12)} top ${z.top} bottom ${z.bottom}` + ('left' in z ? `  left ${(z as { left: number }).left} right ${(z as { right: number }).right}` : ''));
 

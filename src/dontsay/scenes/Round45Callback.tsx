@@ -49,7 +49,7 @@ export const cardLaunchTick = (i: number): number => CARD_FIRST_TICK + i * CARD_
 export const cardLandTick = (i: number): number => cardLaunchTick(i) + CARD_FLIGHT_TICKS;
 
 /* ---------- layout (reference units, 1280x720) ---------- */
-/** Banned box: the bottom strip of layout.ruleZone (position only; clear of the large bubble, which ends at y 590). */
+/** Banned box: the bottom strip of layout.ruleZone (position only; at least ROUND45_MIN_GAP below the large bubble, which ends at y 590). */
 const BOX = { left: layout.round45Box.left, width: layout.round45Box.right - layout.round45Box.left, top: layout.round45Box.top, height: layout.round45Box.bottom - layout.round45Box.top, radius: 24, pad: 4, gap: 12 } as const;
 const CARD_FONT = 30;
 
@@ -152,10 +152,11 @@ const FruitCard: React.FC<{ label: string; i: number; n: number; t: number }> = 
                 position: 'absolute',
                 left: px(-8),
                 top: '52%',
-                height: px(4),
+                height: px(2.5),
                 width: `calc(${strike * 100}% + ${px(16) * strike}px)`,
-                borderRadius: px(2),
+                borderRadius: px(1.25),
                 background: SYSTEM.red,
+                opacity: 0.7, // thinner and a little transparent: the banned word stays readable
                 transform: 'rotate(-4deg)',
                 transformOrigin: 'left center',
               }}
